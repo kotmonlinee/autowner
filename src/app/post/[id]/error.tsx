@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { logError } from "@/lib/error-logging";
 
 export default function PostError({
   error,
@@ -12,6 +13,7 @@ export default function PostError({
 }) {
   useEffect(() => {
     console.error("Post page error:", error);
+    logError(error, { url: window.location.pathname });
   }, [error]);
 
   return (

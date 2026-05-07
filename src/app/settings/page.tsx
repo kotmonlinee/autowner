@@ -78,7 +78,7 @@ export default function SettingsPage() {
     return (
       <div className="min-h-screen bg-surface-0 flex flex-col">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center">
+        <main id="main-content" className="flex-1 flex items-center justify-center">
           <div className="w-5 h-5 border-2 border-surface-border border-t-primary rounded-full animate-spin" />
         </main>
         <Footer />
@@ -98,7 +98,7 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-2xl mx-auto px-5 py-10 w-full">
+      <main id="main-content" className="flex-1 max-w-2xl mx-auto px-5 py-10 w-full">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-text-primary font-heading">
             Settings

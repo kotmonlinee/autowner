@@ -42,7 +42,7 @@ export default function Pagination({
       aria-label="Pagination"
     >
       {hasPrev ? (
-        <Link href={buildHref(page - 1)} className={`${btnBase} ${btnEnabled}`}>
+        <Link href={buildHref(page - 1)} className={`${btnBase} ${btnEnabled}`} aria-label="Previous page">
           ← Previous
         </Link>
       ) : (
@@ -51,12 +51,15 @@ export default function Pagination({
         </span>
       )}
 
-      <span className="px-4 py-2 text-sm font-medium text-text-muted font-heading bg-surface-1 rounded-lg border border-surface-border">
+      <span
+        className="px-4 py-2 text-sm font-medium text-text-muted font-heading bg-surface-1 rounded-lg border border-surface-border"
+        aria-current="page"
+      >
         Page {page} of ~{totalPages}
       </span>
 
       {hasNext ? (
-        <Link href={buildHref(page + 1)} className={`${btnBase} ${btnEnabled}`}>
+        <Link href={buildHref(page + 1)} className={`${btnBase} ${btnEnabled}`} aria-label="Next page">
           Next →
         </Link>
       ) : (

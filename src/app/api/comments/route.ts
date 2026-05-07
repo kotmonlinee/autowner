@@ -1,13 +1,18 @@
-// TODO: Rate limiting — add IP-based rate limiting in production (e.g. using Upstash Redis
-// or Vercel KV). Each IP should be limited to ~5 comments per minute to prevent spam.
 import { insertComment, getCurrentUser } from "@/lib/data/server";
 import { createServerSupabase } from "@/lib/supabase-server";
+import { checkContent } from "@/lib/moderation";
+import { withRateLimit } from "@/lib/rate-limit";
+import { sendNotificationEmailSimple } from "@/lib/email";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) return NextResponse.json({ error: "Login required" }, { status: 401 });
+
+    // Rate limit: 5 comments per minute per user
+    const limited = await withRateLimit(user.id, "comments:create", 5, 60);
+    if (limited) return limited;
 
     let body: { postId?: string; body?: string };
     try {
@@ -22,6 +27,12 @@ export async function POST(request: Request) {
     }
     if (!commentBody || typeof commentBody !== "string" || commentBody.trim().length === 0) {
       return NextResponse.json({ error: "Comment body is required" }, { status: 400 });
+    }
+
+    // Content moderation
+    const modResult = checkContent(commentBody);
+    if (modResult.flagged) {
+      return NextResponse.json({ error: modResult.reason ?? "Content flagged by moderation" }, { status: 400 });
     }
 
     const comment = await insertComment(postId, user.id, commentBody.trim());
@@ -45,6 +56,16 @@ export async function POST(request: Request) {
           type: "post_comment",
           message: `${commenterName} commented on your post ${post.title}`,
           link: `/post/${postId}`,
+        });
+
+        // Send email notification (logs in dev mode; configure EMAIL_PROVIDER for production)
+        sendNotificationEmailSimple(
+          post.author_id,
+          `${commenterName} commented on your post`,
+          `${commenterName} commented on your post "${post.title}" on AutOwner.`,
+          `/post/${postId}`,
+        ).catch((e) => {
+          console.error("Failed to send notification email:", e instanceof Error ? e.message : e);
         });
       }
     } catch (e: unknown) {

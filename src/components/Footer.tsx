@@ -10,7 +10,7 @@ const footerLinks = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-surface-border bg-surface-1">
+    <footer className="border-t border-surface-border bg-surface-1" role="contentinfo">
       <div className="max-w-7xl mx-auto px-5 py-10">
         <NewsletterForm />
 

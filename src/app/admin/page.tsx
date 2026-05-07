@@ -67,13 +67,50 @@ async function getAdminStats(): Promise<AdminStats> {
   };
 }
 
+interface RecentUser {
+  id: string;
+  username: string;
+  created_at: string;
+  post_count: number;
+}
+
+async function getRecentUsers(limit = 20): Promise<RecentUser[]> {
+  const supabase = await createServerSupabase();
+
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, username, created_at")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (!profiles?.length) return [];
+
+  // Fetch post counts for each user
+  const users: RecentUser[] = [];
+  for (const p of profiles) {
+    const { count } = await supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("author_id", p.id);
+    users.push({
+      id: p.id,
+      username: p.username,
+      created_at: p.created_at,
+      post_count: count ?? 0,
+    });
+  }
+
+  return users;
+}
+
 export default async function AdminPage({ searchParams }: { searchParams?: Promise<{ q?: string }> }) {
   const sp = await Promise.resolve(searchParams);
   const searchQuery = sp?.q ?? "";
-  const [posts, stats, searchResults] = await Promise.all([
+  const [posts, stats, searchResults, users] = await Promise.all([
     getPendingPosts(),
     getAdminStats(),
     searchQuery ? searchPostsAdmin(searchQuery) : Promise.resolve(null),
+    getRecentUsers(),
   ]);
 
   return (
@@ -299,6 +336,69 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Recent Users ── */}
+      <div className="mt-12 pt-8 border-t border-surface-border">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-bold text-text-primary font-heading">Recent Users</h2>
+            <p className="text-sm text-text-muted mt-1">Recently joined members and their post counts</p>
+          </div>
+        </div>
+
+        {users.length === 0 ? (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-12 text-center">
+            <p className="text-text-secondary font-heading font-semibold">No users yet</p>
+            <p className="text-sm text-text-muted mt-1">User registrations will appear here</p>
+          </div>
+        ) : (
+          <div className="bg-surface-1 rounded-xl border border-surface-border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-surface-border bg-surface-2/50">
+                  <th className="text-left px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider font-heading">
+                    Username
+                  </th>
+                  <th className="text-left px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider font-heading">
+                    Joined
+                  </th>
+                  <th className="text-right px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider font-heading">
+                    Posts
+                  </th>
+                  <th className="text-right px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider font-heading">
+                    Profile
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-surface-border">
+                {users.map((user) => (
+                  <tr key={user.id} className="hover:bg-surface-2/30 transition-colors">
+                    <td className="px-4 py-3">
+                      <span className="text-text-primary font-semibold font-heading">{user.username}</span>
+                    </td>
+                    <td className="px-4 py-3 text-text-muted whitespace-nowrap">
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span className="text-text-primary font-bold font-heading tabular-nums">
+                        {user.post_count}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        href={`/user/${user.username}`}
+                        className="text-primary hover:text-primary-glow text-xs font-bold font-heading transition-colors"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

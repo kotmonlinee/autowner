@@ -15,7 +15,7 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <Navbar />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <div className="max-w-3xl mx-auto px-5 py-16 sm:py-24">
           {/* Header */}
           <div className="mb-12">

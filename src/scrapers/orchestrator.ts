@@ -1,4 +1,5 @@
 import { createServiceSupabase } from "@/lib/supabase-server";
+import { checkScrapedContent } from "@/lib/moderation";
 import { sources } from "./sources";
 
 const PUSHSHIFT_URL = "https://api.pullpush.io/reddit/search/submission/";
@@ -166,6 +167,10 @@ async function scrapeSource(source: typeof sources[0]): Promise<{ inserted: numb
     if (shouldSkip(title, rawBody, images)) { skipped++; continue; }
 
     const body = buildPostBody(post, rawBody, images);
+
+    // Content moderation: skip posts that look like spam/gibberish
+    const modResult = checkScrapedContent(title, body);
+    if (modResult.flagged) { skipped++; continue; }
 
     const { error } = await supabase.from("posts").insert({
       title,

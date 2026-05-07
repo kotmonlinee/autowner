@@ -46,6 +46,8 @@ export default function FeaturedCarousel({
   return (
     <section
       className="mb-6"
+      aria-roledescription="carousel"
+      aria-label="Featured posts"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -208,7 +210,8 @@ export default function FeaturedCarousel({
                 <button
                   key={i}
                   onClick={() => goTo(i)}
-                  aria-label={`Go to slide ${i + 1}`}
+                  aria-label={`Go to slide ${i + 1} of ${total}`}
+                  aria-current={i === current ? "true" : undefined}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
                     i === current
                       ? "bg-primary w-5"

@@ -78,6 +78,31 @@ body::before {
   border-radius: 2px;
 }
 
+/* Screen-reader-only utility (fallback in case Tailwind's sr-only differs) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only.focus\:not-sr-only:focus,
+.focus\:not-sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: revert;
+  margin: revert;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
 /* Staggered fade-in for post feed */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(12px); }
@@ -148,4 +173,65 @@ body::before {
   border: none;
   border-top: 1px solid var(--color-surface-border);
   margin: 1.5em 0;
+}
+
+/* ── Light theme overrides ────────────────────────────────── */
+
+/* Tailwind v4 @theme generates utility classes that reference var(--color-*).
+   We override those CSS custom properties based on the .dark class.
+   When .dark is absent, the :root (light) values apply. */
+
+:root {
+  --color-surface-0: #f8f9fb;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #f3f4f6;
+  --color-surface-3: #e5e7eb;
+  --color-surface-4: #d1d5db;
+  --color-surface-border: #d4d4d8;
+  --color-text-primary: #111318;
+  --color-text-secondary: #4b5563;
+  --color-text-muted: #9ca3af;
+}
+
+.dark {
+  --color-surface-0: #0a0b0f;
+  --color-surface-1: #111318;
+  --color-surface-2: #181b21;
+  --color-surface-3: #1f2229;
+  --color-surface-4: #282c34;
+  --color-surface-border: #2a2d35;
+  --color-text-primary: #f0f1f3;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+}
+
+/* Adjust body grid texture for light mode */
+:root body::before {
+  opacity: 0.04;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px);
+}
+
+.dark body::before {
+  opacity: 0.03;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+}
+
+/* Adjust scrollbar for light mode */
+:root ::-webkit-scrollbar-track { background: #f3f4f6; }
+:root ::-webkit-scrollbar-thumb { background: #d1d5db; }
+:root ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* Adjust selection for light mode */
+:root ::selection {
+  background: rgba(237, 28, 36, 0.15);
+  color: #111318;
+}
+
+/* Prose adjustments for light mode */
+:root .prose-dark code {
+  background: #e5e7eb;
 }

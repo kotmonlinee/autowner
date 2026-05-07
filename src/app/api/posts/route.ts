@@ -1,12 +1,16 @@
-// TODO: Rate limiting — add IP-based rate limiting in production (e.g. using Upstash Redis
-// or Vercel KV). Each IP should be limited to ~3 posts per hour to prevent spam.
 import { createPost, getCurrentUser } from "@/lib/data/server";
+import { checkContent } from "@/lib/moderation";
+import { withRateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) return NextResponse.json({ error: "Login required" }, { status: 401 });
+
+    // Rate limit: 3 posts per hour per user
+    const limited = await withRateLimit(user.id, "posts:create", 3, 3600);
+    if (limited) return limited;
 
     let body: { title?: string; body?: string; categoryId?: string; tags?: unknown };
     try {
@@ -25,6 +29,12 @@ export async function POST(request: Request) {
     }
     if (!Array.isArray(tags ?? [])) {
       return NextResponse.json({ error: "Tags must be an array" }, { status: 400 });
+    }
+
+    // Content moderation
+    const modResult = checkContent(title, postBody);
+    if (modResult.flagged) {
+      return NextResponse.json({ error: modResult.reason ?? "Content flagged by moderation" }, { status: 400 });
     }
 
     const id = await createPost({

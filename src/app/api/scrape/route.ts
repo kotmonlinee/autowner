@@ -1,8 +1,6 @@
-// TODO: Rate limiting — add IP-based rate limiting in production (e.g. using Upstash Redis
-// or Vercel KV). Scraping is expensive and should be limited to ~1 trigger per minute per
-// admin user, or use a cron job instead of manual triggering.
 import { getCurrentUser } from "@/lib/data/server";
 import { runScrape } from "@/scrapers/orchestrator";
+import { withRateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -14,6 +12,10 @@ export async function POST(request: Request) {
     if (secret !== process.env.SCRAPE_API_SECRET) {
       return NextResponse.json({ error: "Invalid secret" }, { status: 403 });
     }
+
+    // Rate limit: 1 scrape per minute per user
+    const limited = await withRateLimit(user.id, "scrape:trigger", 1, 60);
+    if (limited) return limited;
 
     const result = await runScrape();
     return NextResponse.json(result);

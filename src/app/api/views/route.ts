@@ -1,11 +1,37 @@
-// TODO: Rate limiting — add IP-based rate limiting in production (e.g. using Upstash Redis
-// or Vercel KV). Each IP should be limited to ~1 view per second per post to prevent
-// artificial view count inflation.
 import { createServiceSupabase } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
+
+/**
+ * Extract a basic IP identifier from the request headers.
+ * Uses x-forwarded-for (common on Vercel) or falls back to "unknown".
+ */
+function getClientIp(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+  return "unknown";
+}
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+
+    // Rate limit: 60 views per minute per IP (generous — viewing is fine)
+    const result = await rateLimit(ip, "views:increment", 60, 60);
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.max(0, result.reset - Math.ceil(Date.now() / 1000))),
+          },
+        },
+      );
+    }
+
     let body: { postId?: string };
     try {
       body = await request.json();

@@ -17,6 +17,9 @@ export interface Database {
       votes: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       bookmarks: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       notifications: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      rate_limits: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      views: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      error_logs: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -33,7 +36,7 @@ export type Post = {
   category_id: string | null;
   source: "user" | "scraped";
   source_url: string | null;
-  status: "approved" | "pending" | "rejected";
+  status: "approved" | "pending" | "rejected" | "deleted";
   content_type?: string | null;
   is_pinned?: boolean | null;
   vote_score: number;

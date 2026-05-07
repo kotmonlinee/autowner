@@ -74,7 +74,7 @@ export default async function UserProfilePage({
   return (
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <Navbar />
-      <div className="max-w-4xl mx-auto px-5 py-6 flex-1">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         {/* Profile Header */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-6 mb-6">
           <div className="flex items-start gap-4">
@@ -261,7 +261,7 @@ export default async function UserProfilePage({
             )}
           </>
         )}
-      </div>
+      </main>
       <Footer />
     </div>
   );

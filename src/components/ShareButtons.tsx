@@ -44,6 +44,7 @@ export default function ShareButtons({ title, url }: { title: string; url: strin
         {/* Copy Link */}
         <button
           onClick={handleCopyLink}
+          aria-label={copied ? "Link copied" : "Copy link to clipboard"}
           className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-2 border border-surface-border rounded-lg text-xs text-text-secondary hover:text-text-primary hover:border-surface-4 hover:bg-surface-3 transition-all duration-150"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,6 +63,7 @@ export default function ShareButtons({ title, url }: { title: string; url: strin
         {/* Share on X */}
         <button
           onClick={shareX}
+          aria-label="Share on X (Twitter)"
           className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-2 border border-surface-border rounded-lg text-xs text-text-secondary hover:text-text-primary hover:border-surface-4 hover:bg-surface-3 transition-all duration-150"
         >
           <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -73,6 +75,7 @@ export default function ShareButtons({ title, url }: { title: string; url: strin
         {/* Share on Facebook */}
         <button
           onClick={shareFacebook}
+          aria-label="Share on Facebook"
           className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-2 border border-surface-border rounded-lg text-xs text-text-secondary hover:text-text-primary hover:border-surface-4 hover:bg-surface-3 transition-all duration-150"
         >
           <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">

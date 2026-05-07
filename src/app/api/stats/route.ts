@@ -1,7 +1,6 @@
-// TODO: Rate limiting — add IP-based rate limiting in production (e.g. using Upstash Redis
-// or Vercel KV). Stats endpoint should be cached (e.g. 5-minute stale-while-revalidate) to
-// reduce DB load; rate limiting provides a backstop against aggressive polling.
 import { createServerSupabase } from "@/lib/supabase-server";
+import { getCurrentUser } from "@/lib/data/server";
+import { withRateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export interface StatsResponse {
@@ -14,8 +13,14 @@ export interface StatsResponse {
   postsBySource: { user: number; scraped: number };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    // Rate limit: 10 requests per minute per user (or IP if unauthenticated)
+    const user = await getCurrentUser();
+    const identifier = user?.id ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
+    const limited = await withRateLimit(identifier, "stats:read", 10, 60);
+    if (limited) return limited;
+
     const supabase = await createServerSupabase();
 
     // ── Total counts ────────────────────────────────────

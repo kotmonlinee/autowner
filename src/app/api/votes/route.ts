@@ -1,12 +1,15 @@
-// TODO: Rate limiting — add IP-based rate limiting in production (e.g. using Upstash Redis
-// or Vercel KV). Each IP should be limited to ~30 vote actions per minute to prevent abuse.
 import { processVote, getCurrentUser } from "@/lib/data/server";
+import { withRateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Rate limit: 30 votes per minute per user
+    const limited = await withRateLimit(user.id, "votes:create", 30, 60);
+    if (limited) return limited;
 
     let body: { targetType?: string; targetId?: string; direction?: string };
     try {

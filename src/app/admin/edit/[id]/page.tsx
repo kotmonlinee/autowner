@@ -35,6 +35,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
     { value: "approved", label: "Approved", color: "text-emerald-400" },
     { value: "pending", label: "Pending", color: "text-amber-400" },
     { value: "rejected", label: "Rejected", color: "text-red-400" },
+    { value: "deleted", label: "Deleted", color: "text-slate-400" },
   ];
 
   return (

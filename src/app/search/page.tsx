@@ -22,7 +22,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   return (
     <div className="min-h-screen bg-surface-0 relative">
       <Navbar />
-      <div className="max-w-3xl mx-auto px-5 py-6">
+      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 w-full">
         <div className="mb-6">
           <h1 className="text-xl font-bold text-text-primary font-heading">
             {q ? `Results for "${q}"` : "Search"}
@@ -43,7 +43,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <p className="text-sm text-text-muted mt-1">Try different keywords</p>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

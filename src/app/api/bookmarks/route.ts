@@ -1,12 +1,15 @@
-// TODO: Rate limiting — add IP-based rate limiting in production (e.g. using Upstash Redis
-// or Vercel KV). Each IP should be limited to ~20 bookmark toggles per minute to prevent abuse.
 import { toggleBookmark, getCurrentUser } from "@/lib/data/server";
+import { withRateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Rate limit: 20 bookmark toggles per minute per user
+    const limited = await withRateLimit(user.id, "bookmarks:toggle", 20, 60);
+    if (limited) return limited;
 
     let body: { postId?: string };
     try {

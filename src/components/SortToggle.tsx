@@ -19,6 +19,7 @@ export default function SortToggle() {
         <button
           key={sort}
           onClick={() => handleSort(sort)}
+          aria-pressed={current === sort}
           className={`flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium rounded-md transition-all duration-150 font-heading ${
             current === sort
               ? "bg-surface-3 text-text-primary shadow-sm"

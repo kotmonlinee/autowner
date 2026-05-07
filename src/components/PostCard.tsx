@@ -38,6 +38,7 @@ export default function PostCard({
 }) {
   return (
     <article
+      role="article"
       className="group flex gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-surface-4 transition-all duration-200 animate-fade-in hover:bg-surface-2/50"
       style={{ animationDelay: `${index * 60}ms` }}
     >
@@ -83,7 +84,7 @@ export default function PostCard({
         </div>
 
         {/* Title */}
-        <Link href={`/post/${post.id}`}>
+        <Link href={`/post/${post.id}`} aria-label={`Read: ${post.title}`}>
           <h3 className="text-[15px] font-semibold text-text-primary line-clamp-2 group-hover:text-primary transition-colors duration-150 font-heading leading-snug">
             {post.title}
           </h3>

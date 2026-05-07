@@ -86,6 +86,8 @@ export default function NotificationBell({ userId }: { userId: string }) {
         className="relative p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
         title="Notifications"
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
       >
         <svg
           className="w-4.5 h-4.5"

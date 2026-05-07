@@ -134,6 +134,17 @@ export async function getPostByIdAdmin(id: string): Promise<PostWithRelations | 
   return data ? (data as unknown as PostWithRelations) : null;
 }
 
+/** Fetch post by ID regardless of status (for deleted post page rendering). */
+export async function getPostByIdAny(id: string): Promise<PostWithRelations | null> {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from("posts")
+    .select("*, profiles(username), categories(name, slug), post_tags(car_tags(name, slug))")
+    .eq("id", id)
+    .single();
+  return data ? (data as unknown as PostWithRelations) : null;
+}
+
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -540,6 +551,99 @@ export async function insertNotification(opts: {
 export async function updateUsername(userId: string, username: string) {
   const supabase = await createServerSupabase();
   const { error } = await supabase.from("profiles").update({ username }).eq("id", userId);
+  if (error) throw error;
+}
+
+// ── Post editing (author-scoped) ─────────────────────────
+
+export async function editOwnPost(
+  id: string,
+  userId: string,
+  data: { title?: string; body?: string },
+): Promise<void> {
+  const supabase = await createServerSupabase();
+
+  // Verify ownership
+  const { data: post } = await supabase
+    .from("posts")
+    .select("author_id, status")
+    .eq("id", id)
+    .single();
+
+  if (!post) throw new Error("Post not found");
+  if (post.author_id !== userId) throw new Error("You can only edit your own posts");
+  if (post.status === "deleted") throw new Error("Cannot edit a deleted post");
+
+  const updateData: Record<string, string> = {};
+  if (data.title !== undefined) updateData.title = data.title;
+  if (data.body !== undefined) updateData.body = data.body;
+  updateData.updated_at = new Date().toISOString();
+
+  const { error } = await supabase.from("posts").update(updateData).eq("id", id);
+  if (error) throw error;
+}
+
+export async function softDeleteOwnPost(id: string, userId: string): Promise<void> {
+  const supabase = await createServerSupabase();
+
+  const { data: post } = await supabase
+    .from("posts")
+    .select("author_id")
+    .eq("id", id)
+    .single();
+
+  if (!post) throw new Error("Post not found");
+  // Only the author or an admin can soft-delete. Admin check is done by the API route.
+  if (post.author_id !== userId) throw new Error("You can only delete your own posts");
+
+  const { error } = await supabase
+    .from("posts")
+    .update({ status: "deleted", updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+// ── Comment editing (author-scoped) ──────────────────────
+
+export async function editOwnComment(
+  id: string,
+  userId: string,
+  body: string,
+): Promise<void> {
+  const supabase = await createServerSupabase();
+
+  const { data: comment } = await supabase
+    .from("comments")
+    .select("author_id")
+    .eq("id", id)
+    .single();
+
+  if (!comment) throw new Error("Comment not found");
+  if (comment.author_id !== userId) throw new Error("You can only edit your own comments");
+
+  const { error } = await supabase
+    .from("comments")
+    .update({ body })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteOwnComment(id: string, userId: string): Promise<void> {
+  const supabase = await createServerSupabase();
+
+  const { data: comment } = await supabase
+    .from("comments")
+    .select("author_id")
+    .eq("id", id)
+    .single();
+
+  if (!comment) throw new Error("Comment not found");
+  if (comment.author_id !== userId) throw new Error("You can only delete your own comments");
+
+  // Clean up votes on this comment first
+  await supabase.from("votes").delete().eq("target_type", "comment").eq("target_id", id);
+  // Delete the comment (hard delete — comments are lightweight; the trigger handles comment_count)
+  const { error } = await supabase.from("comments").delete().eq("id", id);
   if (error) throw error;
 }
 

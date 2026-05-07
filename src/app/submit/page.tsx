@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { fetchCategories } from "@/lib/data/browser";
 import CarTagInput from "@/components/CarTagInput";
+import ImageUploader from "@/components/ImageUploader";
+import MarkdownBody from "@/components/MarkdownBody";
 
 export default function SubmitPage() {
   const [title, setTitle] = useState("");
@@ -14,6 +16,8 @@ export default function SubmitPage() {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
+  const [previewMode, setPreviewMode] = useState<"write" | "preview">("write");
   const router = useRouter();
 
   useEffect(() => {
@@ -39,6 +43,25 @@ export default function SubmitPage() {
     }
   };
 
+  const handleImageUploaded = (url: string) => {
+    setUploadedUrls((prev) => [...prev, url]);
+  };
+
+  const handleCopyUrl = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Clipboard API may not be available; silently fail
+    }
+  };
+
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const copyUrl = async (url: string, idx: number) => {
+    await handleCopyUrl(url);
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 2000);
+  };
+
   return (
     <div className="min-h-screen bg-surface-0 relative">
       <nav className="sticky top-0 z-50 bg-surface-0/80 backdrop-blur-xl border-b border-surface-border h-16 flex items-center px-5">
@@ -54,7 +77,7 @@ export default function SubmitPage() {
         </Link>
       </nav>
 
-      <div className="max-w-3xl mx-auto px-5 py-8">
+      <main id="main-content" className="max-w-3xl mx-auto px-5 py-8 w-full">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-text-primary font-heading">Create a Post</h1>
           <p className="text-sm text-text-muted mt-1">Share your knowledge with the community</p>
@@ -86,12 +109,82 @@ export default function SubmitPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading">Body <span className="text-text-muted font-normal normal-case tracking-normal">(Markdown)</span></label>
-            <textarea
-              value={body} onChange={e => setBody(e.target.value)} required rows={14}
-              placeholder="Write your post content here..."
-              className="w-full px-4 py-3 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted resize-y font-mono"
-            />
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-text-muted font-heading">
+                Body <span className="text-text-muted font-normal normal-case tracking-normal">(Markdown)</span>
+              </label>
+              {/* Write / Preview tabs */}
+              <div className="flex rounded-lg bg-surface-2 border border-surface-border overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode("write")}
+                  className={`px-3 py-1 text-xs font-semibold font-heading transition-colors ${
+                    previewMode === "write"
+                      ? "bg-primary text-white"
+                      : "text-text-muted hover:text-text-secondary"
+                  }`}
+                >
+                  Write
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode("preview")}
+                  className={`px-3 py-1 text-xs font-semibold font-heading transition-colors ${
+                    previewMode === "preview"
+                      ? "bg-primary text-white"
+                      : "text-text-muted hover:text-text-secondary"
+                  }`}
+                >
+                  Preview
+                </button>
+              </div>
+            </div>
+            {previewMode === "write" ? (
+              <textarea
+                value={body} onChange={e => setBody(e.target.value)} required rows={14}
+                placeholder="Write your post content here..."
+                className="w-full px-4 py-3 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted resize-y font-mono"
+              />
+            ) : (
+              <div className="w-full min-h-[14rem] px-4 py-3 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border overflow-y-auto">
+                {body.trim() ? (
+                  <MarkdownBody content={body} />
+                ) : (
+                  <p className="text-text-muted italic">Nothing to preview yet...</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Image uploader */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading">
+              Images
+              <span className="text-text-muted font-normal normal-case tracking-normal"> (upload then paste URL into body)</span>
+            </label>
+            <ImageUploader onChange={handleImageUploaded} />
+            {uploadedUrls.length > 0 && (
+              <div className="mt-2 space-y-1.5">
+                <p className="text-xs text-text-muted font-medium">Uploaded images:</p>
+                {uploadedUrls.map((url, idx) => (
+                  <div key={`${url}-${idx}`} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={url}
+                      readOnly
+                      className="flex-1 px-3 py-1.5 bg-surface-2 text-text-secondary text-xs rounded-lg border border-surface-border font-mono truncate"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => copyUrl(url, idx)}
+                      className="shrink-0 px-2.5 py-1 text-xs font-semibold rounded-lg transition-all font-heading border border-surface-border text-text-secondary hover:text-text-primary hover:border-surface-4"
+                    >
+                      {copiedIdx === idx ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
@@ -111,7 +204,7 @@ export default function SubmitPage() {
             </Link>
           </div>
         </form>
-      </div>
+      </main>
     </div>
   );
 }

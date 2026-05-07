@@ -53,6 +53,7 @@ export default function VoteButtons({
             : "text-text-muted hover:text-primary hover:bg-surface-3"
         }`}
         aria-label="Upvote"
+        aria-pressed={userVote === "up"}
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 4l-8 8h5v8h6v-8h5z" />
@@ -71,6 +72,7 @@ export default function VoteButtons({
             : "text-text-muted hover:text-blue-400 hover:bg-surface-3"
         }`}
         aria-label="Downvote"
+        aria-pressed={userVote === "down"}
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 20l8-8h-5V4H9v8H4z" />

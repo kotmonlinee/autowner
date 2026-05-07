@@ -17,7 +17,7 @@ export default async function Sidebar({ active }: { active?: string }) {
 
   return (
     <aside className="w-52 shrink-0 hidden md:block">
-      <nav className="sticky top-20 space-y-0.5">
+      <nav className="sticky top-20 space-y-0.5" aria-label="Categories">
         <div className="px-2 pb-2 mb-2 border-b border-surface-border">
           <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted font-heading">Browse</p>
         </div>

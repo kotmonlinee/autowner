@@ -68,7 +68,7 @@ export default async function HomePage({
       <Navbar />
       <div className="max-w-7xl mx-auto px-5 py-6 flex gap-8 flex-1">
         <Sidebar active={categorySlug} />
-        <main className="flex-1 min-w-0 relative z-[1]">
+        <main id="main-content" className="flex-1 min-w-0 relative z-[1]">
           <CategoryBar categories={categories} active={categorySlug} />
           <FeaturedCarousel posts={pinnedPosts} />
           {activeCategoryName && (
