@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
+@theme {
+  --color-primary: #ed1c24;
+  --color-primary-dark: #b8141b;
+  --color-primary-glow: #ff3b42;
+  --color-amber: #f59e0b;
+  --color-amber-dark: #d97706;
+  --color-surface-0: #0a0b0f;
+  --color-surface-1: #111318;
+  --color-surface-2: #181b21;
+  --color-surface-3: #1f2229;
+  --color-surface-4: #282c34;
+  --color-surface-border: #2a2d35;
+  --color-text-primary: #f0f1f3;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+  --font-display: 'Russo One', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+}
+
+/* Base */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-surface-0);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Grid background texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-surface-1); }
+::-webkit-scrollbar-thumb { background: var(--color-surface-4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-surface-border); }
+
+/* Selection */
+::selection {
+  background: rgba(237, 28, 36, 0.3);
+  color: var(--color-text-primary);
+}
+
+/* Typography utility classes */
+.text-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Staggered fade-in for post feed */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+/* Glow pulse for interactive elements */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(237, 28, 36, 0); }
+  50% { box-shadow: 0 0 0 1px rgba(237, 28, 36, 0.15); }
+}
+
+/* Subtle amber glow */
+@keyframes amberPulse {
+  0%, 100% { box-shadow: 0 0 8px 0 rgba(245, 158, 11, 0); }
+  50% { box-shadow: 0 0 8px 0 rgba(245, 158, 11, 0.15); }
+}
+
+/* Button hover lift */
+@keyframes btnLift {
+  from { transform: translateY(0); }
+  to { transform: translateY(-1px); }
+}
+
+/* Prose overrides for post content */
+.prose-dark {
+  color: var(--color-text-primary);
+  line-height: 1.75;
+}
+.prose-dark h1, .prose-dark h2, .prose-dark h3, .prose-dark h4 {
+  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+.prose-dark strong { color: var(--color-text-primary); font-weight: 700; }
+.prose-dark a { color: var(--color-primary); text-decoration: underline; }
+.prose-dark img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 1.5em 0;
+  border: 1px solid var(--color-surface-border);
+}
+.prose-dark img:hover {
+  border-color: var(--color-surface-4);
+}
+.prose-dark ul, .prose-dark ol { padding-left: 1.5em; }
+.prose-dark li { margin-bottom: 0.3em; }
+.prose-dark code {
+  background: var(--color-surface-3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+.prose-dark blockquote {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 1em;
+  color: var(--color-text-secondary);
+  margin-left: 0;
+}
+.prose-dark hr {
+  border: none;
+  border-top: 1px solid var(--color-surface-border);
+  margin: 1.5em 0;
+}
