@@ -1473,41 +1473,46 @@ export interface ReadingHistoryItem {
 }
 
 export async function getReadingHistory(userId: string): Promise<ReadingHistoryItem[]> {
-  const supabase = await createServerSupabase();
+  try {
+    const supabase = await createServerSupabase();
 
-  const { data: events } = await supabase
-    .from("user_events")
-    .select("target_id, created_at")
-    .eq("user_id", userId)
-    .eq("event_type", "view_post")
-    .order("created_at", { ascending: false })
-    .limit(200);
+    const { data: events, error } = await supabase
+      .from("user_events")
+      .select("target_id, created_at")
+      .eq("user_id", userId)
+      .eq("event_type", "view_post")
+      .order("created_at", { ascending: false })
+      .limit(200);
 
-  if (!events?.length) return [];
+    if (error || !events?.length) return [];
 
-  // Deduplicate by target_id, keeping the latest view
-  const seen = new Set<string>();
-  const uniqueEvents: { postId: string; viewedAt: string }[] = [];
-  for (const e of events) {
-    if (!e.target_id || seen.has(e.target_id)) continue;
-    seen.add(e.target_id);
-    uniqueEvents.push({ postId: e.target_id, viewedAt: e.created_at });
+    // Deduplicate by target_id, keeping the latest view
+    const seen = new Set<string>();
+    const uniqueEvents: { postId: string; viewedAt: string }[] = [];
+    for (const e of events) {
+      if (!e.target_id || seen.has(e.target_id)) continue;
+      seen.add(e.target_id);
+      uniqueEvents.push({ postId: e.target_id, viewedAt: e.created_at });
+    }
+
+    // Fetch post titles in batch
+    const postIds = uniqueEvents.map((e) => e.postId);
+    const { data: posts } = await supabase
+      .from("posts")
+      .select("id, title")
+      .in("id", postIds);
+
+    const titleMap = new Map((posts ?? []).map((p) => [p.id, p.title]));
+
+    return uniqueEvents
+      .filter((e) => titleMap.has(e.postId))
+      .map((e) => ({
+        postId: e.postId,
+        title: titleMap.get(e.postId) ?? "Untitled",
+        viewedAt: e.viewedAt,
+      }));
+  } catch {
+    // Table may not exist yet or DB unavailable — return empty gracefully
+    return [];
   }
-
-  // Fetch post titles in batch
-  const postIds = uniqueEvents.map((e) => e.postId);
-  const { data: posts } = await supabase
-    .from("posts")
-    .select("id, title")
-    .in("id", postIds);
-
-  const titleMap = new Map((posts ?? []).map((p) => [p.id, p.title]));
-
-  return uniqueEvents
-    .filter((e) => titleMap.has(e.postId))
-    .map((e) => ({
-      postId: e.postId,
-      title: titleMap.get(e.postId) ?? "Untitled",
-      viewedAt: e.viewedAt,
-    }));
 }
