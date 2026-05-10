@@ -57,7 +57,7 @@ export async function fetchCategories(): Promise<Pick<Category, "id" | "name">[]
 export async function fetchComments(postId: string): Promise<CommentWithAuthor[]> {
   const { data } = await createClient()
     .from("comments")
-    .select("*, profiles(username)")
+    .select("*, profiles(username, avatar_url)")
     .eq("post_id", postId)
     .order("created_at", { ascending: true });
   return (data as CommentWithAuthor[]) ?? [];
@@ -94,16 +94,30 @@ export async function getUserVote(
 export async function fetchProfile(userId: string) {
   const { data } = await createClient()
     .from("profiles")
-    .select("id, username, created_at")
+    .select("id, username, avatar_url, bio, created_at")
     .eq("id", userId)
     .single();
-  return data as { id: string; username: string; created_at: string } | null;
+  return data as { id: string; username: string; avatar_url?: string | null; bio?: string | null; created_at: string } | null;
 }
 
 export async function updateUsername(username: string) {
   const { data: { user } } = await createClient().auth.getUser();
   if (!user) throw new Error("Not authenticated");
   const { error } = await createClient().from("profiles").update({ username }).eq("id", user.id);
+  if (error) throw error;
+}
+
+export async function updateBio(bio: string) {
+  const { data: { user } } = await createClient().auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+  const { error } = await createClient().from("profiles").update({ bio }).eq("id", user.id);
+  if (error) throw error;
+}
+
+export async function updateAvatarUrl(avatarUrl: string) {
+  const { data: { user } } = await createClient().auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+  const { error } = await createClient().from("profiles").update({ avatar_url: avatarUrl }).eq("id", user.id);
   if (error) throw error;
 }
 

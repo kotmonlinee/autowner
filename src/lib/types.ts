@@ -20,6 +20,7 @@ export interface Database {
       rate_limits: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       views: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       error_logs: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      reports: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -47,7 +48,7 @@ export type Post = {
 };
 
 export type PostWithRelations = Post & {
-  profiles: { username: string } | null;
+  profiles: { username: string; avatar_url?: string | null } | null;
   categories: { name: string; slug: string } | null;
   post_tags: { car_tags: { name: string; slug: string } }[];
 };
@@ -62,7 +63,7 @@ export type Comment = {
 };
 
 export type CommentWithAuthor = Comment & {
-  profiles: { username: string } | null;
+  profiles: { username: string; avatar_url?: string | null } | null;
 };
 
 export type Category = {
@@ -76,6 +77,8 @@ export type Category = {
 export type Profile = {
   id: string;
   username: string;
+  avatar_url?: string | null;
+  bio?: string | null;
   created_at: string;
 };
 

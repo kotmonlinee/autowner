@@ -5,6 +5,7 @@ import { getUserProfile, getUserPosts, getUserComments, getCurrentUser } from "@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PostCard from "@/components/PostCard";
+import Avatar from "@/components/Avatar";
 
 function timeAgo(date: string) {
   const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
@@ -78,10 +79,12 @@ export default async function UserProfilePage({
         {/* Profile Header */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-6 mb-6">
           <div className="flex items-start gap-4">
-            {/* Avatar placeholder */}
-            <div className="w-16 h-16 rounded-full bg-surface-4 flex items-center justify-center text-2xl font-bold text-text-secondary shrink-0 ring-2 ring-surface-border">
-              {profile.username[0].toUpperCase()}
-            </div>
+            {/* Avatar */}
+            <Avatar
+              username={profile.username}
+              avatarUrl={profile.avatar_url}
+              size="lg"
+            />
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3">
@@ -112,6 +115,11 @@ export default async function UserProfilePage({
               <p className="text-sm text-text-muted mt-1">
                 Joined {formatDate(profile.created_at)}
               </p>
+              {profile.bio && (
+                <p className="text-sm text-text-primary mt-2 leading-relaxed whitespace-pre-wrap">
+                  {profile.bio}
+                </p>
+              )}
             </div>
           </div>
 

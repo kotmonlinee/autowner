@@ -2,20 +2,46 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getSessionUser, onAuthChange, signOut } from "@/lib/data/browser";
+import { getSessionUser, onAuthChange, signOut, fetchProfile } from "@/lib/data/browser";
 import { useEffect, useState } from "react";
 import SearchBar from "./SearchBar";
 import NotificationBell from "./NotificationBell";
 import ThemeToggle from "./ThemeToggle";
+import Avatar from "./Avatar";
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [profileUsername, setProfileUsername] = useState<string>("");
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    getSessionUser().then(setUser);
-    const subscription = onAuthChange(setUser);
+    getSessionUser().then((u) => {
+      setUser(u);
+      if (u) {
+        fetchProfile(u.id).then((p) => {
+          if (p) {
+            setAvatarUrl(p.avatar_url ?? null);
+            setProfileUsername(p.username);
+          }
+        });
+      }
+    });
+    const subscription = onAuthChange((u) => {
+      setUser(u);
+      if (u) {
+        fetchProfile(u.id).then((p) => {
+          if (p) {
+            setAvatarUrl(p.avatar_url ?? null);
+            setProfileUsername(p.username);
+          }
+        });
+      } else {
+        setAvatarUrl(null);
+        setProfileUsername("");
+      }
+    });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -24,6 +50,8 @@ export default function Navbar() {
     setMenuOpen(false);
     router.refresh();
   };
+
+  const displayName = profileUsername || user?.email;
 
   return (
     <>
@@ -86,9 +114,11 @@ export default function Navbar() {
                     </svg>
                   </Link>
                   <ThemeToggle />
-                  <div className="w-7 h-7 rounded-full bg-surface-4 flex items-center justify-center text-xs font-bold text-text-secondary">
-                    {user.email?.[0].toUpperCase()}
-                  </div>
+                  <Avatar
+                    username={displayName}
+                    avatarUrl={avatarUrl}
+                    size="md"
+                  />
                   <button
                     onClick={handleLogout}
                     className="text-sm text-text-muted hover:text-text-secondary transition-colors"
@@ -188,9 +218,11 @@ export default function Navbar() {
                       </svg>
                     </Link>
                     <ThemeToggle />
-                    <div className="w-7 h-7 rounded-full bg-surface-4 flex items-center justify-center text-xs font-bold text-text-secondary">
-                      {user.email?.[0].toUpperCase()}
-                    </div>
+                    <Avatar
+                      username={displayName}
+                      avatarUrl={avatarUrl}
+                      size="md"
+                    />
                     <button
                       onClick={handleLogout}
                       className="text-sm text-text-muted hover:text-text-secondary transition-colors"

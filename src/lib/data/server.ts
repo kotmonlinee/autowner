@@ -17,7 +17,7 @@ export async function getPosts(opts: {
   const limit = opts.limit ?? 30;
   const page = opts.page ?? 1;
   const offset = (page - 1) * limit;
-  const selectCols = "*, profiles(username), categories(name, slug), post_tags(car_tags(name, slug))";
+  const selectCols = "*, profiles(username, avatar_url), categories(name, slug), post_tags(car_tags(name, slug))";
 
   // Build base query — start with .select() so filters like .eq() resolve on
   // PostgrestFilterBuilder. The select columns are overridden at the end.
@@ -116,7 +116,7 @@ export async function getPostById(id: string): Promise<PostWithRelations | null>
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from("posts")
-    .select("*, profiles(username), categories(name, slug), post_tags(car_tags(name, slug))")
+    .select("*, profiles(username, avatar_url), categories(name, slug), post_tags(car_tags(name, slug))")
     .eq("id", id)
     .eq("status", "approved")
     .single();
@@ -128,7 +128,7 @@ export async function getPostByIdAdmin(id: string): Promise<PostWithRelations | 
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from("posts")
-    .select("*, profiles(username), categories(name, slug), post_tags(car_tags(name, slug))")
+    .select("*, profiles(username, avatar_url), categories(name, slug), post_tags(car_tags(name, slug))")
     .eq("id", id)
     .single();
   return data ? (data as unknown as PostWithRelations) : null;
@@ -139,7 +139,7 @@ export async function getPostByIdAny(id: string): Promise<PostWithRelations | nu
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from("posts")
-    .select("*, profiles(username), categories(name, slug), post_tags(car_tags(name, slug))")
+    .select("*, profiles(username, avatar_url), categories(name, slug), post_tags(car_tags(name, slug))")
     .eq("id", id)
     .single();
   return data ? (data as unknown as PostWithRelations) : null;
@@ -198,7 +198,7 @@ export async function getPinnedPosts(limit = 4): Promise<PostWithRelations[]> {
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from("posts")
-    .select("*, profiles(username), categories(name, slug), post_tags(car_tags(name, slug))")
+    .select("*, profiles(username, avatar_url), categories(name, slug), post_tags(car_tags(name, slug))")
     .eq("is_pinned", true)
     .eq("status", "approved")
     .order("created_at", { ascending: false })
@@ -219,7 +219,7 @@ export async function insertComment(postId: string, authorId: string, body: stri
   const { data, error } = await supabase
     .from("comments")
     .insert({ post_id: postId, author_id: authorId, body })
-    .select("*, profiles(username)")
+    .select("*, profiles(username, avatar_url)")
     .single();
   if (error) throw error;
   return data as unknown as CommentWithAuthor;
@@ -287,7 +287,7 @@ export async function getBookmarkedPosts(userId: string): Promise<PostWithRelati
   // We re-sort by bookmark order in JS since .in() loses ordering.
   const { data: posts } = await supabase
     .from("posts")
-    .select("*, profiles(username), categories(name, slug), post_tags(car_tags(name, slug))")
+    .select("*, profiles(username, avatar_url), categories(name, slug), post_tags(car_tags(name, slug))")
     .in("id", postIds)
     .eq("status", "approved");
 
@@ -362,7 +362,7 @@ export async function searchPostsAdmin(query: string): Promise<PostWithRelations
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from("posts")
-    .select("*, profiles(username), categories(name), post_tags(car_tags(name, slug))")
+    .select("*, profiles(username, avatar_url), categories(name), post_tags(car_tags(name, slug))")
     .ilike("title", `%${query}%`)
     .order("created_at", { ascending: false })
     .limit(30);
@@ -373,7 +373,7 @@ export async function getPendingPosts() {
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from("posts")
-    .select("*, profiles(username), categories(name)")
+    .select("*, profiles(username, avatar_url), categories(name)")
     .eq("status", "pending")
     .order("created_at", { ascending: false })
     .limit(50);
@@ -426,7 +426,7 @@ export async function getUserProfile(username: string) {
   const supabase = await createServerSupabase();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, username, created_at")
+    .select("id, username, avatar_url, bio, created_at")
     .eq("username", username)
     .single();
 
@@ -466,7 +466,7 @@ export async function getUserPosts(username: string): Promise<PostWithRelations[
 
   const { data } = await supabase
     .from("posts")
-    .select("*, profiles(username), categories(name, slug), post_tags(car_tags(name, slug))")
+    .select("*, profiles(username, avatar_url), categories(name, slug), post_tags(car_tags(name, slug))")
     .eq("author_id", profile.id)
     .eq("status", "approved")
     .order("created_at", { ascending: false });
@@ -486,7 +486,7 @@ export async function getUserComments(username: string): Promise<CommentWithPost
 
   const { data } = await supabase
     .from("comments")
-    .select("*, profiles(username), posts(id, title)")
+    .select("*, profiles(username, avatar_url), posts(id, title)")
     .eq("author_id", profile.id)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -645,6 +645,38 @@ export async function deleteOwnComment(id: string, userId: string): Promise<void
   // Delete the comment (hard delete — comments are lightweight; the trigger handles comment_count)
   const { error } = await supabase.from("comments").delete().eq("id", id);
   if (error) throw error;
+}
+
+// ── Reports ───────────────────────────────────────────────
+
+export async function getPendingReports() {
+  const supabase = await createServerSupabase();
+  const { data: reports } = await supabase
+    .from("reports")
+    .select("*")
+    .eq("status", "pending")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (!reports?.length) return [];
+
+  // Batch-fetch reporter usernames
+  const reporterIds = [...new Set(reports.map((r) => r.reporter_id).filter(Boolean))];
+  const { data: profiles } = reporterIds.length
+    ? await supabase.from("profiles").select("id, username").in("id", reporterIds)
+    : { data: [] };
+
+  const usernameMap = new Map((profiles ?? []).map((p) => [p.id, p.username]));
+
+  return reports.map((r) => ({
+    ...r,
+    reporter_username: usernameMap.get(r.reporter_id) ?? null,
+  }));
+}
+
+export async function resolveReport(id: string, status: "resolved" | "dismissed") {
+  const supabase = await createServerSupabase();
+  return supabase.from("reports").update({ status }).eq("id", id);
 }
 
 // ── Auth ─────────────────────────────────────────────────

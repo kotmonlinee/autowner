@@ -1,5 +1,6 @@
 import Link from "next/link";
 import VoteButtons from "./VoteButtons";
+import Avatar from "./Avatar";
 import type { PostWithRelations } from "@/lib/types";
 
 function timeAgo(date: string) {
@@ -108,7 +109,8 @@ export default function PostCard({
         {/* Footer */}
         <div className="flex items-center gap-2.5 mt-2.5 text-xs text-text-muted">
           {post.profiles?.username ? (
-            <Link href={`/user/${post.profiles.username}`} className="font-medium text-text-secondary hover:text-primary transition-colors">
+            <Link href={`/user/${post.profiles.username}`} className="font-medium text-text-secondary hover:text-primary transition-colors inline-flex items-center gap-1.5">
+              <Avatar username={post.profiles.username} avatarUrl={post.profiles.avatar_url} size="sm" />
               {post.profiles.username}
             </Link>
           ) : (

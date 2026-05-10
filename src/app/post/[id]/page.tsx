@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getPostByIdAny, getCurrentUser } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Avatar from "@/components/Avatar";
 import BookmarkButton from "@/components/BookmarkButton";
 import VoteButtons from "@/components/VoteButtons";
 import CommentSection from "@/components/CommentSection";
@@ -10,6 +11,7 @@ import ShareButtons from "@/components/ShareButtons";
 import MarkdownBody from "@/components/MarkdownBody";
 import ViewTracker from "@/components/ViewTracker";
 import PostEditDeleteButtons from "./PostEditDeleteButtons";
+import ReportButton from "@/components/ReportButton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -267,9 +269,11 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                   <h1 className="text-2xl font-bold text-text-primary mb-4 font-heading leading-tight">{post.title}</h1>
 
                   <div className="flex items-center gap-3 mb-6 pb-4 border-b border-surface-border">
-                    <div className="w-8 h-8 rounded-full bg-surface-4 flex items-center justify-center text-sm font-bold text-text-secondary shrink-0">
-                      {(post.profiles?.username ?? "?")[0].toUpperCase()}
-                    </div>
+                    <Avatar
+                      username={post.profiles?.username}
+                      avatarUrl={post.profiles?.avatar_url}
+                      size="md"
+                    />
                     <div>
                       {post.profiles?.username ? (
                         <Link href={`/user/${post.profiles.username}`} className="text-sm font-semibold text-text-secondary font-heading hover:text-primary transition-colors">
@@ -291,6 +295,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                     </div>
                     <div className="ml-auto flex items-center gap-1">
                       {isAuthor && <PostEditDeleteButtons postId={id} />}
+                      {user && !isAuthor && <ReportButton targetType="post" targetId={id} userId={user.id} />}
                       <BookmarkButton postId={id} userId={user?.id} />
                     </div>
                   </div>

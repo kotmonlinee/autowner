@@ -1,4 +1,4 @@
-import { getPendingPosts, updatePostStatus, togglePin, searchPostsAdmin } from "@/lib/data/server";
+import { getPendingPosts, updatePostStatus, togglePin, searchPostsAdmin, getPendingReports, resolveReport } from "@/lib/data/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -106,11 +106,12 @@ async function getRecentUsers(limit = 20): Promise<RecentUser[]> {
 export default async function AdminPage({ searchParams }: { searchParams?: Promise<{ q?: string }> }) {
   const sp = await Promise.resolve(searchParams);
   const searchQuery = sp?.q ?? "";
-  const [posts, stats, searchResults, users] = await Promise.all([
+  const [posts, stats, searchResults, users, reports] = await Promise.all([
     getPendingPosts(),
     getAdminStats(),
     searchQuery ? searchPostsAdmin(searchQuery) : Promise.resolve(null),
     getRecentUsers(),
+    getPendingReports(),
   ]);
 
   return (
@@ -254,6 +255,92 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ── Reports Moderation Queue ── */}
+      <div className="mt-12 pt-8 border-t border-surface-border">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-text-primary font-heading">Reports</h2>
+            <p className="text-sm text-text-muted mt-1">Review flagged content from users</p>
+          </div>
+        </div>
+
+        {reports.length === 0 ? (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-12 text-center">
+            <p className="text-text-secondary font-heading font-semibold">No pending reports</p>
+            <p className="text-sm text-text-muted mt-1">All clear</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {reports.map((report: any) => (
+              <div key={report.id} className="bg-surface-1 rounded-xl border border-surface-border p-4 flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="px-1.5 py-0.5 bg-surface-3 rounded text-[10px] font-bold uppercase font-heading">
+                      {report.target_type}
+                    </span>
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                      report.reason === "spam"
+                        ? "bg-red-400/10 text-red-400 border-red-400/20"
+                        : report.reason === "harassment"
+                        ? "bg-orange-400/10 text-orange-400 border-orange-400/20"
+                        : report.reason === "misinformation"
+                        ? "bg-yellow-400/10 text-yellow-400 border-yellow-400/20"
+                        : "bg-surface-3 text-text-muted border-surface-border"
+                    }`}>
+                      {report.reason}
+                    </span>
+                  </div>
+                  <p className="text-sm text-text-primary font-heading font-semibold">
+                    Reported by{" "}
+                    {report.reporter_username ? (
+                      <Link href={`/user/${report.reporter_username}`} className="text-primary hover:text-primary-glow transition-colors">
+                        {report.reporter_username}
+                      </Link>
+                    ) : (
+                      <span className="text-text-muted">deleted</span>
+                    )}
+                  </p>
+                  {report.description && (
+                    <p className="text-xs text-text-muted mt-1 italic">
+                      &ldquo;{report.description}&rdquo;
+                    </p>
+                  )}
+                  <div className="flex items-center gap-3 text-xs text-text-muted mt-1.5">
+                    <Link
+                      href={report.target_type === "post" ? `/post/${report.target_id}` : `/post/${report.target_id}`}
+                      className="text-primary hover:text-primary-glow font-medium transition-colors"
+                    >
+                      View {report.target_type}
+                    </Link>
+                    <span>{new Date(report.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 ml-4 shrink-0">
+                  <form action={async () => {
+                    "use server";
+                    await resolveReport(report.id, "resolved");
+                    revalidatePath("/admin");
+                  }}>
+                    <button className="px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-lg text-sm font-bold hover:bg-emerald-500/20 transition-colors font-heading border border-emerald-500/20">
+                      Resolve
+                    </button>
+                  </form>
+                  <form action={async () => {
+                    "use server";
+                    await resolveReport(report.id, "dismissed");
+                    revalidatePath("/admin");
+                  }}>
+                    <button className="px-4 py-2 bg-red-500/10 text-red-400 rounded-lg text-sm font-bold hover:bg-red-500/20 transition-colors font-heading border border-red-500/20">
+                      Dismiss
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── Manage All Posts ── */}

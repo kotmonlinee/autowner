@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AvatarUploader from "@/components/AvatarUploader";
 import {
   getSessionUser,
   onAuthChange,
   fetchProfile,
   updateUsername,
+  updateBio,
+  updateAvatarUrl,
 } from "@/lib/data/browser";
 
 export default function SettingsPage() {
@@ -17,11 +20,19 @@ export default function SettingsPage() {
   const [profile, setProfile] = useState<{
     id: string;
     username: string;
+    avatar_url?: string | null;
+    bio?: string | null;
     created_at: string;
   } | null>(null);
   const [newUsername, setNewUsername] = useState("");
+  const [bio, setBio] = useState("");
   const [saving, setSaving] = useState(false);
+  const [savingBio, setSavingBio] = useState(false);
   const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+  const [bioMessage, setBioMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
@@ -36,7 +47,10 @@ export default function SettingsPage() {
       setUser(u);
       fetchProfile(u.id).then((p) => {
         setProfile(p);
-        if (p) setNewUsername(p.username);
+        if (p) {
+          setNewUsername(p.username);
+          setBio(p.bio ?? "");
+        }
         setLoading(false);
       });
     });
@@ -74,6 +88,34 @@ export default function SettingsPage() {
     }
   };
 
+  const handleUpdateBio = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = bio.trim();
+    if (trimmed === (profile?.bio ?? "")) {
+      setBioMessage({ type: "error", text: "Bio is already unchanged." });
+      return;
+    }
+    setSavingBio(true);
+    setBioMessage(null);
+    try {
+      await updateBio(trimmed);
+      setProfile((prev) => (prev ? { ...prev, bio: trimmed } : prev));
+      setBioMessage({ type: "success", text: "Bio updated." });
+    } catch (err: any) {
+      setBioMessage({
+        type: "error",
+        text: err?.message ?? "Failed to update bio.",
+      });
+    } finally {
+      setSavingBio(false);
+    }
+  };
+
+  const handleAvatarChange = async (url: string) => {
+    await updateAvatarUrl(url);
+    setProfile((prev) => (prev ? { ...prev, avatar_url: url } : prev));
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -106,6 +148,19 @@ export default function SettingsPage() {
           <p className="text-sm text-text-muted mt-1">
             Manage your account details.
           </p>
+        </div>
+
+        {/* Avatar upload section */}
+        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-8">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted mb-4 font-heading">
+            Avatar
+          </h2>
+
+          <AvatarUploader
+            currentAvatarUrl={profile?.avatar_url}
+            username={profile?.username ?? "?"}
+            onAvatarChange={handleAvatarChange}
+          />
         </div>
 
         {/* Profile card */}
@@ -146,7 +201,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Update username form */}
-        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6">
+        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-8">
           <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted mb-4 font-heading">
             Update Display Name
           </h2>
@@ -197,6 +252,59 @@ export default function SettingsPage() {
               className="px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 disabled:opacity-50 disabled:hover:translate-y-0 font-heading shadow-sm shadow-primary/20"
             >
               {saving ? "Saving…" : "Save"}
+            </button>
+          </form>
+        </div>
+
+        {/* Bio form */}
+        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted mb-4 font-heading">
+            Bio
+          </h2>
+
+          {bioMessage && (
+            <div
+              className={`mb-4 p-3 rounded-xl text-sm font-medium ${
+                bioMessage.type === "success"
+                  ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+                  : "bg-red-500/10 border border-red-500/20 text-red-400"
+              }`}
+            >
+              {bioMessage.text}
+            </div>
+          )}
+
+          <form onSubmit={handleUpdateBio} className="space-y-4">
+            <div>
+              <label
+                htmlFor="bio"
+                className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading"
+              >
+                About You
+              </label>
+              <textarea
+                id="bio"
+                value={bio}
+                onChange={(e) => {
+                  setBio(e.target.value);
+                  setBioMessage(null);
+                }}
+                rows={4}
+                maxLength={500}
+                placeholder="Tell the community a little about yourself..."
+                className="w-full px-4 py-2.5 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted resize-none"
+              />
+              <p className="text-xs text-text-muted mt-1.5">
+                {bio.length}/500 characters. Shown on your public profile.
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              disabled={savingBio}
+              className="px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 disabled:opacity-50 disabled:hover:translate-y-0 font-heading shadow-sm shadow-primary/20"
+            >
+              {savingBio ? "Saving…" : "Save Bio"}
             </button>
           </form>
         </div>
