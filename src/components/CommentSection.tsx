@@ -27,18 +27,26 @@ export default function CommentSection({
     if (!body.trim()) return;
     setLoading(true);
 
-    const res = await fetch("/api/comments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId, body: body.trim() }),
-    });
+    try {
+      const res = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId, body: body.trim() }),
+      });
 
-    if (res.ok) {
-      const { comment } = await res.json();
-      setComments(prev => [...prev, comment]);
-      setBody("");
+      const data = await res.json();
+
+      if (res.ok) {
+        setComments(prev => [...prev, data.comment]);
+        setBody("");
+      } else {
+        alert(data.error ?? "Failed to post comment");
+      }
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to post comment");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleReply = async (parentId: string, replyBody: string) => {
@@ -48,13 +56,13 @@ export default function CommentSection({
       body: JSON.stringify({ postId, body: replyBody, parentId }),
     });
 
+    const data = await res.json();
+
     if (!res.ok) {
-      const data = await res.json().catch(() => ({ error: "Failed to reply" }));
       throw new Error(data.error ?? "Failed to reply");
     }
 
-    const { comment } = await res.json();
-    setComments(prev => [...prev, comment]);
+    setComments(prev => [...prev, data.comment]);
   };
 
   const handleEdit = async (commentId: string, newBody: string) => {
