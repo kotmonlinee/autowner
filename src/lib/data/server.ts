@@ -24,7 +24,8 @@ export async function getPosts(opts: {
   let query = supabase
     .from("posts")
     .select("id")
-    .eq("status", "approved");
+    .eq("status", "approved")
+    .or("is_draft.is.null,is_draft.eq.false");
 
   if (opts.categorySlug) {
     const { data: cat } = await supabase.from("categories").select("id").eq("slug", opts.categorySlug).single();
@@ -356,6 +357,144 @@ export async function createPost(opts: {
   return post.id;
 }
 
+// ── Drafts ────────────────────────────────────────────────
+
+export async function saveDraft(opts: {
+  id?: string;
+  title: string;
+  body: string;
+  categoryId: string;
+  authorId: string;
+  tags: { name: string; slug: string }[];
+}): Promise<string> {
+  const supabase = await createServerSupabase();
+
+  if (opts.id) {
+    // Update existing draft
+    const { error } = await supabase
+      .from("posts")
+      .update({
+        title: opts.title,
+        body: opts.body,
+        category_id: opts.categoryId || null,
+        is_draft: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", opts.id)
+      .eq("author_id", opts.authorId);
+
+    if (error) throw error;
+
+    // Update tags: delete existing, re-insert
+    await supabase.from("post_tags").delete().eq("post_id", opts.id);
+    for (const tag of opts.tags) {
+      const { data: existing } = await supabase.from("car_tags").select("id").eq("slug", tag.slug).single();
+      let tagId = existing?.id;
+      if (!tagId) {
+        const { data: created } = await supabase.from("car_tags").insert({ name: tag.name, slug: tag.slug }).select("id").single();
+        tagId = created?.id;
+      }
+      if (tagId) await supabase.from("post_tags").insert({ post_id: opts.id, tag_id: tagId });
+    }
+
+    return opts.id;
+  } else {
+    // Insert new draft
+    const { data: post, error } = await supabase
+      .from("posts")
+      .insert({
+        title: opts.title,
+        body: opts.body,
+        author_id: opts.authorId,
+        category_id: opts.categoryId || null,
+        source: "user",
+        status: "approved",
+        is_draft: true,
+      })
+      .select("id")
+      .single();
+
+    if (error || !post) throw error ?? new Error("Failed to create draft");
+
+    for (const tag of opts.tags) {
+      const { data: existing } = await supabase.from("car_tags").select("id").eq("slug", tag.slug).single();
+      let tagId = existing?.id;
+      if (!tagId) {
+        const { data: created } = await supabase.from("car_tags").insert({ name: tag.name, slug: tag.slug }).select("id").single();
+        tagId = created?.id;
+      }
+      if (tagId) await supabase.from("post_tags").insert({ post_id: post.id, tag_id: tagId });
+    }
+
+    return post.id;
+  }
+}
+
+export async function getUserDrafts(userId: string): Promise<PostWithRelations[]> {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from("posts")
+    .select("*, profiles(username, avatar_url), categories(name, slug), post_tags(car_tags(name, slug))")
+    .eq("author_id", userId)
+    .eq("is_draft", true)
+    .order("updated_at", { ascending: false });
+
+  return (data as unknown as PostWithRelations[]) ?? [];
+}
+
+export async function publishDraft(id: string, userId: string): Promise<void> {
+  const supabase = await createServerSupabase();
+
+  // Verify ownership
+  const { data: post } = await supabase
+    .from("posts")
+    .select("author_id, is_draft")
+    .eq("id", id)
+    .single();
+
+  if (!post) throw new Error("Draft not found");
+  if (post.author_id !== userId) throw new Error("You can only publish your own drafts");
+
+  const { error } = await supabase
+    .from("posts")
+    .update({
+      is_draft: false,
+      status: "approved",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+export async function deleteDraft(id: string, userId: string): Promise<void> {
+  const supabase = await createServerSupabase();
+
+  // Verify ownership
+  const { data: post } = await supabase
+    .from("posts")
+    .select("author_id, is_draft")
+    .eq("id", id)
+    .single();
+
+  if (!post) throw new Error("Draft not found");
+  if (post.author_id !== userId) throw new Error("You can only delete your own drafts");
+
+  // Clean up related records
+  await supabase.from("post_tags").delete().eq("post_id", id);
+  await supabase.from("bookmarks").delete().eq("post_id", id);
+  await supabase.from("views").delete().eq("post_id", id);
+  const { data: comments } = await supabase.from("comments").select("id").eq("post_id", id);
+  if (comments?.length) {
+    await supabase.from("votes").delete().in("comment_id", comments.map((c) => c.id));
+    await supabase.from("comments").delete().eq("post_id", id);
+  }
+  await supabase.from("votes").delete().eq("target_type", "post").eq("target_id", id);
+
+  const { error } = await supabase.from("posts").delete().eq("id", id);
+  if (error) throw error;
+}
+
 // ── Admin ────────────────────────────────────────────────
 
 export async function searchPostsAdmin(query: string): Promise<PostWithRelations[]> {
@@ -677,6 +816,154 @@ export async function getPendingReports() {
 export async function resolveReport(id: string, status: "resolved" | "dismissed") {
   const supabase = await createServerSupabase();
   return supabase.from("reports").update({ status }).eq("id", id);
+}
+
+// ── Admin: User Ban Management ──────────────────────────
+
+export async function banUser(userId: string, reason?: string) {
+  const supabase = await createServerSupabase();
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      is_banned: true,
+      banned_at: new Date().toISOString(),
+      ban_reason: reason ?? null,
+    })
+    .eq("id", userId);
+  if (error) throw error;
+}
+
+export async function unbanUser(userId: string) {
+  const supabase = await createServerSupabase();
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      is_banned: false,
+      banned_at: null,
+      ban_reason: null,
+    })
+    .eq("id", userId);
+  if (error) throw error;
+}
+
+export async function getAllUsers(search?: string, limit = 50) {
+  const supabase = await createServerSupabase();
+  let query = supabase
+    .from("profiles")
+    .select("id, username, avatar_url, created_at, is_banned, banned_at, ban_reason")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (search) {
+    query = query.ilike("username", `%${search}%`);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  // Fetch post count for each user
+  const users = [];
+  for (const p of (data ?? [])) {
+    const { count } = await supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("author_id", p.id);
+    users.push({
+      id: p.id,
+      username: p.username,
+      avatar_url: p.avatar_url,
+      created_at: p.created_at,
+      is_banned: p.is_banned ?? false,
+      banned_at: p.banned_at ?? null,
+      ban_reason: p.ban_reason ?? null,
+      post_count: count ?? 0,
+    });
+  }
+
+  return users;
+}
+
+// ── Admin: Car Tag Management ───────────────────────────
+
+export async function getAllCarTags() {
+  const supabase = await createServerSupabase();
+  const { data: tags } = await supabase
+    .from("car_tags")
+    .select("id, name, slug")
+    .order("name");
+
+  if (!tags?.length) return [];
+
+  // Fetch post count for each tag
+  const result = [];
+  for (const tag of tags) {
+    const { count } = await supabase
+      .from("post_tags")
+      .select("id", { count: "exact", head: true })
+      .eq("tag_id", tag.id);
+    result.push({
+      id: tag.id,
+      name: tag.name,
+      slug: tag.slug,
+      post_count: count ?? 0,
+    });
+  }
+
+  return result;
+}
+
+export async function renameCarTag(id: string, name: string) {
+  const supabase = await createServerSupabase();
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const { error } = await supabase
+    .from("car_tags")
+    .update({ name, slug })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function mergeCarTag(fromId: string, toId: string) {
+  const supabase = await createServerSupabase();
+
+  // Get all post_tag associations for the source tag
+  const { data: postTags } = await supabase
+    .from("post_tags")
+    .select("id, post_id")
+    .eq("tag_id", fromId);
+
+  if (postTags?.length) {
+    // For each post_tag, either update to target or delete if duplicate
+    for (const pt of postTags) {
+      const { data: existing } = await supabase
+        .from("post_tags")
+        .select("id")
+        .eq("post_id", pt.post_id)
+        .eq("tag_id", toId)
+        .maybeSingle();
+
+      if (existing) {
+        // Duplicate — delete this association
+        await supabase.from("post_tags").delete().eq("id", pt.id);
+      } else {
+        // Update to target tag
+        await supabase.from("post_tags").update({ tag_id: toId }).eq("id", pt.id);
+      }
+    }
+  }
+
+  // Delete the source tag
+  await supabase.from("car_tags").delete().eq("id", fromId);
+}
+
+export async function deleteCarTag(id: string) {
+  const supabase = await createServerSupabase();
+  // Delete all post_tag associations for this tag
+  await supabase.from("post_tags").delete().eq("tag_id", id);
+  // Delete the tag itself
+  await supabase.from("car_tags").delete().eq("id", id);
 }
 
 // ── Auth ─────────────────────────────────────────────────

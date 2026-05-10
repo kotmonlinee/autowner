@@ -1,9 +1,10 @@
-import { getPendingPosts, updatePostStatus, togglePin, searchPostsAdmin, getPendingReports, resolveReport } from "@/lib/data/server";
+import { getPendingPosts, updatePostStatus, togglePin, searchPostsAdmin, getPendingReports, resolveReport, getAllUsers } from "@/lib/data/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import DeleteButton from "./edit/[id]/DeleteButton";
+import BanToggleButton from "./BanToggleButton";
 
 interface AdminStats {
   totalPosts: number;
@@ -67,42 +68,6 @@ async function getAdminStats(): Promise<AdminStats> {
   };
 }
 
-interface RecentUser {
-  id: string;
-  username: string;
-  created_at: string;
-  post_count: number;
-}
-
-async function getRecentUsers(limit = 20): Promise<RecentUser[]> {
-  const supabase = await createServerSupabase();
-
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, username, created_at")
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (!profiles?.length) return [];
-
-  // Fetch post counts for each user
-  const users: RecentUser[] = [];
-  for (const p of profiles) {
-    const { count } = await supabase
-      .from("posts")
-      .select("id", { count: "exact", head: true })
-      .eq("author_id", p.id);
-    users.push({
-      id: p.id,
-      username: p.username,
-      created_at: p.created_at,
-      post_count: count ?? 0,
-    });
-  }
-
-  return users;
-}
-
 export default async function AdminPage({ searchParams }: { searchParams?: Promise<{ q?: string }> }) {
   const sp = await Promise.resolve(searchParams);
   const searchQuery = sp?.q ?? "";
@@ -110,7 +75,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
     getPendingPosts(),
     getAdminStats(),
     searchQuery ? searchPostsAdmin(searchQuery) : Promise.resolve(null),
-    getRecentUsers(),
+    getAllUsers(undefined, 20),
     getPendingReports(),
   ]);
 
@@ -450,13 +415,16 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                     Username
                   </th>
                   <th className="text-left px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider font-heading">
+                    Status
+                  </th>
+                  <th className="text-left px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider font-heading">
                     Joined
                   </th>
                   <th className="text-right px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider font-heading">
                     Posts
                   </th>
                   <th className="text-right px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider font-heading">
-                    Profile
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -464,7 +432,23 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                 {users.map((user) => (
                   <tr key={user.id} className="hover:bg-surface-2/30 transition-colors">
                     <td className="px-4 py-3">
-                      <span className="text-text-primary font-semibold font-heading">{user.username}</span>
+                      <Link
+                        href={`/user/${user.username}`}
+                        className="text-text-primary font-semibold font-heading hover:text-primary transition-colors"
+                      >
+                        {user.username}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {user.is_banned ? (
+                        <span className="px-2 py-0.5 bg-red-400/10 text-red-400 rounded text-[10px] font-bold uppercase border border-red-400/20">
+                          Banned
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 bg-emerald-400/10 text-emerald-400 rounded text-[10px] font-bold uppercase border border-emerald-400/20">
+                          Active
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-text-muted whitespace-nowrap">
                       {new Date(user.created_at).toLocaleDateString()}
@@ -475,12 +459,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Link
-                        href={`/user/${user.username}`}
-                        className="text-primary hover:text-primary-glow text-xs font-bold font-heading transition-colors"
-                      >
-                        View
-                      </Link>
+                      <BanToggleButton userId={user.id} isBanned={user.is_banned} />
                     </td>
                   </tr>
                 ))}

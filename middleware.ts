@@ -35,6 +35,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
+  // Check if authenticated user is banned
+  if (user && !path.startsWith("/auth/login") && !path.startsWith("/api/")) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_banned")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.is_banned) {
+      // Sign out the banned user and redirect to login with error
+      await supabase.auth.signOut();
+      return NextResponse.redirect(new URL("/auth/login?error=banned", request.url));
+    }
+  }
+
   return response;
 }
 
@@ -48,5 +63,8 @@ export const config = {
     "/auth/register",
     "/auth/reset-password",
     "/auth/update-password",
+    "/post/:path*",
+    "/user/:path*",
+    "/",
   ],
 };

@@ -23,6 +23,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin" className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors font-heading">
             Content Review
           </Link>
+          <Link href="/admin/tags" className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors font-heading">
+            Tags
+          </Link>
           <Link href="/" className="text-sm text-text-muted hover:text-text-secondary transition-colors">
             &larr; Back to Site
           </Link>

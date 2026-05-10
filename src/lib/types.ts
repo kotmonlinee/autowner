@@ -40,6 +40,7 @@ export type Post = {
   status: "approved" | "pending" | "rejected" | "deleted";
   content_type?: string | null;
   is_pinned?: boolean | null;
+  is_draft?: boolean | null;
   vote_score: number;
   comment_count: number;
   view_count: number;

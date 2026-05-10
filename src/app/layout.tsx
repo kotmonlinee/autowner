@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import CookieBanner from "@/components/CookieBanner";
+import BackToTop from "@/components/BackToTop";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.autowner.com"),
@@ -68,6 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <Analytics />
         <CookieBanner />
+        <BackToTop />
       </body>
     </html>
   );
