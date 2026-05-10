@@ -213,6 +213,35 @@ export async function getCategories(): Promise<Category[]> {
   return (data as unknown as Category[]) ?? [];
 }
 
+export async function getPopularTags(limit = 15) {
+  const supabase = await createServerSupabase();
+  const { data: tags } = await supabase
+    .from("car_tags")
+    .select("id, name, slug")
+    .order("name");
+
+  if (!tags?.length) return [];
+
+  const result: { id: string; name: string; slug: string; post_count: number }[] = [];
+  for (const tag of tags) {
+    const { count } = await supabase
+      .from("post_tags")
+      .select("id", { count: "exact", head: true })
+      .eq("tag_id", tag.id);
+    if (count && count > 0) {
+      result.push({
+        id: tag.id,
+        name: tag.name,
+        slug: tag.slug,
+        post_count: count,
+      });
+    }
+  }
+
+  result.sort((a, b) => b.post_count - a.post_count);
+  return result.slice(0, limit);
+}
+
 // ── Comments ─────────────────────────────────────────────
 
 export async function insertComment(postId: string, authorId: string, body: string): Promise<CommentWithAuthor> {
@@ -565,7 +594,7 @@ export async function getUserProfile(username: string) {
   const supabase = await createServerSupabase();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, username, avatar_url, bio, created_at")
+    .select("id, username, avatar_url, bio, created_at, last_active_at")
     .eq("username", username)
     .single();
 
@@ -691,6 +720,14 @@ export async function updateUsername(userId: string, username: string) {
   const supabase = await createServerSupabase();
   const { error } = await supabase.from("profiles").update({ username }).eq("id", userId);
   if (error) throw error;
+}
+
+export async function updateLastActive(userId: string) {
+  const supabase = await createServerSupabase();
+  await supabase
+    .from("profiles")
+    .update({ last_active_at: new Date().toISOString() })
+    .eq("id", userId);
 }
 
 // ── Post editing (author-scoped) ─────────────────────────

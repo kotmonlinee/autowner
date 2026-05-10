@@ -1,6 +1,7 @@
 import { getCategories } from "@/lib/data/server";
 import Link from "next/link";
 import TrendingPosts from "./TrendingPosts";
+import PopularTags from "./PopularTags";
 
 const categoryIcons: Record<string, string> = {
   home: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1",
@@ -58,6 +59,7 @@ export default async function Sidebar({ active }: { active?: string }) {
         <a href="https://www.reddit.com/r/MechanicAdvice/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-text-muted hover:text-orange-400 hover:bg-surface-2 transition-all duration-150 font-heading border-l-2 border-transparent">r/MechanicAdvice ↗</a>
 
         <TrendingPosts />
+        <PopularTags />
       </nav>
     </aside>
   );

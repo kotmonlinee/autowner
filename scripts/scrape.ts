@@ -18,6 +18,12 @@ const sources = [
   { subreddit: "DIYAutoRepair", category: "diy-guides", size: 10 },
   { subreddit: "Justrolledintotheshop", category: "repair", size: 10 },
   { subreddit: "CarHacking", category: "mods-tuning", size: 5 },
+  { subreddit: "AskMechanics", category: "repair", size: 10 },
+  { subreddit: "Trucks", category: "buying-advice", size: 10 },
+  { subreddit: "overlanding", category: "mods-tuning", size: 8 },
+  { subreddit: "Tires", category: "maintenance", size: 8 },
+  { subreddit: "EngineBuilding", category: "mods-tuning", size: 8 },
+  { subreddit: "autorepair", category: "repair", size: 10 },
 ];
 
 const PUSHSHIFT_URL = "https://api.pullpush.io/reddit/search/submission/";

@@ -115,6 +115,20 @@ export default async function UserProfilePage({
               <p className="text-sm text-text-muted mt-1">
                 Joined {formatDate(profile.created_at)}
               </p>
+              {profile.last_active_at && (
+                <p className="text-xs text-text-muted mt-0.5 flex items-center gap-1.5">
+                  <span
+                    className={`inline-block w-2 h-2 rounded-full ${
+                      (Date.now() - new Date(profile.last_active_at).getTime()) < 15 * 60 * 1000
+                        ? "bg-green-500"
+                        : "bg-surface-border"
+                    }`}
+                  />
+                  {(Date.now() - new Date(profile.last_active_at).getTime()) < 15 * 60 * 1000
+                    ? "Online now"
+                    : `Last active ${timeAgo(profile.last_active_at)}`}
+                </p>
+              )}
               {profile.bio && (
                 <p className="text-sm text-text-primary mt-2 leading-relaxed whitespace-pre-wrap">
                   {profile.bio}

@@ -50,6 +50,30 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Throttled last_active_at update — at most once per 5 minutes per user.
+  // Uses a cookie to track the last ping timestamp so we avoid a DB read.
+  if (user) {
+    const lastPing = request.cookies.get("last_active_ping")?.value;
+    const now = Date.now();
+    const fiveMinutesMs = 5 * 60 * 1000;
+
+    if (!lastPing || now - new Date(lastPing).getTime() > fiveMinutesMs) {
+      await supabase
+        .from("profiles")
+        .update({ last_active_at: new Date().toISOString() })
+        .eq("id", user.id);
+
+      response.cookies.set({
+        name: "last_active_ping",
+        value: new Date().toISOString(),
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24,
+        path: "/",
+      });
+    }
+  }
+
   return response;
 }
 
