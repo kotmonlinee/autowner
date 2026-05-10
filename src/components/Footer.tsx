@@ -3,7 +3,7 @@ import NewsletterForm from "./NewsletterForm";
 
 const footerLinks = [
   { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "Contact", href: "mailto:hello@autowner.com" },
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
 ];
