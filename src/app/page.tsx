@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getPosts, getPinnedPosts, getCurrentUser, getCategories, getUserVehicles, getEngineById } from "@/lib/data/server";
 import { createServerSupabase } from "@/lib/supabase-server";
+import { cookies } from "next/headers";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import PostFeed from "@/components/PostFeed";
@@ -81,6 +82,23 @@ export default async function HomePage({
     getCurrentUser(),
     getCategories(),
   ]);
+
+  // Determine last_visited_at for "New" content markers (Feature 1)
+  let lastVisitedAt: string | null = null;
+  if (user) {
+    // Logged-in: read from profiles.last_visited_at (updated by middleware)
+    const supabase = await createServerSupabase();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("last_visited_at")
+      .eq("id", user.id)
+      .single();
+    lastVisitedAt = profile?.last_visited_at ?? null;
+  } else {
+    // Anonymous: read from last_visit cookie (set by middleware)
+    const cookieStore = await cookies();
+    lastVisitedAt = cookieStore.get("last_visit")?.value ?? null;
+  }
 
   // Resolve primary vehicle for filtering and relevance
   let primaryEngineId: string | null = null;
@@ -206,7 +224,7 @@ export default async function HomePage({
             <SortToggle />
             {posts.length > 0 && <span className="text-xs text-text-muted">{posts.length} posts</span>}
           </div>
-          <PostFeed posts={posts} userId={user?.id} matchingPostIds={matchingPostIds} />
+          <PostFeed posts={posts} userId={user?.id} matchingPostIds={matchingPostIds} lastVisitedAt={lastVisitedAt} />
           <Pagination page={page} totalCount={totalCount} />
         </main>
       </div>

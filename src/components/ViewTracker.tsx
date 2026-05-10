@@ -7,8 +7,11 @@ import { useEffect, useRef } from "react";
  * for user retention analytics. Sends two separate requests:
  *   1. POST /api/views      — increments post.view_count
  *   2. POST /api/events     — records view_post event for retention
+ *
+ * When `title` is provided, also saves to localStorage under
+ * `autowner_view_history` for anonymous reading history (Feature 2).
  */
-export default function ViewTracker({ postId }: { postId: string }) {
+export default function ViewTracker({ postId, title }: { postId: string; title?: string }) {
   const calledRef = useRef(false);
 
   useEffect(() => {
@@ -45,7 +48,34 @@ export default function ViewTracker({ postId }: { postId: string }) {
     }).catch(() => {
       // Silently ignore — analytics is best-effort
     });
-  }, [postId]);
+
+    // Save to anonymous reading history in localStorage (Feature 2)
+    if (title) {
+      try {
+        const raw = localStorage.getItem("autowner_view_history");
+        const history: { postId: string; title: string; viewedAt: string }[] =
+          raw ? JSON.parse(raw) : [];
+
+        // Remove duplicate if exists
+        const filtered = history.filter((item) => item.postId !== postId);
+
+        // Add current post to front
+        filtered.unshift({
+          postId,
+          title,
+          viewedAt: new Date().toISOString(),
+        });
+
+        // Keep max 50
+        localStorage.setItem(
+          "autowner_view_history",
+          JSON.stringify(filtered.slice(0, 50)),
+        );
+      } catch {
+        // Silently ignore — history is best-effort
+      }
+    }
+  }, [postId, title]);
 
   return null;
 }

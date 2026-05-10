@@ -157,7 +157,7 @@ export default function CommentSection({
 
       {rootComments.map(comment => renderCommentTree(comment, 0))}
 
-      <form onSubmit={handleSubmit} className="mt-4 pt-4 border-t border-surface-border">
+      <form id="comment-form" onSubmit={handleSubmit} className="mt-4 pt-4 border-t border-surface-border">
         <textarea
           value={body}
           onChange={e => setBody(e.target.value)}

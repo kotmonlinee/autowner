@@ -53,10 +53,10 @@ export async function middleware(request: NextRequest) {
   // Throttled last_active_at update — at most once per 5 minutes per user.
   // Uses a cookie to track the last ping timestamp so we avoid a DB read.
   if (user) {
-    const lastPing = request.cookies.get("last_active_ping")?.value;
     const now = Date.now();
     const fiveMinutesMs = 5 * 60 * 1000;
 
+    const lastPing = request.cookies.get("last_active_ping")?.value;
     if (!lastPing || now - new Date(lastPing).getTime() > fiveMinutesMs) {
       await supabase
         .from("profiles")
@@ -72,7 +72,41 @@ export async function middleware(request: NextRequest) {
         path: "/",
       });
     }
+
+    // Throttled last_visited_at update — at most once per 30 minutes.
+    // Used by Feature 1 ("New" content markers) to track when the user
+    // last visited, so posts created after that time can show a "NEW" badge.
+    const thirtyMinutesMs = 30 * 60 * 1000;
+    const lastVisitedPing = request.cookies.get("last_visited_ping")?.value;
+    if (!lastVisitedPing || now - new Date(lastVisitedPing).getTime() > thirtyMinutesMs) {
+      await supabase
+        .from("profiles")
+        .update({ last_visited_at: new Date().toISOString() })
+        .eq("id", user.id);
+
+      response.cookies.set({
+        name: "last_visited_ping",
+        value: new Date().toISOString(),
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24,
+        path: "/",
+      });
+    }
   }
+
+  // Set/update last_visit cookie for ALL users (anonymous + authenticated).
+  // This cookie stores the time of the current visit; on the next page load
+  // the server reads it to determine which posts are "new" (created after
+  // the previous visit). Non-httpOnly so client-side code can also read it.
+  response.cookies.set({
+    name: "last_visit",
+    value: new Date().toISOString(),
+    httpOnly: false,
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+    path: "/",
+  });
 
   return response;
 }

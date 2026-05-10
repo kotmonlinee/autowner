@@ -1,0 +1,223 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase";
+import Link from "next/link";
+
+const LOCALSTORAGE_KEY = "autowner_view_history";
+
+interface HistoryEntry {
+  postId: string;
+  title: string;
+  viewedAt: string;
+}
+
+function getAnonymousHistory(): HistoryEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(LOCALSTORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function timeAgo(date: string) {
+  const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  return `${months}mo ago`;
+}
+
+export default function AnonymousHistory() {
+  const [entries, setEntries] = useState<HistoryEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const history = getAnonymousHistory();
+
+    async function validateEntries() {
+      if (history.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      const supabase = createClient();
+      const postIds = history.map((e) => e.postId);
+
+      try {
+        const { data: posts } = await supabase
+          .from("posts")
+          .select("id, title")
+          .in("id", postIds)
+          .eq("status", "approved");
+
+        const validIds = new Set((posts ?? []).map((p) => p.id));
+
+        // Update localStorage to remove deleted posts
+        const valid = history.filter((e) => validIds.has(e.postId));
+        if (valid.length !== history.length) {
+          localStorage.setItem(
+            LOCALSTORAGE_KEY,
+            JSON.stringify(valid.slice(0, 50)),
+          );
+        }
+
+        // Update titles from DB (in case they changed)
+        const titleMap = new Map((posts ?? []).map((p) => [p.id, p.title]));
+        const updated = valid.map((e) => ({
+          ...e,
+          title: titleMap.get(e.postId) ?? e.title,
+        }));
+
+        setEntries(updated);
+      } catch {
+        // Fall back to cached entries
+        setEntries(history);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    validateEntries();
+  }, []);
+
+  const handleClear = () => {
+    try {
+      localStorage.removeItem(LOCALSTORAGE_KEY);
+    } catch {
+      // Silently ignore
+    }
+    setEntries([]);
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-sm text-text-muted">Loading your history...</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Sign-in banner */}
+      <div className="mb-6 p-4 bg-surface-2 rounded-xl border border-surface-border flex items-start gap-3">
+        <svg
+          className="w-5 h-5 text-amber mt-0.5 shrink-0"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 5-3.3 9.45-7 10.7-3.7-1.25-7-5.7-7-10.7V6.3l7-3.12z" />
+        </svg>
+        <div>
+          <p className="text-sm text-text-secondary font-medium">
+            Your reading history is saved only on this device.
+          </p>
+          <p className="text-xs text-text-muted mt-0.5">
+            Sign in to save your history permanently and access it anywhere.
+          </p>
+          <Link
+            href="/auth/login?next=/history"
+            className="inline-block mt-2 px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-glow transition-colors font-heading"
+          >
+            Sign In
+          </Link>
+        </div>
+      </div>
+
+      {entries.length === 0 ? (
+        <div className="text-center py-20">
+          <div className="w-20 h-20 mx-auto mb-5 bg-surface-2 rounded-3xl flex items-center justify-center">
+            <svg
+              className="w-10 h-10 text-text-muted"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <p className="text-lg font-semibold text-text-secondary font-heading mb-1">
+            No reading history yet
+          </p>
+          <p className="text-sm text-text-muted mt-1 max-w-xs mx-auto leading-relaxed">
+            Posts you view will appear here so you can easily find them again.
+          </p>
+          <Link
+            href="/"
+            className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12h14M12 5l-7 7 7 7" />
+            </svg>
+            Browse Posts
+          </Link>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-end mb-4">
+            <button
+              onClick={handleClear}
+              className="text-xs text-text-muted hover:text-red-400 transition-colors font-medium"
+            >
+              Clear history
+            </button>
+          </div>
+          <div className="space-y-1">
+            {entries.map((entry) => (
+              <Link
+                key={entry.postId}
+                href={`/post/${entry.postId}`}
+                className="flex items-center justify-between gap-4 p-3.5 bg-surface-1 rounded-lg border border-surface-border hover:border-surface-4 hover:bg-surface-2/50 transition-all duration-150"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <svg
+                    className="w-4 h-4 text-text-muted shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span className="text-sm text-text-primary font-medium truncate hover:text-primary transition-colors">
+                    {entry.title}
+                  </span>
+                </div>
+                <span className="text-xs text-text-muted shrink-0">
+                  {timeAgo(entry.viewedAt)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  );
+}

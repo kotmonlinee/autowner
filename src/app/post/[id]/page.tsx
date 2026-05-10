@@ -7,6 +7,8 @@ import BookmarkButton from "@/components/BookmarkButton";
 import VoteButtons from "@/components/VoteButtons";
 import CommentSection from "@/components/CommentSection";
 import RelatedPosts from "@/components/RelatedPosts";
+import DiscussionPrompt from "@/components/DiscussionPrompt";
+import SimilarOwners from "@/components/SimilarOwners";
 import ShareButtons from "@/components/ShareButtons";
 import MarkdownBody from "@/components/MarkdownBody";
 import QuickAnswerCard from "@/components/QuickAnswerCard";
@@ -359,11 +361,15 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
             {!isDeleted && (
               <>
-                <ViewTracker postId={id} />
+                <ViewTracker postId={id} title={post.title} />
                 <ShareButtons title={post.title} url={articleUrl} />
 
                 <div className="bg-surface-1 rounded-xl border border-surface-border p-6 mt-4">
                   <CommentSection postId={id} userId={user?.id} />
+                </div>
+
+                <div className="mt-4">
+                  <DiscussionPrompt commentCount={post.comment_count ?? 0} />
                 </div>
               </>
             )}
@@ -376,6 +382,9 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
           <aside className="w-72 shrink-0 hidden lg:block">
             <div className="sticky top-20 space-y-4">
               <RelatedPosts categoryId={post.category_id} excludeId={id} />
+              {postVehicles.length > 0 && (
+                <SimilarOwners engineId={postVehicles[0].engine_id} />
+              )}
             </div>
           </aside>
         </div>

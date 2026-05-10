@@ -6,11 +6,16 @@ export default function PostFeed({
   posts,
   userId,
   matchingPostIds,
+  lastVisitedAt,
 }: {
   posts: PostWithRelations[];
   userId?: string;
   matchingPostIds?: string[];
+  lastVisitedAt?: string | null;
 }) {
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+
   if (posts.length === 0) {
     return (
       <div className="text-center py-20">
@@ -53,15 +58,23 @@ export default function PostFeed({
 
   return (
     <div className="space-y-2">
-      {posts.map((post, i) => (
-        <PostCard
-          key={post.id}
-          post={post}
-          userId={userId}
-          index={i}
-          isRelevantToUser={matchingPostIds?.includes(post.id) ?? false}
-        />
-      ))}
+      {posts.map((post, i) => {
+        const postCreatedMs = new Date(post.created_at).getTime();
+        const isNew =
+          !!lastVisitedAt &&
+          postCreatedMs > new Date(lastVisitedAt).getTime() &&
+          now - postCreatedMs < sevenDaysMs;
+        return (
+          <PostCard
+            key={post.id}
+            post={post}
+            userId={userId}
+            index={i}
+            isRelevantToUser={matchingPostIds?.includes(post.id) ?? false}
+            isNew={isNew}
+          />
+        );
+      })}
     </div>
   );
 }

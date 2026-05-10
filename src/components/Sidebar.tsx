@@ -2,6 +2,7 @@ import { getCategories, getCurrentUser, getUserVehicles } from "@/lib/data/serve
 import Link from "next/link";
 import TrendingPosts from "./TrendingPosts";
 import PopularTags from "./PopularTags";
+import ActiveDiscussions from "./ActiveDiscussions";
 import MyCarFilter, { type PrimaryVehicleInfo } from "./MyCarFilter";
 import { Suspense } from "react";
 
@@ -95,6 +96,7 @@ export default async function Sidebar({ active }: { active?: string }) {
 
         <TrendingPosts />
         <PopularTags />
+        <ActiveDiscussions />
       </nav>
     </aside>
   );

@@ -74,8 +74,33 @@ export default function Navbar() {
             <SearchBar />
           </div>
 
+          {/* Desktop nav links (SearchBar ↔ user icons) */}
+          <div className="hidden sm:flex items-center gap-1 shrink-0">
+            <Link
+              href="/community"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
+              title="Community"
+            >
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              Community
+            </Link>
+          </div>
+
           {/* Desktop right-side buttons */}
-          <div className="hidden sm:flex items-center gap-3 ml-auto shrink-0">
+          <div className="hidden sm:flex items-center gap-3 shrink-0">
             {user ? (
               <>
                 <Link
@@ -93,6 +118,15 @@ export default function Navbar() {
                   >
                     <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                    </svg>
+                  </Link>
+                  <Link
+                    href="/history"
+                    className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
+                    title="History"
+                  >
+                    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </Link>
                   <Link
@@ -137,12 +171,23 @@ export default function Navbar() {
                 </div>
               </>
             ) : (
-              <Link
-                href="/auth/login"
-                className="px-4 py-2 text-sm font-semibold font-heading text-text-secondary hover:text-text-primary border border-surface-border rounded-lg hover:border-surface-4 transition-all"
-              >
-                Sign In
-              </Link>
+              <>
+                <Link
+                  href="/history"
+                  className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
+                  title="History"
+                >
+                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="px-4 py-2 text-sm font-semibold font-heading text-text-secondary hover:text-text-primary border border-surface-border rounded-lg hover:border-surface-4 transition-all"
+                >
+                  Sign In
+                </Link>
+              </>
             )}
           </div>
 
@@ -184,6 +229,31 @@ export default function Navbar() {
             {/* SearchBar */}
             <SearchBar />
 
+            {/* Mobile nav links */}
+            <div className="pt-1">
+              <Link
+                href="/community"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors font-heading"
+              >
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                Community
+              </Link>
+            </div>
+
             {/* Actions */}
             <div className="flex items-center justify-between pt-2 border-t border-surface-border">
               {user ? (
@@ -205,6 +275,16 @@ export default function Navbar() {
                     >
                       <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                      </svg>
+                    </Link>
+                    <Link
+                      href="/history"
+                      onClick={() => setMenuOpen(false)}
+                      className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
+                      title="History"
+                    >
+                      <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </Link>
                     <Link
@@ -251,13 +331,25 @@ export default function Navbar() {
                   </div>
                 </>
               ) : (
-                <Link
-                  href="/auth/login"
-                  onClick={() => setMenuOpen(false)}
-                  className="px-4 py-2 text-sm font-semibold font-heading text-text-secondary hover:text-text-primary border border-surface-border rounded-lg hover:border-surface-4 transition-all"
-                >
-                  Sign In
-                </Link>
+                <>
+                  <Link
+                    href="/history"
+                    onClick={() => setMenuOpen(false)}
+                    className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
+                    title="History"
+                  >
+                    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </Link>
+                  <Link
+                    href="/auth/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="px-4 py-2 text-sm font-semibold font-heading text-text-secondary hover:text-text-primary border border-surface-border rounded-lg hover:border-surface-4 transition-all"
+                  >
+                    Sign In
+                  </Link>
+                </>
               )}
             </div>
           </div>

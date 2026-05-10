@@ -1302,6 +1302,159 @@ export async function unlinkPostVehicles(postId: string) {
   if (error) throw error;
 }
 
+// ── Vehicle Stats & Discussions ──────────────────────────
+
+export async function getVehicleStats(engineId: string): Promise<{
+  postCount: number;
+  commentCount: number;
+  followerCount: number;
+}> {
+  const supabase = await createServerSupabase();
+
+  // Post count: number of posts linked to this engine
+  const { count: postCount } = await supabase
+    .from("post_vehicles")
+    .select("id", { count: "exact", head: true })
+    .eq("engine_id", engineId);
+
+  // Comment count: sum of comment_count across all linked posts
+  const { data: links } = await supabase
+    .from("post_vehicles")
+    .select("post_id")
+    .eq("engine_id", engineId);
+
+  let commentCount = 0;
+  if (links?.length) {
+    const postIds = links.map((l) => l.post_id);
+    const { data: posts } = await supabase
+      .from("posts")
+      .select("comment_count")
+      .in("id", postIds)
+      .eq("status", "approved");
+    commentCount = (posts ?? []).reduce((sum, p) => sum + (p.comment_count ?? 0), 0);
+  }
+
+  // Follower count: number of users who added this vehicle
+  const { count: followerCount } = await supabase
+    .from("user_vehicles")
+    .select("id", { count: "exact", head: true })
+    .eq("engine_id", engineId);
+
+  return {
+    postCount: postCount ?? 0,
+    commentCount,
+    followerCount: followerCount ?? 0,
+  };
+}
+
+export async function getVehicleDiscussions(engineId: string): Promise<PostWithRelations[]> {
+  const supabase = await createServerSupabase();
+  const { data: links } = await supabase
+    .from("post_vehicles")
+    .select("post_id")
+    .eq("engine_id", engineId);
+
+  if (!links?.length) return [];
+
+  const postIds = links.map((l) => l.post_id);
+  const { data } = await supabase
+    .from("posts")
+    .select("*, profiles(username, avatar_url), categories(name, slug), post_tags(car_tags(name, slug))")
+    .in("id", postIds)
+    .eq("status", "approved")
+    .order("comment_count", { ascending: false });
+
+  return (data as unknown as PostWithRelations[]) ?? [];
+}
+
+// ── Community Page Data ───────────────────────────────────
+
+export async function getActiveDiscussions(limit = 5) {
+  const supabase = await createServerSupabase();
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await supabase
+    .from("posts")
+    .select("id, title, comment_count, created_at")
+    .eq("status", "approved")
+    .gte("created_at", sevenDaysAgo)
+    .order("comment_count", { ascending: false })
+    .limit(limit);
+  return data ?? [];
+}
+
+export async function getTopContributors(limit = 10) {
+  const supabase = await createServerSupabase();
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data } = await supabase
+    .from("comments")
+    .select("author_id, profiles(username, avatar_url)")
+    .gte("created_at", thirtyDaysAgo);
+
+  const commentsData = (data as unknown as Record<string, unknown>[]) ?? [];
+  if (!commentsData.length) return [];
+
+  // Aggregate comment counts by author
+  const counts = new Map<string, { count: number; username: string; avatar_url: string | null }>();
+  for (const c of commentsData) {
+    const authorId = c.author_id as string;
+    if (!authorId) continue;
+    const existing = counts.get(authorId);
+    const profiles = c.profiles as Record<string, unknown> | null;
+    if (existing) {
+      existing.count++;
+    } else {
+      counts.set(authorId, {
+        count: 1,
+        username: (profiles?.username as string) ?? "unknown",
+        avatar_url: (profiles?.avatar_url as string) ?? null,
+      });
+    }
+  }
+
+  return Array.from(counts.entries())
+    .map(([id, info]) => ({ id, username: info.username, avatar_url: info.avatar_url, comment_count: info.count }))
+    .sort((a, b) => b.comment_count - a.comment_count)
+    .slice(0, limit);
+}
+
+export async function getTrendingVehicles(limit = 8) {
+  const supabase = await createServerSupabase();
+
+  // Count followers per engine and return the top
+  const { data: vehicleData } = await supabase
+    .from("user_vehicles")
+    .select("engine_id");
+
+  if (!vehicleData?.length) return [];
+
+  const counts = new Map<string, number>();
+  for (const v of vehicleData) {
+    counts.set(v.engine_id, (counts.get(v.engine_id) ?? 0) + 1);
+  }
+
+  // Sort by follower count and take top
+  const sorted = Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit);
+
+  // Fetch engine details for each
+  const result = [];
+  for (const [engineId, followerCount] of sorted) {
+    const { data: engine } = await supabase
+      .from("vehicle_engines")
+      .select("id, code, name, displacement, fuel_type, horsepower, vehicle_generations(name, year_start, year_end, vehicle_models(name, slug, vehicle_makes(name, slug)))")
+      .eq("id", engineId)
+      .single();
+
+    if (engine) {
+      result.push({ ...(engine as Record<string, unknown>), follower_count: followerCount });
+    }
+  }
+
+  return result;
+}
+
 export async function getPostVehicles(postId: string) {
   const supabase = await createServerSupabase();
   const { data } = await supabase
@@ -1309,4 +1462,52 @@ export async function getPostVehicles(postId: string) {
     .select("engine_id, vehicle_engines(id, code, name, displacement, fuel_type, horsepower, vehicle_generations(name, year_start, year_end, vehicle_models(name, slug, vehicle_makes(name, slug))))")
     .eq("post_id", postId);
   return (data as unknown as { engine_id: string; vehicle_engines: Record<string, unknown> | null }[]) ?? [];
+}
+
+// ── Reading History (Feature 2) ──────────────────────────────
+
+export interface ReadingHistoryItem {
+  postId: string;
+  title: string;
+  viewedAt: string;
+}
+
+export async function getReadingHistory(userId: string): Promise<ReadingHistoryItem[]> {
+  const supabase = await createServerSupabase();
+
+  const { data: events } = await supabase
+    .from("user_events")
+    .select("target_id, created_at")
+    .eq("user_id", userId)
+    .eq("event_type", "view_post")
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (!events?.length) return [];
+
+  // Deduplicate by target_id, keeping the latest view
+  const seen = new Set<string>();
+  const uniqueEvents: { postId: string; viewedAt: string }[] = [];
+  for (const e of events) {
+    if (!e.target_id || seen.has(e.target_id)) continue;
+    seen.add(e.target_id);
+    uniqueEvents.push({ postId: e.target_id, viewedAt: e.created_at });
+  }
+
+  // Fetch post titles in batch
+  const postIds = uniqueEvents.map((e) => e.postId);
+  const { data: posts } = await supabase
+    .from("posts")
+    .select("id, title")
+    .in("id", postIds);
+
+  const titleMap = new Map((posts ?? []).map((p) => [p.id, p.title]));
+
+  return uniqueEvents
+    .filter((e) => titleMap.has(e.postId))
+    .map((e) => ({
+      postId: e.postId,
+      title: titleMap.get(e.postId) ?? "Untitled",
+      viewedAt: e.viewedAt,
+    }));
 }
