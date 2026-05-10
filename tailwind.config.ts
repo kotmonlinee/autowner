@@ -5,20 +5,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: { DEFAULT: "#ed1c24", dark: "#b8141b", glow: "#ff3b42" },
-        amber: { DEFAULT: "#f59e0b", dark: "#d97706" },
+        primary: { DEFAULT: "var(--color-primary)", dark: "var(--color-primary-dark)", glow: "var(--color-primary-glow)" },
+        amber: { DEFAULT: "var(--color-amber)", dark: "var(--color-amber-dark)" },
         surface: {
-          0: "#0a0b0f",
-          1: "#111318",
-          2: "#181b21",
-          3: "#1f2229",
-          4: "#282c34",
-          border: "#2a2d35",
+          0: "var(--bg-primary)",
+          1: "var(--bg-secondary)",
+          2: "var(--bg-secondary)",
+          3: "var(--bg-tertiary)",
+          4: "var(--bg-border)",
+          border: "var(--bg-border)",
         },
         text: {
-          primary: "#f0f1f3",
-          secondary: "#9ca3af",
-          muted: "#6b7280",
+          primary: "var(--text-primary)",
+          secondary: "var(--text-secondary)",
+          muted: "var(--text-muted)",
         },
       },
       fontFamily: {

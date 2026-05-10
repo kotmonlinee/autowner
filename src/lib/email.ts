@@ -10,8 +10,14 @@
 // Required env vars per provider:
 //   Resend:    RESEND_API_KEY
 //   SendGrid:  SENDGRID_API_KEY, SENDGRID_FROM_EMAIL
+//
+// To enable emails via Resend:
+//   1. Create an account at https://resend.com
+//   2. Add and verify your domain (e.g., autowner.com)
+//   3. Set EMAIL_PROVIDER=resend and RESEND_API_KEY in Vercel env vars
 
 import { createServerSupabase } from "@/lib/supabase-server";
+import { Resend } from "resend";
 
 const EMAIL_PROVIDER = (process.env.EMAIL_PROVIDER ?? "none") as
   | "none"
@@ -91,27 +97,20 @@ async function sendViaResend(
   }
 
   try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        from: `${SITE_NAME} <notifications@autowner.com>`,
-        to,
-        subject,
-        html: htmlBody,
-      }),
+    const resend = new Resend(apiKey);
+    const { data, error } = await resend.emails.send({
+      from: `${SITE_NAME} <notifications@autowner.com>`,
+      to,
+      subject,
+      html: htmlBody,
     });
 
-    if (!res.ok) {
-      const body = await res.text();
-      console.error(`[email] Resend API error (${res.status}):`, body);
+    if (error) {
+      console.error(`[email] Resend API error:`, error.message);
       return false;
     }
 
-    console.log(`[email] Sent via Resend to ${to}: "${subject}"`);
+    console.log(`[email] Sent via Resend to ${to}: "${subject}" (id: ${data?.id})`);
     return true;
   } catch (error) {
     console.error("[email] Resend send error:", error);
