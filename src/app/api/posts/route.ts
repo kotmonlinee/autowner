@@ -12,14 +12,14 @@ export async function POST(request: Request) {
     const limited = await withRateLimit(user.id, "posts:create", 3, 3600);
     if (limited) return limited;
 
-    let body: { title?: string; body?: string; categoryId?: string; tags?: unknown; quickAnswer?: Record<string, unknown> | null };
+    let body: { title?: string; body?: string; categoryId?: string; tags?: unknown; quickAnswer?: Record<string, unknown> | null; engineIds?: string[] };
     try {
       body = await request.json();
     } catch {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const { title, body: postBody, categoryId, tags, quickAnswer } = body;
+    const { title, body: postBody, categoryId, tags, quickAnswer, engineIds } = body;
 
     if (!title || typeof title !== "string" || title.trim().length === 0) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       authorId: user.id,
       tags: (tags ?? []) as { name: string; slug: string }[],
       quickAnswer: quickAnswer ?? null,
+      engineIds: (engineIds ?? []) as string[],
     });
     return NextResponse.json({ id });
   } catch (error: unknown) {

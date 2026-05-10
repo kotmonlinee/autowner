@@ -12,7 +12,12 @@ import {
   updateUsername,
   updateBio,
   updateAvatarUrl,
+  fetchUserVehicles,
+  addUserVehicle,
+  removeUserVehicle,
+  setPrimaryVehicle,
 } from "@/lib/data/browser";
+import VehicleSelector from "@/components/VehicleSelector";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -38,6 +43,15 @@ export default function SettingsPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Vehicle garage state
+  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [garageLoading, setGarageLoading] = useState(false);
+  const [showVehicleSelector, setShowVehicleSelector] = useState(false);
+  const [vehicleYear, setVehicleYear] = useState(new Date().getFullYear());
+  const [vehicleNickname, setVehicleNickname] = useState("");
+  const [selectedEngineId, setSelectedEngineId] = useState<string>("");
+  const [addingVehicle, setAddingVehicle] = useState(false);
+
   useEffect(() => {
     getSessionUser().then((u) => {
       if (!u) {
@@ -45,14 +59,16 @@ export default function SettingsPage() {
         return;
       }
       setUser(u);
-      fetchProfile(u.id).then((p) => {
-        setProfile(p);
-        if (p) {
-          setNewUsername(p.username);
-          setBio(p.bio ?? "");
-        }
-        setLoading(false);
-      });
+      Promise.all([
+        fetchProfile(u.id).then((p) => {
+          setProfile(p);
+          if (p) {
+            setNewUsername(p.username);
+            setBio(p.bio ?? "");
+          }
+        }),
+        fetchUserVehicles(u.id).then((v) => setVehicles(v ?? [])),
+      ]).finally(() => setLoading(false));
     });
     const sub = onAuthChange((u) => {
       if (!u) router.replace("/auth/login");
@@ -114,6 +130,48 @@ export default function SettingsPage() {
   const handleAvatarChange = async (url: string) => {
     await updateAvatarUrl(url);
     setProfile((prev) => (prev ? { ...prev, avatar_url: url } : prev));
+  };
+
+  // Garage handlers
+  const handleAddVehicle = async () => {
+    if (!user || !selectedEngineId) return;
+    setAddingVehicle(true);
+    try {
+      await addUserVehicle(
+        user.id,
+        selectedEngineId,
+        vehicleYear,
+        vehicleNickname.trim() || null,
+      );
+      // Refresh vehicle list
+      const updated = await fetchUserVehicles(user.id);
+      setVehicles(updated ?? []);
+      setShowVehicleSelector(false);
+      setSelectedEngineId("");
+      setVehicleNickname("");
+      setVehicleYear(new Date().getFullYear());
+    } catch {
+      // silently fail — the selector already shows success
+    } finally {
+      setAddingVehicle(false);
+    }
+  };
+
+  const handleRemoveVehicle = async (vehicleId: string) => {
+    if (!user) return;
+    await removeUserVehicle(vehicleId, user.id);
+    setVehicles((prev) => prev.filter((v) => v.id !== vehicleId));
+  };
+
+  const handleSetPrimary = async (vehicleId: string) => {
+    if (!user) return;
+    await setPrimaryVehicle(vehicleId, user.id);
+    setVehicles((prev) =>
+      prev.map((v) => ({
+        ...v,
+        is_primary: v.id === vehicleId,
+      }))
+    );
   };
 
   if (loading) {
@@ -307,6 +365,162 @@ export default function SettingsPage() {
               {savingBio ? "Saving…" : "Save Bio"}
             </button>
           </form>
+        </div>
+
+        {/* My Garage */}
+        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 mt-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted font-heading">
+              My Garage
+            </h2>
+            <button
+              type="button"
+              onClick={() => setShowVehicleSelector(!showVehicleSelector)}
+              className="px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-glow transition-colors font-heading shadow-sm shadow-primary/20"
+            >
+              {showVehicleSelector ? "Cancel" : "Add Vehicle"}
+            </button>
+          </div>
+
+          {/* Vehicle list */}
+          {vehicles.length === 0 && !showVehicleSelector && (
+            <p className="text-sm text-text-muted py-4 text-center">
+              No vehicles in your garage yet. Add your first car to connect with
+              specific models and engines.
+            </p>
+          )}
+
+          <div className="space-y-2.5">
+            {vehicles.map((v) => {
+              const eng = v.vehicle_engines;
+              const gen = eng?.vehicle_generations;
+              const model = gen?.vehicle_models;
+              const make = model?.vehicle_makes;
+              return (
+                <div
+                  key={v.id}
+                  className="flex items-center gap-3 bg-surface-2 rounded-xl p-3 border border-surface-border"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <svg
+                      className="w-4.5 h-4.5 text-primary"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
+                      <circle cx="9" cy="17" r="1" />
+                      <circle cx="15" cy="17" r="1" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-text-primary font-heading truncate">
+                        {make?.name ?? "Unknown make"}{" "}
+                        {model?.name ?? "Unknown model"}
+                      </p>
+                      {v.is_primary && (
+                        <span className="shrink-0 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-primary/10 text-primary border border-primary/20 font-heading">
+                          Primary
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-text-muted truncate mt-0.5">
+                      {gen?.name ?? ""} ({gen?.year_start}&ndash;
+                      {gen?.year_end ?? "Pres"}) &middot; {eng?.code ?? ""}{" "}
+                      {eng?.name ?? ""}
+                      {v.year && ` · ${v.year}`}
+                      {v.nickname && ` · "${v.nickname}"`}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {!v.is_primary && (
+                      <button
+                        type="button"
+                        onClick={() => handleSetPrimary(v.id)}
+                        className="px-2 py-1 text-[10px] font-semibold rounded-md text-text-muted hover:text-primary hover:bg-primary/5 transition-colors font-heading"
+                        title="Set as primary vehicle"
+                      >
+                        Primary
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveVehicle(v.id)}
+                      className="px-2 py-1 text-[10px] font-semibold rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/5 transition-colors font-heading"
+                      title="Remove vehicle"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Add vehicle form */}
+          {showVehicleSelector && (
+            <div className="mt-4 space-y-3">
+              <div className="border-t border-surface-border pt-4">
+                <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading">
+                  Select Vehicle
+                </label>
+                <VehicleSelector
+                  onChange={(engineId) => setSelectedEngineId(engineId)}
+                />
+              </div>
+
+              {selectedEngineId && (
+                <div className="space-y-3 pt-2">
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <label className="block text-xs font-semibold text-text-secondary font-heading mb-1">
+                        Year
+                      </label>
+                      <input
+                        type="number"
+                        value={vehicleYear}
+                        onChange={(e) =>
+                          setVehicleYear(Number(e.target.value))
+                        }
+                        min={1950}
+                        max={2030}
+                        className="w-full px-3 py-2 bg-surface-0 text-text-primary text-sm rounded-lg border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all"
+                      />
+                    </div>
+                    <div className="flex-[2]">
+                      <label className="block text-xs font-semibold text-text-secondary font-heading mb-1">
+                        Nickname{" "}
+                        <span className="font-normal text-text-muted">
+                          (optional)
+                        </span>
+                      </label>
+                      <input
+                        type="text"
+                        value={vehicleNickname}
+                        onChange={(e) => setVehicleNickname(e.target.value)}
+                        placeholder="e.g. My daily driver"
+                        maxLength={32}
+                        className="w-full px-3 py-2 bg-surface-0 text-text-primary text-sm rounded-lg border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleAddVehicle}
+                    disabled={addingVehicle}
+                    className="w-full px-4 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 disabled:opacity-50 disabled:hover:translate-y-0 font-heading shadow-sm shadow-primary/20"
+                  >
+                    {addingVehicle ? "Adding..." : "Add to Garage"}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
 

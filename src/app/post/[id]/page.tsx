@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPostByIdAny, getCurrentUser } from "@/lib/data/server";
+import { getPostByIdAny, getCurrentUser, getPostVehicles } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Avatar from "@/components/Avatar";
@@ -117,7 +117,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [post, user] = await Promise.all([getPostByIdAny(id), getCurrentUser()]);
+  const [post, user, postVehicles] = await Promise.all([
+    getPostByIdAny(id),
+    getCurrentUser(),
+    getPostVehicles(id),
+  ]);
 
   if (!post) notFound();
 
@@ -315,6 +319,30 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                       {post.post_tags.map(pt => (
                         <Link key={pt.car_tags.slug} href={`/?tag=${pt.car_tags.slug}`} className="px-2.5 py-1 bg-surface-3 text-text-muted rounded-lg text-xs font-medium hover:bg-surface-4 hover:text-text-secondary transition-colors">{pt.car_tags.name}</Link>
                       ))}
+                    </div>
+                  )}
+
+                  {/* Linked vehicles */}
+                  {postVehicles && postVehicles.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-surface-border">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted mr-1 flex items-center font-heading">
+                        Vehicle:
+                      </span>
+                      {postVehicles.map((pv) => {
+                        const eng = pv.vehicle_engines as Record<string, unknown> | null;
+                        const gen = eng?.vehicle_generations as Record<string, unknown> | null;
+                        const model = gen?.vehicle_models as Record<string, unknown> | null;
+                        const make = model?.vehicle_makes as Record<string, unknown> | null;
+                        return (
+                          <Link
+                            key={pv.engine_id}
+                            href={`/vehicle/${pv.engine_id}`}
+                            className="px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-medium hover:bg-primary/20 transition-colors"
+                          >
+                            {String(make?.name ?? "")} {String(model?.name ?? "")} ({String(gen?.name ?? "")}) &mdash; {String(eng?.code ?? "")}
+                          </Link>
+                        );
+                      })}
                     </div>
                   )}
                 </>

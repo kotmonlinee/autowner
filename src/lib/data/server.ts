@@ -364,6 +364,7 @@ export async function createPost(opts: {
   authorId: string;
   tags: { name: string; slug: string }[];
   quickAnswer?: Record<string, unknown> | null;
+  engineIds?: string[];
 }) {
   const supabase = await createServerSupabase();
   const insertData: Record<string, unknown> = {
@@ -395,6 +396,16 @@ export async function createPost(opts: {
     if (tagId) await supabase.from("post_tags").insert({ post_id: post.id, tag_id: tagId });
   }
 
+  // Link vehicle engines
+  if (opts.engineIds?.length) {
+    for (const engineId of opts.engineIds) {
+      await supabase.from("post_vehicles").upsert(
+        { post_id: post.id, engine_id: engineId },
+        { onConflict: "post_id,engine_id" },
+      );
+    }
+  }
+
   return post.id;
 }
 
@@ -408,6 +419,7 @@ export async function saveDraft(opts: {
   authorId: string;
   tags: { name: string; slug: string }[];
   quickAnswer?: Record<string, unknown> | null;
+  engineIds?: string[];
 }): Promise<string> {
   const supabase = await createServerSupabase();
 
@@ -443,6 +455,17 @@ export async function saveDraft(opts: {
       if (tagId) await supabase.from("post_tags").insert({ post_id: opts.id, tag_id: tagId });
     }
 
+    // Update vehicle links
+    await supabase.from("post_vehicles").delete().eq("post_id", opts.id);
+    if (opts.engineIds?.length) {
+      for (const engineId of opts.engineIds) {
+        await supabase.from("post_vehicles").upsert(
+          { post_id: opts.id, engine_id: engineId },
+          { onConflict: "post_id,engine_id" },
+        );
+      }
+    }
+
     return opts.id;
   } else {
     // Insert new draft
@@ -474,6 +497,16 @@ export async function saveDraft(opts: {
         tagId = created?.id;
       }
       if (tagId) await supabase.from("post_tags").insert({ post_id: post.id, tag_id: tagId });
+    }
+
+    // Link vehicle engines
+    if (opts.engineIds?.length) {
+      for (const engineId of opts.engineIds) {
+        await supabase.from("post_vehicles").upsert(
+          { post_id: post.id, engine_id: engineId },
+          { onConflict: "post_id,engine_id" },
+        );
+      }
     }
 
     return post.id;
@@ -1031,4 +1064,220 @@ export async function getCurrentUser() {
   const supabase = await createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   return user;
+}
+
+// ── Vehicle Database ──────────────────────────────────────
+
+export async function getVehicleMakes() {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from("vehicle_makes")
+    .select("*")
+    .order("name");
+  return data ?? [];
+}
+
+export async function getVehicleModels(makeSlug: string) {
+  const supabase = await createServerSupabase();
+  const { data: make } = await supabase
+    .from("vehicle_makes")
+    .select("id")
+    .eq("slug", makeSlug)
+    .single();
+  if (!make) return [];
+  const { data } = await supabase
+    .from("vehicle_models")
+    .select("*")
+    .eq("make_id", make.id)
+    .order("name");
+  return data ?? [];
+}
+
+export async function getVehicleGenerations(modelSlug: string, makeSlug: string) {
+  const supabase = await createServerSupabase();
+  const { data: make } = await supabase
+    .from("vehicle_makes")
+    .select("id")
+    .eq("slug", makeSlug)
+    .single();
+  if (!make) return [];
+  const { data: model } = await supabase
+    .from("vehicle_models")
+    .select("id, name")
+    .eq("slug", modelSlug)
+    .eq("make_id", make.id)
+    .single();
+  if (!model) return [];
+  const { data: generations } = await supabase
+    .from("vehicle_generations")
+    .select("*, vehicle_engines(*)")
+    .eq("model_id", model.id)
+    .order("year_start", { ascending: false });
+  return (generations ?? []).map((gen: Record<string, unknown>) => ({
+    ...gen,
+    model_name: model.name,
+    make_name: (make as Record<string, unknown>).name,
+  }));
+}
+
+export async function searchVehicles(query: string) {
+  const supabase = await createServerSupabase();
+  const q = `%${query}%`;
+
+  // Search makes
+  const { data: makes } = await supabase
+    .from("vehicle_makes")
+    .select("id, name, slug")
+    .ilike("name", q)
+    .limit(5);
+
+  // Search models + join make
+  const { data: models } = await supabase
+    .from("vehicle_models")
+    .select("id, name, slug, make_id, vehicle_makes(name, slug)")
+    .ilike("name", q)
+    .limit(10);
+
+  // Search engines + join generation + model + make
+  const { data: engines } = await supabase
+    .from("vehicle_engines")
+    .select("id, code, name, displacement, fuel_type, horsepower, vehicle_generations(id, name, year_start, year_end, vehicle_models(id, name, slug, vehicle_makes(name, slug)))")
+    .ilike("name", q)
+    .limit(10);
+
+  // Also search engines by code
+  const { data: enginesByCode } = await supabase
+    .from("vehicle_engines")
+    .select("id, code, name, displacement, fuel_type, horsepower, vehicle_generations(id, name, year_start, year_end, vehicle_models(id, name, slug, vehicle_makes(name, slug)))")
+    .ilike("code", q)
+    .limit(5);
+
+  const allEngines = [...(engines ?? []), ...(enginesByCode ?? [])] as unknown as Record<string, unknown>[];
+  return {
+    makes: makes ?? [],
+    models: models ?? [],
+    engines: allEngines.filter(
+      (e, i, arr) => arr.findIndex((x) => (x as Record<string, unknown>).id === (e as Record<string, unknown>).id) === i
+    ),
+  };
+}
+
+export async function getEngineById(engineId: string) {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from("vehicle_engines")
+    .select("*, vehicle_generations!inner(name, year_start, year_end, vehicle_models!inner(name, slug, vehicle_makes!inner(name, slug)))")
+    .eq("id", engineId)
+    .single();
+  return data as Record<string, unknown> | null;
+}
+
+export async function getUserVehicles(userId: string) {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from("user_vehicles")
+    .select("*, vehicle_engines(*, vehicle_generations(name, year_start, year_end, vehicle_models(name, slug, vehicle_makes(name, slug))))")
+    .eq("user_id", userId)
+    .order("is_primary", { ascending: false })
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+export async function addUserVehicle(
+  userId: string,
+  engineId: string,
+  year: number,
+  nickname?: string | null,
+) {
+  const supabase = await createServerSupabase();
+
+  // If this is the first vehicle, make it primary automatically
+  const { count } = await supabase
+    .from("user_vehicles")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
+  const isPrimary = count === 0;
+
+  const { data, error } = await supabase
+    .from("user_vehicles")
+    .insert({
+      user_id: userId,
+      engine_id: engineId,
+      year,
+      nickname: nickname ?? null,
+      is_primary: isPrimary,
+    })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function removeUserVehicle(vehicleId: string, userId: string) {
+  const supabase = await createServerSupabase();
+  const { error } = await supabase
+    .from("user_vehicles")
+    .delete()
+    .eq("id", vehicleId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function setPrimaryVehicle(vehicleId: string, userId: string) {
+  const supabase = await createServerSupabase();
+  // Reset all vehicles for this user
+  await supabase
+    .from("user_vehicles")
+    .update({ is_primary: false })
+    .eq("user_id", userId);
+  // Set the selected one as primary
+  const { error } = await supabase
+    .from("user_vehicles")
+    .update({ is_primary: true })
+    .eq("id", vehicleId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function getPostsByEngine(engineId: string) {
+  const supabase = await createServerSupabase();
+  const { data: links } = await supabase
+    .from("post_vehicles")
+    .select("post_id")
+    .eq("engine_id", engineId);
+  if (!links?.length) return [];
+  const postIds = links.map((l) => l.post_id);
+  const { data } = await supabase
+    .from("posts")
+    .select("*, profiles(username, avatar_url), categories(name, slug), post_tags(car_tags(name, slug))")
+    .in("id", postIds)
+    .eq("status", "approved")
+    .order("created_at", { ascending: false });
+  return (data as unknown as import("@/lib/types").PostWithRelations[]) ?? [];
+}
+
+export async function linkPostVehicle(postId: string, engineId: string) {
+  const supabase = await createServerSupabase();
+  const { error } = await supabase
+    .from("post_vehicles")
+    .upsert({ post_id: postId, engine_id: engineId }, { onConflict: "post_id,engine_id" });
+  if (error) throw error;
+}
+
+export async function unlinkPostVehicles(postId: string) {
+  const supabase = await createServerSupabase();
+  const { error } = await supabase
+    .from("post_vehicles")
+    .delete()
+    .eq("post_id", postId);
+  if (error) throw error;
+}
+
+export async function getPostVehicles(postId: string) {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from("post_vehicles")
+    .select("engine_id, vehicle_engines(id, code, name, displacement, fuel_type, horsepower, vehicle_generations(name, year_start, year_end, vehicle_models(name, slug, vehicle_makes(name, slug))))")
+    .eq("post_id", postId);
+  return (data as unknown as { engine_id: string; vehicle_engines: Record<string, unknown> | null }[]) ?? [];
 }

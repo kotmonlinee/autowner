@@ -168,3 +168,149 @@ export async function markAllNotificationsRead(userId: string): Promise<void> {
     .eq("user_id", userId)
     .eq("is_read", false);
 }
+
+// ── Vehicle Database (browser) ─────────────────────────────
+
+export async function fetchVehicleMakes() {
+  const { data } = await createClient()
+    .from("vehicle_makes")
+    .select("*")
+    .order("name");
+  return (data as unknown as { id: string; name: string; slug: string; country: string | null; created_at: string }[]) ?? [];
+}
+
+export async function fetchVehicleModels(makeSlug: string) {
+  const { data: make } = await createClient()
+    .from("vehicle_makes")
+    .select("id")
+    .eq("slug", makeSlug)
+    .single();
+  if (!make) return [];
+  const { data } = await createClient()
+    .from("vehicle_models")
+    .select("*")
+    .eq("make_id", (make as { id: string }).id)
+    .order("name");
+  return (data as unknown as { id: string; name: string; slug: string; make_id: string }[]) ?? [];
+}
+
+export async function fetchVehicleGenerations(modelSlug: string, makeSlug: string) {
+  const { data: make } = await createClient()
+    .from("vehicle_makes")
+    .select("id, name")
+    .eq("slug", makeSlug)
+    .single();
+  if (!make) return [];
+  const makeRecord = make as { id: string; name: string };
+  const { data: model } = await createClient()
+    .from("vehicle_models")
+    .select("id, name")
+    .eq("slug", modelSlug)
+    .eq("make_id", makeRecord.id)
+    .single();
+  if (!model) return [];
+  const modelRecord = model as { id: string; name: string };
+  const { data: generations } = await createClient()
+    .from("vehicle_generations")
+    .select("*, vehicle_engines(*)")
+    .eq("model_id", (model as { id: string }).id)
+    .order("year_start", { ascending: false });
+  return ((generations as unknown as any[]) ?? []).map((gen) => ({
+    ...gen,
+    model_name: modelRecord.name,
+    make_name: makeRecord.name,
+  }));
+}
+
+export async function searchVehicles(query: string) {
+  const q = `%${query}%`;
+  const supabase = createClient();
+
+  const [makesRes, modelsRes, enginesRes, enginesByCodeRes] = await Promise.all([
+    supabase.from("vehicle_makes").select("id, name, slug").ilike("name", q).limit(5),
+    supabase.from("vehicle_models").select("id, name, slug, make_id, vehicle_makes(name, slug)").ilike("name", q).limit(10),
+    supabase.from("vehicle_engines").select("id, code, name, displacement, fuel_type, horsepower, vehicle_generations(id, name, year_start, year_end, vehicle_models(id, name, slug, vehicle_makes(name, slug)))").ilike("name", q).limit(10),
+    supabase.from("vehicle_engines").select("id, code, name, displacement, fuel_type, horsepower, vehicle_generations(id, name, year_start, year_end, vehicle_models(id, name, slug, vehicle_makes(name, slug)))").ilike("code", q).limit(5),
+  ]);
+
+  const allEngines = [...(enginesRes.data ?? []), ...(enginesByCodeRes.data ?? [])] as unknown as Record<string, unknown>[];
+  const deduped = allEngines.filter(
+    (e, i, arr) => arr.findIndex((x) => (x as Record<string, unknown>).id === (e as Record<string, unknown>).id) === i
+  );
+
+  return {
+    makes: makesRes.data ?? [],
+    models: modelsRes.data ?? [],
+    engines: deduped,
+  };
+}
+
+export async function fetchEngineById(engineId: string) {
+  const { data } = await createClient()
+    .from("vehicle_engines")
+    .select("*, vehicle_generations!inner(name, year_start, year_end, vehicle_models!inner(name, slug, vehicle_makes!inner(name, slug)))")
+    .eq("id", engineId)
+    .single();
+  return data as Record<string, unknown> | null;
+}
+
+export async function fetchUserVehicles(userId: string) {
+  const { data } = await createClient()
+    .from("user_vehicles")
+    .select("*, vehicle_engines(id, code, name, displacement, fuel_type, horsepower, vehicle_generations(name, year_start, year_end, vehicle_models(name, slug, vehicle_makes(name, slug))))")
+    .eq("user_id", userId)
+    .order("is_primary", { ascending: false })
+    .order("created_at", { ascending: false });
+  return (data as unknown as any[]) ?? [];
+}
+
+export async function addUserVehicle(
+  userId: string,
+  engineId: string,
+  year: number,
+  nickname?: string | null,
+) {
+  // Check if this is the first vehicle
+  const { count } = await createClient()
+    .from("user_vehicles")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
+  const isPrimary = count === 0;
+
+  const { data, error } = await createClient()
+    .from("user_vehicles")
+    .insert({
+      user_id: userId,
+      engine_id: engineId,
+      year,
+      nickname: nickname ?? null,
+      is_primary: isPrimary,
+    })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function removeUserVehicle(vehicleId: string, userId: string) {
+  const { error } = await createClient()
+    .from("user_vehicles")
+    .delete()
+    .eq("id", vehicleId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function setPrimaryVehicle(vehicleId: string, userId: string) {
+  const supabase = createClient();
+  await supabase
+    .from("user_vehicles")
+    .update({ is_primary: false })
+    .eq("user_id", userId);
+  const { error } = await supabase
+    .from("user_vehicles")
+    .update({ is_primary: true })
+    .eq("id", vehicleId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}

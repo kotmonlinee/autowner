@@ -21,6 +21,12 @@ export interface Database {
       views: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       error_logs: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       reports: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      vehicle_makes: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      vehicle_models: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      vehicle_generations: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      vehicle_engines: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      user_vehicles: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      post_vehicles: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -127,4 +133,64 @@ export type Notification = {
 
 export type CommentWithPost = CommentWithAuthor & {
   posts: { id: string; title: string } | null;
+};
+
+// ── Vehicle Database Types ──────────────────────────────────
+
+export type VehicleMake = {
+  id: string;
+  name: string;
+  slug: string;
+  country: string | null;
+  created_at: string;
+};
+
+export type VehicleModel = {
+  id: string;
+  make_id: string;
+  name: string;
+  slug: string;
+};
+
+export type VehicleGeneration = {
+  id: string;
+  model_id: string;
+  name: string;
+  year_start: number;
+  year_end: number | null;
+};
+
+export type VehicleEngine = {
+  id: string;
+  generation_id: string;
+  code: string;
+  name: string;
+  displacement: string | null;
+  fuel_type: string | null;
+  horsepower: number | null;
+};
+
+export type UserVehicle = {
+  id: string;
+  user_id: string;
+  engine_id: string | null;
+  year: number | null;
+  nickname: string | null;
+  is_primary: boolean;
+  created_at: string;
+};
+
+export type UserVehicleWithDetails = UserVehicle & {
+  vehicle_engines: VehicleEngine & {
+    vehicle_generations: VehicleGeneration & {
+      vehicle_models: VehicleModel & {
+        vehicle_makes: VehicleMake;
+      };
+    };
+  } | null;
+};
+
+export type PostVehicleLink = {
+  post_id: string;
+  engine_id: string;
 };

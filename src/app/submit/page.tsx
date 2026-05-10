@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { fetchCategories } from "@/lib/data/browser";
 import CarTagInput from "@/components/CarTagInput";
+import VehicleSelector from "@/components/VehicleSelector";
 import ImageUploader from "@/components/ImageUploader";
 import MarkdownBody from "@/components/MarkdownBody";
 
@@ -22,6 +23,9 @@ function SubmitForm() {
   const [previewMode, setPreviewMode] = useState<"write" | "preview">("write");
   const [draftId, setDraftId] = useState<string | null>(null);
   const [loadingDraft, setLoadingDraft] = useState(false);
+
+  // Vehicle linking state
+  const [selectedEngineId, setSelectedEngineId] = useState<string>("");
 
   // Quick Answer state
   const [quickAnswerExpanded, setQuickAnswerExpanded] = useState(false);
@@ -94,6 +98,7 @@ function SubmitForm() {
           categoryId,
           tags,
           quickAnswer: buildQuickAnswer(),
+          engineIds: selectedEngineId ? [selectedEngineId] : [],
         }),
       });
       if (res.ok) {
@@ -135,7 +140,14 @@ function SubmitForm() {
         const res = await fetch("/api/posts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, body, categoryId, tags, quickAnswer: buildQuickAnswer() }),
+          body: JSON.stringify({
+            title,
+            body,
+            categoryId,
+            tags,
+            quickAnswer: buildQuickAnswer(),
+            engineIds: selectedEngineId ? [selectedEngineId] : [],
+          }),
         });
         if (res.ok) {
           const { id } = await res.json();
@@ -460,6 +472,18 @@ function SubmitForm() {
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading">Car Models</label>
             <CarTagInput selected={tags} onChange={setTags} />
+          </div>
+
+          {/* Vehicle linking */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading">
+              Link Vehicle
+              <span className="text-text-muted font-normal normal-case tracking-normal"> (optional &mdash; select a specific make/model/engine)</span>
+            </label>
+            <VehicleSelector
+              onChange={(engineId) => setSelectedEngineId(engineId)}
+              compact
+            />
           </div>
 
           <div className="flex gap-3 pt-2">
