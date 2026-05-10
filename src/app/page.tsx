@@ -222,7 +222,7 @@ export default async function HomePage({
           )}
           <div className="flex items-center justify-between mb-5">
             <SortToggle />
-            {posts.length > 0 && <span className="text-xs text-text-muted">{posts.length} posts</span>}
+            {posts.length > 0 && <span className="text-xs text-text-muted">{totalCount} posts</span>}
           </div>
           <PostFeed posts={posts} userId={user?.id} matchingPostIds={matchingPostIds} lastVisitedAt={lastVisitedAt} />
           <Pagination page={page} totalCount={totalCount} />

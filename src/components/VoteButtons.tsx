@@ -2,45 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getUserVote } from "@/lib/data/browser";
-import { useRouter } from "next/navigation";
-
-const LOCALSTORAGE_KEY = "autowner_votes";
-
-interface VotesStore {
-  [key: string]: "up" | "down" | null;
-}
-
-function getAnonymousVotes(): VotesStore {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = localStorage.getItem(LOCALSTORAGE_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw) as VotesStore;
-  } catch {
-    return {};
-  }
-}
-
-function setAnonymousVotes(votes: VotesStore) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(votes));
-}
-
-/**
- * Compute the adjusted score for an anonymous vote.
- * When a user votes up, we add 1 to the base score.
- * When a user votes down, we subtract 1.
- * When unchanged, we show the base score.
- * If the user switches from up to down, the delta changes from +1 to -1.
- */
-function computeAnonymousScore(
-  baseScore: number,
-  vote: "up" | "down" | null,
-): number {
-  if (vote === "up") return baseScore + 1;
-  if (vote === "down") return baseScore - 1;
-  return baseScore;
-}
+import { useRouter, usePathname } from "next/navigation";
 
 export default function VoteButtons({
   targetType,
@@ -56,59 +18,40 @@ export default function VoteButtons({
   const [score, setScore] = useState(initialScore);
   const [userVote, setUserVote] = useState<"up" | "down" | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (userId) {
       getUserVote(userId, targetType, targetId).then((direction) => {
         if (direction) setUserVote(direction);
       });
-    } else {
-      const votes = getAnonymousVotes();
-      const key = `${targetType}_${targetId}`;
-      const vote = votes[key] ?? null;
-      setUserVote(vote);
-      setScore(computeAnonymousScore(initialScore, vote));
     }
-  }, [userId, targetType, targetId, initialScore]);
+    // Anonymous users: no-op, just show the real score
+  }, [userId, targetType, targetId]);
 
-  const vote = async (direction: "up" | "down") => {
-    if (userId) {
-      const res = await fetch("/api/votes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetType, targetId, direction }),
-      });
-      if (res.ok) {
-        const { newScore, newVote } = await res.json();
-        setScore(newScore);
-        setUserVote(newVote);
-      }
-    } else {
-      const votes = getAnonymousVotes();
-      const key = `${targetType}_${targetId}`;
-      const currentVote = votes[key] ?? null;
+  const handleVote = async (direction: "up" | "down") => {
+    if (!userId) {
+      // Anonymous user: redirect to login
+      router.push(`/auth/login?next=${encodeURIComponent(pathname)}`);
+      return;
+    }
 
-      let newVote: "up" | "down" | null;
-      if (currentVote === direction) {
-        // Toggle off
-        delete votes[key];
-        newVote = null;
-      } else {
-        // Set or switch vote
-        votes[key] = direction;
-        newVote = direction;
-      }
-
-      setAnonymousVotes(votes);
+    const res = await fetch("/api/votes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetType, targetId, direction }),
+    });
+    if (res.ok) {
+      const { newScore, newVote } = await res.json();
+      setScore(newScore);
       setUserVote(newVote);
-      setScore(computeAnonymousScore(initialScore, newVote));
     }
   };
 
   return (
     <div className="flex flex-col items-center shrink-0 w-9">
       <button
-        onClick={() => vote("up")}
+        onClick={() => handleVote("up")}
         className={`w-6 h-6 flex items-center justify-center rounded transition-all duration-150 ${
           userVote === "up"
             ? "text-primary bg-primary/10"
@@ -127,7 +70,7 @@ export default function VoteButtons({
         {score}
       </span>
       <button
-        onClick={() => vote("down")}
+        onClick={() => handleVote("down")}
         className={`w-6 h-6 flex items-center justify-center rounded transition-all duration-150 ${
           userVote === "down"
             ? "text-blue-400 bg-blue-400/10"
