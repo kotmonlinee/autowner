@@ -1,7 +1,9 @@
-import { getCategories } from "@/lib/data/server";
+import { getCategories, getCurrentUser, getUserVehicles } from "@/lib/data/server";
 import Link from "next/link";
 import TrendingPosts from "./TrendingPosts";
 import PopularTags from "./PopularTags";
+import MyCarFilter, { type PrimaryVehicleInfo } from "./MyCarFilter";
+import { Suspense } from "react";
 
 const categoryIcons: Record<string, string> = {
   home: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1",
@@ -13,12 +15,45 @@ const categoryIcons: Record<string, string> = {
   "diy-guides": "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z",
 };
 
+function buildPrimaryVehicleInfo(v: Record<string, unknown>): PrimaryVehicleInfo | null {
+  const eng = v.vehicle_engines as Record<string, unknown> | null;
+  if (!eng) return null;
+  const gen = eng.vehicle_generations as Record<string, unknown> | null | undefined;
+  const model = gen?.vehicle_models as Record<string, unknown> | null | undefined;
+  const make = model?.vehicle_makes as Record<string, unknown> | null | undefined;
+  return {
+    engineId: (v.engine_id as string) ?? "",
+    makeName: (make?.name as string) ?? "Unknown",
+    modelName: (model?.name as string) ?? "Unknown",
+    year: (v.year as number) ?? null,
+    engineCode: (eng.code as string) ?? "",
+    generationName: (gen?.name as string) ?? undefined,
+  };
+}
+
 export default async function Sidebar({ active }: { active?: string }) {
-  const categories = await getCategories();
+  const [categories, user] = await Promise.all([
+    getCategories(),
+    getCurrentUser(),
+  ]);
+
+  let primaryVehicle: PrimaryVehicleInfo | null = null;
+  if (user) {
+    const vehicles = await getUserVehicles(user.id);
+    const primary = (vehicles as Record<string, unknown>[])?.find((v) => v.is_primary === true);
+    if (primary) {
+      primaryVehicle = buildPrimaryVehicleInfo(primary);
+    }
+  }
 
   return (
     <aside className="w-52 shrink-0 hidden md:block">
       <nav className="sticky top-20 space-y-0.5" aria-label="Categories">
+        {/* My Car section */}
+        <Suspense fallback={null}>
+          <MyCarFilter vehicle={primaryVehicle} />
+        </Suspense>
+
         <div className="px-2 pb-2 mb-2 border-b border-surface-border">
           <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted font-heading">Browse</p>
         </div>

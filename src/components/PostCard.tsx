@@ -32,10 +32,12 @@ export default function PostCard({
   post,
   userId,
   index = 0,
+  isRelevantToUser = false,
 }: {
   post: PostWithRelations;
   userId?: string;
   index?: number;
+  isRelevantToUser?: boolean;
 }) {
   return (
     <article
@@ -80,6 +82,11 @@ export default function PostCard({
           {post.content_type === "review" && (
             <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-500 rounded text-[10px] font-medium font-heading tracking-wide border border-amber-500/20">
               REVIEW
+            </span>
+          )}
+          {isRelevantToUser && (
+            <span className="px-1.5 py-0.5 bg-emerald-400/10 text-emerald-400 rounded text-[10px] font-medium font-heading tracking-wide border border-emerald-400/20">
+              Your Car
             </span>
           )}
         </div>

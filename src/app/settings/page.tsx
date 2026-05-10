@@ -51,6 +51,7 @@ export default function SettingsPage() {
   const [vehicleNickname, setVehicleNickname] = useState("");
   const [selectedEngineId, setSelectedEngineId] = useState<string>("");
   const [addingVehicle, setAddingVehicle] = useState(false);
+  const [addedVehicleName, setAddedVehicleName] = useState<string | null>(null);
 
   useEffect(() => {
     getSessionUser().then((u) => {
@@ -144,12 +145,25 @@ export default function SettingsPage() {
         vehicleNickname.trim() || null,
       );
       // Refresh vehicle list
-      const updated = await fetchUserVehicles(user.id);
-      setVehicles(updated ?? []);
+      const updated = (await fetchUserVehicles(user.id)) ?? [];
+      setVehicles(updated);
       setShowVehicleSelector(false);
       setSelectedEngineId("");
       setVehicleNickname("");
       setVehicleYear(new Date().getFullYear());
+
+      // Build vehicle name for success banner
+      const added = updated.find((v) => v.engine_id === selectedEngineId);
+      if (added) {
+        const eng = added.vehicle_engines;
+        const gen = eng?.vehicle_generations;
+        const model = gen?.vehicle_models;
+        const make = model?.vehicle_makes;
+        const parts = [make?.name as string, model?.name as string].filter(Boolean);
+        if (added.year) parts.push(`(${added.year})`);
+        const name = parts.join(" ") || eng?.name || eng?.code || "your vehicle";
+        setAddedVehicleName(name);
+      }
     } catch {
       // silently fail — the selector already shows success
     } finally {
@@ -381,6 +395,52 @@ export default function SettingsPage() {
               {showVehicleSelector ? "Cancel" : "Add Vehicle"}
             </button>
           </div>
+
+          {/* Success banner after adding vehicle */}
+          {addedVehicleName && (
+            <div className="mb-4 p-4 bg-emerald-500/5 border border-emerald-400/20 rounded-xl">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-emerald-400/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg
+                    className="w-5 h-5 text-emerald-400"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                    <path d="M22 4L12 14.01l-3-3" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-emerald-400 font-heading mb-0.5">
+                    Added to Your Garage
+                  </p>
+                  <p className="text-sm text-emerald-300/80 leading-relaxed">
+                    Your {addedVehicleName} has been added to your garage!
+                  </p>
+                  <div className="flex items-center gap-3 mt-3">
+                    <button
+                      type="button"
+                      onClick={() => router.push("/?my_vehicle=1")}
+                      className="px-4 py-2 bg-emerald-500/15 text-emerald-400 text-xs font-bold rounded-lg hover:bg-emerald-500/25 transition-colors font-heading border border-emerald-400/20"
+                    >
+                      See related content
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAddedVehicleName(null)}
+                      className="px-4 py-2 text-xs font-medium text-text-muted hover:text-text-secondary transition-colors font-heading"
+                    >
+                      Continue editing
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Vehicle list */}
           {vehicles.length === 0 && !showVehicleSelector && (

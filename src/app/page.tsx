@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getPosts, getPinnedPosts, getCurrentUser, getCategories } from "@/lib/data/server";
+import { getPosts, getPinnedPosts, getCurrentUser, getCategories, getUserVehicles } from "@/lib/data/server";
+import { createServerSupabase } from "@/lib/supabase-server";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import PostFeed from "@/components/PostFeed";
@@ -8,6 +9,7 @@ import Pagination from "@/components/Pagination";
 import FeaturedCarousel from "@/components/FeaturedCarousel";
 import Footer from "@/components/Footer";
 import CategoryBar from "@/components/CategoryBar";
+import Link from "next/link";
 
 export async function generateMetadata({
   searchParams,
@@ -41,6 +43,17 @@ export async function generateMetadata({
   };
 }
 
+function buildVehicleDisplayName(v: Record<string, unknown>): string {
+  const eng = v.vehicle_engines as Record<string, unknown> | null;
+  if (!eng) return "your vehicle";
+  const gen = eng.vehicle_generations as Record<string, unknown> | null | undefined;
+  const model = gen?.vehicle_models as Record<string, unknown> | null | undefined;
+  const make = model?.vehicle_makes as Record<string, unknown> | null | undefined;
+  const parts = [make?.name as string, model?.name as string].filter(Boolean);
+  if (v.year) parts.push(`(${v.year})`);
+  return parts.join(" ") || (eng.name as string) || (eng.code as string) || "your vehicle";
+}
+
 export default async function HomePage({
   searchParams,
 }: {
@@ -51,17 +64,56 @@ export default async function HomePage({
   const categorySlug = params.category;
   const tagSlug = params.tag;
   const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
+  const myVehicle = params.my_vehicle === "1";
 
-  const [{ posts, totalCount }, pinnedPosts, user, categories] = await Promise.all([
-    getPosts({ sort, categorySlug, tagSlug, page }),
-    getPinnedPosts(4),
+  const [user, categories] = await Promise.all([
     getCurrentUser(),
     getCategories(),
+  ]);
+
+  // Resolve primary vehicle for filtering and relevance
+  let primaryEngineId: string | null = null;
+  let primaryVehicleName: string | null = null;
+  if (user) {
+    const vehicles = (await getUserVehicles(user.id)) as Record<string, unknown>[];
+    const primary = vehicles.find((v) => v.is_primary === true);
+    if (primary?.engine_id) {
+      primaryEngineId = primary.engine_id as string;
+      primaryVehicleName = buildVehicleDisplayName(primary);
+    }
+  }
+
+  // Fetch matching post IDs for the relevance badge (Feature 2)
+  let matchingPostIds: string[] = [];
+  if (primaryEngineId) {
+    const supabase = await createServerSupabase();
+    const { data: links } = await supabase
+      .from("post_vehicles")
+      .select("post_id")
+      .eq("engine_id", primaryEngineId);
+    matchingPostIds = (links ?? []).map((l) => l.post_id);
+  }
+
+  // Set up getPosts params
+  const engineId = myVehicle && primaryEngineId ? primaryEngineId : undefined;
+  const boostEngineId = !myVehicle && primaryEngineId ? primaryEngineId : undefined;
+
+  const [{ posts, totalCount }, pinnedPosts] = await Promise.all([
+    getPosts({ sort, categorySlug, tagSlug, page, engineId, boostEngineId }),
+    getPinnedPosts(4),
   ]);
 
   const activeCategoryName = categorySlug
     ? posts?.[0]?.categories?.name ?? categorySlug
     : undefined;
+
+  // Build clear-filter href preserving other params
+  const clearParams = new URLSearchParams();
+  if (params.sort) clearParams.set("sort", params.sort);
+  if (params.category) clearParams.set("category", params.category);
+  if (params.tag) clearParams.set("tag", params.tag);
+  if (params.page) clearParams.set("page", params.page);
+  const clearFilterHref = clearParams.toString() ? `/?${clearParams.toString()}` : "/";
 
   return (
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
@@ -71,6 +123,39 @@ export default async function HomePage({
         <main id="main-content" className="flex-1 min-w-0 relative z-[1]">
           <CategoryBar categories={categories} active={categorySlug} />
           <FeaturedCarousel posts={pinnedPosts} />
+
+          {/* My Vehicle filter banner */}
+          {myVehicle && primaryVehicleName && (
+            <div className="mb-5 p-3.5 bg-amber-400/5 border border-amber-400/20 rounded-xl flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-amber-400/15 flex items-center justify-center shrink-0">
+                  <svg
+                    className="w-4 h-4 text-amber-400"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
+                    <circle cx="9" cy="17" r="1" />
+                    <circle cx="15" cy="17" r="1" />
+                  </svg>
+                </div>
+                <span className="text-sm text-amber-300 font-medium truncate">
+                  Showing results for your {primaryVehicleName}
+                </span>
+              </div>
+              <Link
+                href={clearFilterHref}
+                className="shrink-0 text-xs text-amber-400 hover:text-amber-300 font-medium transition-colors"
+              >
+                Clear filter
+              </Link>
+            </div>
+          )}
+
           {activeCategoryName && (
             <div className="mb-5 pb-4 border-b border-surface-border">
               <p className="text-xs font-bold uppercase tracking-widest text-text-muted font-heading mb-1">Browsing</p>
@@ -81,7 +166,7 @@ export default async function HomePage({
             <SortToggle />
             {posts.length > 0 && <span className="text-xs text-text-muted">{posts.length} posts</span>}
           </div>
-          <PostFeed posts={posts} userId={user?.id} />
+          <PostFeed posts={posts} userId={user?.id} matchingPostIds={matchingPostIds} />
           <Pagination page={page} totalCount={totalCount} />
         </main>
       </div>

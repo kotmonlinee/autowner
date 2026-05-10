@@ -5,9 +5,11 @@ import type { PostWithRelations } from "@/lib/types";
 export default function PostFeed({
   posts,
   userId,
+  matchingPostIds,
 }: {
   posts: PostWithRelations[];
   userId?: string;
+  matchingPostIds?: string[];
 }) {
   if (posts.length === 0) {
     return (
@@ -52,7 +54,13 @@ export default function PostFeed({
   return (
     <div className="space-y-2">
       {posts.map((post, i) => (
-        <PostCard key={post.id} post={post} userId={userId} index={i} />
+        <PostCard
+          key={post.id}
+          post={post}
+          userId={userId}
+          index={i}
+          isRelevantToUser={matchingPostIds?.includes(post.id) ?? false}
+        />
       ))}
     </div>
   );

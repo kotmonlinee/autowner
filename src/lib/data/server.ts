@@ -12,6 +12,8 @@ export async function getPosts(opts: {
   search?: string;
   limit?: number;
   page?: number;
+  engineId?: string;
+  boostEngineId?: string;
 }): Promise<{ posts: PostWithRelations[]; totalCount: number }> {
   const supabase = await createServerSupabase();
   const limit = opts.limit ?? 30;
@@ -38,6 +40,29 @@ export async function getPosts(opts: {
       const { data: postIds } = await supabase.from("post_tags").select("post_id").eq("tag_id", tag.id);
       if (postIds?.length) query = query.in("id", postIds.map(p => p.post_id));
     }
+  }
+
+  // Resolve engineId filter — only return posts linked to this engine
+  if (opts.engineId) {
+    const { data: engineLinks } = await supabase
+      .from("post_vehicles")
+      .select("post_id")
+      .eq("engine_id", opts.engineId);
+    if (engineLinks?.length) {
+      query = query.in("id", engineLinks.map((l) => l.post_id));
+    } else {
+      return { posts: [], totalCount: 0 };
+    }
+  }
+
+  // Resolve boostEngineId into a set of post IDs for hot-sort boosting
+  let vehicleBoostPostIds: Set<string> = new Set();
+  if (opts.boostEngineId) {
+    const { data: boostLinks } = await supabase
+      .from("post_vehicles")
+      .select("post_id")
+      .eq("engine_id", opts.boostEngineId);
+    vehicleBoostPostIds = new Set((boostLinks ?? []).map((l) => l.post_id));
   }
 
   if (opts.search) {
@@ -92,13 +117,17 @@ export async function getPosts(opts: {
   const results = (data as unknown as PostWithRelations[]) ?? [];
 
   results.sort((a, b) => {
-    // Pinned first, then guide/review boost, then vote_score
+    // Pinned first, then guide/review + vehicle boost, then vote_score
     const aPinned = a.is_pinned ? 1 : 0;
     const bPinned = b.is_pinned ? 1 : 0;
     if (aPinned !== bPinned) return bPinned - aPinned;
 
-    const aBoost = a.content_type === "guide" || a.content_type === "review" ? 1 : 0;
-    const bBoost = b.content_type === "guide" || b.content_type === "review" ? 1 : 0;
+    const aGuideBoost = a.content_type === "guide" || a.content_type === "review" ? 1 : 0;
+    const bGuideBoost = b.content_type === "guide" || b.content_type === "review" ? 1 : 0;
+    const aVehicleBoost = vehicleBoostPostIds.has(a.id) ? 1 : 0;
+    const bVehicleBoost = vehicleBoostPostIds.has(b.id) ? 1 : 0;
+    const aBoost = aGuideBoost + aVehicleBoost;
+    const bBoost = bGuideBoost + bVehicleBoost;
     if (aBoost !== bBoost) return bBoost - aBoost;
     return (b.vote_score ?? 0) - (a.vote_score ?? 0);
   });
