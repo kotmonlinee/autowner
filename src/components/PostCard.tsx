@@ -87,7 +87,7 @@ export default function PostCard({
         </div>
 
         {/* Title */}
-        <Link href={`/post/${post.id}`} aria-label={`Read: ${post.title}`}>
+        <Link href={`/post/${post.slug || post.id}`} aria-label={`Read: ${post.title}`}>
           <h3 className="text-[15px] font-semibold text-text-primary line-clamp-2 group-hover:text-primary transition-colors duration-150 font-heading leading-snug">
             {post.title}
           </h3>

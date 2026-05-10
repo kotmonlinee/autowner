@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPostByIdAny, getCurrentUser, getPostVehicles } from "@/lib/data/server";
+import { getPostBySlug, getPostByIdAny, getCurrentUser, getPostVehicles } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Avatar from "@/components/Avatar";
@@ -17,8 +17,15 @@ import PostEditDeleteButtons from "./PostEditDeleteButtons";
 import ReportButton from "@/components/ReportButton";
 import { FollowVehicleButton } from "@/app/vehicle/[engineId]/FollowVehicleButton";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { timeAgo } from "@/lib/utils";
+
+// ── UUID detection ─────────────────────────────────────────
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isUUID(str: string): boolean {
+  return UUID_RE.test(str);
+}
 
 // ── Structured Data helpers ───────────────────────────────
 
@@ -83,17 +90,31 @@ function formatCount(n: number): string {
   return String(n);
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const post = await getPostByIdAny((await params).id);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+
+  // Try slug lookup first
+  let post = await getPostBySlug(slug);
+
+  // If not found and looks like a UUID, try ID lookup
+  if (!post && isUUID(slug)) {
+    post = await getPostByIdAny(slug);
+  }
+
   if (!post) return { title: "Post Not Found — AutOwner" };
   const description = post.body.replace(/[#*`\[\]()>!\[\]]/g, "").slice(0, 160);
+  const canonicalSlug = post.slug || post.id;
   return {
     title: `${post.title} — AutOwner`,
     description,
+    alternates: {
+      canonical: `https://www.autowner.com/post/${canonicalSlug}`,
+    },
     openGraph: {
       title: post.title,
       description,
       type: "article",
+      url: `https://www.autowner.com/post/${canonicalSlug}`,
       images: [
         {
           url: "https://www.autowner.com/og-default.jpg",
@@ -106,22 +127,36 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const [post, user, postVehicles] = await Promise.all([
-    getPostByIdAny(id),
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+
+  // Try slug-based lookup first (for new SEO-friendly URLs)
+  let post = await getPostBySlug(slug);
+
+  // If not found and the parameter looks like a UUID, try ID-based lookup
+  // (backward compatibility for old /post/[uuid] URLs)
+  if (!post && isUUID(slug)) {
+    post = await getPostByIdAny(slug);
+    // If found by UUID, 301 redirect to the slug-based URL
+    if (post && post.slug) {
+      permanentRedirect(`/post/${post.slug}`);
+    }
+  }
+
+  if (!post) notFound();
+
+  const id = post.id;
+  const [user, postVehicles] = await Promise.all([
     getCurrentUser(),
     getPostVehicles(id),
   ]);
-
-  if (!post) notFound();
 
   const isAuthor = user && post.author_id === user.id;
   const isDeleted = post.status === "deleted";
 
   // ── Compute structured data ──────────────────────────────
   const desc = plainDescription(post.body);
-  const articleUrl = `https://www.autowner.com/post/${id}`;
+  const articleUrl = `https://www.autowner.com/post/${post.slug || id}`;
 
   const articleJsonLd = {
     "@context": "https://schema.org",
@@ -290,7 +325,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                       </p>
                     </div>
                     <div className="ml-auto flex items-center gap-1">
-                      {isAuthor && <PostEditDeleteButtons postId={id} />}
+                      {isAuthor && <PostEditDeleteButtons postId={id} postSlug={post.slug || id} />}
                       {user && !isAuthor && <ReportButton targetType="post" targetId={id} userId={user.id} />}
                       <BookmarkButton postId={id} userId={user?.id} />
                     </div>

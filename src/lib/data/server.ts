@@ -3,6 +3,39 @@
 import { createServerSupabase } from "@/lib/supabase-server";
 import type { PostWithRelations, Category, CommentWithAuthor, CommentWithPost, Notification } from "@/lib/types";
 
+// ── Slug helpers ─────────────────────────────────────────
+
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .substring(0, 200);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function ensureUniqueSlug(
+  supabase: any,
+  baseSlug: string,
+  excludeId?: string,
+): Promise<string> {
+  let slug = baseSlug;
+  let attempt = 0;
+  while (attempt < 10) {
+    let query = supabase.from("posts").select("id").eq("slug", slug);
+    if (excludeId) query = query.neq("id", excludeId);
+    const { data } = await query.maybeSingle();
+    if (!data) return slug;
+    attempt++;
+    slug = `${baseSlug}-${attempt}`;
+  }
+  // Fallback: append random suffix
+  const suffix = Math.random().toString(36).substring(2, 8);
+  return `${baseSlug}-${suffix}`;
+}
+
 // ── Posts ────────────────────────────────────────────────
 
 export async function getPosts(opts: {
@@ -175,6 +208,18 @@ export async function getPostByIdAny(id: string): Promise<PostWithRelations | nu
   return data ? (data as unknown as PostWithRelations) : null;
 }
 
+/** Fetch post by slug (for SEO-friendly URLs). */
+export async function getPostBySlug(slug: string): Promise<PostWithRelations | null> {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from("posts")
+    .select("*, profiles(username, avatar_url), categories(name, slug), post_tags(car_tags(name, slug))")
+    .eq("slug", slug)
+    .eq("status", "approved")
+    .single();
+  return data ? (data as unknown as PostWithRelations) : null;
+}
+
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -188,7 +233,7 @@ export async function getRelatedPosts(categoryId: string, excludeId: string, lim
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from("posts")
-    .select("id, title, comment_count, vote_score")
+    .select("id, slug, title, comment_count, vote_score")
     .eq("category_id", categoryId)
     .eq("status", "approved")
     .neq("id", excludeId)
@@ -201,7 +246,7 @@ export async function getRandomRelatedPosts(categoryId: string, excludeId: strin
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from("posts")
-    .select("id, title, comment_count, vote_score")
+    .select("id, slug, title, comment_count, vote_score")
     .eq("category_id", categoryId)
     .eq("status", "approved")
     .neq("id", excludeId)
@@ -216,7 +261,7 @@ export async function getTrendingPosts(limit = 5) {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const { data } = await supabase
     .from("posts")
-    .select("id, title, comment_count")
+    .select("id, slug, title, comment_count")
     .eq("status", "approved")
     .gte("created_at", thirtyDaysAgo)
     .order("comment_count", { ascending: false })
@@ -396,9 +441,12 @@ export async function createPost(opts: {
   engineIds?: string[];
 }) {
   const supabase = await createServerSupabase();
+  const baseSlug = generateSlug(opts.title);
+  const uniqueSlug = await ensureUniqueSlug(supabase, baseSlug || "post");
   const insertData: Record<string, unknown> = {
     title: opts.title,
     body: opts.body,
+    slug: uniqueSlug,
     author_id: opts.authorId,
     category_id: opts.categoryId || null,
     source: "user",
@@ -454,6 +502,12 @@ export async function saveDraft(opts: {
 
   if (opts.id) {
     // Update existing draft
+    // If title changed, regenerate slug
+    const { data: existingDraft } = await supabase
+      .from("posts")
+      .select("title, slug")
+      .eq("id", opts.id)
+      .single();
     const updateData: Record<string, unknown> = {
       title: opts.title,
       body: opts.body,
@@ -461,6 +515,10 @@ export async function saveDraft(opts: {
       is_draft: true,
       updated_at: new Date().toISOString(),
     };
+    if (existingDraft && existingDraft.title !== opts.title) {
+      const baseSlug = generateSlug(opts.title);
+      updateData.slug = await ensureUniqueSlug(supabase, baseSlug || "post", opts.id);
+    }
     if (opts.quickAnswer !== undefined) {
       updateData.quick_answer = opts.quickAnswer;
     }
@@ -498,9 +556,12 @@ export async function saveDraft(opts: {
     return opts.id;
   } else {
     // Insert new draft
+    const baseSlug = generateSlug(opts.title);
+    const uniqueSlug = await ensureUniqueSlug(supabase, baseSlug || "post");
     const insertData: Record<string, unknown> = {
       title: opts.title,
       body: opts.body,
+      slug: uniqueSlug,
       author_id: opts.authorId,
       category_id: opts.categoryId || null,
       source: "user",
@@ -647,7 +708,19 @@ export async function updatePost(
 ) {
   const supabase = await createServerSupabase();
   const updateData: Record<string, unknown> = {};
-  if (data.title !== undefined) updateData.title = data.title;
+  if (data.title !== undefined) {
+    updateData.title = data.title;
+    // Regenerate slug when title changes
+    const { data: existing } = await supabase
+      .from("posts")
+      .select("title")
+      .eq("id", id)
+      .single();
+    if (existing && data.title !== existing.title) {
+      const baseSlug = generateSlug(data.title);
+      updateData.slug = await ensureUniqueSlug(supabase, baseSlug || "post", id);
+    }
+  }
   if (data.body !== undefined) updateData.body = data.body;
   if (data.category_id !== undefined) updateData.category_id = data.category_id;
   if (data.status !== undefined) updateData.status = data.status;
@@ -738,7 +811,7 @@ export async function getUserComments(username: string): Promise<CommentWithPost
 
   const { data } = await supabase
     .from("comments")
-    .select("*, profiles(username, avatar_url), posts(id, title)")
+    .select("*, profiles(username, avatar_url), posts(id, slug, title)")
     .eq("author_id", profile.id)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -830,7 +903,7 @@ export async function editOwnPost(
   // Verify ownership
   const { data: post } = await supabase
     .from("posts")
-    .select("author_id, status")
+    .select("author_id, status, title")
     .eq("id", id)
     .single();
 
@@ -839,7 +912,14 @@ export async function editOwnPost(
   if (post.status === "deleted") throw new Error("Cannot edit a deleted post");
 
   const updateData: Record<string, unknown> = {};
-  if (data.title !== undefined) updateData.title = data.title;
+  if (data.title !== undefined) {
+    updateData.title = data.title;
+    // Regenerate slug if title changed
+    if (data.title !== post.title) {
+      const baseSlug = generateSlug(data.title);
+      updateData.slug = await ensureUniqueSlug(supabase, baseSlug || "post", id);
+    }
+  }
   if (data.body !== undefined) updateData.body = data.body;
   if (data.category_id !== undefined) updateData.category_id = data.category_id;
   updateData.updated_at = new Date().toISOString();
@@ -1379,7 +1459,7 @@ export async function getActiveDiscussions(limit = 5) {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data } = await supabase
     .from("posts")
-    .select("id, title, comment_count, created_at")
+    .select("id, slug, title, comment_count, created_at")
     .eq("status", "approved")
     .gte("created_at", sevenDaysAgo)
     .order("comment_count", { ascending: false })

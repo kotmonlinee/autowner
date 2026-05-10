@@ -245,7 +245,7 @@ export default async function UserProfilePage({
                     </p>
                     {comment.posts && (
                       <Link
-                        href={`/post/${comment.posts.id}`}
+                        href={`/post/${comment.posts.slug || comment.posts.id}`}
                         className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-primary transition-colors"
                       >
                         <svg

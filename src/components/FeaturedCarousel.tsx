@@ -91,7 +91,7 @@ export default function FeaturedCarousel({
                   </div>
 
                   {/* Title */}
-                  <Link href={`/post/${post.id}`}>
+                  <Link href={`/post/${post.slug || post.id}`}>
                     <h2 className="text-xl sm:text-2xl font-bold text-text-primary font-heading leading-tight hover:text-primary transition-colors duration-150 line-clamp-2">
                       {post.title}
                     </h2>
@@ -105,7 +105,7 @@ export default function FeaturedCarousel({
                   {/* Footer */}
                   <div className="flex items-center gap-3 mt-4">
                     <Link
-                      href={`/post/${post.id}`}
+                      href={`/post/${post.slug || post.id}`}
                       className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-semibold rounded-lg transition-colors duration-150 font-heading"
                     >
                       Read more

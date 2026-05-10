@@ -93,7 +93,7 @@ export async function GET() {
     <atom:link href="${escapeXml(SITE_URL)}/rss.xml" rel="self" type="application/rss+xml"/>
 ${items
   .map((post) => {
-    const link = `${SITE_URL}/post/${post.id}`;
+    const link = `${SITE_URL}/post/${post.slug || post.id}`;
     const description = escapeXml(stripMarkdown(post.body, 300));
     const pubDate = toRfc822Date(post.created_at);
     const category = post.categories?.name

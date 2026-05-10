@@ -47,6 +47,7 @@ export type QuickAnswer = {
 
 export type Post = {
   id: string;
+  slug?: string | null;
   title: string;
   body: string;
   author_id: string | null;
@@ -133,7 +134,7 @@ export type Notification = {
 };
 
 export type CommentWithPost = CommentWithAuthor & {
-  posts: { id: string; title: string } | null;
+  posts: { id: string; slug?: string | null; title: string } | null;
 };
 
 // ── Vehicle Database Types ──────────────────────────────────

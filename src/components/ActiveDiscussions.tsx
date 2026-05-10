@@ -24,7 +24,7 @@ export default async function ActiveDiscussions() {
         {posts.map((post, i) => (
           <li key={post.id}>
             <Link
-              href={`/post/${post.id}`}
+              href={`/post/${post.slug || post.id}`}
               className="flex items-start gap-2.5 px-3 py-2 rounded-lg text-sm text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-all duration-150 border-l-2 border-transparent"
             >
               <span className="text-xs font-bold text-text-muted font-heading w-5 shrink-0 tabular-nums">

@@ -1,18 +1,25 @@
 import type { Metadata } from "next";
-import { getPostByIdAny, getCurrentUser, getCategories, editOwnPost } from "@/lib/data/server";
+import { getPostBySlug, getPostByIdAny, getCurrentUser, getCategories, editOwnPost } from "@/lib/data/server";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isUUID(str: string): boolean {
+  return UUID_RE.test(str);
+}
+
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
-  const post = await getPostByIdAny(id);
+  const { slug } = await params;
+  let post = await getPostBySlug(slug);
+  if (!post && isUUID(slug)) post = await getPostByIdAny(slug);
   if (!post) return { title: "Post Not Found — AutOwner" };
   return { title: `Edit ${post.title} — AutOwner` };
 }
@@ -20,20 +27,25 @@ export async function generateMetadata({
 export default async function EditPostPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { id } = await params;
-  const [post, user, categories] = await Promise.all([
-    getPostByIdAny(id),
+  const { slug } = await params;
+  let post = await getPostBySlug(slug);
+  if (!post && isUUID(slug)) post = await getPostByIdAny(slug);
+
+  if (!post) notFound();
+  const id = post.id;
+
+  const [user, categories] = await Promise.all([
     getCurrentUser(),
     getCategories(),
   ]);
 
-  if (!post) notFound();
   if (!user) redirect("/auth/login");
-  if (post.author_id !== user.id) redirect(`/post/${id}`);
-  if (post.status === "deleted") redirect(`/post/${id}`);
+  if (post.author_id !== user.id) redirect(`/post/${post.slug || id}`);
+  if (post.status === "deleted") redirect(`/post/${post.slug || id}`);
 
+  const postSlug = post.slug || id;
   const userId = user.id;
 
   async function savePost(formData: FormData) {
@@ -50,10 +62,20 @@ export default async function EditPostPage({
       category_id: categoryId,
     });
 
-    revalidatePath(`/post/${id}/edit`);
-    revalidatePath(`/post/${id}`);
+    // Revalidate old and new slug paths
+    revalidatePath(`/post/${postSlug}/edit`);
+    revalidatePath(`/post/${postSlug}`);
     revalidatePath("/");
-    redirect(`/post/${id}`);
+    // After editing, the slug may have changed (if title changed).
+    // Fetch the updated post to get the new slug for the redirect.
+    const { createServerSupabase } = await import("@/lib/supabase-server");
+    const supabase = await createServerSupabase();
+    const { data: updated } = await supabase
+      .from("posts")
+      .select("slug")
+      .eq("id", id)
+      .single();
+    redirect(`/post/${updated?.slug || id}`);
   }
 
   return (
@@ -68,7 +90,7 @@ export default async function EditPostPage({
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-          <Link href={`/post/${id}`} className="hover:text-primary transition-colors truncate max-w-[200px]">
+          <Link href={`/post/${postSlug}`} className="hover:text-primary transition-colors truncate max-w-[200px]">
             {post.title}
           </Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +176,7 @@ export default async function EditPostPage({
                 Save Changes
               </button>
               <Link
-                href={`/post/${id}`}
+                href={`/post/${postSlug}`}
                 className="px-4 py-2 text-sm font-bold text-text-muted hover:text-text-secondary transition-colors font-heading"
               >
                 Cancel

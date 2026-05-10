@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function PostEditDeleteButtons({ postId }: { postId: string }) {
+export default function PostEditDeleteButtons({ postId, postSlug }: { postId: string; postSlug: string }) {
   const router = useRouter();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -52,7 +52,7 @@ export default function PostEditDeleteButtons({ postId }: { postId: string }) {
   return (
     <div className="flex items-center gap-0.5">
       <button
-        onClick={() => router.push(`/post/${postId}/edit`)}
+        onClick={() => router.push(`/post/${postSlug}/edit`)}
         className="p-1.5 text-text-muted hover:text-primary transition-colors rounded-md hover:bg-surface-3"
         title="Edit post"
       >

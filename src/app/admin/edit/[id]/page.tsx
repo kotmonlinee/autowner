@@ -64,7 +64,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
           </div>
           <div className="flex items-center gap-3">
             <Link
-              href={`/post/${post.id}`}
+              href={`/post/${post.slug || post.id}`}
               target="_blank"
               className="px-4 py-2 bg-surface-3 text-text-secondary rounded-lg text-sm font-bold hover:bg-surface-4 hover:text-text-primary transition-colors font-heading border border-surface-border"
             >
@@ -95,7 +95,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
           await updatePost(id, updated);
           revalidatePath(`/admin/edit/${id}`);
           revalidatePath("/admin");
-          revalidatePath(`/post/${id}`);
+          revalidatePath(`/post/${post.slug || id}`);
           revalidatePath("/");
           redirect("/admin");
         }}>

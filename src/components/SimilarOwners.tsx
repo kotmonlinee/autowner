@@ -25,7 +25,7 @@ export default async function SimilarOwners({ engineId }: SimilarOwnersProps) {
     getPostsByEngine(engineId),
   ]);
 
-  const recentTitles = posts.slice(0, 3).map((p) => ({ id: p.id, title: p.title }));
+  const recentPosts = posts.slice(0, 3).map((p) => ({ id: p.id, slug: p.slug, title: p.title }));
 
   return (
     <div className="bg-surface-1 rounded-xl border border-surface-border p-5">
@@ -70,17 +70,17 @@ export default async function SimilarOwners({ engineId }: SimilarOwnersProps) {
       </p>
 
       {/* Recent posts for this vehicle */}
-      {recentTitles.length > 0 && (
+      {recentPosts.length > 0 && (
         <>
           <div className="h-px bg-surface-border mb-3" />
           <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted font-heading mb-2">
             Recent {vehicleName} posts
           </p>
           <div className="space-y-1.5">
-            {recentTitles.map((post, i) => (
+            {recentPosts.map((post, i) => (
               <Link
                 key={post.id}
-                href={`/post/${post.id}`}
+                href={`/post/${post.slug || post.id}`}
                 className="flex items-start gap-2 group"
               >
                 <span className="text-[10px] font-bold text-text-muted mt-0.5 font-heading tabular-nums shrink-0">

@@ -95,7 +95,7 @@ export default async function CommunityPage() {
                   {activeDiscussions.map((post) => (
                     <Link
                       key={post.id}
-                      href={`/post/${post.id}`}
+                      href={`/post/${post.slug || post.id}`}
                       className="block bg-surface-1 rounded-xl border border-surface-border p-4 hover:border-primary/20 hover:bg-surface-2 transition-all duration-150 group"
                     >
                       <div className="flex items-start justify-between gap-4">

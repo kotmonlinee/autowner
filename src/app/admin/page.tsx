@@ -175,7 +175,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
         {posts?.map((post: any) => (
           <div key={post.id} className="bg-surface-1 rounded-xl border border-surface-border p-4 flex items-start justify-between">
             <div className="flex-1 min-w-0">
-              <Link href={`/post/${post.id}`} className="font-semibold text-text-primary hover:text-primary transition-colors font-heading">{post.title}</Link>
+              <Link href={`/post/${post.slug || post.id}`} className="font-semibold text-text-primary hover:text-primary transition-colors font-heading">{post.title}</Link>
               <div className="flex items-center gap-3 text-xs text-text-muted mt-1.5">
                 <span className="px-1.5 py-0.5 bg-surface-3 rounded text-[10px] font-bold uppercase font-heading">{post.categories?.name}</span>
                 <span className="px-1.5 py-0.5 bg-amber-400/10 text-amber-400 rounded text-[10px] font-bold uppercase border border-amber-400/20">{post.source}</span>
@@ -363,7 +363,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
             {searchResults.map((post: any) => (
               <div key={post.id} className="bg-surface-1 rounded-xl border border-surface-border p-4 flex items-start justify-between">
                 <div className="flex-1 min-w-0">
-                  <Link href={`/post/${post.id}`} className="font-semibold text-text-primary hover:text-primary transition-colors font-heading">{post.title}</Link>
+                  <Link href={`/post/${post.slug || post.id}`} className="font-semibold text-text-primary hover:text-primary transition-colors font-heading">{post.title}</Link>
                   <div className="flex items-center gap-3 text-xs text-text-muted mt-1.5">
                     <span className="px-1.5 py-0.5 bg-surface-3 rounded text-[10px] font-bold uppercase font-heading">{post.categories?.name ?? "none"}</span>
                     <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase border ${

@@ -23,7 +23,7 @@ export default async function RelatedPosts({
       <h4 className="text-xs font-bold uppercase tracking-widest text-text-muted font-heading mb-4">{title}</h4>
       <div className="space-y-3">
         {posts.map((post: any, i: number) => (
-          <Link key={post.id} href={`/post/${post.id}`} className="block group">
+          <Link key={post.id} href={`/post/${post.slug || post.id}`} className="block group">
             <div className="flex items-start gap-2.5">
               <span className="text-[10px] font-bold text-text-muted mt-0.5 font-heading tabular-nums">
                 {(i + 1).toString().padStart(2, "0")}

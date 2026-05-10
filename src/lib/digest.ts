@@ -9,6 +9,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.autowner.com";
 
 interface DigestPost {
   id: string;
+  slug?: string | null;
   title: string;
   vote_score: number;
   comment_count: number;
@@ -117,7 +118,7 @@ export async function generateWeeklyDigest(userId: string): Promise<boolean> {
         const existingIds = new Set(enginePosts.map((p) => p.id));
         const { data: catPosts } = await supabase
           .from("posts")
-          .select("id, title, vote_score, comment_count, view_count")
+          .select("id, slug, title, vote_score, comment_count, view_count")
           .eq("category_id", mostCommonId)
           .eq("status", "approved")
           .gte("created_at", sevenDaysAgo)
@@ -136,7 +137,7 @@ export async function generateWeeklyDigest(userId: string): Promise<boolean> {
   if (enginePosts.length === 0 && categoryPosts.length === 0) {
     const { data: trending } = await supabase
       .from("posts")
-      .select("id, title, vote_score, comment_count, view_count")
+      .select("id, slug, title, vote_score, comment_count, view_count")
       .eq("status", "approved")
       .gte("created_at", sevenDaysAgo)
       .order("vote_score", { ascending: false })
@@ -158,7 +159,7 @@ export async function generateWeeklyDigest(userId: string): Promise<boolean> {
       (p) => `
     <tr>
       <td style="padding: 12px 0; border-bottom: 1px solid #2a2d35;">
-        <a href="${SITE_URL}/post/${p.id}" style="color: #f0f1f3; text-decoration: none; font-weight: 600; font-size: 14px; display: block; margin-bottom: 4px;">
+        <a href="${SITE_URL}/post/${p.slug || p.id}" style="color: #f0f1f3; text-decoration: none; font-weight: 600; font-size: 14px; display: block; margin-bottom: 4px;">
           ${escapeHtml(p.title)}
         </a>
         <span style="font-size: 12px; color: #6b7280;">
