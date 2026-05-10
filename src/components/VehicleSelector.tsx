@@ -36,16 +36,34 @@ type SelectedVehicle = {
   engine: string;
 };
 
+export interface VehicleSelectedInfo {
+  engineId: string;
+  display: string;
+  makeName: string;
+  modelName: string;
+  generationName: string;
+  engineCode: string;
+  engineName: string;
+  yearStart: number;
+  yearEnd: number | null;
+}
+
 interface VehicleSelectorProps {
   onChange: (engineId: string) => void;
+  onVehicleSelected?: (info: VehicleSelectedInfo) => void;
   initialEngineId?: string | null;
   compact?: boolean;
+  saveToLocalStorage?: boolean;
 }
+
+const LOCALSTORAGE_KEY = "autowner_my_vehicle";
 
 export default function VehicleSelector({
   onChange,
+  onVehicleSelected,
   initialEngineId,
   compact = false,
+  saveToLocalStorage = false,
 }: VehicleSelectorProps) {
   // Lists
   const [makes, setMakes] = useState<SimpleMake[]>([]);
@@ -144,6 +162,34 @@ export default function VehicleSelector({
       engine: `${engine.code} ${engine.name}`,
     });
     onChange(engineId);
+
+    // Build full vehicle info for callbacks
+    const vehicleInfo: VehicleSelectedInfo = {
+      engineId,
+      display,
+      makeName: selectedMake,
+      modelName: selectedModel,
+      generationName: generation.name,
+      engineCode: engine.code,
+      engineName: engine.name,
+      yearStart: generation.year_start,
+      yearEnd: generation.year_end,
+    };
+
+    // Save to localStorage if requested (anonymous flow)
+    if (saveToLocalStorage) {
+      try {
+        localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(vehicleInfo));
+      } catch {
+        // localStorage may be unavailable
+      }
+    }
+
+    // Notify parent of full vehicle selection
+    if (onVehicleSelected) {
+      onVehicleSelected(vehicleInfo);
+    }
+
     // Collapse the selector after selection
     setEditing(false);
     setLoading(false);

@@ -3,6 +3,7 @@ import { getPosts, getCurrentUser, getCategories } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import PostCard from "@/components/PostCard";
 import CategoryFilter from "@/components/CategoryFilter";
+import SearchTracker from "@/components/SearchTracker";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   return (
     <div className="min-h-screen bg-surface-0 relative">
       <Navbar />
+      {q && <SearchTracker query={q} />}
       <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 w-full">
         <div className="mb-6">
           <div className="flex items-center justify-between flex-wrap gap-3">

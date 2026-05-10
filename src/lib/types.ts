@@ -27,6 +27,7 @@ export interface Database {
       vehicle_engines: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       user_vehicles: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       post_vehicles: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      user_events: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

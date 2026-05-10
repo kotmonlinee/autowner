@@ -13,6 +13,7 @@ import QuickAnswerCard from "@/components/QuickAnswerCard";
 import ViewTracker from "@/components/ViewTracker";
 import PostEditDeleteButtons from "./PostEditDeleteButtons";
 import ReportButton from "@/components/ReportButton";
+import { FollowVehicleButton } from "@/app/vehicle/[engineId]/FollowVehicleButton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -324,25 +325,32 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
                   {/* Linked vehicles */}
                   {postVehicles && postVehicles.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-surface-border">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted mr-1 flex items-center font-heading">
+                    <div className="mt-3 pt-3 border-t border-surface-border space-y-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted font-heading">
                         Vehicle:
                       </span>
-                      {postVehicles.map((pv) => {
-                        const eng = pv.vehicle_engines as Record<string, unknown> | null;
-                        const gen = eng?.vehicle_generations as Record<string, unknown> | null;
-                        const model = gen?.vehicle_models as Record<string, unknown> | null;
-                        const make = model?.vehicle_makes as Record<string, unknown> | null;
-                        return (
-                          <Link
-                            key={pv.engine_id}
-                            href={`/vehicle/${pv.engine_id}`}
-                            className="px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-medium hover:bg-primary/20 transition-colors"
-                          >
-                            {String(make?.name ?? "")} {String(model?.name ?? "")} ({String(gen?.name ?? "")}) &mdash; {String(eng?.code ?? "")}
-                          </Link>
-                        );
-                      })}
+                      <div className="flex flex-wrap items-center gap-2">
+                        {postVehicles.map((pv) => {
+                          const eng = pv.vehicle_engines as Record<string, unknown> | null;
+                          const gen = eng?.vehicle_generations as Record<string, unknown> | null;
+                          const model = gen?.vehicle_models as Record<string, unknown> | null;
+                          const make = model?.vehicle_makes as Record<string, unknown> | null;
+                          return (
+                            <div key={pv.engine_id} className="flex items-center gap-1.5">
+                              <Link
+                                href={`/vehicle/${pv.engine_id}`}
+                                className="px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-medium hover:bg-primary/20 transition-colors"
+                              >
+                                {String(make?.name ?? "")} {String(model?.name ?? "")} ({String(gen?.name ?? "")}) &mdash; {String(eng?.code ?? "")}
+                              </Link>
+                              <FollowVehicleButton
+                                engineId={pv.engine_id}
+                                userId={user?.id ?? null}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </>

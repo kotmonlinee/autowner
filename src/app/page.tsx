@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPosts, getPinnedPosts, getCurrentUser, getCategories, getUserVehicles } from "@/lib/data/server";
+import { getPosts, getPinnedPosts, getCurrentUser, getCategories, getUserVehicles, getEngineById } from "@/lib/data/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
@@ -9,6 +9,7 @@ import Pagination from "@/components/Pagination";
 import FeaturedCarousel from "@/components/FeaturedCarousel";
 import Footer from "@/components/Footer";
 import CategoryBar from "@/components/CategoryBar";
+import WelcomeBanner from "@/components/WelcomeBanner";
 import Link from "next/link";
 
 export async function generateMetadata({
@@ -54,6 +55,14 @@ function buildVehicleDisplayName(v: Record<string, unknown>): string {
   return parts.join(" ") || (eng.name as string) || (eng.code as string) || "your vehicle";
 }
 
+function buildEngineDisplayName(engine: Record<string, unknown>): string {
+  const gen = engine.vehicle_generations as Record<string, unknown> | null;
+  const model = gen?.vehicle_models as Record<string, unknown> | null;
+  const make = model?.vehicle_makes as Record<string, unknown> | null;
+  const parts = [make?.name as string, model?.name as string].filter(Boolean);
+  return parts.join(" ") || (engine.name as string) || (engine.code as string) || "your vehicle";
+}
+
 export default async function HomePage({
   searchParams,
 }: {
@@ -65,6 +74,8 @@ export default async function HomePage({
   const tagSlug = params.tag;
   const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
   const myVehicle = params.my_vehicle === "1";
+  const showWelcome = params.welcome === "1";
+  const engineIdParam = params.engine_id;
 
   const [user, categories] = await Promise.all([
     getCurrentUser(),
@@ -83,6 +94,32 @@ export default async function HomePage({
     }
   }
 
+  // Determine the effective filter engine ID:
+  // - my_vehicle=1 + logged-in primary vehicle → DB engine ID
+  // - my_vehicle=1 + anonymous (engine_id param) → param engine ID
+  // - engine_id param without my_vehicle → still filter (anonymous direct link)
+  let filterEngineId: string | null = null;
+  let filterVehicleName: string | null = null;
+
+  if (myVehicle && primaryEngineId) {
+    filterEngineId = primaryEngineId;
+    filterVehicleName = primaryVehicleName;
+  } else if (myVehicle && engineIdParam) {
+    filterEngineId = engineIdParam;
+    // Resolve engine name for anonymous filter banner
+    const engineInfo = await getEngineById(engineIdParam);
+    if (engineInfo) {
+      filterVehicleName = buildEngineDisplayName(engineInfo);
+    }
+  } else if (engineIdParam) {
+    // engine_id without my_vehicle still filters (e.g., direct link from vehicle page)
+    filterEngineId = engineIdParam;
+    const engineInfo = await getEngineById(engineIdParam);
+    if (engineInfo) {
+      filterVehicleName = buildEngineDisplayName(engineInfo);
+    }
+  }
+
   // Fetch matching post IDs for the relevance badge (Feature 2)
   let matchingPostIds: string[] = [];
   if (primaryEngineId) {
@@ -95,7 +132,7 @@ export default async function HomePage({
   }
 
   // Set up getPosts params
-  const engineId = myVehicle && primaryEngineId ? primaryEngineId : undefined;
+  const engineId = filterEngineId ?? undefined;
   const boostEngineId = !myVehicle && primaryEngineId ? primaryEngineId : undefined;
 
   const [{ posts, totalCount }, pinnedPosts] = await Promise.all([
@@ -124,8 +161,11 @@ export default async function HomePage({
           <CategoryBar categories={categories} active={categorySlug} />
           <FeaturedCarousel posts={pinnedPosts} />
 
+          {/* Welcome banner for new registrations */}
+          {showWelcome && <WelcomeBanner />}
+
           {/* My Vehicle filter banner */}
-          {myVehicle && primaryVehicleName && (
+          {filterEngineId && filterVehicleName && (
             <div className="mb-5 p-3.5 bg-amber-400/5 border border-amber-400/20 rounded-xl flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-lg bg-amber-400/15 flex items-center justify-center shrink-0">
@@ -144,7 +184,7 @@ export default async function HomePage({
                   </svg>
                 </div>
                 <span className="text-sm text-amber-300 font-medium truncate">
-                  Showing results for your {primaryVehicleName}
+                  Showing results for your {filterVehicleName}
                 </span>
               </div>
               <Link

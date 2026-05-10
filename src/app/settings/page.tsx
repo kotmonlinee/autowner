@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AvatarUploader from "@/components/AvatarUploader";
+import VehicleSelector from "@/components/VehicleSelector";
+import type { VehicleSelectedInfo } from "@/components/VehicleSelector";
 import {
   getSessionUser,
   onAuthChange,
@@ -17,11 +20,42 @@ import {
   removeUserVehicle,
   setPrimaryVehicle,
 } from "@/lib/data/browser";
-import VehicleSelector from "@/components/VehicleSelector";
+
+const STORAGE_KEY = "autowner_my_vehicle";
+
+function getStoredVehicle(): VehicleSelectedInfo | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.engineId) return parsed as VehicleSelectedInfo;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function saveStoredVehicle(info: VehicleSelectedInfo) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(info));
+  } catch {
+    // ignore
+  }
+}
+
+function clearStoredVehicle() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
 
 export default function SettingsPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [profile, setProfile] = useState<{
     id: string;
     username: string;
@@ -43,7 +77,7 @@ export default function SettingsPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Vehicle garage state
+  // Vehicle garage state (logged-in)
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [garageLoading, setGarageLoading] = useState(false);
   const [showVehicleSelector, setShowVehicleSelector] = useState(false);
@@ -53,27 +87,49 @@ export default function SettingsPage() {
   const [addingVehicle, setAddingVehicle] = useState(false);
   const [addedVehicleName, setAddedVehicleName] = useState<string | null>(null);
 
+  // Anonymous garage state
+  const [anonVehicle, setAnonVehicle] = useState<VehicleSelectedInfo | null>(null);
+  const [anonSelectorOpen, setAnonSelectorOpen] = useState(false);
+
   useEffect(() => {
     getSessionUser().then((u) => {
-      if (!u) {
-        router.replace("/auth/login");
-        return;
-      }
       setUser(u);
-      Promise.all([
-        fetchProfile(u.id).then((p) => {
-          setProfile(p);
-          if (p) {
-            setNewUsername(p.username);
-            setBio(p.bio ?? "");
-          }
-        }),
-        fetchUserVehicles(u.id).then((v) => setVehicles(v ?? [])),
-      ]).finally(() => setLoading(false));
+      setAuthLoading(false);
+      if (u) {
+        Promise.all([
+          fetchProfile(u.id).then((p) => {
+            setProfile(p);
+            if (p) {
+              setNewUsername(p.username);
+              setBio(p.bio ?? "");
+            }
+          }),
+          fetchUserVehicles(u.id).then((v) => setVehicles(v ?? [])),
+        ]).finally(() => setLoading(false));
+      } else {
+        // Anonymous: load from localStorage
+        setAnonVehicle(getStoredVehicle());
+        setLoading(false);
+      }
     });
     const sub = onAuthChange((u) => {
-      if (!u) router.replace("/auth/login");
       setUser(u);
+      if (u) {
+        Promise.all([
+          fetchProfile(u.id).then((p) => {
+            setProfile(p);
+            if (p) {
+              setNewUsername(p.username);
+              setBio(p.bio ?? "");
+            }
+          }),
+          fetchUserVehicles(u.id).then((v) => setVehicles(v ?? [])),
+        ]);
+      } else {
+        setProfile(null);
+        setVehicles([]);
+        setAnonVehicle(getStoredVehicle());
+      }
     });
     return () => sub.unsubscribe();
   }, [router]);
@@ -133,7 +189,8 @@ export default function SettingsPage() {
     setProfile((prev) => (prev ? { ...prev, avatar_url: url } : prev));
   };
 
-  // Garage handlers
+  // ── Logged-in garage handlers ──────────────────────────────
+
   const handleAddVehicle = async () => {
     if (!user || !selectedEngineId) return;
     setAddingVehicle(true);
@@ -144,7 +201,6 @@ export default function SettingsPage() {
         vehicleYear,
         vehicleNickname.trim() || null,
       );
-      // Refresh vehicle list
       const updated = (await fetchUserVehicles(user.id)) ?? [];
       setVehicles(updated);
       setShowVehicleSelector(false);
@@ -152,7 +208,6 @@ export default function SettingsPage() {
       setVehicleNickname("");
       setVehicleYear(new Date().getFullYear());
 
-      // Build vehicle name for success banner
       const added = updated.find((v) => v.engine_id === selectedEngineId);
       if (added) {
         const eng = added.vehicle_engines;
@@ -165,7 +220,7 @@ export default function SettingsPage() {
         setAddedVehicleName(name);
       }
     } catch {
-      // silently fail — the selector already shows success
+      // silently fail
     } finally {
       setAddingVehicle(false);
     }
@@ -188,7 +243,20 @@ export default function SettingsPage() {
     );
   };
 
-  if (loading) {
+  // ── Anonymous garage handlers ──────────────────────────────
+
+  const handleAnonVehicleSelected = (info: VehicleSelectedInfo) => {
+    saveStoredVehicle(info);
+    setAnonVehicle(info);
+    setAnonSelectorOpen(false);
+  };
+
+  const handleRemoveAnonVehicle = () => {
+    clearStoredVehicle();
+    setAnonVehicle(null);
+  };
+
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-surface-0 flex flex-col">
         <Navbar />
@@ -199,6 +267,178 @@ export default function SettingsPage() {
       </div>
     );
   }
+
+  // ── Anonymous view ──────────────────────────────────────────
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-surface-0 flex flex-col">
+        <Navbar />
+
+        <main id="main-content" className="flex-1 max-w-2xl mx-auto px-5 py-10 w-full">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-text-primary font-heading">
+              My Garage
+            </h1>
+            <p className="text-sm text-text-muted mt-1">
+              Save your vehicle to personalize your AutOwner experience.
+            </p>
+          </div>
+
+          {/* Sign in to save banner */}
+          <div className="mb-6 p-4 bg-amber-400/5 border border-amber-400/20 rounded-xl flex items-start gap-3">
+            <div className="w-9 h-9 rounded-lg bg-amber-400/15 flex items-center justify-center shrink-0 mt-0.5">
+              <svg
+                className="w-5 h-5 text-amber-400"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <polyline points="10 17 15 12 10 7" />
+                <line x1="15" y1="12" x2="3" y2="12" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-amber-400 font-heading mb-0.5">
+                Sign in to save your vehicles permanently
+              </p>
+              <p className="text-xs text-amber-400/70 mb-3">
+                Your vehicle is currently saved in this browser only. Sign in to
+                keep it across devices and unlock personalized features.
+              </p>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/auth/login"
+                  className="px-4 py-1.5 bg-amber-400 text-black text-xs font-bold rounded-lg hover:bg-amber-300 transition-colors font-heading"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/auth/register"
+                  className="px-4 py-1.5 text-xs font-semibold text-amber-400 border border-amber-400/20 rounded-lg hover:bg-amber-400/10 transition-colors font-heading"
+                >
+                  Create Account
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Anonymous garage: show stored vehicle or selector */}
+          <div className="bg-surface-1 border border-surface-border rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted font-heading">
+                Your Vehicle
+              </h2>
+              {anonVehicle && !anonSelectorOpen && (
+                <button
+                  type="button"
+                  onClick={() => setAnonSelectorOpen(true)}
+                  className="px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-glow transition-colors font-heading shadow-sm shadow-primary/20"
+                >
+                  Change
+                </button>
+              )}
+            </div>
+
+            {anonSelectorOpen ? (
+              <div className="space-y-2">
+                <VehicleSelector
+                  onChange={() => {}}
+                  onVehicleSelected={handleAnonVehicleSelected}
+                  saveToLocalStorage
+                />
+                <button
+                  type="button"
+                  onClick={() => setAnonSelectorOpen(false)}
+                  className="w-full text-xs text-text-muted hover:text-text-secondary transition-colors font-medium py-1"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : anonVehicle ? (
+              <div className="flex items-center gap-3 bg-surface-2 rounded-xl p-3 border border-surface-border">
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <svg
+                    className="w-4.5 h-4.5 text-primary"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
+                    <circle cx="9" cy="17" r="1" />
+                    <circle cx="15" cy="17" r="1" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-text-primary font-heading truncate">
+                    {anonVehicle.makeName} {anonVehicle.modelName}
+                  </p>
+                  <p className="text-xs text-text-muted truncate mt-0.5">
+                    {anonVehicle.generationName} ({anonVehicle.yearStart}&ndash;
+                    {anonVehicle.yearEnd ?? "Pres"}) &middot;{" "}
+                    {anonVehicle.engineCode} {anonVehicle.engineName}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveAnonVehicle}
+                  className="px-2 py-1 text-[10px] font-semibold rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/5 transition-colors font-heading shrink-0"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-sm text-text-muted mb-3">
+                  No vehicle selected yet. Choose your car to get started.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setAnonSelectorOpen(true)}
+                  className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
+                >
+                  Choose your car
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* See content button when vehicle is selected */}
+          {anonVehicle && (
+            <div className="mt-4 text-center">
+              <Link
+                href={`/?my_vehicle=1&engine_id=${anonVehicle.engineId}`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
+              >
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+                See related content
+              </Link>
+            </div>
+          )}
+        </main>
+
+        <Footer />
+      </div>
+    );
+  }
+
+  // ── Logged-in view (existing behavior) ──────────────────────
 
   const joinDate = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString("en-US", {

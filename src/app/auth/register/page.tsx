@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/data/browser";
 import Link from "next/link";
 
+const STORAGE_KEY = "autowner_my_vehicle";
+
 export default function RegisterPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -17,13 +21,43 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
     setMessage("");
-    const { error } = await signUp(email, password, username);
-    if (error) {
-      setError(error.message);
+
+    const result = await signUp(email, password, username);
+
+    if (result.error) {
+      setError(result.error.message);
       setLoading(false);
+      return;
+    }
+
+    // Check localStorage for anonymous vehicle selection
+    let storedEngineId: string | null = null;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        storedEngineId = parsed?.engineId || null;
+      }
+    } catch {
+      // ignore
+    }
+
+    setLoading(false);
+
+    if (result.data?.session) {
+      // User is signed in immediately (email confirmation disabled or auto-confirm)
+      if (storedEngineId) {
+        router.push(`/?my_vehicle=1&engine_id=${storedEngineId}`);
+      } else {
+        router.push("/?welcome=1");
+      }
     } else {
-      setMessage("Check your email for a confirmation link.");
-      setLoading(false);
+      // Email confirmation required
+      if (storedEngineId) {
+        setMessage("Check your email for a confirmation link. We'll redirect you to your personalized feed once confirmed.");
+      } else {
+        setMessage("Check your email for a confirmation link.");
+      }
     }
   };
 

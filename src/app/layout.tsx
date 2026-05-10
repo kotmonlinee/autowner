@@ -58,6 +58,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `,
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  if (!localStorage.getItem('autowner_anonymous_id')) {
+                    var id = crypto.randomUUID ? crypto.randomUUID() :
+                      'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                        var r = Math.random() * 16 | 0;
+                        return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+                      });
+                    localStorage.setItem('autowner_anonymous_id', id);
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
       </head>
       <body className="bg-surface-0 text-text-primary min-h-screen font-body antialiased relative">
         <a
