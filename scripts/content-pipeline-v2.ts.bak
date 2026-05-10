@@ -1,0 +1,892 @@
+// Content Pipeline v2 — SEO competitor research pipeline
+// Run: npx tsx scripts/content-pipeline-v2.ts "best brake pads for BMW 3 series"
+//
+// Pipeline: SEO keyword → Search competitors → Analyze gaps → Generate better content → Publish
+//
+// Uses only free sources (DuckDuckGo HTML search) — no API keys needed.
+
+import * as cheerio from "cheerio";
+import { writeFileSync, mkdirSync } from "fs";
+import { join } from "path";
+
+// ═══════════════════════════════════════════════════════════════
+// Types
+// ═══════════════════════════════════════════════════════════════
+
+interface SearchResult {
+  title: string;
+  url: string;
+  snippet: string;
+  domain: string;
+}
+
+interface CompetitorContent {
+  url: string;
+  domain: string;
+  title: string;
+  headings: string[];
+  keyPoints: string[];
+  snippet: string;
+  wordCount: number;
+  error?: string;
+}
+
+interface GapAnalysis {
+  competitors: CompetitorContent[];
+  coveredTopics: string[];
+  missingTopics: string[];
+  suggestedTopics: string[];
+}
+
+interface ContentBrief {
+  keyword: string;
+  searchedAt: string;
+  competitors: CompetitorContent[];
+  coveredTopics: string[];
+  missingTopics: string[];
+  outline: string[];
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Configuration
+// ═══════════════════════════════════════════════════════════════
+
+const DDG_SEARCH_URL = "https://html.duckduckgo.com/html/";
+const DELAY_MS = 2000;
+const REQUEST_TIMEOUT_MS = 10_000;
+const MAX_COMPETITORS = 5;
+const OUTPUT_DIR = join(process.cwd(), "docs", "content", "briefs");
+
+// Domains we prefer for authentic, first-hand automotive knowledge
+const FORUM_DOMAINS = [
+  "reddit.com",
+  "bimmerpost.com",
+  "vwvortex.com",
+  "tacomaworld.com",
+  "bobistheoilguy.com",
+  "mechanics.stackexchange.com",
+  "youtube.com",
+  "bimmerfest.com",
+  "e90post.com",
+  "f30post.com",
+  "m3post.com",
+  "xoutpost.com",
+  "renntech.org",
+  "6speedonline.com",
+  "rennlist.com",
+  "clublexus.com",
+  "mbworld.org",
+  "audiworld.com",
+  "audizine.com",
+  "corvetteforum.com",
+  "mustang6g.com",
+  "camaro6.com",
+  "jeepforum.com",
+  "wranglerforum.com",
+  "tundras.com",
+  "tacomaforum.com",
+  "ramforum.com",
+  "ford-trucks.com",
+  "f150forum.com",
+  "gmtruckclub.com",
+  "garagejournal.com",
+  "grassrootsmotorsports.com",
+  "miata.net",
+  "nsxprime.com",
+  "s2ki.com",
+  "rx7club.com",
+  "rx8club.com",
+  "ls1tech.com",
+  "nasioc.com",
+  "iwsti.com",
+  "golfmk7.com",
+  "golfmk6.com",
+  "vwroc.com",
+  "pelicanparts.com",
+  "e46fanatics.com",
+  "m5board.com",
+  "ferrarichat.com",
+  "lamborghini-talk.com",
+  "planet-9.com",
+  "rennlist.com",
+  "teslamotorsclub.com",
+  "priuschat.com",
+  "honda-tech.com",
+  "driveaccord.net",
+  "odyclub.com",
+  "fitfreak.net",
+  "8thcivic.com",
+  "civicx.com",
+];
+
+// Known content farms — skip these entirely
+const CONTENT_FARM_PATTERNS = [
+  "ezoic",
+  "mediavine",
+  "spam",
+  "article-city",
+  "articlealley",
+  "ezinearticles",
+  "hubpages.com",
+  "buzzle.com",
+  "infobarrel.com",
+  "articlebase.com",
+];
+
+// Topics 老李 can uniquely cover (real-world mechanic knowledge)
+const LAOLI_EXPERTISE = [
+  "Real part numbers (OEM and aftermarket options with pricing)",
+  "Torque specs and tightening sequences",
+  "Actual labor time (book time vs real time)",
+  "Common mistakes DIYers make on this job",
+  "Tools needed (including specialty tools)",
+  "Step-by-step install procedure with photos",
+  "Before/after driving impressions",
+  "Long-term durability update",
+  "Cost breakdown (parts + labor + shop quotes)",
+  "Alternative/budget options that actually work",
+  "Warning signs of failing parts",
+  "Compatibility notes (year ranges, trim levels, packages)",
+];
+
+// ═══════════════════════════════════════════════════════════════
+// Utilities
+// ═══════════════════════════════════════════════════════════════
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .substring(0, 80);
+}
+
+function cleanText(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/\s+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function extractDomain(url: string): string {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, "");
+    return hostname;
+  } catch {
+    return "";
+  }
+}
+
+function isForumDomain(domain: string): boolean {
+  return FORUM_DOMAINS.some(
+    (d) => domain === d || domain.endsWith("." + d)
+  );
+}
+
+function isContentFarm(url: string): boolean {
+  const lower = url.toLowerCase();
+  return CONTENT_FARM_PATTERNS.some((p) => lower.includes(p));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HTTP helpers
+// ═══════════════════════════════════════════════════════════════
+
+async function fetchWithTimeout(
+  url: string,
+  timeoutMs: number = REQUEST_TIMEOUT_MS
+): Promise<string> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    }
+
+    return await res.text();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Step 2: Search DuckDuckGo
+// ═══════════════════════════════════════════════════════════════
+
+async function searchDuckDuckGo(
+  keyword: string
+): Promise<SearchResult[]> {
+  const url = `${DDG_SEARCH_URL}?q=${encodeURIComponent(keyword)}`;
+  console.log(`  Searching: ${url}`);
+
+  const html = await fetchWithTimeout(url);
+  const $ = cheerio.load(html);
+
+  const results: SearchResult[] = [];
+
+  // DuckDuckGo HTML search results are in div.result or div#links > div.result
+  // Each result has: a.result__a (title+url), a.result__snippet, span.result__url
+  $(".result").each((_i, el) => {
+    const $el = $(el);
+
+    // Get the link
+    const $link = $el.find("a.result__a").first();
+    const title = cleanText($link.text());
+    let resultUrl = $link.attr("href") ?? "";
+
+    // Get the snippet
+    const snippet = cleanText(
+      $el.find("a.result__snippet").text() ||
+        $el.find(".result__snippet").text() ||
+        ""
+    );
+
+    if (!title || !resultUrl) return;
+
+    // Some DDG HTML results use internal redirects — extract the real URL
+    // Format: /l/?uddg=https://example.com&rut=...
+    if (resultUrl.startsWith("/l/?uddg=")) {
+      const match = resultUrl.match(/uddg=([^&]+)/);
+      if (match) {
+        resultUrl = decodeURIComponent(match[1]);
+      }
+    }
+
+    // Skip if it's not a valid HTTP URL
+    if (!resultUrl.startsWith("http")) return;
+
+    const domain = extractDomain(resultUrl);
+    if (!domain) return;
+
+    // Skip content farms
+    if (isContentFarm(resultUrl)) return;
+
+    results.push({ title, url: resultUrl, snippet, domain });
+  });
+
+  // Alternative parsing for different DDG HTML markup variants
+  if (results.length === 0) {
+    // Try finding any links in the results area
+    $("#links a.result__a, .results a.result__a").each((_i, el) => {
+      const $el = $(el);
+      const title = cleanText($el.text());
+      let resultUrl = $el.attr("href") ?? "";
+
+      if (!title || !resultUrl) return;
+
+      if (resultUrl.startsWith("/l/?uddg=")) {
+        const match = resultUrl.match(/uddg=([^&]+)/);
+        if (match) {
+          resultUrl = decodeURIComponent(match[1]);
+        }
+      }
+
+      if (!resultUrl.startsWith("http")) return;
+
+      const domain = extractDomain(resultUrl);
+      if (!domain || isContentFarm(resultUrl)) return;
+
+      results.push({
+        title,
+        url: resultUrl,
+        snippet: "",
+        domain,
+      });
+    });
+  }
+
+  return results;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Step 3: Fetch and parse competitor content
+// ═══════════════════════════════════════════════════════════════
+
+async function parseCompetitorPage(
+  result: SearchResult
+): Promise<CompetitorContent> {
+  const isYouTube = result.domain.includes("youtube.com");
+
+  try {
+    console.log(`  Fetching: ${result.url}`);
+    const html = await fetchWithTimeout(result.url);
+    const $ = cheerio.load(html);
+
+    if (isYouTube) {
+      return parseYouTubePage($, result);
+    }
+    return parseGeneralPage($, result);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log(`  ✗ Skipping ${result.domain}: ${msg}`);
+    return {
+      url: result.url,
+      title: result.title,
+      headings: [],
+      keyPoints: [],
+      snippet: result.snippet,
+      wordCount: 0,
+      error: msg,
+    };
+  }
+}
+
+function parseYouTubePage(
+  $: cheerio.CheerioAPI,
+  result: SearchResult
+): CompetitorContent {
+  // For YouTube, extract meta tags — we don't need video content
+  const metaTitle =
+    $('meta[property="og:title"]').attr("content") ||
+    $("title").text() ||
+    result.title;
+  const metaDescription =
+    $('meta[property="og:description"]').attr("content") ||
+    $('meta[name="description"]').attr("content") ||
+    "";
+
+  // Extract hashtags/topics from description
+  const descLower = metaDescription.toLowerCase();
+  const keyPoints: string[] = [];
+  const topicPatterns = [
+    "best", "review", "install", "replacement", "upgrade",
+    "comparison", "vs", "budget", "premium", "oem",
+    "aftermarket", "performance", "cost", "price", "worth",
+    "guide", "tutorial", "diy", "how to", "step",
+  ];
+  for (const pattern of topicPatterns) {
+    if (descLower.includes(pattern)) {
+      const idx = descLower.indexOf(pattern);
+      const snippet = metaDescription.substring(
+        Math.max(0, idx - 20),
+        Math.min(metaDescription.length, idx + 60)
+      );
+      keyPoints.push(snippet.trim());
+    }
+  }
+
+  return {
+    url: result.url,
+    title: cleanText(metaTitle),
+    headings: ["YouTube video — see title and description for topics"],
+    keyPoints: keyPoints.slice(0, 5),
+    snippet: metaDescription.substring(0, 300),
+    wordCount: metaDescription.split(/\s+/).length,
+  };
+}
+
+function parseGeneralPage(
+  $: cheerio.CheerioAPI,
+  result: SearchResult
+): CompetitorContent {
+  // Remove non-content elements
+  $(
+    "script, style, nav, footer, header, .sidebar, .ad, .advertisement, " +
+    ".comments, .social-share, .related-posts, noscript, iframe"
+  ).remove();
+
+  // Page title
+  const pageTitle =
+    $('meta[property="og:title"]').attr("content") ||
+    $("h1").first().text() ||
+    $("title").text() ||
+    result.title;
+
+  // Headings
+  const headings: string[] = [];
+  $("h2, h3").each((_i, el) => {
+    const text = cleanText($(el).text());
+    if (text && text.length > 5 && text.length < 200) {
+      headings.push(text);
+    }
+  });
+
+  // Deduplicate headings
+  const uniqueHeadings = [...new Set(headings)];
+
+  // Main content text for word count and key points
+  const mainContent = $(
+    "article, main, .post-content, .entry-content, .content, #content, .post-body"
+  );
+
+  let bodyText = "";
+  if (mainContent.length > 0) {
+    bodyText = cleanText(mainContent.text());
+  } else {
+    // Fallback: get body text minus removed elements
+    bodyText = cleanText($("body").text());
+  }
+
+  // Extract key points from the meta description and first paragraph
+  const metaDesc =
+    $('meta[name="description"]').attr("content") ||
+    $('meta[property="og:description"]').attr("content") ||
+    "";
+
+  // Get first substantial paragraph as a key point
+  const firstP = cleanText(
+    $("article p, main p, .post-content p, .entry-content p, p")
+      .first()
+      .text()
+  );
+
+  const keyPoints: string[] = [];
+  if (metaDesc) keyPoints.push(metaDesc.substring(0, 200));
+  if (firstP && firstP.length > 20)
+    keyPoints.push(firstP.substring(0, 200));
+
+  return {
+    url: result.url,
+    title: cleanText(pageTitle),
+    headings: uniqueHeadings,
+    keyPoints,
+    snippet: result.snippet || metaDesc.substring(0, 200),
+    wordCount: bodyText.split(/\s+/).filter(Boolean).length,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Step 4: Analyze content gaps
+// ═══════════════════════════════════════════════════════════════
+
+function analyzeGaps(competitors: CompetitorContent[]): GapAnalysis {
+  // Collect all headings across competitors
+  const allHeadings: string[] = [];
+  for (const c of competitors) {
+    allHeadings.push(...c.headings);
+  }
+
+  // Normalize and group headings
+  const normalizedTopics = allHeadings
+    .map((h) => h.toLowerCase().trim())
+    .filter((h) => h.length > 10);
+
+  // Covered topics: topics that appear in competitor headings
+  const topicMap = new Map<string, number>();
+  for (const h of normalizedTopics) {
+    topicMap.set(h, (topicMap.get(h) ?? 0) + 1);
+  }
+
+  // Sort by frequency
+  const coveredTopics = [...topicMap.entries()]
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 15)
+    .map(([topic, count]) => `${topic} (${count} competitor${count > 1 ? "s" : ""})`);
+
+  // Identify missing topics (老李's expertise areas not covered by competitors)
+  const missingTopics: string[] = [];
+  for (const expertise of LAOLI_EXPERTISE) {
+    const expertiseLower = expertise.toLowerCase();
+    const isCovered = normalizedTopics.some((h) => {
+      // Check if any competitor heading partially covers this expertise area
+      const keywords = expertiseLower
+        .split(" ")
+        .filter((w) => w.length > 4);
+      const matchCount = keywords.filter((kw) => h.includes(kw)).length;
+      return matchCount >= keywords.length * 0.5; // At least half the keywords match
+    });
+
+    if (!isCovered) {
+      missingTopics.push(expertise);
+    }
+  }
+
+  // Also check for common automotive topics that might be missing
+  const commonCarTopics = [
+    "compatibility", "fitment", "year range", "model years",
+    "installation difficulty", "time required", "tools needed",
+    "common problems", "failure symptoms", "maintenance interval",
+    "warranty", "lifespan", "break-in procedure",
+  ];
+
+  for (const topic of commonCarTopics) {
+    if (!normalizedTopics.some((h) => h.includes(topic))) {
+      const alreadyInMissing = missingTopics.some((m) =>
+        m.toLowerCase().includes(topic)
+      );
+      if (!alreadyInMissing) {
+        missingTopics.push(`No competitor covers: ${topic}`);
+      }
+    }
+  }
+
+  // Suggested topics: combine covered + 老李's unique angle
+  const suggestedTopics = [
+    ...new Set([
+      ...coveredTopics.map((t) => t.replace(/\s*\(\d+ competitor\)$/, "")),
+      ...missingTopics.map((t) =>
+        t.replace(/^No competitor covers: /, "")
+      ),
+    ]),
+  ];
+
+  return {
+    competitors,
+    coveredTopics,
+    missingTopics,
+    suggestedTopics: suggestedTopics.slice(0, 20),
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Step 5: Generate article outline
+// ═══════════════════════════════════════════════════════════════
+
+function generateOutline(
+  keyword: string,
+  analysis: GapAnalysis
+): string[] {
+  const outline: string[] = [];
+
+  outline.push(`# ${keyword}: The Complete Guide`);
+
+  outline.push("");
+  outline.push("## Introduction");
+  outline.push(
+    `- Hook: Why ${keyword} matters for your car's performance and safety`
+  );
+  outline.push("- What this guide covers (and what competitors miss)");
+  outline.push("- Quick answer for those in a hurry");
+
+  // Add sections based on competitor coverage
+  const competitorSectionTopics = analysis.coveredTopics
+    .map((t) => t.replace(/\s*\(\d+ competitor.*$/, ""))
+    .filter((t) => !t.includes("youtube") && t.length > 10)
+    .slice(0, 6);
+
+  if (competitorSectionTopics.length > 0) {
+    outline.push("");
+    outline.push("## What Most Guides Cover");
+    for (const topic of competitorSectionTopics) {
+      const sectionTitle =
+        topic.charAt(0).toUpperCase() + topic.slice(1);
+      outline.push("");
+      outline.push(`### ${sectionTitle}`);
+      outline.push(`- What competitors say about ${topic}`);
+      outline.push("- What they get right");
+      outline.push("- What they miss or get wrong");
+    }
+  }
+
+  // 老李's unique sections
+  const missingTopics = analysis.missingTopics.slice(0, 8);
+  if (missingTopics.length > 0) {
+    outline.push("");
+    outline.push("## What Everyone Else Misses (老李's Insider Knowledge)");
+    for (const topic of missingTopics) {
+      const cleanTopic = topic
+        .replace(/^No competitor covers: /, "")
+        .trim();
+      const sectionTitle =
+        cleanTopic.charAt(0).toUpperCase() + cleanTopic.slice(1);
+      outline.push("");
+      outline.push(`### ${sectionTitle}`);
+      outline.push("- [老李's detailed breakdown here]");
+    }
+  }
+
+  outline.push("");
+  outline.push("## Tools and Parts Checklist");
+  outline.push("- Complete parts list with OEM and aftermarket part numbers");
+  outline.push("- All tools required (including specialty tools)");
+  outline.push("- Torque specs reference table");
+  outline.push("- Estimated cost breakdown");
+
+  outline.push("");
+  outline.push("## Step-by-Step Installation Guide");
+  outline.push("- Preparation steps");
+  outline.push("- Removal procedure (with torque specs)");
+  outline.push("- Installation procedure (with torque specs)");
+  outline.push("- Post-install checks and break-in");
+  outline.push("- Common mistakes to avoid at each step");
+
+  outline.push("");
+  outline.push("## Real-World Results");
+  outline.push("- Before/after measurements or driving impressions");
+  outline.push("- Photos or video of the install");
+  outline.push("- Long-term update (6 month / 1 year follow-up)");
+
+  outline.push("");
+  outline.push("## Cost Comparison");
+  outline.push("- DIY cost breakdown");
+  outline.push("- Independent shop quote comparison");
+  outline.push("- Dealer quote comparison");
+  outline.push("- Is it worth doing yourself?");
+
+  outline.push("");
+  outline.push("## FAQ");
+  outline.push("- Common questions from forums and comments");
+  outline.push("- Compatibility across model years and trims");
+  outline.push("- Alternatives and budget options");
+
+  return outline;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Step 6: Output markdown brief
+// ═══════════════════════════════════════════════════════════════
+
+function writeBrief(keyword: string, analysis: GapAnalysis, outline: string[]): string {
+  mkdirSync(OUTPUT_DIR, { recursive: true });
+
+  const slug = slugify(keyword);
+  const filepath = join(OUTPUT_DIR, `${slug}.md`);
+
+  const now = new Date().toISOString().split("T")[0];
+
+  let md = "";
+  md += `# Content Brief: ${keyword}\n\n`;
+  md += `**Date:** ${now}\n`;
+  md += `**Keyword:** \`${keyword}\`\n`;
+  md += `**Competitors analyzed:** ${analysis.competitors.length}\n\n`;
+  md += `---\n\n`;
+
+  // Competitor summary
+  md += `## Competitor Pages Analyzed\n\n`;
+  for (const c of analysis.competitors) {
+    const status = c.error ? " [ERROR]" : ` [${c.wordCount} words]`;
+    md += `- **[${c.title}](${c.url})** — ${c.domain}${status}\n`;
+    if (c.snippet) {
+      md += `  > ${c.snippet.substring(0, 200)}\n`;
+    }
+    if (c.headings.length > 0) {
+      md += `  - Headings: ${c.headings.slice(0, 5).join(" | ")}\n`;
+    }
+    md += "\n";
+  }
+
+  // Coverage analysis
+  md += `## What Top Competitors Cover\n\n`;
+  if (analysis.coveredTopics.length > 0) {
+    for (const topic of analysis.coveredTopics) {
+      md += `- ${topic}\n`;
+    }
+  } else {
+    md += `- _(No headings extracted from competitor pages)_\n`;
+  }
+
+  md += `\n## Content Gaps — What They DON'T Cover\n\n`;
+  for (const missing of analysis.missingTopics) {
+    md += `- ${missing}\n`;
+  }
+
+  // Outline
+  md += `\n## Suggested Article Outline\n\n`;
+  for (const line of outline) {
+    md += `${line}\n`;
+  }
+
+  // Sources
+  md += `\n---\n\n`;
+  md += `*Research generated by AutOwner Content Pipeline v2 on ${now}*\n`;
+  md += `*Keyword: ${keyword}*\n`;
+
+  writeFileSync(filepath, md, "utf-8");
+  return filepath;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Console output helpers
+// ═══════════════════════════════════════════════════════════════
+
+function printDivider(char: string = "─", len: number = 60): void {
+  console.log(char.repeat(len));
+}
+
+function printBanner(): void {
+  console.log("");
+  console.log("╔══════════════════════════════════════════════════════╗");
+  console.log("║   AutOwner Content Pipeline v2                       ║");
+  console.log("║   SEO Competitor Research → Better Content            ║");
+  console.log("╚══════════════════════════════════════════════════════╝");
+  console.log("");
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Main pipeline
+// ═══════════════════════════════════════════════════════════════
+
+async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  const keyword = args[0];
+
+  if (!keyword || args.includes("--help") || args.includes("-h")) {
+    console.log("AutOwner Content Pipeline v2 — SEO Competitor Research");
+    console.log("");
+    console.log("Usage:");
+    console.log('  npx tsx scripts/content-pipeline-v2.ts "best brake pads for BMW 3 series"');
+    console.log("");
+    console.log("Pipeline: SEO keyword → Search competitors → Analyze gaps → Generate better content → Publish");
+    console.log("");
+    console.log("Options:");
+    console.log("  --help, -h         Show this help");
+    console.log("  --no-brief         Skip writing the markdown brief file");
+    console.log("  --max N            Max competitor pages to analyze (default: 5)");
+    console.log("");
+    console.log("No API keys needed. Uses DuckDuckGo HTML search (free).");
+    process.exit(0);
+  }
+
+  const skipBrief = args.includes("--no-brief");
+  const maxIdx = args.indexOf("--max");
+  const maxCompetitors =
+    maxIdx !== -1 && args[maxIdx + 1]
+      ? parseInt(args[maxIdx + 1], 10)
+      : MAX_COMPETITORS;
+
+  printBanner();
+  console.log(`Keyword: "${keyword}"`);
+  console.log(`Max competitors: ${maxCompetitors}`);
+  console.log("");
+
+  // ── Step 2: Search DuckDuckGo ──────────────────────────
+  console.log("═══ Step 1: Searching DuckDuckGo ═══");
+  printDivider();
+
+  let allResults: SearchResult[];
+  try {
+    allResults = await searchDuckDuckGo(keyword);
+  } catch (err) {
+    console.error(
+      "Failed to search DuckDuckGo:",
+      err instanceof Error ? err.message : err
+    );
+    process.exit(1);
+  }
+
+  console.log(`  Found ${allResults.length} total results`);
+
+  // Separate forum/community results from general results
+  const forumResults = allResults.filter((r) => isForumDomain(r.domain));
+  const generalResults = allResults.filter((r) => !isForumDomain(r.domain));
+
+  console.log(`  Forum/community sources: ${forumResults.length}`);
+  console.log(`  General sources: ${generalResults.length}`);
+
+  // Prioritize forum results, then fill with general results
+  const selectedResults = [
+    ...forumResults.slice(0, maxCompetitors),
+    ...generalResults.slice(0, maxCompetitors - forumResults.length),
+  ].slice(0, maxCompetitors);
+
+  console.log(`  Selected ${selectedResults.length} competitors to analyze:`);
+  for (const r of selectedResults) {
+    const tag = isForumDomain(r.domain) ? "[FORUM] " : "[GENERAL]";
+    console.log(`    ${tag}${r.domain}: ${r.title.substring(0, 60)}`);
+  }
+  console.log("");
+
+  // ── Step 3: Fetch competitor content ────────────────────
+  console.log("═══ Step 2: Fetching competitor content ═══");
+  printDivider();
+
+  const competitors: CompetitorContent[] = [];
+  for (const result of selectedResults) {
+    const content = await parseCompetitorPage(result);
+    competitors.push(content);
+
+    if (content.error) {
+      console.log(`  ✗ ${result.domain}: ${content.error}`);
+    } else {
+      console.log(
+        `  ✓ ${result.domain}: "${content.title.substring(
+          0,
+          50
+        )}..." — ${content.headings.length} headings, ${content.wordCount} words`
+      );
+    }
+
+    // Rate limit: wait between fetches
+    if (selectedResults.indexOf(result) < selectedResults.length - 1) {
+      await sleep(DELAY_MS);
+    }
+  }
+
+  const successful = competitors.filter((c) => !c.error);
+  console.log(
+    `\n  Successfully analyzed: ${successful.length}/${competitors.length}\n`
+  );
+
+  // ── Step 4: Analyze gaps ────────────────────────────────
+  console.log("═══ Step 3: Content Gap Analysis ═══");
+  printDivider();
+
+  const analysis = analyzeGaps(successful);
+
+  console.log("\n📋 Top competitors cover:");
+  printDivider();
+  for (const topic of analysis.coveredTopics.slice(0, 10)) {
+    console.log(`  • ${topic}`);
+  }
+
+  console.log("\n🚫 Content GAPS — They DON'T cover:");
+  printDivider();
+  for (const missing of analysis.missingTopics) {
+    console.log(`  • ${missing}`);
+  }
+
+  // ── Step 5: Generate outline ────────────────────────────
+  console.log("\n═══ Step 4: Suggested Article Outline ═══");
+  printDivider();
+
+  const outline = generateOutline(keyword, analysis);
+
+  console.log("");
+  for (const line of outline) {
+    if (line.startsWith("#")) {
+      console.log(`\n${line}`);
+    } else if (line.startsWith("##")) {
+      console.log(`\n  ${line}`);
+    } else if (line.startsWith("###")) {
+      console.log(`\n    ${line}`);
+    } else if (line.startsWith("-")) {
+      console.log(`      ${line}`);
+    }
+  }
+
+  // ── Step 6: Write brief ─────────────────────────────────
+  if (!skipBrief) {
+    console.log("\n═══ Step 5: Writing Content Brief ═══");
+    printDivider();
+
+    const filepath = writeBrief(keyword, analysis, outline);
+    console.log(`  Brief saved: ${filepath}`);
+  }
+
+  // ── Summary ─────────────────────────────────────────────
+  console.log("\n═══ Pipeline Complete ═══");
+  printDivider("═");
+  console.log(`  Keyword:          ${keyword}`);
+  console.log(`  Competitors:      ${successful.length} analyzed`);
+  console.log(`  Topics covered:   ${analysis.coveredTopics.length}`);
+  console.log(`  Gaps identified:  ${analysis.missingTopics.length}`);
+  console.log(`  Outline sections: ${outline.filter((l) => l.startsWith("##")).length}`);
+  if (!skipBrief) {
+    const slug = slugify(keyword);
+    console.log(`  Brief:            docs/content/briefs/${slug}.md`);
+  }
+  console.log("");
+}
+
+main().catch((err) => {
+  console.error("Pipeline failed:", err instanceof Error ? err.message : err);
+  process.exit(1);
+});
