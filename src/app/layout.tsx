@@ -38,6 +38,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.autowner.com",
   },
+  verification: {
+    google: "ksNIR6fOTCzLYST4OAU_3cdoTqnRtV6dyD3_xTpBt-k",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
