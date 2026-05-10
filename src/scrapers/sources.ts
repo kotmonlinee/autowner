@@ -21,4 +21,10 @@ export const sources: ScrapeSource[] = [
   { subreddit: "Tires", categorySlug: "maintenance", size: 8 },
   { subreddit: "EngineBuilding", categorySlug: "mods-tuning", size: 8 },
   { subreddit: "autorepair", categorySlug: "repair", size: 10 },
+  { subreddit: "Drifting", categorySlug: "mods-tuning", size: 8 },
+  { subreddit: "4x4", categorySlug: "mods-tuning", size: 8 },
+  { subreddit: "Diesel", categorySlug: "maintenance", size: 8 },
+  { subreddit: "classiccars", categorySlug: "buying-advice", size: 8 },
+  { subreddit: "EVConversion", categorySlug: "mods-tuning", size: 5 },
+  { subreddit: "Stance", categorySlug: "mods-tuning", size: 5 },
 ];

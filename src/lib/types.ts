@@ -58,6 +58,7 @@ export type Comment = {
   id: string;
   post_id: string;
   author_id: string | null;
+  parent_id: string | null;
   body: string;
   vote_score: number;
   created_at: string;

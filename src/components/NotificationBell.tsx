@@ -23,6 +23,34 @@ function timeAgo(date: string) {
   return `${months}mo ago`;
 }
 
+function NotificationIcon({ type }: { type: string }) {
+  // Chat bubble for post_comment
+  if (type === "post_comment") {
+    return (
+      <svg className="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+    );
+  }
+
+  // Reply arrow for comment_reply
+  if (type === "comment_reply") {
+    return (
+      <svg className="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 10h10a8 8 0 0 1 8 8v2M3 10l6 6m-6-6 6-6" />
+      </svg>
+    );
+  }
+
+  // Default bell icon for other types
+  return (
+    <svg className="w-4 h-4 text-text-muted shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  );
+}
+
 export default function NotificationBell({ userId }: { userId: string }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -159,10 +187,16 @@ export default function NotificationBell({ userId }: { userId: string }) {
                   }`}
                 >
                   <div className="flex items-start gap-3">
+                    {/* Icon based on notification type */}
+                    <div className="mt-0.5">
+                      <NotificationIcon type={notif.type} />
+                    </div>
+
                     {/* Unread dot */}
                     {!notif.is_read && (
                       <span className="mt-1.5 w-2 h-2 rounded-full bg-primary shrink-0" />
                     )}
+
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-text-primary leading-snug line-clamp-2">
                         {notif.message}
@@ -171,9 +205,6 @@ export default function NotificationBell({ userId }: { userId: string }) {
                         {timeAgo(notif.created_at)}
                       </p>
                     </div>
-                    {notif.is_read && (
-                      <span className="mt-1.5 w-2 h-2 shrink-0" />
-                    )}
                   </div>
                 </button>
               ))

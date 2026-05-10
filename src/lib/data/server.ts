@@ -244,11 +244,18 @@ export async function getPopularTags(limit = 15) {
 
 // ── Comments ─────────────────────────────────────────────
 
-export async function insertComment(postId: string, authorId: string, body: string): Promise<CommentWithAuthor> {
+export async function insertComment(
+  postId: string,
+  authorId: string,
+  body: string,
+  parentId?: string | null,
+): Promise<CommentWithAuthor> {
   const supabase = await createServerSupabase();
+  const insertData: Record<string, unknown> = { post_id: postId, author_id: authorId, body };
+  if (parentId) insertData.parent_id = parentId;
   const { data, error } = await supabase
     .from("comments")
-    .insert({ post_id: postId, author_id: authorId, body })
+    .insert(insertData)
     .select("*, profiles(username, avatar_url)")
     .single();
   if (error) throw error;

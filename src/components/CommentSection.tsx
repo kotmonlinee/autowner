@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { fetchComments } from "@/lib/data/browser";
 import CommentItem from "./CommentItem";
 import type { CommentWithAuthor } from "@/lib/types";
+
+const MAX_NESTING_DEPTH = 2; // 3 levels total: root (0), reply (1), reply-to-reply (2)
 
 export default function CommentSection({
   postId,
@@ -39,6 +41,22 @@ export default function CommentSection({
     setLoading(false);
   };
 
+  const handleReply = async (parentId: string, replyBody: string) => {
+    const res = await fetch("/api/comments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ postId, body: replyBody, parentId }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({ error: "Failed to reply" }));
+      throw new Error(data.error ?? "Failed to reply");
+    }
+
+    const { comment } = await res.json();
+    setComments(prev => [...prev, comment]);
+  };
+
   const handleEdit = async (commentId: string, newBody: string) => {
     const res = await fetch(`/api/comments/${commentId}`, {
       method: "PATCH",
@@ -69,6 +87,50 @@ export default function CommentSection({
     setComments(prev => prev.filter(c => c.id !== commentId));
   };
 
+  // Build the comment tree from the flat list
+  const commentTree = useMemo(() => {
+    // Map parent_id -> children
+    const childrenMap = new Map<string, CommentWithAuthor[]>();
+    for (const c of comments) {
+      const key = c.parent_id ?? "__root__";
+      if (!childrenMap.has(key)) childrenMap.set(key, []);
+      childrenMap.get(key)!.push(c);
+    }
+
+    // Sort children within each parent by created_at
+    for (const [, kids] of childrenMap) {
+      kids.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    }
+
+    return childrenMap;
+  }, [comments]);
+
+  // Recursively render a comment and its descendants
+  function renderCommentTree(comment: CommentWithAuthor, depth: number): React.ReactNode {
+    const children = commentTree.get(comment.id) ?? [];
+    const nextDepth = Math.min(depth + 1, MAX_NESTING_DEPTH + 1);
+
+    return (
+      <CommentItem
+        key={comment.id}
+        comment={comment}
+        userId={userId}
+        depth={depth}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onReply={handleReply}
+      >
+        {children.length > 0 && (
+          <div>
+            {children.map(child => renderCommentTree(child, nextDepth))}
+          </div>
+        )}
+      </CommentItem>
+    );
+  }
+
+  const rootComments = commentTree.get("__root__") ?? [];
+
   return (
     <div>
       <h3 className="text-base font-bold text-text-primary font-heading mb-1">
@@ -76,15 +138,7 @@ export default function CommentSection({
       </h3>
       <div className="h-px bg-surface-border mb-4" />
 
-      {comments.map(comment => (
-        <CommentItem
-          key={comment.id}
-          comment={comment}
-          userId={userId}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      ))}
+      {rootComments.map(comment => renderCommentTree(comment, 0))}
 
       <form onSubmit={handleSubmit} className="mt-4 pt-4 border-t border-surface-border">
         <textarea

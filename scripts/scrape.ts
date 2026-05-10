@@ -24,6 +24,12 @@ const sources = [
   { subreddit: "Tires", category: "maintenance", size: 8 },
   { subreddit: "EngineBuilding", category: "mods-tuning", size: 8 },
   { subreddit: "autorepair", category: "repair", size: 10 },
+  { subreddit: "Drifting", category: "mods-tuning", size: 8 },
+  { subreddit: "4x4", category: "mods-tuning", size: 8 },
+  { subreddit: "Diesel", category: "maintenance", size: 8 },
+  { subreddit: "classiccars", category: "buying-advice", size: 8 },
+  { subreddit: "EVConversion", category: "mods-tuning", size: 5 },
+  { subreddit: "Stance", category: "mods-tuning", size: 5 },
 ];
 
 const PUSHSHIFT_URL = "https://api.pullpush.io/reddit/search/submission/";
