@@ -40,7 +40,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: "ksNIR6fOTCzLYST4OAU_3cdoTqnRtV6dyD3_xTpBt-k",
-    bing: "F5A564DC037318092ABA3FC1D60E256A",
+  },
+  other: {
+    "msvalidate.01": "F5A564DC037318092ABA3FC1D60E256A",
   },
 };
 
