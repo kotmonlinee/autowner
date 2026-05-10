@@ -1474,7 +1474,8 @@ export interface ReadingHistoryItem {
 
 export async function getReadingHistory(userId: string): Promise<ReadingHistoryItem[]> {
   try {
-    const supabase = await createServerSupabase();
+    const { createServiceSupabase } = await import("@/lib/supabase-server");
+    const supabase = await createServiceSupabase();
 
     const { data: events, error } = await supabase
       .from("user_events")
