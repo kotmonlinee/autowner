@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/data/browser";
+import { syncOnLogin } from "@/lib/sync";
 import Link from "next/link";
 
 const STORAGE_KEY = "autowner_my_vehicle";
@@ -43,6 +44,9 @@ export default function RegisterPage() {
     }
 
     setLoading(false);
+
+    // Sync any anonymous data (bookmarks, vehicle, followed vehicles) to the new account
+    await syncOnLogin();
 
     if (result.data?.session) {
       // User is signed in immediately (email confirmation disabled or auto-confirm)

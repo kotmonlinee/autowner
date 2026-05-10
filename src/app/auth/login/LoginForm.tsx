@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "@/lib/data/browser";
+import { syncOnLogin } from "@/lib/sync";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -21,7 +22,11 @@ export default function LoginForm() {
     setError("");
     const { error } = await signIn(email, password);
     if (error) { setError(error.message); setLoading(false); }
-    else { router.push(next); router.refresh(); }
+    else {
+      await syncOnLogin();
+      router.push(next);
+      router.refresh();
+    }
   };
 
   return (

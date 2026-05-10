@@ -76,7 +76,7 @@ export default async function NotificationsPage() {
   return (
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <Navbar />
-      <main id="main-content" className="max-w-2xl mx-auto px-5 py-6 flex-1 w-full">
+      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>

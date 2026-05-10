@@ -173,7 +173,7 @@ export default async function HomePage({
   return (
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <Navbar />
-      <div className="max-w-7xl mx-auto px-5 py-6 flex gap-8 flex-1">
+      <div className="max-w-5xl mx-auto px-5 py-6 flex gap-8 flex-1">
         <Sidebar active={categorySlug} />
         <main id="main-content" className="flex-1 min-w-0 relative z-[1]">
           <CategoryBar categories={categories} active={categorySlug} />
