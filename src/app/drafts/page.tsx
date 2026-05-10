@@ -56,9 +56,9 @@ export default async function DraftsPage() {
 
         {drafts.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-16 h-16 mx-auto mb-4 bg-surface-2 rounded-2xl flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-5 bg-surface-2 rounded-3xl flex items-center justify-center">
               <svg
-                className="w-8 h-8 text-text-muted"
+                className="w-10 h-10 text-text-muted"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -71,17 +71,20 @@ export default async function DraftsPage() {
                 />
               </svg>
             </div>
-            <p className="text-lg font-semibold text-text-secondary font-heading">
+            <p className="text-lg font-semibold text-text-secondary font-heading mb-1">
               No drafts
             </p>
-            <p className="text-sm text-text-muted mt-1 mb-6">
-              Start writing and save your progress as a draft
+            <p className="text-sm text-text-muted mt-1 max-w-sm mx-auto leading-relaxed">
+              Drafts let you start writing and come back later to finish. Your work is saved automatically &mdash; no need to publish until you&apos;re ready. Perfect for longer guides, detailed walkthroughs, or when inspiration strikes at 2 AM.
             </p>
             <Link
               href="/submit"
-              className="inline-block px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
+              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
             >
-              Create a Post
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Start Writing
             </Link>
           </div>
         ) : (

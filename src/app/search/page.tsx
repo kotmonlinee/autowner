@@ -44,13 +44,20 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         </div>
         {(q || category) && posts.length === 0 && (
           <div className="text-center py-20">
-            <div className="w-16 h-16 mx-auto mb-4 bg-surface-2 rounded-2xl flex items-center justify-center">
-              <svg className="w-8 h-8 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-20 h-20 mx-auto mb-5 bg-surface-2 rounded-3xl flex items-center justify-center">
+              <svg className="w-10 h-10 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <p className="text-text-secondary font-heading font-semibold">No results found</p>
-            <p className="text-sm text-text-muted mt-1">Try different keywords or category</p>
+            <p className="text-lg font-semibold text-text-secondary font-heading mb-1">No results found</p>
+            <p className="text-sm text-text-muted mt-1 max-w-xs mx-auto leading-relaxed">
+              We couldn&apos;t find anything matching your search. Here are a few things to try:
+            </p>
+            <ul className="text-sm text-text-muted mt-3 mb-2 space-y-1.5 max-w-xs mx-auto text-left list-disc list-inside">
+              <li>Try fewer or more general keywords</li>
+              <li>Try a different category or remove the category filter</li>
+              <li>Check for typos in your search terms</li>
+            </ul>
           </div>
         )}
       </main>

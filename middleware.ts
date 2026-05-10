@@ -82,6 +82,7 @@ export const config = {
     "/submit/:path*",
     "/admin/:path*",
     "/bookmarks/:path*",
+    "/drafts/:path*",
     "/settings/:path*",
     "/auth/login",
     "/auth/register",

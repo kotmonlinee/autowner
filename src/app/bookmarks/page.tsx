@@ -37,9 +37,9 @@ export default async function BookmarksPage() {
 
         {bookmarks.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-16 h-16 mx-auto mb-4 bg-surface-2 rounded-2xl flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-5 bg-surface-2 rounded-3xl flex items-center justify-center">
               <svg
-                className="w-8 h-8 text-text-muted"
+                className="w-10 h-10 text-text-muted"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -52,17 +52,23 @@ export default async function BookmarksPage() {
                 />
               </svg>
             </div>
-            <p className="text-lg font-semibold text-text-secondary font-heading">
+            <p className="text-lg font-semibold text-text-secondary font-heading mb-1">
               No bookmarks yet
             </p>
-            <p className="text-sm text-text-muted mt-1 mb-6">
-              Save posts by clicking the bookmark icon on any post
+            <p className="text-sm text-text-muted mt-1 max-w-xs mx-auto leading-relaxed">
+              Found a useful guide or an interesting discussion? Click the bookmark icon on any post to save it here for later. Your wrench-worthy reads are always one click away.
+            </p>
+            <p className="text-xs text-text-muted mt-3 mb-6">
+              Not sure where to start? Browse the most popular posts on the homepage.
             </p>
             <Link
               href="/"
-              className="inline-block px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
             >
-              Browse Posts
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l-7 7 7 7" />
+              </svg>
+              Browse Popular Posts
             </Link>
           </div>
         ) : (
