@@ -22,6 +22,16 @@ function SubmitForm() {
   const [previewMode, setPreviewMode] = useState<"write" | "preview">("write");
   const [draftId, setDraftId] = useState<string | null>(null);
   const [loadingDraft, setLoadingDraft] = useState(false);
+
+  // Quick Answer state
+  const [quickAnswerExpanded, setQuickAnswerExpanded] = useState(false);
+  const [quickCause, setQuickCause] = useState("");
+  const [quickProbability, setQuickProbability] = useState("");
+  const [quickCostMin, setQuickCostMin] = useState("");
+  const [quickCostMax, setQuickCostMax] = useState("");
+  const [quickFirstStep, setQuickFirstStep] = useState("");
+  const [quickNextSteps, setQuickNextSteps] = useState("");
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const draftParam = searchParams.get("draft");
@@ -51,6 +61,17 @@ function SubmitForm() {
           }))
         );
         setDraftId(draft.id);
+        // Populate quick answer fields
+        if (draft.quick_answer) {
+          const qa = draft.quick_answer;
+          setQuickCause(qa.most_likely_cause || "");
+          setQuickProbability(qa.probability || "");
+          setQuickCostMin(qa.cost_min != null ? String(qa.cost_min) : "");
+          setQuickCostMax(qa.cost_max != null ? String(qa.cost_max) : "");
+          setQuickFirstStep(qa.first_step || "");
+          setQuickNextSteps(Array.isArray(qa.next_steps) ? qa.next_steps.join("\n") : "");
+          setQuickAnswerExpanded(true);
+        }
       })
       .catch(() => {
         setError("Could not load draft");
@@ -72,6 +93,7 @@ function SubmitForm() {
           body: body || "",
           categoryId,
           tags,
+          quickAnswer: buildQuickAnswer(),
         }),
       });
       if (res.ok) {
@@ -113,7 +135,7 @@ function SubmitForm() {
         const res = await fetch("/api/posts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, body, categoryId, tags }),
+          body: JSON.stringify({ title, body, categoryId, tags, quickAnswer: buildQuickAnswer() }),
         });
         if (res.ok) {
           const { id } = await res.json();
@@ -147,6 +169,31 @@ function SubmitForm() {
     await handleCopyUrl(url);
     setCopiedIdx(idx);
     setTimeout(() => setCopiedIdx(null), 2000);
+  };
+
+  const buildQuickAnswer = () => {
+    const cause = quickCause.trim();
+    const prob = quickProbability.trim();
+    const firstStep = quickFirstStep.trim();
+    const min = quickCostMin.trim() ? Number(quickCostMin.trim()) : undefined;
+    const max = quickCostMax.trim() ? Number(quickCostMax.trim()) : undefined;
+    const steps = quickNextSteps
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (!cause && !firstStep && min === undefined && max === undefined && steps.length === 0) {
+      return null;
+    }
+
+    const qa: Record<string, unknown> = {};
+    if (cause) qa.most_likely_cause = cause;
+    if (prob) qa.probability = prob;
+    if (min !== undefined && !isNaN(min)) qa.cost_min = min;
+    if (max !== undefined && !isNaN(max)) qa.cost_max = max;
+    if (firstStep) qa.first_step = firstStep;
+    if (steps.length > 0) qa.next_steps = steps;
+    return qa;
   };
 
   if (loadingDraft) {
@@ -266,6 +313,115 @@ function SubmitForm() {
                 ) : (
                   <p className="text-text-muted italic">Nothing to preview yet...</p>
                 )}
+              </div>
+            )}
+          </div>
+
+          {/* Quick Answer (collapsible) */}
+          <div className="bg-surface-2 rounded-xl border border-surface-border overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setQuickAnswerExpanded(!quickAnswerExpanded)}
+              className="w-full px-4 py-3 flex items-center justify-between hover:bg-surface-3 transition-colors text-left"
+            >
+              <span className="text-xs font-bold uppercase tracking-wider text-text-muted font-heading">
+                Quick Answer
+                <span className="text-text-muted font-normal normal-case tracking-normal ml-1">
+                  — decision summary for guide posts
+                </span>
+              </span>
+              <svg
+                className={`w-4 h-4 text-text-muted transition-transform ${quickAnswerExpanded ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {quickAnswerExpanded && (
+              <div className="px-4 pb-4 space-y-4 border-t border-surface-border pt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-text-secondary font-heading mb-1">
+                      Most likely cause
+                    </label>
+                    <input
+                      type="text"
+                      value={quickCause}
+                      onChange={(e) => setQuickCause(e.target.value)}
+                      placeholder="e.g. Loose gas cap"
+                      className="w-full px-3 py-2 bg-surface-0 text-text-primary text-sm rounded-lg border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-text-secondary font-heading mb-1">
+                      Probability
+                    </label>
+                    <input
+                      type="text"
+                      value={quickProbability}
+                      onChange={(e) => setQuickProbability(e.target.value)}
+                      placeholder="e.g. 60%"
+                      className="w-full px-3 py-2 bg-surface-0 text-text-primary text-sm rounded-lg border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-text-secondary font-heading mb-1">
+                      Estimated cost (min)
+                    </label>
+                    <input
+                      type="number"
+                      value={quickCostMin}
+                      onChange={(e) => setQuickCostMin(e.target.value)}
+                      placeholder="0"
+                      min="0"
+                      className="w-full px-3 py-2 bg-surface-0 text-text-primary text-sm rounded-lg border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-text-secondary font-heading mb-1">
+                      Estimated cost (max)
+                    </label>
+                    <input
+                      type="number"
+                      value={quickCostMax}
+                      onChange={(e) => setQuickCostMax(e.target.value)}
+                      placeholder="150"
+                      min="0"
+                      className="w-full px-3 py-2 bg-surface-0 text-text-primary text-sm rounded-lg border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-text-secondary font-heading mb-1">
+                    First step to check
+                  </label>
+                  <textarea
+                    value={quickFirstStep}
+                    onChange={(e) => setQuickFirstStep(e.target.value)}
+                    rows={2}
+                    placeholder="e.g. Turn off engine, tighten gas cap until it clicks 3 times"
+                    className="w-full px-3 py-2 bg-surface-0 text-text-primary text-sm rounded-lg border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted resize-y font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-text-secondary font-heading mb-1">
+                    Next steps (one per line)
+                  </label>
+                  <textarea
+                    value={quickNextSteps}
+                    onChange={(e) => setQuickNextSteps(e.target.value)}
+                    rows={3}
+                    placeholder={"If light stays on: Go to AutoZone for free code reading\nIf code is P0455: Check purge valve ($50-150)"}
+                    className="w-full px-3 py-2 bg-surface-0 text-text-primary text-sm rounded-lg border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted resize-y font-mono"
+                  />
+                </div>
               </div>
             )}
           </div>

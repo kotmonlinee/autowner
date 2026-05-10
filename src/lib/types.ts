@@ -29,6 +29,15 @@ export interface Database {
   };
 }
 
+export type QuickAnswer = {
+  most_likely_cause?: string;
+  probability?: string;
+  cost_min?: number;
+  cost_max?: number;
+  first_step?: string;
+  next_steps?: string[];
+};
+
 export type Post = {
   id: string;
   title: string;
@@ -41,6 +50,7 @@ export type Post = {
   content_type?: string | null;
   is_pinned?: boolean | null;
   is_draft?: boolean | null;
+  quick_answer?: QuickAnswer | null;
   vote_score: number;
   comment_count: number;
   view_count: number;

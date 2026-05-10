@@ -363,18 +363,23 @@ export async function createPost(opts: {
   categoryId: string;
   authorId: string;
   tags: { name: string; slug: string }[];
+  quickAnswer?: Record<string, unknown> | null;
 }) {
   const supabase = await createServerSupabase();
+  const insertData: Record<string, unknown> = {
+    title: opts.title,
+    body: opts.body,
+    author_id: opts.authorId,
+    category_id: opts.categoryId || null,
+    source: "user",
+    status: "approved",
+  };
+  if (opts.quickAnswer) {
+    insertData.quick_answer = opts.quickAnswer;
+  }
   const { data: post, error } = await supabase
     .from("posts")
-    .insert({
-      title: opts.title,
-      body: opts.body,
-      author_id: opts.authorId,
-      category_id: opts.categoryId || null,
-      source: "user",
-      status: "approved",
-    })
+    .insert(insertData)
     .select("id")
     .single();
 
@@ -402,20 +407,25 @@ export async function saveDraft(opts: {
   categoryId: string;
   authorId: string;
   tags: { name: string; slug: string }[];
+  quickAnswer?: Record<string, unknown> | null;
 }): Promise<string> {
   const supabase = await createServerSupabase();
 
   if (opts.id) {
     // Update existing draft
+    const updateData: Record<string, unknown> = {
+      title: opts.title,
+      body: opts.body,
+      category_id: opts.categoryId || null,
+      is_draft: true,
+      updated_at: new Date().toISOString(),
+    };
+    if (opts.quickAnswer !== undefined) {
+      updateData.quick_answer = opts.quickAnswer;
+    }
     const { error } = await supabase
       .from("posts")
-      .update({
-        title: opts.title,
-        body: opts.body,
-        category_id: opts.categoryId || null,
-        is_draft: true,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq("id", opts.id)
       .eq("author_id", opts.authorId);
 
@@ -436,17 +446,21 @@ export async function saveDraft(opts: {
     return opts.id;
   } else {
     // Insert new draft
+    const insertData: Record<string, unknown> = {
+      title: opts.title,
+      body: opts.body,
+      author_id: opts.authorId,
+      category_id: opts.categoryId || null,
+      source: "user",
+      status: "approved",
+      is_draft: true,
+    };
+    if (opts.quickAnswer) {
+      insertData.quick_answer = opts.quickAnswer;
+    }
     const { data: post, error } = await supabase
       .from("posts")
-      .insert({
-        title: opts.title,
-        body: opts.body,
-        author_id: opts.authorId,
-        category_id: opts.categoryId || null,
-        source: "user",
-        status: "approved",
-        is_draft: true,
-      })
+      .insert(insertData)
       .select("id")
       .single();
 
@@ -567,14 +581,15 @@ export async function togglePin(id: string, currentPinned: boolean) {
 
 export async function updatePost(
   id: string,
-  data: { title?: string; body?: string; category_id?: string; status?: string }
+  data: { title?: string; body?: string; category_id?: string; status?: string; quick_answer?: Record<string, unknown> | null }
 ) {
   const supabase = await createServerSupabase();
-  const updateData: Record<string, string> = {};
+  const updateData: Record<string, unknown> = {};
   if (data.title !== undefined) updateData.title = data.title;
   if (data.body !== undefined) updateData.body = data.body;
   if (data.category_id !== undefined) updateData.category_id = data.category_id;
   if (data.status !== undefined) updateData.status = data.status;
+  if (data.quick_answer !== undefined) updateData.quick_answer = data.quick_answer;
   const { error } = await supabase.from("posts").update(updateData).eq("id", id);
   if (error) throw error;
 }

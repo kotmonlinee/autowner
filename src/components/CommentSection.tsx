@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { fetchComments } from "@/lib/data/browser";
 import CommentItem from "./CommentItem";
 import type { CommentWithAuthor } from "@/lib/types";
@@ -17,6 +18,8 @@ export default function CommentSection({
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     fetchComments(postId).then(setComments);
@@ -25,6 +28,12 @@ export default function CommentSection({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!body.trim()) return;
+
+    if (!userId) {
+      router.push(`/auth/login?next=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -152,24 +161,21 @@ export default function CommentSection({
         <textarea
           value={body}
           onChange={e => setBody(e.target.value)}
-          placeholder={userId ? "Share your thoughts..." : "Sign in to join the conversation"}
+          placeholder="Share your thoughts..."
           rows={3}
-          disabled={!userId}
           aria-label="Write a comment"
-          className="w-full px-4 py-3 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-4 py-3 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted resize-none"
         />
-        {userId && (
-          <div className="flex justify-end mt-2">
-            <button
-              type="submit"
-              disabled={loading || !body.trim()}
-              aria-label="Submit comment"
-              className="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:bg-primary font-heading"
-            >
-              {loading ? "Posting..." : "Post Reply"}
-            </button>
-          </div>
-        )}
+        <div className="flex justify-end mt-2">
+          <button
+            type="submit"
+            disabled={loading || !body.trim()}
+            aria-label="Submit comment"
+            className="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:bg-primary font-heading"
+          >
+            {loading ? "Posting..." : "Post Reply"}
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { getBookmarkedPosts, getCurrentUser } from "@/lib/data/server";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import PostFeed from "@/components/PostFeed";
 import Footer from "@/components/Footer";
+import AnonymousBookmarks from "@/components/AnonymousBookmarks";
 
 export const metadata: Metadata = {
   title: "My Bookmarks — AutOwner",
@@ -15,7 +15,23 @@ export default async function BookmarksPage() {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/auth/login?next=/bookmarks");
+    return (
+      <div className="min-h-screen bg-surface-0 relative flex flex-col">
+        <Navbar />
+        <main id="main-content" className="max-w-7xl mx-auto px-5 py-6 flex-1 w-full">
+          <div className="mb-6 pb-4 border-b border-surface-border">
+            <h1 className="text-2xl font-bold text-text-primary font-heading">
+              My Bookmarks
+            </h1>
+            <p className="text-sm text-text-muted mt-1">
+              Your saved posts on this device
+            </p>
+          </div>
+          <AnonymousBookmarks />
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   const bookmarks = await getBookmarkedPosts(user.id);

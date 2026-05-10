@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import VoteButtons from "./VoteButtons";
 import ReportButton from "./ReportButton";
 import Avatar from "./Avatar";
@@ -46,6 +47,9 @@ export default function CommentItem({
   const [replyBody, setReplyBody] = useState("");
   const [replySaving, setReplySaving] = useState(false);
 
+  const router = useRouter();
+  const pathname = usePathname();
+
   const isAuthor = userId && comment.author_id === userId;
 
   const handleSave = async () => {
@@ -77,6 +81,12 @@ export default function CommentItem({
 
   const handleReply = async () => {
     if (!replyBody.trim() || !onReply) return;
+
+    if (!userId) {
+      router.push(`/auth/login?next=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
     setReplySaving(true);
     setError("");
     try {
@@ -116,8 +126,8 @@ export default function CommentItem({
             {/* Edit/Delete/Reply buttons */}
             {!editing && !showDeleteConfirm && (
               <div className="ml-auto flex items-center gap-1">
-                {/* Reply button — visible to logged-in users */}
-                {userId && depth <= maxDepth && (
+                {/* Reply button — visible to everyone */}
+                {depth <= maxDepth && (
                   <button
                     onClick={() => { setReplying(!replying); setReplyBody(""); setError(""); }}
                     className="p-1 text-text-muted hover:text-primary transition-colors rounded"

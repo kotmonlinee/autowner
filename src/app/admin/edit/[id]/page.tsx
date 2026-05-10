@@ -76,11 +76,21 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
 
         <form action={async (formData: FormData) => {
           "use server";
-          const updated = {
+          const quickAnswerRaw = (formData.get("quick_answer") as string)?.trim();
+          let quickAnswer = null;
+          if (quickAnswerRaw) {
+            try {
+              quickAnswer = JSON.parse(quickAnswerRaw);
+            } catch {
+              // If JSON is invalid, silently ignore — the admin can fix it next edit.
+            }
+          }
+          const updated: Record<string, unknown> = {
             title: formData.get("title") as string,
             body: formData.get("body") as string,
             category_id: formData.get("category_id") as string,
             status: formData.get("status") as string,
+            quick_answer: quickAnswer,
           };
           await updatePost(id, updated);
           revalidatePath(`/admin/edit/${id}`);
@@ -118,6 +128,41 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
               className="w-full px-3 py-2 bg-surface-2 border border-surface-border rounded-lg text-text-primary text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors placeholder:text-text-muted resize-y"
             />
           </div>
+
+          {/* Quick Answer (JSON) — collapsible */}
+          <details className="mb-4 bg-surface-2 rounded-xl border border-surface-border overflow-hidden">
+            <summary className="px-4 py-3 cursor-pointer hover:bg-surface-3 transition-colors select-none">
+              <span className="text-sm font-bold text-text-secondary font-heading">
+                Quick Answer (JSON)
+              </span>
+              <span className="ml-2 text-xs text-text-muted font-normal">
+                — structured diagnosis box for guide posts
+              </span>
+            </summary>
+            <div className="px-4 pb-4">
+              <p className="text-xs text-text-muted mb-2">
+                Paste JSON for the Quick Diagnosis card. Leave empty to remove. Example:
+              </p>
+              <pre className="text-[11px] text-text-muted bg-surface-0 rounded-lg p-2 mb-2 overflow-x-auto border border-surface-border">
+{`{
+  "most_likely_cause": "Loose gas cap",
+  "probability": "60%",
+  "cost_min": 0,
+  "cost_max": 0,
+  "first_step": "Tighten gas cap until it clicks",
+  "next_steps": ["Check purge valve", "Scan for codes"]
+}`}
+              </pre>
+              <textarea
+                id="quick_answer"
+                name="quick_answer"
+                defaultValue={post.quick_answer ? JSON.stringify(post.quick_answer, null, 2) : ""}
+                rows={10}
+                placeholder='{"most_likely_cause": "..."}'
+                className="w-full px-3 py-2 bg-surface-0 border border-surface-border rounded-lg text-text-primary text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors placeholder:text-text-muted resize-y"
+              />
+            </div>
+          </details>
 
           {/* Category + Status row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">

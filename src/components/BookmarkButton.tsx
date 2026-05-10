@@ -4,6 +4,25 @@ import { useState, useEffect } from "react";
 import { getBookmarkState } from "@/lib/data/browser";
 import { useRouter } from "next/navigation";
 
+const LOCALSTORAGE_KEY = "autowner_bookmarks";
+
+function getAnonymousBookmarks(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(LOCALSTORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function setAnonymousBookmarks(ids: string[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(ids));
+}
+
 export default function BookmarkButton({
   postId,
   userId,
@@ -15,23 +34,35 @@ export default function BookmarkButton({
   const router = useRouter();
 
   useEffect(() => {
-    if (!userId) return;
-    getBookmarkState(userId, postId).then(setBookmarked);
+    if (userId) {
+      getBookmarkState(userId, postId).then(setBookmarked);
+    } else {
+      const ids = getAnonymousBookmarks();
+      setBookmarked(ids.includes(postId));
+    }
   }, [userId, postId]);
 
   const toggle = async () => {
-    if (!userId) {
-      router.push("/auth/login");
-      return;
-    }
-    const res = await fetch("/api/bookmarks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId }),
-    });
-    if (res.ok) {
-      const { bookmarked: newState } = await res.json();
-      setBookmarked(newState);
+    if (userId) {
+      const res = await fetch("/api/bookmarks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId }),
+      });
+      if (res.ok) {
+        const { bookmarked: newState } = await res.json();
+        setBookmarked(newState);
+      }
+    } else {
+      const ids = getAnonymousBookmarks();
+      if (bookmarked) {
+        const filtered = ids.filter((id) => id !== postId);
+        setAnonymousBookmarks(filtered);
+        setBookmarked(false);
+      } else {
+        setAnonymousBookmarks([...ids, postId]);
+        setBookmarked(true);
+      }
     }
   };
 

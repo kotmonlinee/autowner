@@ -9,6 +9,7 @@ import CommentSection from "@/components/CommentSection";
 import RelatedPosts from "@/components/RelatedPosts";
 import ShareButtons from "@/components/ShareButtons";
 import MarkdownBody from "@/components/MarkdownBody";
+import QuickAnswerCard from "@/components/QuickAnswerCard";
 import ViewTracker from "@/components/ViewTracker";
 import PostEditDeleteButtons from "./PostEditDeleteButtons";
 import ReportButton from "@/components/ReportButton";
@@ -299,6 +300,10 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                       <BookmarkButton postId={id} userId={user?.id} />
                     </div>
                   </div>
+
+                  {isGuide && post.quick_answer && (
+                    <QuickAnswerCard quick_answer={post.quick_answer} />
+                  )}
 
                   <div className="flex gap-5">
                     <VoteButtons targetType="post" targetId={id} initialScore={post.vote_score} userId={user?.id} />
