@@ -3,6 +3,7 @@ import { getPosts, getCurrentUser, getCategories } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import PostCard from "@/components/PostCard";
 import CategoryFilter from "@/components/CategoryFilter";
+import Pagination from "@/components/Pagination";
 import SearchTracker from "@/components/SearchTracker";
 import { Suspense } from "react";
 
@@ -15,12 +16,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string; category?: string }> }) {
-  const { q, category } = await searchParams;
-  const [posts, user, categories] = await Promise.all([
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string; category?: string; page?: string }> }) {
+  const { q, category, page: pageStr } = await searchParams;
+  const page = Math.max(1, parseInt(pageStr ?? "1", 10) || 1);
+
+  const [{ posts, totalCount }, user, categories] = await Promise.all([
     q || category
-      ? getPosts({ search: q, categorySlug: category, limit: 30 }).then(r => r.posts)
-      : Promise.resolve([]),
+      ? getPosts({ search: q, categorySlug: category, page, limit: 30 })
+      : Promise.resolve({ posts: [], totalCount: 0 }),
     getCurrentUser(),
     getCategories(),
   ]);
@@ -39,11 +42,12 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               <CategoryFilter categories={categories.map(c => ({ slug: c.slug, name: c.name }))} />
             </Suspense>
           </div>
-          {q && <p className="text-sm text-text-muted mt-1">{posts.length} results found</p>}
+          {q && <p className="text-sm text-text-muted mt-1">{totalCount} results found</p>}
         </div>
         <div className="space-y-2">
           {posts.map((post, i) => <PostCard key={post.id} post={post} userId={user?.id} index={i} />)}
         </div>
+        {(q || category) && <Pagination page={page} totalCount={totalCount} basePath="/search" />}
         {(q || category) && posts.length === 0 && (
           <div className="text-center py-20">
             <div className="w-20 h-20 mx-auto mb-5 bg-surface-2 rounded-3xl flex items-center justify-center">

@@ -32,6 +32,25 @@ export async function updatePassword(password: string) {
   return createClient().auth.updateUser({ password });
 }
 
+export async function changePassword(currentPassword: string, newPassword: string) {
+  const supabase = createClient();
+
+  // Get current user to retrieve email for verification
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user?.email) throw new Error("Not authenticated");
+
+  // Verify current password by signing in
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: userData.user.email,
+    password: currentPassword,
+  });
+  if (verifyError) throw new Error("Current password is incorrect");
+
+  // Update to the new password
+  const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+  if (updateError) throw updateError;
+}
+
 export async function getSessionUser() {
   const { data } = await createClient().auth.getUser();
   return data.user ?? null;

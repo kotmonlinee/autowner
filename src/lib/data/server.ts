@@ -759,6 +759,10 @@ export async function getNotifications(userId: string, limit = 10): Promise<Noti
   return (data as unknown as Notification[]) ?? [];
 }
 
+export async function getAllNotifications(userId: string): Promise<Notification[]> {
+  return getNotifications(userId, 10000);
+}
+
 export async function getUnreadNotificationCount(userId: string): Promise<number> {
   const supabase = await createServerSupabase();
   const { count } = await supabase
@@ -819,7 +823,7 @@ export async function updateLastActive(userId: string) {
 export async function editOwnPost(
   id: string,
   userId: string,
-  data: { title?: string; body?: string },
+  data: { title?: string; body?: string; category_id?: string | null },
 ): Promise<void> {
   const supabase = await createServerSupabase();
 
@@ -834,9 +838,10 @@ export async function editOwnPost(
   if (post.author_id !== userId) throw new Error("You can only edit your own posts");
   if (post.status === "deleted") throw new Error("Cannot edit a deleted post");
 
-  const updateData: Record<string, string> = {};
+  const updateData: Record<string, unknown> = {};
   if (data.title !== undefined) updateData.title = data.title;
   if (data.body !== undefined) updateData.body = data.body;
+  if (data.category_id !== undefined) updateData.category_id = data.category_id;
   updateData.updated_at = new Date().toISOString();
 
   const { error } = await supabase.from("posts").update(updateData).eq("id", id);

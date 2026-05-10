@@ -52,7 +52,7 @@ export default function PostEditDeleteButtons({ postId }: { postId: string }) {
   return (
     <div className="flex items-center gap-0.5">
       <button
-        onClick={() => router.push(`/admin/edit/${postId}`)}
+        onClick={() => router.push(`/post/${postId}/edit`)}
         className="p-1.5 text-text-muted hover:text-primary transition-colors rounded-md hover:bg-surface-3"
         title="Edit post"
       >

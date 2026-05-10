@@ -68,13 +68,16 @@ function enhanceImages(html: string): string {
   });
 }
 
-export default function MarkdownBody({ content }: { content: string }) {
+export default function MarkdownBody({ content, className }: { content: string; className?: string }) {
   const rawHtml = marked.parse(content, { async: false }) as string;
   const html = enhanceImages(rawHtml);
 
+  const defaultClasses = "prose-dark text-[15px] leading-relaxed min-w-0";
+  const combinedClasses = className ? `${defaultClasses} ${className}` : defaultClasses;
+
   return (
     <div
-      className="prose-dark text-[15px] leading-relaxed min-w-0"
+      className={combinedClasses}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

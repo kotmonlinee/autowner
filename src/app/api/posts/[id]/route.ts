@@ -16,17 +16,17 @@ export async function PATCH(
 
     const { id } = await params;
 
-    let body: { title?: string; body?: string };
+    let body: { title?: string; body?: string; category_id?: string | null };
     try {
       body = await request.json();
     } catch {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const { title, body: postBody } = body;
+    const { title, body: postBody, category_id } = body;
 
-    if (!title && !postBody) {
-      return NextResponse.json({ error: "At least one of title or body is required" }, { status: 400 });
+    if (!title && !postBody && category_id === undefined) {
+      return NextResponse.json({ error: "At least one of title, body, or category_id is required" }, { status: 400 });
     }
 
     // Content moderation on the update
@@ -41,6 +41,7 @@ export async function PATCH(
     await editOwnPost(id, user.id, {
       ...(title !== undefined && { title: title.trim() }),
       ...(postBody !== undefined && { body: postBody.trim() }),
+      ...(category_id !== undefined && { category_id }),
     });
 
     return NextResponse.json({ success: true });

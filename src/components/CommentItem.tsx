@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import VoteButtons from "./VoteButtons";
 import ReportButton from "./ReportButton";
 import Avatar from "./Avatar";
+import MarkdownBody from "./MarkdownBody";
 import type { CommentWithAuthor } from "@/lib/types";
 import { timeAgo } from "@/lib/utils";
 
@@ -208,7 +209,7 @@ export default function CommentItem({
               </div>
             </div>
           ) : (
-            <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">{comment.body}</p>
+            <MarkdownBody content={comment.body} className="text-sm leading-relaxed" />
           )}
 
           {/* Mini reply form */}

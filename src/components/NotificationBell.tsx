@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   fetchNotifications,
   fetchUnreadNotificationCount,
@@ -198,6 +199,19 @@ export default function NotificationBell({ userId }: { userId: string }) {
               ))
             )}
           </div>
+
+          {/* View all link */}
+          {notifications.length > 0 && (
+            <div className="px-4 py-2.5 border-t border-surface-border">
+              <Link
+                href="/notifications"
+                onClick={() => setIsOpen(false)}
+                className="block w-full text-center text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading"
+              >
+                View all notifications
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>

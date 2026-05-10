@@ -19,6 +19,7 @@ import {
   addUserVehicle,
   removeUserVehicle,
   setPrimaryVehicle,
+  changePassword,
 } from "@/lib/data/browser";
 
 const STORAGE_KEY = "autowner_my_vehicle";
@@ -76,6 +77,16 @@ export default function SettingsPage() {
     text: string;
   } | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   // Vehicle garage state (logged-in)
   const [vehicles, setVehicles] = useState<any[]>([]);
@@ -181,6 +192,41 @@ export default function SettingsPage() {
       });
     } finally {
       setSavingBio(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordMessage(null);
+
+    // Client-side validation
+    if (!currentPassword) {
+      setPasswordMessage({ type: "error", text: "Current password is required." });
+      return;
+    }
+    if (!newPassword || newPassword.length < 6) {
+      setPasswordMessage({ type: "error", text: "New password must be at least 6 characters." });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({ type: "error", text: "New passwords do not match." });
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      await changePassword(currentPassword, newPassword);
+      setPasswordMessage({ type: "success", text: "Password changed successfully." });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err: any) {
+      setPasswordMessage({
+        type: "error",
+        text: err?.message ?? "Failed to change password.",
+      });
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -617,6 +663,100 @@ export default function SettingsPage() {
               className="px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 disabled:opacity-50 disabled:hover:translate-y-0 font-heading shadow-sm shadow-primary/20"
             >
               {savingBio ? "Saving…" : "Save Bio"}
+            </button>
+          </form>
+        </div>
+
+        {/* Change Password */}
+        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 mt-8">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted mb-4 font-heading">
+            Change Password
+          </h2>
+
+          {passwordMessage && (
+            <div
+              className={`mb-4 p-3 rounded-xl text-sm font-medium ${
+                passwordMessage.type === "success"
+                  ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+                  : "bg-red-500/10 border border-red-500/20 text-red-400"
+              }`}
+            >
+              {passwordMessage.text}
+            </div>
+          )}
+
+          <form onSubmit={handleChangePassword} className="space-y-4">
+            <div>
+              <label
+                htmlFor="current-password"
+                className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading"
+              >
+                Current Password
+              </label>
+              <input
+                id="current-password"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => {
+                  setCurrentPassword(e.target.value);
+                  setPasswordMessage(null);
+                }}
+                required
+                placeholder="Enter current password"
+                className="w-full px-4 py-2.5 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="new-password"
+                className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading"
+              >
+                New Password
+              </label>
+              <input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  setPasswordMessage(null);
+                }}
+                required
+                minLength={6}
+                placeholder="Min. 6 characters"
+                className="w-full px-4 py-2.5 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="confirm-password"
+                className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading"
+              >
+                Confirm New Password
+              </label>
+              <input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setPasswordMessage(null);
+                }}
+                required
+                minLength={6}
+                placeholder="Re-enter new password"
+                className="w-full px-4 py-2.5 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={changingPassword}
+              className="px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 disabled:opacity-50 disabled:hover:translate-y-0 font-heading shadow-sm shadow-primary/20"
+            >
+              {changingPassword ? "Changing…" : "Change Password"}
             </button>
           </form>
         </div>

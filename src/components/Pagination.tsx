@@ -7,10 +7,12 @@ export default function Pagination({
   page,
   totalCount,
   limit = 30,
+  basePath = "/",
 }: {
   page: number;
   totalCount: number;
   limit?: number;
+  basePath?: string;
 }) {
   const searchParams = useSearchParams();
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
@@ -27,7 +29,8 @@ export default function Pagination({
       params.set("page", String(p));
     }
     const qs = params.toString();
-    return qs ? `/?${qs}` : "/";
+    const path = basePath.endsWith("/") ? basePath.slice(0, -1) : basePath;
+    return qs ? `${path}?${qs}` : path || "/";
   };
 
   const btnBase =
