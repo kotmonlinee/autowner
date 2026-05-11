@@ -262,28 +262,19 @@ export default function VehicleSelector({
         <button
           type="button"
           onClick={() => setCompactModalOpen(true)}
-          className="w-full px-4 py-3 bg-surface-2 border border-surface-border rounded-xl text-sm text-text-muted hover:text-text-secondary hover:border-surface-4 transition-all duration-150 text-left font-medium"
+          className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
         >
-          <span className="flex items-center gap-2">
-            <svg
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
-              <line x1="12" y1="7" x2="12" y2="12" />
+          <span className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12h14" />
             </svg>
-            Add vehicle to your garage...
+            Add Your Vehicle
           </span>
         </button>
 
         {/* Modal overlay */}
         {compactModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
