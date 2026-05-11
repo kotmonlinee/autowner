@@ -51,7 +51,7 @@ export default async function Sidebar({ active }: { active?: string }) {
     <aside className="w-52 shrink-0 hidden md:block">
       <nav className="sticky top-20 space-y-0.5" aria-label="Categories">
         {/* My Car section */}
-        <Suspense fallback={null}>
+        <Suspense fallback={<div className="px-2 pb-3 mb-3 border-b border-surface-border"><div className="bg-surface-1 border border-surface-border rounded-xl p-4 animate-pulse"><div className="w-10 h-10 mx-auto mb-2 bg-surface-3 rounded-xl" /><div className="h-4 w-20 bg-surface-3 rounded mx-auto mb-1" /><div className="h-3 w-36 bg-surface-3 rounded mx-auto" /></div></div>}>
           <MyCarFilter vehicle={primaryVehicle} />
         </Suspense>
 

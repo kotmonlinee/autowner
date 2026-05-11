@@ -76,11 +76,17 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
   const isActive = searchParams.get("my_vehicle") === "1";
 
   const toggle = () => {
+    const params = new URLSearchParams(searchParams.toString());
     if (isActive) {
-      router.push("/");
+      params.delete("my_vehicle");
+      params.delete("engine_id");
+      const qs = params.toString();
+      router.push(qs ? `/?${qs}` : "/");
     } else {
       const eid = stored?.engineId || "";
-      router.push(`/?my_vehicle=1${eid ? `&engine_id=${eid}` : ""}`);
+      params.set("my_vehicle", "1");
+      if (eid) params.set("engine_id", eid);
+      router.push(`/?${params.toString()}`);
     }
   };
 
@@ -122,6 +128,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
       setSelectedGeneration(gens[0]);
       setEngines((gens[0].vehicle_engines ?? []) as Engine[]);
     }
+    setStep("engine");
     setLoading(false);
   };
 
@@ -152,13 +159,8 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
   };
 
   const backToModels = () => {
-    if (step === "engine" && generations.length <= 1) {
-      setStep("model");
-      setSelectedModel(null);
-      return;
-    }
-    if (step === "engine") { setStep("model"); setSelectedModel(null); return; }
-    if (step === "model") { setStep("make"); setSelectedMake(null); return; }
+    if (step === "engine") { setStep("model"); return; }
+    if (step === "model") { setStep("make"); setSelectedMake(null); setModels([]); return; }
   };
 
   const close = () => {
@@ -168,7 +170,16 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
 
   // --- SSR skeleton ---
   if (!mounted) {
-    return <div className="px-2 pb-3 mb-3 border-b border-surface-border" />;
+    return (
+      <div className="px-2 pb-3 mb-3 border-b border-surface-border">
+        <div className="bg-surface-1 border border-surface-border rounded-xl p-4 text-center animate-pulse">
+          <div className="w-10 h-10 mx-auto mb-2 bg-surface-3 rounded-xl" />
+          <div className="h-4 w-20 bg-surface-3 rounded mx-auto mb-1" />
+          <div className="h-3 w-36 bg-surface-3 rounded mx-auto mb-2.5" />
+          <div className="h-9 w-full bg-surface-3 rounded-lg" />
+        </div>
+      </div>
+    );
   }
 
   // --- Empty: no vehicle at all ---
