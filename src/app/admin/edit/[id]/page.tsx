@@ -32,10 +32,10 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
   }
 
   const statuses: { value: string; label: string; color: string }[] = [
-    { value: "approved", label: "Approved", color: "text-emerald-400" },
-    { value: "pending", label: "Pending", color: "text-amber-400" },
-    { value: "rejected", label: "Rejected", color: "text-red-400" },
-    { value: "deleted", label: "Deleted", color: "text-slate-400" },
+    { value: "approved", label: "Approved", color: "text-emerald-600 dark:text-emerald-400" },
+    { value: "pending", label: "Pending", color: "text-amber-700 dark:text-amber-400" },
+    { value: "rejected", label: "Rejected", color: "text-red-600 dark:text-red-400" },
+    { value: "deleted", label: "Deleted", color: "text-slate-600 dark:text-slate-400" },
   ];
 
   return (
@@ -55,7 +55,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
             <h1 className="text-xl font-bold text-text-primary font-heading">Edit Post</h1>
             <p className="text-sm text-text-muted mt-0.5">
               {post.source === "scraped" && (
-                <span className="px-1.5 py-0.5 bg-amber-400/10 text-amber-400 rounded text-[10px] font-bold uppercase border border-amber-400/20 mr-2">
+                <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-[10px] font-bold uppercase border border-amber-700/20 dark:border-amber-400/20 mr-2">
                   {post.source}
                 </span>
               )}
@@ -213,7 +213,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
               <div className="pt-2">
                 <span className={`px-2 py-1 rounded text-xs font-bold uppercase font-heading ${
                   post.source === "scraped"
-                    ? "bg-amber-400/10 text-amber-400 border border-amber-400/20"
+                    ? "bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 border border-amber-700/20 dark:border-amber-400/20"
                     : "bg-primary/10 text-primary border border-primary/20"
                 }`}>
                   {post.source}

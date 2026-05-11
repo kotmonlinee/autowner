@@ -67,7 +67,7 @@ export default function QuickAnswerCard({ quick_answer }: { quick_answer: QuickA
             <span className="text-xs font-semibold text-text-muted shrink-0 mt-0.5 font-heading">
               Estimated cost:
             </span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-400/10 border border-amber-400/20 text-amber-400 text-sm font-bold font-heading">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-700/10 dark:bg-amber-400/10 border border-amber-700/20 dark:border-amber-400/20 text-amber-700 dark:text-amber-400 text-sm font-bold font-heading">
               {costMin !== undefined && costMax !== undefined
                 ? costMin === costMax
                   ? costMin === 0

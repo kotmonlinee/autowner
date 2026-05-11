@@ -36,7 +36,7 @@ export default function NewsletterForm() {
         {status === "success" ? (
           <div
             role="alert"
-            className="w-full max-w-md px-4 py-3 rounded-lg bg-teal-400/10 border border-teal-400/20 text-teal-400 text-sm font-medium text-center"
+            className="w-full max-w-md px-4 py-3 rounded-lg bg-teal-600/10 dark:bg-teal-400/10 border border-teal-600/20 dark:border-teal-400/20 text-teal-600 dark:text-teal-400 text-sm font-medium text-center"
           >
             Thanks for subscribing!
           </div>

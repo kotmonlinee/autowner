@@ -201,13 +201,13 @@ export default async function HomePage({
                     <circle cx="15" cy="17" r="1" />
                   </svg>
                 </div>
-                <span className="text-sm text-amber-300 font-medium truncate">
+                <span className="text-sm text-amber-700 dark:text-amber-300 font-medium truncate">
                   Showing results for your {filterVehicleName}
                 </span>
               </div>
               <Link
                 href={clearFilterHref}
-                className="shrink-0 text-xs text-amber-400 hover:text-amber-300 font-medium transition-colors"
+                className="shrink-0 text-xs text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-medium transition-colors"
               >
                 Clear filter
               </Link>

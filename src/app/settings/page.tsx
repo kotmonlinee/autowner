@@ -348,10 +348,10 @@ export default function SettingsPage() {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-amber-400 font-heading mb-0.5">
+              <p className="text-sm font-semibold text-amber-700 dark:text-amber-400 font-heading mb-0.5">
                 Sign in to save your vehicles permanently
               </p>
-              <p className="text-xs text-amber-400/70 mb-3">
+              <p className="text-xs text-amber-700/70 dark:text-amber-400/70 mb-3">
                 Your vehicle is currently saved in this browser only. Sign in to
                 keep it across devices and unlock personalized features.
               </p>
@@ -364,7 +364,7 @@ export default function SettingsPage() {
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="px-4 py-1.5 text-xs font-semibold text-amber-400 border border-amber-400/20 rounded-lg hover:bg-amber-400/10 transition-colors font-heading"
+                  className="px-4 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 border border-amber-700/20 dark:border-amber-400/20 rounded-lg hover:bg-amber-700/10 dark:hover:bg-amber-400/10 transition-colors font-heading"
                 >
                   Create Account
                 </Link>
@@ -568,8 +568,8 @@ export default function SettingsPage() {
             <div
               className={`mb-4 p-3 rounded-xl text-sm font-medium ${
                 message.type === "success"
-                  ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                  : "bg-red-500/10 border border-red-500/20 text-red-400"
+                  ? "bg-emerald-600/10 dark:bg-emerald-500/10 border border-emerald-600/20 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                  : "bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400"
               }`}
             >
               {message.text}
@@ -624,8 +624,8 @@ export default function SettingsPage() {
             <div
               className={`mb-4 p-3 rounded-xl text-sm font-medium ${
                 bioMessage.type === "success"
-                  ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                  : "bg-red-500/10 border border-red-500/20 text-red-400"
+                  ? "bg-emerald-600/10 dark:bg-emerald-500/10 border border-emerald-600/20 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                  : "bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400"
               }`}
             >
               {bioMessage.text}
@@ -677,8 +677,8 @@ export default function SettingsPage() {
             <div
               className={`mb-4 p-3 rounded-xl text-sm font-medium ${
                 passwordMessage.type === "success"
-                  ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                  : "bg-red-500/10 border border-red-500/20 text-red-400"
+                  ? "bg-emerald-600/10 dark:bg-emerald-500/10 border border-emerald-600/20 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                  : "bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400"
               }`}
             >
               {passwordMessage.text}
@@ -795,17 +795,17 @@ export default function SettingsPage() {
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-emerald-400 font-heading mb-0.5">
+                  <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 font-heading mb-0.5">
                     Added to Your Garage
                   </p>
-                  <p className="text-sm text-emerald-300/80 leading-relaxed">
+                  <p className="text-sm text-emerald-600/80 dark:text-emerald-300/80 leading-relaxed">
                     Your {addedVehicleName} has been added to your garage!
                   </p>
                   <div className="flex items-center gap-3 mt-3">
                     <button
                       type="button"
                       onClick={() => router.push("/?my_vehicle=1")}
-                      className="px-4 py-2 bg-emerald-500/15 text-emerald-400 text-xs font-bold rounded-lg hover:bg-emerald-500/25 transition-colors font-heading border border-emerald-400/20"
+                      className="px-4 py-2 bg-emerald-600/15 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg hover:bg-emerald-600/25 dark:hover:bg-emerald-500/25 transition-colors font-heading border border-emerald-600/20 dark:border-emerald-400/20"
                     >
                       See related content
                     </button>

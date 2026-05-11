@@ -40,7 +40,7 @@ export default function BanToggleButton({
       <button
         onClick={handleToggle}
         disabled={loading}
-        className="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs font-bold hover:bg-emerald-500/20 transition-colors font-heading border border-emerald-500/20 disabled:opacity-50"
+        className="px-3 py-1.5 bg-emerald-600/10 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs font-bold hover:bg-emerald-600/20 dark:hover:bg-emerald-500/20 transition-colors font-heading border border-emerald-600/20 dark:border-emerald-500/20 disabled:opacity-50"
       >
         {loading ? "..." : "Unban"}
       </button>

@@ -67,11 +67,11 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-amber-400 font-heading truncate leading-tight">
+                <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 font-heading truncate leading-tight">
                   {vehicleDisplay || "My Vehicle"}
                 </p>
                 {vehicleSub && (
-                  <p className="text-[10px] text-amber-400/60 truncate leading-tight mt-0.5">{vehicleSub}</p>
+                  <p className="text-[10px] text-amber-700/60 dark:text-amber-400/60 truncate leading-tight mt-0.5">{vehicleSub}</p>
                 )}
               </div>
             </div>
@@ -95,14 +95,14 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
     return (
       <div className="px-2 pb-3 mb-2 border-b border-amber-400/15">
         <div className="bg-amber-400/5 border border-amber-400/15 rounded-xl p-3 space-y-2.5">
-          <p className="text-xs text-amber-400/70 font-heading text-center">
+          <p className="text-xs text-amber-700/70 dark:text-amber-400/70 font-heading text-center">
             Select your car to personalize your feed
           </p>
           {!showSelector ? (
             <button
               type="button"
               onClick={() => setShowSelector(true)}
-              className="w-full px-3 py-1.5 text-xs font-semibold text-amber-400 border border-amber-400/20 rounded-lg hover:bg-amber-400/10 transition-colors font-heading"
+              className="w-full px-3 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 border border-amber-700/20 dark:border-amber-400/20 rounded-lg hover:bg-amber-700/10 dark:hover:bg-amber-400/10 transition-colors font-heading"
             >
               Choose your car
             </button>
@@ -189,11 +189,11 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
             </svg>
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-amber-400 font-heading truncate leading-tight">
+            <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 font-heading truncate leading-tight">
               {vehicleDisplay || "My Vehicle"}
             </p>
             {vehicleSub && (
-              <p className="text-[10px] text-amber-400/60 truncate leading-tight mt-0.5">
+              <p className="text-[10px] text-amber-700/60 dark:text-amber-400/60 truncate leading-tight mt-0.5">
                 {vehicleSub}
               </p>
             )}
@@ -207,7 +207,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
               <button
                 type="button"
                 onClick={() => setShowSelector(true)}
-                className="w-full text-center text-xs text-amber-400/60 hover:text-amber-400 transition-colors font-medium"
+                className="w-full text-center text-xs text-amber-700/60 dark:text-amber-400/60 hover:text-amber-700 dark:hover:text-amber-400 transition-colors font-medium"
               >
                 Change
               </button>

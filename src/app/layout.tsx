@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
+import { russoOne, outfit, manrope } from "@/lib/fonts";
 import "./globals.css";
 import CookieBanner from "@/components/CookieBanner";
 import BackToTop from "@/components/BackToTop";
@@ -83,7 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="bg-surface-0 text-text-primary min-h-screen font-body antialiased relative">
+      <body className={`${russoOne.variable} ${outfit.variable} ${manrope.variable} bg-surface-0 text-text-primary min-h-screen font-body antialiased relative`}>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-lg focus:text-sm focus:font-semibold focus:shadow-lg"
