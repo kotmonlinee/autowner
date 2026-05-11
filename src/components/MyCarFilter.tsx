@@ -65,34 +65,15 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
           <p className="text-xs text-text-muted leading-relaxed mb-3">
             Add your car to get personalized content, repair guides, and community discussions
           </p>
-          {!showSelector ? (
-            <button
-              type="button"
-              onClick={() => setShowSelector(true)}
-              className="w-full px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
-            >
-              + Add Your Vehicle
-            </button>
-          ) : (
-            <div>
-              <VehicleSelector
-                onChange={() => {}}
-                onVehicleSelected={(info) => {
-                  setStoredVehicle(info);
-                  setShowSelector(false);
-                }}
-                saveToLocalStorage
-                compact
-              />
-              <button
-                type="button"
-                onClick={() => setShowSelector(false)}
-                className="w-full text-xs text-text-muted hover:text-text-secondary transition-colors font-medium py-1.5 mt-1"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
+          <VehicleSelector
+            onChange={() => {}}
+            onVehicleSelected={(info) => {
+              setStoredVehicle(info);
+              setShowSelector(false);
+            }}
+            saveToLocalStorage
+            compact
+          />
         </div>
       </div>
     );
@@ -181,7 +162,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
           {/* Divider */}
           <div className="w-px h-5 bg-surface-border" />
 
-          {/* Change */}
+          {/* Change vehicle (anonymous storage only, DB vehicles managed in settings) */}
           {!vehicle && (
             <button
               onClick={() => setShowSelector(!showSelector)}
@@ -192,6 +173,21 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
               </svg>
               Change
             </button>
+          )}
+
+          {/* Change selector */}
+          {showSelector && !vehicle && (
+            <div className="p-3.5 border-t border-surface-border">
+              <VehicleSelector
+                onChange={() => {}}
+                onVehicleSelected={(info) => {
+                  setStoredVehicle(info);
+                  setShowSelector(false);
+                }}
+                saveToLocalStorage
+                compact={false}
+              />
+            </div>
           )}
         </div>
 
