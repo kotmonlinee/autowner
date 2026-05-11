@@ -15,6 +15,10 @@ import QuickAnswerCard from "@/components/QuickAnswerCard";
 import ViewTracker from "@/components/ViewTracker";
 import PostEditDeleteButtons from "./PostEditDeleteButtons";
 import ReportButton from "@/components/ReportButton";
+import ArticleTOC from "@/components/ArticleTOC";
+import ProductCard from "@/components/ProductCard";
+import AuthorBio from "@/components/AuthorBio";
+import ReadingProgress from "@/components/ReadingProgress";
 import { FollowVehicleButton } from "@/app/vehicle/[engineId]/FollowVehicleButton";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -224,8 +228,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         }
       : null;
 
+  const isLaoliExpert =
+    post.content_type === "guide" && post.source === "user";
+
   return (
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
+      <ReadingProgress />
       <Navbar />
       <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
         <div className="flex gap-8">
@@ -335,6 +343,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                     <QuickAnswerCard quick_answer={post.quick_answer} />
                   )}
 
+                  <ArticleTOC body={post.body} />
+
                   <div className="flex gap-5">
                     <VoteButtons targetType="post" targetId={id} initialScore={post.vote_score} userId={user?.id} />
                     <MarkdownBody content={post.body} />
@@ -378,9 +388,56 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                       </div>
                     </div>
                   )}
+
+                  {/* Author Bio */}
+                  <AuthorBio
+                    username={post.profiles?.username}
+                    avatarUrl={post.profiles?.avatar_url}
+                    isExpert={isLaoliExpert}
+                  />
                 </>
               )}
             </div>
+
+            {/* Recommended Products */}
+            {!isDeleted && post.products && post.products.length > 0 && (
+              <section className="mt-4 bg-surface-1 rounded-xl border border-surface-border p-5">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <svg
+                    className="w-4 h-4 text-amber dark:text-amber-dark shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 01-8 0" />
+                  </svg>
+                  <h3 className="text-sm font-bold text-text-primary font-heading uppercase tracking-wider">
+                    Recommended Products
+                  </h3>
+                  <span className="text-[10px] text-text-muted ml-auto font-heading">
+                    We may earn a commission from purchases
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {post.products.map((product, i) => (
+                    <ProductCard
+                      key={i}
+                      name={product.name}
+                      description={product.description}
+                      price={product.price}
+                      rating={product.rating}
+                      link={product.link}
+                      imageUrl={product.imageUrl}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
 
             {!isDeleted && (
               <>

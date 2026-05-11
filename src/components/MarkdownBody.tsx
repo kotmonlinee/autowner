@@ -68,9 +68,30 @@ function enhanceImages(html: string): string {
   });
 }
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function addHeadingIds(html: string): string {
+  // Match full h2/h3 elements: <h2>Text</h2> or <h2>Text with <strong>formatting</strong></h2>
+  return html.replace(
+    /<(h[23])([^>]*)>(.+?)<\/\1>/gi,
+    (_match, tag, attrs, innerHtml) => {
+      // Strip HTML tags from inner content to get plain text for the id
+      const plainText = innerHtml.replace(/<[^>]*>/g, "").trim();
+      const id = slugify(plainText);
+      return `<${tag} id="${id}"${attrs}>${innerHtml}</${tag}>`;
+    }
+  );
+}
+
 export default function MarkdownBody({ content, className }: { content: string; className?: string }) {
   const rawHtml = marked.parse(content, { async: false }) as string;
-  const html = enhanceImages(rawHtml);
+  const withImages = enhanceImages(rawHtml);
+  const html = addHeadingIds(withImages);
 
   const defaultClasses = "prose-dark text-[15px] leading-relaxed min-w-0";
   const combinedClasses = className ? `${defaultClasses} ${className}` : defaultClasses;

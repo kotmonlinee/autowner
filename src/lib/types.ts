@@ -45,6 +45,15 @@ export type QuickAnswer = {
   next_steps?: string[];
 };
 
+export type Product = {
+  name: string;
+  description: string;
+  price?: string;
+  rating?: number;
+  link?: string;
+  imageUrl?: string;
+};
+
 export type Post = {
   id: string;
   slug?: string | null;
@@ -59,6 +68,7 @@ export type Post = {
   is_pinned?: boolean | null;
   is_draft?: boolean | null;
   quick_answer?: QuickAnswer | null;
+  products?: Product[] | null;
   vote_score: number;
   comment_count: number;
   view_count: number;
