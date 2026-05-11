@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   fetchVehicleMakes,
   fetchVehicleModels,
@@ -273,8 +274,8 @@ export default function VehicleSelector({
         </button>
 
         {/* Modal overlay */}
-        {compactModalOpen && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        {compactModalOpen && createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -328,7 +329,8 @@ export default function VehicleSelector({
                 isCompactModal
               />
             </div>
-          </div>
+          </div>,
+          document.body,
         )}
       </>
     );
