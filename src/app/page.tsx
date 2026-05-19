@@ -1,194 +1,224 @@
 import type { Metadata } from "next";
-import { getPosts, getPinnedPosts, getCurrentUser, getCategories, getUserVehicles, getEngineById } from "@/lib/data/server";
-import { createServerSupabase } from "@/lib/supabase-server";
-import { cookies } from "next/headers";
+import { getTrendingPosts } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
-import PostFeed from "@/components/PostFeed";
-import SortToggle from "@/components/SortToggle";
-import Pagination from "@/components/Pagination";
-import FeaturedCarousel from "@/components/FeaturedCarousel";
 import Footer from "@/components/Footer";
-import CategoryBar from "@/components/CategoryBar";
-import WelcomeBanner from "@/components/WelcomeBanner";
 import Link from "next/link";
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | undefined }>;
-}): Promise<Metadata> {
-  const params = await searchParams;
-  const categorySlug = params.category;
-
-  if (categorySlug) {
-    const categories = await getCategories();
-    const category = categories.find((c) => c.slug === categorySlug);
-    const categoryName = category?.name ?? categorySlug;
-
-    return {
-      title: `${categoryName} — AutOwner`,
-      description: `Browse ${categoryName} articles, guides, and discussions on AutOwner. Find expert advice, DIY tutorials, and community knowledge for car maintenance, repair, detailing, and modifications.`,
-      alternates: {
-        canonical: `https://www.autowner.com?category=${categorySlug}`,
-      },
-    };
-  }
-
-  return {
-    title: "AutOwner — Car Aftermarket Community",
+export const metadata: Metadata = {
+  title: "AutOwner — Car Ownership Made Easier",
+  description:
+    "Check repair costs, verify mechanic quotes, decode warning lights and OBD codes. Make smarter car repair decisions with AutOwner.",
+  alternates: {
+    canonical: "https://www.autowner.com",
+  },
+  openGraph: {
+    siteName: "AutOwner",
+    type: "website",
+    title: "AutOwner — Car Ownership Made Easier",
     description:
-      "AutOwner is the home garage community for car enthusiasts. Find expert guides on DIY repair, maintenance, detailing, buying advice, and modifications. Join discussions, share your build, and learn from ASE-certified mechanics and fellow gearheads.",
-    alternates: {
-      canonical: "https://www.autowner.com",
-    },
-  };
-}
+      "Check repair costs, verify mechanic quotes, decode warning lights and OBD codes.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AutOwner — Car Ownership Made Easier",
+    description:
+      "Check repair costs, verify mechanic quotes, decode warning lights and OBD codes.",
+  },
+};
 
-function buildVehicleDisplayName(v: Record<string, unknown>): string {
-  const eng = v.vehicle_engines as Record<string, unknown> | null;
-  if (!eng) return "your vehicle";
-  const gen = eng.vehicle_generations as Record<string, unknown> | null | undefined;
-  const model = gen?.vehicle_models as Record<string, unknown> | null | undefined;
-  const make = model?.vehicle_makes as Record<string, unknown> | null | undefined;
-  const parts = [make?.name as string, model?.name as string].filter(Boolean);
-  if (v.year) parts.push(`(${v.year})`);
-  return parts.join(" ") || (eng.name as string) || (eng.code as string) || "your vehicle";
-}
+const tools = [
+  {
+    title: "Repair Cost Estimator",
+    description: "See what repairs should cost",
+    href: "/repair-cost",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-7 h-7"
+      >
+        <line x1="12" y1="1" x2="12" y2="23" />
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      </svg>
+    ),
+  },
+  {
+    title: "Quote Checker",
+    description: "Is your mechanic&apos;s quote fair?",
+    href: "/quote-checker",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-7 h-7"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <polyline points="10 9 9 9 8 9" />
+      </svg>
+    ),
+  },
+  {
+    title: "OBD Codes",
+    description: "Decode check engine light codes",
+    href: "/obd",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-7 h-7"
+      >
+        <rect x="2" y="6" width="20" height="12" rx="2" />
+        <circle cx="12" cy="12" r="2" />
+        <path d="M6 12h.01" />
+      </svg>
+    ),
+  },
+  {
+    title: "Warning Lights",
+    description: "Understand dashboard warning lights",
+    href: "/warning-lights",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-7 h-7"
+      >
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    ),
+  },
+];
 
-function buildEngineDisplayName(engine: Record<string, unknown>): string {
-  const gen = engine.vehicle_generations as Record<string, unknown> | null;
-  const model = gen?.vehicle_models as Record<string, unknown> | null;
-  const make = model?.vehicle_makes as Record<string, unknown> | null;
-  const parts = [make?.name as string, model?.name as string].filter(Boolean);
-  return parts.join(" ") || (engine.name as string) || (engine.code as string) || "your vehicle";
-}
-
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | undefined }>;
-}) {
-  const params = await searchParams;
-  const sort = (params.sort ?? "hot") as "hot" | "new" | "popular";
-  const categorySlug = params.category;
-  const tagSlug = params.tag;
-  const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
-  const myVehicle = params.my_vehicle === "1";
-  const showWelcome = params.welcome === "1";
-  const engineIdParam = params.engine_id;
-
-  const [user, categories] = await Promise.all([
-    getCurrentUser(),
-    getCategories(),
-  ]);
-
-  // Determine last_visited_at for "New" content markers (Feature 1)
-  let lastVisitedAt: string | null = null;
-  if (user) {
-    // Logged-in: read from profiles.last_visited_at (updated by middleware)
-    const supabase = await createServerSupabase();
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("last_visited_at")
-      .eq("id", user.id)
-      .single();
-    lastVisitedAt = profile?.last_visited_at ?? null;
-  } else {
-    // Anonymous: read from last_visit cookie (set by middleware)
-    const cookieStore = await cookies();
-    lastVisitedAt = cookieStore.get("last_visit")?.value ?? null;
-  }
-
-  // Resolve primary vehicle for filtering and relevance
-  let primaryEngineId: string | null = null;
-  let primaryVehicleName: string | null = null;
-  if (user) {
-    const vehicles = (await getUserVehicles(user.id)) as Record<string, unknown>[];
-    const primary = vehicles.find((v) => v.is_primary === true);
-    if (primary?.engine_id) {
-      primaryEngineId = primary.engine_id as string;
-      primaryVehicleName = buildVehicleDisplayName(primary);
-    }
-  }
-
-  // Determine the effective filter engine ID:
-  // - my_vehicle=1 + logged-in primary vehicle → DB engine ID
-  // - my_vehicle=1 + anonymous (engine_id param) → param engine ID
-  // - engine_id param without my_vehicle → still filter (anonymous direct link)
-  let filterEngineId: string | null = null;
-  let filterVehicleName: string | null = null;
-
-  if (myVehicle && primaryEngineId) {
-    filterEngineId = primaryEngineId;
-    filterVehicleName = primaryVehicleName;
-  } else if (myVehicle && engineIdParam) {
-    filterEngineId = engineIdParam;
-    // Resolve engine name for anonymous filter banner
-    const engineInfo = await getEngineById(engineIdParam);
-    if (engineInfo) {
-      filterVehicleName = buildEngineDisplayName(engineInfo);
-    }
-  } else if (engineIdParam) {
-    // engine_id without my_vehicle still filters (e.g., direct link from vehicle page)
-    filterEngineId = engineIdParam;
-    const engineInfo = await getEngineById(engineIdParam);
-    if (engineInfo) {
-      filterVehicleName = buildEngineDisplayName(engineInfo);
-    }
-  }
-
-  // Fetch matching post IDs for the relevance badge (Feature 2)
-  let matchingPostIds: string[] = [];
-  if (primaryEngineId) {
-    const supabase = await createServerSupabase();
-    const { data: links } = await supabase
-      .from("post_vehicles")
-      .select("post_id")
-      .eq("engine_id", primaryEngineId);
-    matchingPostIds = (links ?? []).map((l) => l.post_id);
-  }
-
-  // Set up getPosts params
-  const engineId = filterEngineId ?? undefined;
-  const boostEngineId = !myVehicle && primaryEngineId ? primaryEngineId : undefined;
-
-  const [{ posts, totalCount }, pinnedPosts] = await Promise.all([
-    getPosts({ sort, categorySlug, tagSlug, page, engineId, boostEngineId }),
-    getPinnedPosts(4),
-  ]);
-
-  const activeCategoryName = categorySlug
-    ? posts?.[0]?.categories?.name ?? categorySlug
-    : undefined;
-
-  // Build clear-filter href preserving other params
-  const clearParams = new URLSearchParams();
-  if (params.sort) clearParams.set("sort", params.sort);
-  if (params.category) clearParams.set("category", params.category);
-  if (params.tag) clearParams.set("tag", params.tag);
-  if (params.page) clearParams.set("page", params.page);
-  const clearFilterHref = clearParams.toString() ? `/?${clearParams.toString()}` : "/";
+export default async function HomePage() {
+  const trendingPosts = await getTrendingPosts(5);
 
   return (
-    <div className="min-h-screen bg-surface-0 relative flex flex-col">
+    <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
-      <div className="max-w-5xl mx-auto px-5 py-6 flex gap-8 flex-1">
-        <Sidebar active={categorySlug} />
-        <main id="main-content" className="flex-1 min-w-0 relative z-[1]">
-          <CategoryBar categories={categories} active={categorySlug} />
-          <FeaturedCarousel posts={pinnedPosts} />
 
-          {/* Welcome banner for new registrations */}
-          {showWelcome && <WelcomeBanner />}
+      {/* ── Hero Section ─────────────────────────────────── */}
+      <section className="relative w-full bg-surface-0" aria-labelledby="hero-heading">
+        <div className="max-w-5xl mx-auto px-5 pt-20 pb-16 sm:pt-28 sm:pb-24 text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold font-heading tracking-wide mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            Car ownership made easier
+          </div>
 
-          {/* My Vehicle filter banner */}
-          {filterEngineId && filterVehicleName && (
-            <div className="mb-5 p-3.5 bg-amber-400/5 border border-amber-400/20 rounded-xl flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-amber-400/15 flex items-center justify-center shrink-0">
+          <h1
+            id="hero-heading"
+            className="text-4xl sm:text-5xl lg:text-6xl font-display text-text-primary tracking-wide leading-tight"
+          >
+            AUTO
+            <span className="text-primary">WNER</span>
+          </h1>
+
+          <p className="mt-5 text-lg sm:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed font-heading">
+            Check repair costs, verify mechanic quotes, decode warning lights and
+            OBD codes.
+          </p>
+
+          {/* Search */}
+          <form
+            action="/community"
+            method="GET"
+            className="mt-10 max-w-2xl mx-auto flex gap-3"
+          >
+            <div className="relative flex-1">
+              <svg
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                name="search"
+                type="search"
+                placeholder="Enter your repair issue or quote..."
+                className="w-full h-14 pl-12 pr-5 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+            </div>
+            <button
+              type="submit"
+              className="h-14 px-8 bg-primary text-white font-semibold font-heading rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/25 text-base shrink-0"
+            >
+              Check Now
+            </button>
+          </form>
+        </div>
+
+        {/* Bottom gradient separator */}
+        <div className="h-px bg-gradient-to-r from-transparent via-surface-border to-transparent" />
+      </section>
+
+      {/* ── Tool Cards Section ───────────────────────────── */}
+      <section className="w-full bg-surface-0" aria-labelledby="tools-heading">
+        <div className="max-w-5xl mx-auto px-5 py-16 sm:py-20 lg:py-24">
+          <div className="text-center mb-12">
+            <h2
+              id="tools-heading"
+              className="text-2xl sm:text-3xl lg:text-4xl font-bold text-text-primary font-heading"
+            >
+              Everything you need
+            </h2>
+            <p className="mt-3 text-text-muted max-w-xl mx-auto text-base sm:text-lg">
+              Four powerful tools to help you make informed decisions about your
+              car.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 lg:gap-6">
+            {tools.map((tool) => (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                className="group flex flex-col p-6 sm:p-7 bg-surface-1 rounded-2xl border border-surface-border hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+              >
+                {/* Icon */}
+                <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-colors duration-200">
+                  {tool.icon}
+                </div>
+
+                {/* Text */}
+                <h3 className="text-lg sm:text-xl font-bold text-text-primary font-heading group-hover:text-primary transition-colors duration-150">
+                  {tool.title}
+                </h3>
+                <p className="mt-2 text-text-muted text-sm sm:text-base leading-relaxed">
+                  {tool.description}
+                </p>
+
+                {/* Arrow */}
+                <span className="inline-flex items-center gap-1.5 mt-5 text-sm font-medium text-primary font-heading opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-200">
+                  Get started
                   <svg
-                    className="w-4 h-4 text-amber-400"
+                    className="w-4 h-4"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -196,38 +226,122 @@ export default async function HomePage({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
-                    <circle cx="9" cy="17" r="1" />
-                    <circle cx="15" cy="17" r="1" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
                   </svg>
-                </div>
-                <span className="text-sm text-amber-700 dark:text-amber-300 font-medium truncate">
-                  Showing results for your {filterVehicleName}
                 </span>
-              </div>
-              <Link
-                href={clearFilterHref}
-                className="shrink-0 text-xs text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-medium transition-colors"
-              >
-                Clear filter
               </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Community Section ────────────────────────────── */}
+      <section
+        className="w-full bg-surface-1 border-y border-surface-border"
+        aria-labelledby="community-heading"
+      >
+        <div className="max-w-5xl mx-auto px-5 py-16 sm:py-20 lg:py-24">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <h2
+                id="community-heading"
+                className="text-2xl sm:text-3xl font-bold text-text-primary font-heading"
+              >
+                Popular Discussions
+              </h2>
+              <p className="mt-2 text-text-muted text-sm sm:text-base">
+                Join the conversation with fellow car enthusiasts.
+              </p>
+            </div>
+            <Link
+              href="/community"
+              className="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-primary font-heading hover:text-primary-glow transition-colors shrink-0"
+            >
+              View all discussions
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </Link>
+          </div>
+
+          {trendingPosts.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-text-muted">
+                No trending discussions right now. Check back soon.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {trendingPosts.map((post, i) => (
+                <Link
+                  key={post.id}
+                  href={`/post/${post.slug || post.id}`}
+                  className="group flex items-center gap-4 sm:gap-5 p-4 sm:p-5 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm transition-all duration-150"
+                >
+                  {/* Rank number */}
+                  <span className="w-8 h-8 rounded-lg bg-surface-1 border border-surface-border flex items-center justify-center text-xs font-bold text-text-muted font-heading shrink-0 group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">
+                    {(i + 1).toString().padStart(2, "0")}
+                  </span>
+
+                  {/* Title */}
+                  <span className="flex-1 min-w-0 text-sm sm:text-base font-medium text-text-secondary group-hover:text-text-primary truncate transition-colors font-heading">
+                    {post.title}
+                  </span>
+
+                  {/* Comment count */}
+                  <span className="hidden sm:flex items-center gap-1.5 text-xs text-text-muted shrink-0">
+                    <svg
+                      className="w-3.5 h-3.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    {post.comment_count}
+                  </span>
+                </Link>
+              ))}
             </div>
           )}
 
-          {activeCategoryName && (
-            <div className="mb-5 pb-4 border-b border-surface-border">
-              <p className="text-xs font-bold uppercase tracking-widest text-text-muted font-heading mb-1">Browsing</p>
-              <h2 className="text-xl font-bold text-text-primary font-heading">{activeCategoryName}</h2>
-            </div>
-          )}
-          <div className="flex items-center justify-between mb-5">
-            <SortToggle />
-            {posts.length > 0 && <span className="text-xs text-text-muted">{totalCount} posts</span>}
+          {/* Mobile "View all" link */}
+          <div className="mt-8 text-center sm:hidden">
+            <Link
+              href="/community"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary font-heading hover:text-primary-glow transition-colors"
+            >
+              View all discussions
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </Link>
           </div>
-          <PostFeed posts={posts} userId={user?.id} matchingPostIds={matchingPostIds} lastVisitedAt={lastVisitedAt} />
-          <Pagination page={page} totalCount={totalCount} />
-        </main>
-      </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );
