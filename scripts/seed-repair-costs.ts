@@ -30,7 +30,6 @@ interface RepairCostRow {
   make: string;
   model: string;
   tier: string;
-  tier_order: number;
   min_cost: number;
   max_cost: number;
   avg_cost: number;
@@ -786,7 +785,6 @@ function jobToRows(job: RepairJob): RepairCostRow[] {
       make: vehicle.make,
       model: vehicle.model,
       tier: tierName,
-      tier_order: tierConfig.order,
       min_cost: tierData.min,
       max_cost: tierData.max,
       avg_cost: tierData.avg,
@@ -819,7 +817,6 @@ async function importCSV(filepath: string): Promise<RepairCostRow[]> {
     make: r.make,
     model: r.model,
     tier: r.tier,
-    tier_order: parseInt(r.tier_order, 10) || 0,
     min_cost: parseFloat(r.min_cost),
     max_cost: parseFloat(r.max_cost),
     avg_cost: parseFloat(r.avg_cost),
