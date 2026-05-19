@@ -28,6 +28,8 @@ export interface Database {
       user_vehicles: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       post_vehicles: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       user_events: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      obd_codes: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      repair_costs: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -205,4 +207,55 @@ export type UserVehicleWithDetails = UserVehicle & {
 export type PostVehicleLink = {
   post_id: string;
   engine_id: string;
+};
+
+// ── OBD Codes ──────────────────────────────────────────────
+
+export type ObdCode = {
+  code: string;
+  title: string;
+  severity: number;
+  symptoms: string[];
+  causes: string[];
+  fixes: string[];
+  min_cost: number | null;
+  max_cost: number | null;
+};
+
+// ── Repair Costs ───────────────────────────────────────────
+
+export type RepairCostRow = {
+  repair_slug: string;
+  repair_name: string;
+  make: string;
+  model: string;
+  tier: string;
+  min_cost: number;
+  max_cost: number;
+  avg_cost: number;
+  labor_cost: number;
+  parts_cost: number;
+  confidence_level: string;
+};
+
+export type RepairCostTier = {
+  tier: string;
+  tierLabel: string;
+  vehicles: { make: string; model: string }[];
+  min: number;
+  max: number;
+  avg: number;
+  labor: number;
+  parts: number;
+  confidence: string;
+};
+
+export type RepairCostFull = {
+  slug: string;
+  name: string;
+  tiers: Record<string, RepairCostTier>;
+  overallMin: number;
+  overallMax: number;
+  overallAvg: number;
+  confidence: string;
 };

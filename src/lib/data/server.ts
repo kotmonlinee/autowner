@@ -1,7 +1,7 @@
 // Server-side data access — ONLY used in server components and API routes.
 // All Supabase calls live here so migrating to a different DB only changes this file.
 import { createServerSupabase } from "@/lib/supabase-server";
-import type { PostWithRelations, Category, CommentWithAuthor, CommentWithPost, Notification } from "@/lib/types";
+import type { PostWithRelations, Category, CommentWithAuthor, CommentWithPost, Notification, ObdCode, RepairCostRow, RepairCostTier, RepairCostFull } from "@/lib/types";
 
 // ── Slug helpers ─────────────────────────────────────────
 
@@ -1601,4 +1601,230 @@ export async function getReadingHistory(userId: string): Promise<ReadingHistoryI
     // Table may not exist yet or DB unavailable — return empty gracefully
     return [];
   }
+}
+
+// ── OBD Codes ──────────────────────────────────────────────
+
+export async function getObdCode(code: string): Promise<ObdCode | null> {
+  const supabase = await createServerSupabase();
+  const normalized = code.toUpperCase().trim();
+  const { data, error } = await supabase
+    .from("obd_codes")
+    .select("*")
+    .eq("code", normalized)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  const row = data as Record<string, unknown>;
+  return {
+    code: String(row.code ?? ""),
+    title: String(row.title ?? ""),
+    severity: Number(row.severity ?? 3),
+    symptoms: parseJsonArray(row.symptoms_json),
+    causes: parseJsonArray(row.causes_json),
+    fixes: parseJsonArray(row.fixes_json),
+    min_cost: row.min_cost != null ? Number(row.min_cost) : null,
+    max_cost: row.max_cost != null ? Number(row.max_cost) : null,
+  };
+}
+
+function parseJsonArray(val: unknown): string[] {
+  if (Array.isArray(val)) return val.map((v) => String(v));
+  if (typeof val === "string") {
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed.map((v: unknown) => String(v)) : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
+  const supabase = await createServerSupabase();
+  const trimmed = query.trim().toUpperCase();
+  if (!trimmed) return [];
+
+  // Try exact code match first
+  const { data: exact } = await supabase
+    .from("obd_codes")
+    .select("code, title, severity")
+    .eq("code", trimmed)
+    .limit(1);
+
+  if (exact && exact.length > 0) {
+    return (exact as unknown as Pick<ObdCode, "code" | "title" | "severity">[]);
+  }
+
+  // Prefix search
+  const { data: prefix } = await supabase
+    .from("obd_codes")
+    .select("code, title, severity")
+    .ilike("code", `${trimmed}%`)
+    .order("severity", { ascending: false })
+    .limit(15);
+
+  if (!prefix || prefix.length === 0) {
+    // Fallback: description search
+    const { data: desc } = await supabase
+      .from("obd_codes")
+      .select("code, title, severity")
+      .ilike("title", `%${query}%`)
+      .order("severity", { ascending: false })
+      .limit(15);
+    return (desc as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [];
+  }
+
+  return (prefix as unknown as Pick<ObdCode, "code" | "title" | "severity">[]);
+}
+
+export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from("obd_codes")
+    .select("code, title, severity")
+    .order("severity", { ascending: false })
+    .order("code", { ascending: true })
+    .limit(limit);
+  return (data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [];
+}
+
+// ── Repair Costs ───────────────────────────────────────────
+
+const TIER_LABELS: Record<string, string> = {
+  economy: "Economy",
+  mid_range: "Mid-Range",
+  luxury: "Luxury",
+  truck_suv: "Truck/SUV",
+  european: "European",
+};
+
+const TIER_VEHICLES: Record<string, { make: string; model: string }[]> = {
+  economy: [
+    { make: "Honda", model: "Civic" },
+    { make: "Toyota", model: "Corolla" },
+  ],
+  mid_range: [
+    { make: "Ford", model: "F-150" },
+    { make: "Honda", model: "Accord" },
+  ],
+  luxury: [
+    { make: "BMW", model: "3 Series" },
+    { make: "Mercedes-Benz", model: "C-Class" },
+  ],
+  truck_suv: [
+    { make: "Chevrolet", model: "Tahoe" },
+    { make: "Ram", model: "1500" },
+  ],
+  european: [
+    { make: "Audi", model: "A4" },
+    { make: "Volvo", model: "S60" },
+  ],
+};
+
+export async function getRepairCosts(slug: string): Promise<RepairCostFull | null> {
+  const supabase = await createServerSupabase();
+
+  // Normalize slug: replace dashes with underscores for DB lookup
+  const dbSlug = slug.replace(/-/g, "_");
+
+  // Try the normalized slug; if not found, try the original
+  let { data } = await supabase
+    .from("repair_costs")
+    .select("*")
+    .eq("repair_slug", dbSlug)
+    .order("min_cost", { ascending: true });
+
+  if (!data || data.length === 0) {
+    const result = await supabase
+      .from("repair_costs")
+      .select("*")
+      .eq("repair_slug", slug)
+      .order("min_cost", { ascending: true });
+    data = result.data;
+  }
+
+  if (!data || data.length === 0) return null;
+
+  const rows = data as unknown as RepairCostRow[];
+  const tiers: Record<string, RepairCostTier> = {};
+
+  let overallMin = Infinity;
+  let overallMax = -Infinity;
+  let totalAvg = 0;
+  let tierCount = 0;
+
+  for (const row of rows) {
+    const tierKey = row.tier;
+    tiers[tierKey] = {
+      tier: tierKey,
+      tierLabel: TIER_LABELS[tierKey] ?? tierKey,
+      vehicles: TIER_VEHICLES[tierKey] ?? [{ make: row.make, model: row.model }],
+      min: row.min_cost,
+      max: row.max_cost,
+      avg: row.avg_cost,
+      labor: row.labor_cost,
+      parts: row.parts_cost,
+      confidence: row.confidence_level,
+    };
+
+    if (row.min_cost < overallMin) overallMin = row.min_cost;
+    if (row.max_cost > overallMax) overallMax = row.max_cost;
+    totalAvg += row.avg_cost;
+    tierCount++;
+  }
+
+  const overallAvg = tierCount > 0 ? Math.round(totalAvg / tierCount) : 0;
+
+  return {
+    slug,
+    name: rows[0].repair_name,
+    tiers,
+    overallMin: overallMin === Infinity ? 0 : overallMin,
+    overallMax: overallMax === -Infinity ? 0 : overallMax,
+    overallAvg,
+    confidence: rows[0].confidence_level,
+  };
+}
+
+export async function searchRepairCosts(query: string): Promise<Pick<RepairCostRow, "repair_name" | "repair_slug">[]> {
+  const supabase = await createServerSupabase();
+  if (!query.trim()) return [];
+
+  const { data } = await supabase
+    .from("repair_costs")
+    .select("repair_slug, repair_name")
+    .ilike("repair_name", `%${query.trim()}%`)
+    .order("repair_name")
+    .limit(30);
+
+  if (!data || data.length === 0) return [];
+
+  // Deduplicate by slug
+  const seen = new Set<string>();
+  const result: Pick<RepairCostRow, "repair_name" | "repair_slug">[] = [];
+  for (const row of data as unknown as Pick<RepairCostRow, "repair_name" | "repair_slug">[]) {
+    if (seen.has(row.repair_slug)) continue;
+    seen.add(row.repair_slug);
+    result.push(row);
+  }
+  return result;
+}
+
+export async function getAllRepairSlugs(): Promise<string[]> {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from("repair_costs")
+    .select("repair_slug");
+
+  if (!data) return [];
+
+  const slugs = new Set<string>();
+  for (const row of data as unknown as { repair_slug: string }[]) {
+    // Store with dashes for URL usage
+    slugs.add(row.repair_slug.replace(/_/g, "-"));
+  }
+  return Array.from(slugs).sort();
 }

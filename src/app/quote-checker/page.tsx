@@ -1,0 +1,649 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { fetchVehicleMakes } from "@/lib/data/browser";
+
+interface AssessmentResult {
+  assessment: "Fair" | "Slightly High" | "Overpriced" | "Below Average" | "Insufficient Data";
+  quoteAmount: number;
+  minCost: number | null;
+  maxCost: number | null;
+  avgCost: number | null;
+  tier: string;
+  disclaimer: string;
+}
+
+const COMMON_REPAIRS = [
+  "Brake pad replacement",
+  "Brake rotor replacement",
+  "Oil change",
+  "Alternator replacement",
+  "Starter replacement",
+  "Water pump replacement",
+  "Timing belt replacement",
+  "Serpentine belt replacement",
+  "Spark plug replacement",
+  "Oxygen sensor replacement",
+  "Catalytic converter replacement",
+  "AC compressor replacement",
+  "Radiator replacement",
+  "Transmission fluid change",
+  "Fuel pump replacement",
+  "Strut replacement",
+  "Ball joint replacement",
+  "Tie rod replacement",
+  "Wheel bearing replacement",
+  "Head gasket replacement",
+  "Clutch replacement",
+  "Battery replacement",
+  "Power steering pump replacement",
+  "Thermostat replacement",
+  "Valve cover gasket replacement",
+];
+
+const ASSESSMENT_COLORS: Record<AssessmentResult["assessment"], { bg: string; text: string; border: string; label: string }> = {
+  Fair: {
+    bg: "bg-emerald-50 dark:bg-emerald-950/20",
+    text: "text-emerald-700 dark:text-emerald-400",
+    border: "border-emerald-200 dark:border-emerald-800",
+    label: "Fair Price",
+  },
+  "Slightly High": {
+    bg: "bg-amber-50 dark:bg-amber-950/20",
+    text: "text-amber-700 dark:text-amber-400",
+    border: "border-amber-200 dark:border-amber-800",
+    label: "Slightly High",
+  },
+  Overpriced: {
+    bg: "bg-red-50 dark:bg-red-950/20",
+    text: "text-red-700 dark:text-red-400",
+    border: "border-red-200 dark:border-red-800",
+    label: "Overpriced",
+  },
+  "Below Average": {
+    bg: "bg-blue-50 dark:bg-blue-950/20",
+    text: "text-blue-700 dark:text-blue-400",
+    border: "border-blue-200 dark:border-blue-800",
+    label: "Below Average",
+  },
+  "Insufficient Data": {
+    bg: "bg-slate-50 dark:bg-slate-950/20",
+    text: "text-slate-700 dark:text-slate-400",
+    border: "border-slate-200 dark:border-slate-800",
+    label: "Insufficient Data",
+  },
+};
+
+const ASSESSMENT_DOT: Record<AssessmentResult["assessment"], string> = {
+  Fair: "bg-emerald-500",
+  "Slightly High": "bg-amber-500",
+  Overpriced: "bg-red-500",
+  "Below Average": "bg-blue-500",
+  "Insufficient Data": "bg-slate-400",
+};
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+export default function QuoteCheckerPage() {
+  const [make, setMake] = useState("");
+  const [model, setModel] = useState("");
+  const [year, setYear] = useState("");
+  const [repairType, setRepairType] = useState("");
+  const [quoteAmount, setQuoteAmount] = useState("");
+  const [state, setState] = useState("");
+  const [makes, setMakes] = useState<{ name: string }[]>([]);
+  const [makeSuggestions, setMakeSuggestions] = useState<string[]>([]);
+  const [showMakeDropdown, setShowMakeDropdown] = useState(false);
+  const [showRepairDropdown, setShowRepairDropdown] = useState(false);
+  const [result, setResult] = useState<AssessmentResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const makeInputRef = useRef<HTMLInputElement>(null);
+  const makeDropdownRef = useRef<HTMLDivElement>(null);
+  const repairInputRef = useRef<HTMLInputElement>(null);
+  const repairDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Load vehicle makes for autocomplete
+  useEffect(() => {
+    fetchVehicleMakes().then((data) => setMakes(data));
+  }, []);
+
+  // Filter make suggestions as user types
+  useEffect(() => {
+    if (make.length > 0) {
+      const filtered = makes
+        .filter((m) => m.name.toLowerCase().includes(make.toLowerCase()))
+        .map((m) => m.name)
+        .slice(0, 8);
+      setMakeSuggestions(filtered.length > 0 ? filtered : []);
+      setShowMakeDropdown(filtered.length > 0);
+    } else {
+      setMakeSuggestions([]);
+      setShowMakeDropdown(false);
+    }
+  }, [make, makes]);
+
+  // Close make dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        makeDropdownRef.current &&
+        !makeDropdownRef.current.contains(e.target as Node) &&
+        makeInputRef.current &&
+        !makeInputRef.current.contains(e.target as Node)
+      ) {
+        setShowMakeDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  // Close repair dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        repairDropdownRef.current &&
+        !repairDropdownRef.current.contains(e.target as Node) &&
+        repairInputRef.current &&
+        !repairInputRef.current.contains(e.target as Node)
+      ) {
+        setShowRepairDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const filteredRepairs = repairType.length > 0
+    ? COMMON_REPAIRS.filter((r) =>
+        r.toLowerCase().includes(repairType.toLowerCase())
+      ).slice(0, 8)
+    : COMMON_REPAIRS.slice(0, 8);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setResult(null);
+
+    const quote = parseFloat(quoteAmount);
+    if (!make || !model || !year || !repairType || isNaN(quote) || quote <= 0) {
+      setError("Please fill in all required fields with valid values.");
+      return;
+    }
+
+    const yearNum = parseInt(year, 10);
+    if (isNaN(yearNum) || yearNum < 1900 || yearNum > new Date().getFullYear() + 2) {
+      setError("Please enter a valid year.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/quote-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          repairType,
+          make,
+          model,
+          year: yearNum,
+          quoteAmount: quote,
+          state: state || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Failed to check quote");
+      }
+
+      const data: AssessmentResult = await res.json();
+      setResult(data);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const assessmentStyle = result ? ASSESSMENT_COLORS[result.assessment] : null;
+
+  return (
+    <div className="min-h-screen bg-surface-0 flex flex-col">
+      <Navbar />
+
+      <main id="main-content" className="max-w-3xl mx-auto px-5 py-10 w-full flex-1">
+        {/* Page header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary font-heading">
+              Quote Checker
+            </h1>
+          </div>
+          <p className="text-text-muted text-base leading-relaxed">
+            Enter a mechanic&apos;s quote and compare it against typical repair costs
+            for your vehicle. No login required.
+          </p>
+        </div>
+
+        {/* Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-surface-1 border border-surface-border rounded-2xl p-6 sm:p-8 space-y-5"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Make — with autocomplete */}
+            <div className="relative">
+              <label
+                htmlFor="make"
+                className="block text-sm font-semibold text-text-primary mb-1.5 font-heading"
+              >
+                Vehicle Make <span className="text-red-500">*</span>
+              </label>
+              <input
+                ref={makeInputRef}
+                id="make"
+                type="text"
+                value={make}
+                onChange={(e) => setMake(e.target.value)}
+                onFocus={() => {
+                  if (makeSuggestions.length > 0) setShowMakeDropdown(true);
+                }}
+                placeholder="e.g. Toyota, Honda, Ford"
+                className="w-full h-12 px-4 bg-surface-0 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                autoComplete="off"
+              />
+              {showMakeDropdown && makeSuggestions.length > 0 && (
+                <div
+                  ref={makeDropdownRef}
+                  className="absolute z-20 left-0 right-0 mt-1 bg-surface-0 border border-surface-border rounded-xl shadow-lg overflow-hidden"
+                >
+                  {makeSuggestions.map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => {
+                        setMake(name);
+                        setShowMakeDropdown(false);
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-text-primary hover:bg-surface-1 transition-colors text-sm"
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Model */}
+            <div>
+              <label
+                htmlFor="model"
+                className="block text-sm font-semibold text-text-primary mb-1.5 font-heading"
+              >
+                Vehicle Model <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="model"
+                type="text"
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                placeholder="e.g. Camry, Civic, F-150"
+                className="w-full h-12 px-4 bg-surface-0 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+            </div>
+
+            {/* Year */}
+            <div>
+              <label
+                htmlFor="year"
+                className="block text-sm font-semibold text-text-primary mb-1.5 font-heading"
+              >
+                Year <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="year"
+                type="number"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                placeholder="e.g. 2020"
+                min={1900}
+                max={new Date().getFullYear() + 2}
+                className="w-full h-12 px-4 bg-surface-0 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+            </div>
+
+            {/* State (optional) */}
+            <div>
+              <label
+                htmlFor="state"
+                className="block text-sm font-semibold text-text-primary mb-1.5 font-heading"
+              >
+                State <span className="text-text-muted font-normal">(optional)</span>
+              </label>
+              <input
+                id="state"
+                type="text"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                placeholder="e.g. CA, TX, NY"
+                maxLength={2}
+                className="w-full h-12 px-4 bg-surface-0 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Repair type — with suggestions */}
+          <div className="relative">
+            <label
+              htmlFor="repairType"
+              className="block text-sm font-semibold text-text-primary mb-1.5 font-heading"
+            >
+              Repair Type <span className="text-red-500">*</span>
+            </label>
+            <input
+              ref={repairInputRef}
+              id="repairType"
+              type="text"
+              value={repairType}
+              onChange={(e) => {
+                setRepairType(e.target.value);
+                setShowRepairDropdown(true);
+              }}
+              onFocus={() => setShowRepairDropdown(true)}
+              placeholder="e.g. Brake pad replacement"
+              className="w-full h-12 px-4 bg-surface-0 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              autoComplete="off"
+            />
+            {showRepairDropdown && (
+              <div
+                ref={repairDropdownRef}
+                className="absolute z-20 left-0 right-0 mt-1 bg-surface-0 border border-surface-border rounded-xl shadow-lg overflow-hidden max-h-64 overflow-y-auto"
+              >
+                {filteredRepairs.map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => {
+                      setRepairType(name);
+                      setShowRepairDropdown(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-text-primary hover:bg-surface-1 transition-colors text-sm"
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Quote amount */}
+          <div>
+            <label
+              htmlFor="quoteAmount"
+              className="block text-sm font-semibold text-text-primary mb-1.5 font-heading"
+            >
+              Quote Amount ($) <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-medium">
+                $
+              </span>
+              <input
+                id="quoteAmount"
+                type="number"
+                value={quoteAmount}
+                onChange={(e) => setQuoteAmount(e.target.value)}
+                placeholder="0"
+                min={1}
+                step="0.01"
+                className="w-full h-12 pl-8 pr-4 bg-surface-0 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl">
+              <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+            </div>
+          )}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full h-12 bg-primary text-white font-semibold font-heading rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/25 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg
+                  className="animate-spin w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                Checking...
+              </span>
+            ) : (
+              "Check My Quote"
+            )}
+          </button>
+        </form>
+
+        {/* Results */}
+        {result && (
+          <section
+            className="mt-8 bg-surface-1 border border-surface-border rounded-2xl p-6 sm:p-8"
+            aria-label="Quote assessment result"
+          >
+            {/* Top: badge + quote */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <div>
+                <p className="text-sm font-medium text-text-muted uppercase tracking-wide mb-1 font-heading">
+                  Your Quote
+                </p>
+                <p className="text-3xl font-bold text-text-primary font-heading">
+                  {formatCurrency(result.quoteAmount)}
+                </p>
+              </div>
+
+              {assessmentStyle && (
+                <div
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${assessmentStyle.bg} ${assessmentStyle.border} ${assessmentStyle.text} font-semibold text-sm font-heading`}
+                >
+                  <span className={`w-2.5 h-2.5 rounded-full ${ASSESSMENT_DOT[result.assessment]}`} />
+                  {assessmentStyle.label}
+                </div>
+              )}
+            </div>
+
+            {/* Cost comparison */}
+            {result.minCost !== null && result.maxCost !== null ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div className="p-4 bg-surface-0 rounded-xl border border-surface-border">
+                  <p className="text-xs font-medium text-text-muted uppercase tracking-wide mb-1 font-heading">
+                    Typical Range
+                  </p>
+                  <p className="text-lg font-bold text-text-primary font-heading">
+                    {formatCurrency(result.minCost)} &ndash; {formatCurrency(result.maxCost)}
+                  </p>
+                  {result.avgCost && (
+                    <p className="text-xs text-text-muted mt-1">
+                      Average: {formatCurrency(result.avgCost)}
+                    </p>
+                  )}
+                </div>
+                <div className="p-4 bg-surface-0 rounded-xl border border-surface-border">
+                  <p className="text-xs font-medium text-text-muted uppercase tracking-wide mb-1 font-heading">
+                    Vehicle Tier
+                  </p>
+                  <p className="text-lg font-bold text-text-primary font-heading capitalize">
+                    {result.tier}
+                  </p>
+                  <p className="text-xs text-text-muted mt-1">
+                    Costs calibrated for {result.tier} vehicles
+                  </p>
+                </div>
+              </div>
+            ) : result.assessment === "Insufficient Data" ? (
+              <div className="p-4 bg-slate-50 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800 rounded-xl mb-6">
+                <p className="text-sm text-text-secondary">
+                  We don&apos;t have enough cost data for this specific repair and vehicle
+                  combination yet. The assessment is based on general market analysis.
+                  Check back as we continue building our database.
+                </p>
+              </div>
+            ) : null}
+
+            {/* Explainer */}
+            <div className="p-4 bg-surface-0 rounded-xl border border-surface-border mb-4">
+              <h3 className="text-sm font-semibold text-text-primary mb-2 font-heading">
+                What could affect this price?
+              </h3>
+              <ul className="text-sm text-text-secondary space-y-1.5 list-disc pl-5">
+                <li>
+                  <strong>Location:</strong> Labor rates vary significantly by region
+                  (urban vs. rural, coastal vs. inland).
+                </li>
+                <li>
+                  <strong>Shop type:</strong> Dealerships typically charge 30-50% more
+                  than independent shops.
+                </li>
+                <li>
+                  <strong>Vehicle condition:</strong> Rust, previous damage, or custom
+                  modifications can increase labor time.
+                </li>
+                <li>
+                  <strong>Parts quality:</strong> OEM parts cost more than aftermarket;
+                  some repairs require OEM for proper fit.
+                </li>
+                <li>
+                  <strong>Additional services:</strong> Some quotes bundle related
+                  services (e.g., alignment with strut replacement).
+                </li>
+              </ul>
+            </div>
+
+            {/* Recommended next step */}
+            <div className="p-4 bg-primary/5 rounded-xl border border-primary/20 mb-4">
+              <h3 className="text-sm font-semibold text-text-primary mb-2 font-heading">
+                Recommended next step
+              </h3>
+              {result.assessment === "Fair" && (
+                <p className="text-sm text-text-secondary">
+                  This quote falls within the typical range. It&apos;s reasonable to
+                  proceed, but getting a second opinion is always a good practice.
+                </p>
+              )}
+              {result.assessment === "Slightly High" && (
+                <p className="text-sm text-text-secondary">
+                  This quote is a bit above the typical range. Consider getting
+                  1&ndash;2 more quotes from independent shops before committing. Ask
+                  for an itemized breakdown of parts and labor.
+                </p>
+              )}
+              {result.assessment === "Overpriced" && (
+                <p className="text-sm text-text-secondary">
+                  This quote is significantly above the typical range. We strongly recommend
+                  getting multiple quotes from independent shops. Show them this estimate
+                  and ask why their price differs.
+                </p>
+              )}
+              {result.assessment === "Below Average" && (
+                <p className="text-sm text-text-secondary">
+                  This quote is below the typical range. While a good deal is great, make
+                  sure the shop is using quality parts and has good reviews. Unusually low
+                  prices can sometimes mean corner-cutting.
+                </p>
+              )}
+              {result.assessment === "Insufficient Data" && (
+                <p className="text-sm text-text-secondary">
+                  Without complete cost data, we recommend getting at least 3 quotes from
+                  different shops to establish a baseline. Compare not just price, but also
+                  warranty, parts quality, and shop reputation.
+                </p>
+              )}
+            </div>
+
+            {/* Disclaimer */}
+            <p className="text-xs text-text-muted italic text-center">
+              {result.disclaimer}
+            </p>
+          </section>
+        )}
+
+        {/* Empty state when no results */}
+        {!result && !loading && (
+          <div className="mt-8 text-center py-10">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-surface-1 border border-surface-border flex items-center justify-center">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-8 h-8 text-text-muted"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="12" y1="18" x2="12" y2="12" />
+                <line x1="9" y1="15" x2="15" y2="15" />
+              </svg>
+            </div>
+            <h3 className="text-base font-semibold text-text-primary mb-1 font-heading">
+              Check if your quote is fair
+            </h3>
+            <p className="text-sm text-text-muted max-w-md mx-auto">
+              Enter your vehicle details and the repair quote you received. We&apos;ll
+              compare it against real repair cost data and tell you if it&apos;s a fair
+              price.
+            </p>
+          </div>
+        )}
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
