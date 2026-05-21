@@ -220,7 +220,9 @@ export default async function RepairCostLandingPage() {
                 <p className="text-xs text-text-muted mb-3">{cat.description}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {allSlugs
-                    .filter((slug) => cat.keywords.some((kw) => slug.includes(kw)))
+                    .filter((slug) =>
+                      cat.keywords.some((kw) => slug.includes(kw.replace(/_/g, "-")))
+                    )
                     .slice(0, 4)
                     .map((slug) => (
                       <Link

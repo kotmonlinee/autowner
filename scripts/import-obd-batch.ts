@@ -14,6 +14,7 @@ async function main() {
 
   for (let i = 0; i < batches.length; i++) {
     const b = batches[i];
+    // @ts-ignore - dotAll flag needs ES2018
     const match = b.match(/VALUES\s+(.+);/s);
     if (!match) { console.log(`Batch ${i}: no VALUES found`); continue; }
 

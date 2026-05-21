@@ -2,6 +2,7 @@
 // Run: npx tsx scripts/import-full-obd.ts
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
+// @ts-ignore - node:sqlite available in Node 22+
 import { DatabaseSync } from "node:sqlite";
 
 // Parse .env.local

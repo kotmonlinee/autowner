@@ -117,14 +117,50 @@ export async function POST(request: Request) {
 
     // If still no match, try partial match on repair_slug using ILIKE
     if (!costData) {
-      const fuzzy = await supabase
+      const fuzzySlug = await supabase
         .from("repair_costs")
         .select("*")
         .ilike("repair_slug", `%${repairSlug}%`)
         .limit(1)
         .maybeSingle();
-      costData = fuzzy.data;
-      error = fuzzy.error;
+      costData = fuzzySlug.data;
+      error = fuzzySlug.error;
+    }
+
+    // If still no match, try matching by repair_name using ILIKE
+    if (!costData) {
+      // Try full repair type text against repair_name
+      const fuzzyName = await supabase
+        .from("repair_costs")
+        .select("*")
+        .ilike("repair_name", `%${repairType.trim()}%`)
+        .limit(1)
+        .maybeSingle();
+      costData = fuzzyName.data;
+      error = fuzzyName.error;
+    }
+
+    // If still no match, try word-by-word matching on repair_name
+    if (!costData) {
+      const words = repairType
+        .toLowerCase()
+        .split(/[\s-]+/)
+        .filter((w) => w.length >= 3);
+      if (words.length > 0) {
+        // Build ILIKE filter that matches any word
+        for (const word of words) {
+          const wordMatch = await supabase
+            .from("repair_costs")
+            .select("*")
+            .ilike("repair_name", `%${word}%`)
+            .limit(1)
+            .maybeSingle();
+          if (wordMatch.data) {
+            costData = wordMatch.data;
+            break;
+          }
+        }
+      }
     }
 
     if (error) {
