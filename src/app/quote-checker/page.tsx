@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { fetchVehicleMakes } from "@/lib/data/browser";
@@ -15,7 +15,12 @@ interface AssessmentResult {
   disclaimer: string;
 }
 
-const COMMON_REPAIRS = [
+interface RepairSuggestion {
+  display: string;
+  raw: string;
+}
+
+const FALLBACK_REPAIRS = [
   "Brake pad replacement",
   "Brake rotor replacement",
   "Oil change",
@@ -23,9 +28,7 @@ const COMMON_REPAIRS = [
   "Starter replacement",
   "Water pump replacement",
   "Timing belt replacement",
-  "Serpentine belt replacement",
   "Spark plug replacement",
-  "Oxygen sensor replacement",
   "Catalytic converter replacement",
   "AC compressor replacement",
   "Radiator replacement",
@@ -103,6 +106,8 @@ export default function QuoteCheckerPage() {
   const [makeSuggestions, setMakeSuggestions] = useState<string[]>([]);
   const [showMakeDropdown, setShowMakeDropdown] = useState(false);
   const [showRepairDropdown, setShowRepairDropdown] = useState(false);
+  const [repairSuggestions, setRepairSuggestions] = useState<RepairSuggestion[]>([]);
+  const [repairLoading, setRepairLoading] = useState(false);
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -164,11 +169,60 @@ export default function QuoteCheckerPage() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const filteredRepairs = repairType.length > 0
-    ? COMMON_REPAIRS.filter((r) =>
+  // Debounced fetch for repair type suggestions from the database
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fetchSuggestions = useCallback(async (query: string) => {
+    if (query.length < 2) {
+      setRepairSuggestions([]);
+      setRepairLoading(false);
+      return;
+    }
+    setRepairLoading(true);
+    try {
+      const res = await fetch(`/api/repair-suggestions?q=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setRepairSuggestions((data.suggestions as RepairSuggestion[]) ?? []);
+        if (data.suggestions?.length > 0) {
+          setShowRepairDropdown(true);
+        }
+      }
+    } catch {
+      // Silently fail — fallback to static list
+    } finally {
+      setRepairLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    if (repairType.length >= 2) {
+      debounceRef.current = setTimeout(() => {
+        fetchSuggestions(repairType);
+      }, 250);
+    } else {
+      setRepairSuggestions([]);
+    }
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [repairType, fetchSuggestions]);
+
+  // Compute dropdown items: API results when available, fallback to static list
+  const dropdownItems: string[] = (() => {
+    if (repairSuggestions.length > 0) {
+      return repairSuggestions.map((s) => s.display);
+    }
+    if (repairType.length > 0) {
+      return FALLBACK_REPAIRS.filter((r) =>
         r.toLowerCase().includes(repairType.toLowerCase())
-      ).slice(0, 8)
-    : COMMON_REPAIRS.slice(0, 8);
+      ).slice(0, 8);
+    }
+    return FALLBACK_REPAIRS.slice(0, 8);
+  })();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -386,19 +440,48 @@ export default function QuoteCheckerPage() {
                 ref={repairDropdownRef}
                 className="absolute z-20 left-0 right-0 mt-1 bg-surface-0 border border-surface-border rounded-xl shadow-lg overflow-hidden max-h-64 overflow-y-auto"
               >
-                {filteredRepairs.map((name) => (
-                  <button
-                    key={name}
-                    type="button"
-                    onClick={() => {
-                      setRepairType(name);
-                      setShowRepairDropdown(false);
-                    }}
-                    className="w-full text-left px-4 py-2.5 text-text-primary hover:bg-surface-1 transition-colors text-sm"
-                  >
-                    {name}
-                  </button>
-                ))}
+                {repairLoading ? (
+                  <div className="px-4 py-3 text-sm text-text-muted flex items-center gap-2">
+                    <svg
+                      className="animate-spin w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    Searching...
+                  </div>
+                ) : dropdownItems.length > 0 ? (
+                  dropdownItems.map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => {
+                        setRepairType(name);
+                        setShowRepairDropdown(false);
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-text-primary hover:bg-surface-1 transition-colors text-sm"
+                    >
+                      {name}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-3 text-sm text-text-muted">
+                    No matching repairs found
+                  </div>
+                )}
               </div>
             )}
           </div>

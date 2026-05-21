@@ -1829,3 +1829,97 @@ export async function getAllRepairSlugs(): Promise<string[]> {
   }
   return Array.from(slugs).sort();
 }
+
+function slugToKeywords(slug: string): string[] {
+  return slug.toLowerCase().replace(/_/g, "-").split("-").filter((w) => w.length > 0);
+}
+
+/**
+ * Count how many distinct repair slugs match each category's keywords.
+ */
+export async function getRepairCategoryCounts(
+  categories: { slug: string; keywords: string[] }[]
+): Promise<Record<string, number>> {
+  const allSlugs = await getAllRepairSlugs();
+  const counts: Record<string, number> = {};
+
+  for (const cat of categories) {
+    const matching = allSlugs.filter((slug) =>
+      cat.keywords.some((kw) => {
+        const kwDash = kw.replace(/_/g, "-");
+        return slug.includes(kwDash);
+      })
+    );
+    counts[cat.slug] = matching.length;
+  }
+
+  return counts;
+}
+
+/**
+ * Return popular repair types with their overall cost ranges.
+ * Popularity is approximated by how many distinct tier/make/model rows exist per repair.
+ */
+export async function getPopularRepairCosts(limit = 10): Promise<{
+  name: string;
+  slug: string;
+  minCost: number;
+  maxCost: number;
+  avgCost: number;
+  tierCount: number;
+}[]> {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from("repair_costs")
+    .select("repair_slug, repair_name, min_cost, max_cost, avg_cost");
+
+  if (!data || data.length === 0) return [];
+
+  const rows = data as unknown as {
+    repair_slug: string;
+    repair_name: string;
+    min_cost: number;
+    max_cost: number;
+    avg_cost: number;
+  }[];
+
+  // Group by slug
+  const groups = new Map<string, {
+    name: string;
+    costs: { min: number; max: number; avg: number }[];
+  }>();
+
+  for (const row of rows) {
+    const slug = row.repair_slug;
+    const existing = groups.get(slug);
+    if (existing) {
+      existing.costs.push({ min: row.min_cost, max: row.max_cost, avg: row.avg_cost });
+    } else {
+      groups.set(slug, {
+        name: row.repair_name,
+        costs: [{ min: row.min_cost, max: row.max_cost, avg: row.avg_cost }],
+      });
+    }
+  }
+
+  // Sort by number of entries (tier count) descending = most documented = most popular
+  const sorted = Array.from(groups.entries())
+    .sort((a, b) => b[1].costs.length - a[1].costs.length)
+    .slice(0, limit);
+
+  return sorted.map(([slug, info]) => {
+    const minCost = Math.min(...info.costs.map((c) => c.min));
+    const maxCost = Math.max(...info.costs.map((c) => c.max));
+    const avgCost = Math.round(
+      info.costs.reduce((sum, c) => sum + c.avg, 0) / info.costs.length
+    );
+    return {
+      name: info.name,
+      slug: slug.replace(/_/g, "-"),
+      minCost,
+      maxCost,
+      avgCost,
+      tierCount: info.costs.length,
+    };
+  });
+}

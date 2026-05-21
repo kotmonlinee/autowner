@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTrendingPosts } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CommonRepairCosts from "@/components/CommonRepairCosts";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -235,6 +236,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── Common Repair Costs Section ───────────────────── */}
+      <CommonRepairCosts />
 
       {/* ── Community Section ────────────────────────────── */}
       <section

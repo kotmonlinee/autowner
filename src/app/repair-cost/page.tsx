@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { getAllRepairSlugs } from "@/lib/data/server";
+import { getAllRepairSlugs, getRepairCategoryCounts, getPopularRepairCosts } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import RepairSearchFilter from "@/components/RepairSearchFilter";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -131,14 +132,27 @@ const CATEGORIES = [
   },
 ];
 
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 export default async function RepairCostLandingPage() {
   const allSlugs = await getAllRepairSlugs();
+  const categorySlugs = CATEGORIES.map((c) => ({ slug: c.slug, keywords: c.keywords }));
+  const categoryCounts = await getRepairCategoryCounts(categorySlugs);
+  const popularRepairs = await getPopularRepairCosts(10);
+
+  const totalRepairs = allSlugs.length;
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         {/* Breadcrumb */}
         <nav
           className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading"
@@ -164,39 +178,65 @@ export default async function RepairCostLandingPage() {
         </nav>
 
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-3">
             Repair Cost Estimator
           </h1>
-          <p className="text-text-muted text-sm sm:text-base max-w-xl mx-auto">
+          <p className="text-text-muted text-sm sm:text-base max-w-2xl">
             Compare repair costs across 5 vehicle tiers. See what other car owners
             pay for common repairs, with labor and parts breakdowns.
           </p>
+          {totalRepairs > 0 && (
+            <p className="text-xs text-text-muted mt-2">
+              {totalRepairs} repair types available across {CATEGORIES.length} categories
+            </p>
+          )}
         </div>
 
-        {/* Search Box */}
-        <form action="/repair-cost" method="GET" className="max-w-xl mx-auto mb-10">
-          <div className="relative">
-            <svg
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input
-              name="q"
-              type="search"
-              placeholder="Search repairs (e.g. brake pads, oil change, timing belt)..."
-              className="w-full h-14 pl-12 pr-5 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-            />
-          </div>
-        </form>
+        {/* Popular Repair Costs */}
+        {popularRepairs.length > 0 && (
+          <section className="mb-10">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
+              Popular Repair Costs
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {popularRepairs.slice(0, 9).map((repair) => (
+                <Link
+                  key={repair.slug}
+                  href={`/repair-cost/${repair.slug}`}
+                  className="group bg-surface-1 border border-surface-border rounded-xl p-4 hover:border-primary/20 hover:shadow-sm transition-all duration-150"
+                >
+                  <h3 className="text-sm font-semibold text-text-primary font-heading group-hover:text-primary transition-colors mb-2 line-clamp-2">
+                    {repair.name}
+                  </h3>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-lg font-bold text-text-primary font-heading">
+                      {formatCurrency(repair.minCost)} &ndash; {formatCurrency(repair.maxCost)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="text-xs text-text-muted">
+                      Avg: {formatCurrency(repair.avgCost)}
+                    </span>
+                    <span className="text-xs px-1.5 py-0.5 bg-surface-3 text-text-muted rounded-full">
+                      {repair.tierCount} tiers
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            {popularRepairs.length > 9 && (
+              <div className="text-center mt-4">
+                <Link
+                  href="#all-repairs"
+                  className="text-sm font-medium text-primary hover:text-primary-glow transition-colors"
+                >
+                  View all {totalRepairs} repair types &darr;
+                </Link>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Browse by Category */}
         <section className="mb-10">
@@ -204,68 +244,64 @@ export default async function RepairCostLandingPage() {
             Browse by Category
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {CATEGORIES.map((cat) => (
-              <div
-                key={cat.slug}
-                className="bg-surface-1 rounded-xl border border-surface-border p-5 hover:border-primary/20 hover:shadow-sm transition-all duration-150"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    {cat.icon}
+            {CATEGORIES.map((cat) => {
+              const count = categoryCounts[cat.slug] ?? 0;
+              return (
+                <div
+                  key={cat.slug}
+                  className="bg-surface-1 rounded-xl border border-surface-border p-5 hover:border-primary/20 hover:shadow-sm transition-all duration-150"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      {cat.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-heading font-bold text-text-primary">
+                        {cat.name}
+                      </h3>
+                      {count > 0 && (
+                        <p className="text-xs text-text-muted">
+                          {count} repair type{count !== 1 ? "s" : ""}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <h3 className="text-sm font-heading font-bold text-text-primary">
-                    {cat.name}
-                  </h3>
+                  <p className="text-xs text-text-muted mb-3">{cat.description}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {allSlugs
+                      .filter((slug) =>
+                        cat.keywords.some((kw) => slug.includes(kw.replace(/_/g, "-")))
+                      )
+                      .slice(0, 5)
+                      .map((slug) => (
+                        <Link
+                          key={slug}
+                          href={`/repair-cost/${slug}`}
+                          className="px-2 py-1 bg-surface-3 text-text-muted rounded text-xs font-medium hover:bg-surface-4 hover:text-text-secondary transition-colors"
+                        >
+                          {slug
+                            .replace(/-/g, " ")
+                            .split(" ")
+                            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                            .join(" ")}
+                        </Link>
+                      ))}
+                    {count > 5 && (
+                      <span className="px-2 py-1 text-xs text-text-muted">
+                        +{count - 5} more
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <p className="text-xs text-text-muted mb-3">{cat.description}</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {allSlugs
-                    .filter((slug) =>
-                      cat.keywords.some((kw) => slug.includes(kw.replace(/_/g, "-")))
-                    )
-                    .slice(0, 4)
-                    .map((slug) => (
-                      <Link
-                        key={slug}
-                        href={`/repair-cost/${slug}`}
-                        className="px-2 py-1 bg-surface-3 text-text-muted rounded text-xs font-medium hover:bg-surface-4 hover:text-text-secondary transition-colors"
-                      >
-                        {slug
-                          .replace(/-/g, " ")
-                          .split(" ")
-                          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                          .join(" ")}
-                      </Link>
-                    ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
-        {/* All Repairs */}
-        {allSlugs.length > 0 && (
-          <section>
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
-              All Repair Types
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {allSlugs.map((slug) => (
-                <Link
-                  key={slug}
-                  href={`/repair-cost/${slug}`}
-                  className="px-3 py-1.5 bg-surface-1 border border-surface-border rounded-lg text-sm text-text-secondary hover:border-primary/20 hover:text-primary hover:shadow-sm transition-all duration-150 font-medium"
-                >
-                  {slug
-                    .replace(/-/g, " ")
-                    .split(" ")
-                    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                    .join(" ")}
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+        {/* All Repair Types — client-side searchable */}
+        <div id="all-repairs">
+          <RepairSearchFilter allSlugs={allSlugs} />
+        </div>
       </main>
 
       <Footer />
