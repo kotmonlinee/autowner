@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WarningLightIcon from "@/components/WarningLightIcon";
 import {
   warningLights,
   getWarningLightBySlug,
@@ -144,11 +145,9 @@ export default async function WarningLightDetailPage({
         {/* Header section */}
         <div className="mb-8">
           <div className="flex items-start gap-4 mb-4">
-            <div
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${sev.iconBg}`}
-              aria-hidden="true"
-              dangerouslySetInnerHTML={{ __html: light.icon }}
-            />
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${sev.iconBg}`}>
+              <WarningLightIcon slug={light.slug} size={32} />
+            </div>
             <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold text-text-primary font-heading mb-2">
                 {light.title}

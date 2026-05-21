@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import WarningLightIcon from "@/components/WarningLightIcon";
 import { warningLights, type WarningLightSeverity } from "@/lib/warning-lights-data";
 
 export const metadata: Metadata = {
@@ -124,7 +125,7 @@ export default function WarningLightsPage() {
               >
                 {/* Icon + severity badge */}
                 <div className="flex items-start justify-between mb-3">
-                  <span className="w-12 h-12 text-text-primary" dangerouslySetInnerHTML={{ __html: light.icon }} />
+                  <WarningLightIcon slug={light.slug} size={40} />
                   <span
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold font-heading ${sev.bg} ${sev.text} border ${sev.border}`}
                   >
