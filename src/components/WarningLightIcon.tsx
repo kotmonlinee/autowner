@@ -1,66 +1,91 @@
-import { Icon } from "@iconify/react";
+import {
+  AlertTriangle, AlertCircle, CircleAlert, Circle, CircleDashed,
+  Car, CarFront, Gauge,
+  Droplets,
+  BatteryFull, BatteryMedium, BatteryLow, BatteryWarning, BatteryCharging,
+  Thermometer, ThermometerSun, Flame,
+  Zap, ZapOff, Bolt, Power, PowerOff,
+  Wrench, Settings, Cog,
+  Lock, Key, Shield, ShieldAlert, ShieldCheck,
+  Leaf, Sun, Moon, Snowflake,
+  DoorOpen,
+  Lightbulb, LightbulbOff,
+  Truck,
+  ArrowBigDown, ArrowBigUp,
+  ScanEye, Wifi, WifiOff,
+  Bell, BellOff, BellRing,
+  Activity, HeartPulse,
+  type LucideIcon,
+} from "lucide-react";
 
-// Map warning light slugs to best-matching standard icons from Tabler/MDI Iconify sets
-const ICON_MAP: Record<string, string> = {
-  // Critical — Red warning lights
-  "check-engine": "tabler:engine",
-  "oil-pressure": "mdi:oil",
-  "battery-charging": "tabler:battery-3",
-  "brake-system": "tabler:exclamation-circle",
-  "coolant-temperature": "tabler:thermometer",
-  "reduced-power": "tabler:zap-off",
-  "transmission-temp": "tabler:temperature-sun",
-  "timing-belt": "mdi:engine-off-outline",
-  "awd": "tabler:car-4wd",
-  "hood-open": "tabler:car",
+// Two icons not in Lucide — simple inline
+import type { SVGProps } from "react";
+function EngineIcon(p: SVGProps<SVGSVGElement>) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 18v2h10v-2M7 6V4h10v2M12 12v-2M12 12v2"/></svg>; }
+function OilIcon(p: SVGProps<SVGSVGElement>) { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M10 4h4l2 4h4a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2v-8a2 2 0 012-2h4l2-4z"/><path d="M8 14v2h8v-2"/></svg>; }
 
-  // Caution — Yellow/Amber warning lights
-  "tpms": "tabler:tire",
-  "abs": "tabler:circle-letter-a",
-  "airbag": "mdi:airbag",
-  "traction-control": "tabler:car-crane",
-  "power-steering": "tabler:steering-wheel",
-  "security": "tabler:lock",
-  "emissions": "mdi:engine-outline",
-  "dpf": "tabler:filter",
-  "adblue": "tabler:droplet-down",
-  "fuel-filter-water": "tabler:droplet-exclamation",
-  "brake-pad-wear": "tabler:circle-dashed",
-  "catalytic-converter": "mdi:car-exhaust",
-  "suspension": "tabler:car",
-  "low-fuel": "tabler:gas-station",
-  "air-suspension": "tabler:car",
-  "electric-parking": "mdi:car-brake-parking",
-  "regenerative-braking": "tabler:leaf",
-  "forward-collision": "tabler:car",
-  "headlight-leveling": "tabler:headlights",
-  "trailer": "tabler:caravan",
-  "exterior-light": "tabler:bulb",
-  "hill-descent": "mdi:slope-downhill",
-  "rear-spoiler": "mdi:car-sports",
+const ICON_MAP: Record<string, LucideIcon | typeof EngineIcon> = {
+  // Critical — Red
+  "check-engine": EngineIcon,
+  "oil-pressure": OilIcon,
+  "battery-charging": BatteryWarning,
+  "brake-system": CircleAlert,
+  "coolant-temperature": ThermometerSun,
+  "reduced-power": ZapOff,
+  "transmission-temp": Flame,
+  "timing-belt": Cog,
+  "awd": Gauge,
+  "hood-open": Car,
 
-  // Informational — Green/Blue indicator lights
-  "glow-plug": "tabler:coil",
-  "service-vehicle": "tabler:wrench",
-  "oil-change": "tabler:droplet-filled",
-  "washer-fluid": "tabler:car",
-  "door-ajar": "tabler:door",
-  "seat-belt": "mdi:seatbelt",
-  "cruise-control": "tabler:arrow-bar-to-down",
-  "lane-departure": "tabler:road-sign",
-  "auto-high-beam": "tabler:bulb",
-  "ev-system": "tabler:bolt",
-  "start-stop": "tabler:power",
-  "blind-spot": "tabler:car",
-  "key-fob": "tabler:key",
-  "parking-brake": "mdi:car-brake-parking",
-  "esp-off": "tabler:car",
-  "airbag-off": "mdi:airbag",
-  "night-vision": "tabler:moon",
+  // Caution — Yellow
+  "tpms": Gauge,
+  "abs": CircleAlert,
+  "airbag": AlertCircle,
+  "traction-control": Car,
+  "power-steering": CircleDashed,
+  "security": Lock,
+  "emissions": AlertTriangle,
+  "dpf": AlertTriangle,
+  "adblue": Droplets,
+  "fuel-filter-water": Droplets,
+  "brake-pad-wear": CircleDashed,
+  "catalytic-converter": AlertTriangle,
+  "suspension": Settings,
+  "low-fuel": BatteryLow,
+  "air-suspension": Settings,
+  "electric-parking": CircleAlert,
+  "regenerative-braking": Leaf,
+  "forward-collision": ShieldAlert,
+  "headlight-leveling": Lightbulb,
+  "trailer": Truck,
+  "exterior-light": LightbulbOff,
+  "hill-descent": ArrowBigDown,
+  "rear-spoiler": CarFront,
+
+  // Informational — Green/Blue
+  "glow-plug": Zap,
+  "service-vehicle": Wrench,
+  "oil-change": Droplets,
+  "washer-fluid": Droplets,
+  "door-ajar": DoorOpen,
+  "seat-belt": ShieldCheck,
+  "cruise-control": Gauge,
+  "lane-departure": ScanEye,
+  "auto-high-beam": Lightbulb,
+  "ev-system": Bolt,
+  "start-stop": PowerOff,
+  "blind-spot": ScanEye,
+  "key-fob": Key,
+  "parking-brake": CircleAlert,
+  "esp-off": Car,
+  "airbag-off": AlertCircle,
+  "night-vision": Moon,
 };
 
 export default function WarningLightIcon({ slug, size = 48 }: { slug: string; size?: number }) {
-  const icon = ICON_MAP[slug];
-  if (!icon) return null;
-  return <Icon icon={icon} width={size} height={size} />;
+  const IconComponent = ICON_MAP[slug];
+  if (!IconComponent) return <AlertTriangle size={size} className="text-text-muted" />;
+  // Lucide icons use size; custom SVGs use width/height
+  const isCustom = typeof IconComponent === "function" && !(IconComponent as any).displayName?.startsWith("Lucide");
+  if (isCustom) return <IconComponent width={size} height={size} />;
+  return <IconComponent size={size} />;
 }
