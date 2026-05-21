@@ -124,9 +124,7 @@ export default function WarningLightsPage() {
               >
                 {/* Icon + severity badge */}
                 <div className="flex items-start justify-between mb-3">
-                  <span className="text-3xl" role="img" aria-hidden="true">
-                    {light.icon}
-                  </span>
+                  <span className="w-12 h-12 text-text-primary" dangerouslySetInnerHTML={{ __html: light.icon }} />
                   <span
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold font-heading ${sev.bg} ${sev.text} border ${sev.border}`}
                   >
