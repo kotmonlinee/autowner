@@ -220,6 +220,33 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           </div>
         </section>
 
+        {/* Cross-link: Quote Checker */}
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-6">
+          <Link
+            href="/quote-checker"
+            className="flex items-center justify-between gap-4 text-sm"
+          >
+            <span className="text-text-secondary">
+              Got a quote from your mechanic? <strong className="text-text-primary">Check if it&apos;s fair</strong>
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-primary font-semibold font-heading shrink-0">
+              Verify your quote
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </span>
+          </Link>
+        </div>
+
         {/* Labor vs Parts Breakdown */}
         <section className="mb-6">
           <h2 className="text-lg font-heading font-bold text-text-primary mb-4">

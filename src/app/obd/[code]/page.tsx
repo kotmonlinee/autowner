@@ -381,6 +381,51 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           </div>
         )}
 
+        {/* Cross-links from cost section */}
+        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+          <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+            Explore Repair Costs
+          </h3>
+          <div className="space-y-2">
+            <Link
+              href="/repair-cost"
+              className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
+            >
+              See detailed cost breakdown by vehicle type
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </Link>
+            <Link
+              href="/quote-checker"
+              className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
+            >
+              Have a mechanic&apos;s quote? Verify it here
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+
         {/* CTA */}
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">

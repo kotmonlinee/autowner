@@ -1,5 +1,6 @@
 import { createServerSupabase } from "@/lib/supabase-server";
 import { withRateLimit } from "@/lib/rate-limit";
+import { searchObdCodes } from "@/lib/data/server";
 import { NextResponse } from "next/server";
 
 export interface QuoteCheckRequest {
@@ -19,6 +20,7 @@ export interface QuoteCheckResponse {
   avgCost: number | null;
   tier: string;
   disclaimer: string;
+  relatedObdCodes?: { code: string; title: string; severity: number }[];
 }
 
 type Assessment = QuoteCheckResponse["assessment"];
@@ -179,6 +181,30 @@ export async function POST(request: Request) {
 
     const assessment = computeAssessment(quoteAmount, minCost, maxCost);
 
+    // Search for related OBD codes by repair type keywords
+    let relatedObdCodes: QuoteCheckResponse["relatedObdCodes"] = [];
+    const keywords = repairType
+      .toLowerCase()
+      .split(/[\s-]+/)
+      .filter((w: string) => w.length >= 3);
+    if (keywords.length > 0) {
+      // Try searching with combined keywords first, then individual words
+      const searchQuery = keywords.join(" ");
+      const obdResults = await searchObdCodes(searchQuery);
+      if (obdResults.length > 0) {
+        relatedObdCodes = obdResults.slice(0, 3);
+      } else {
+        // Fall back to searching each keyword individually
+        for (const kw of keywords) {
+          const wordResults = await searchObdCodes(kw);
+          if (wordResults.length > 0) {
+            relatedObdCodes = wordResults.slice(0, 3);
+            break;
+          }
+        }
+      }
+    }
+
     const response: QuoteCheckResponse = {
       assessment,
       quoteAmount,
@@ -187,6 +213,7 @@ export async function POST(request: Request) {
       avgCost,
       tier: matchedTier,
       disclaimer: DISCLAIMER,
+      relatedObdCodes: relatedObdCodes.length > 0 ? relatedObdCodes : undefined,
     };
 
     return NextResponse.json(response);

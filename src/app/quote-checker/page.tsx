@@ -13,6 +13,7 @@ interface AssessmentResult {
   avgCost: number | null;
   tier: string;
   disclaimer: string;
+  relatedObdCodes?: { code: string; title: string; severity: number }[];
 }
 
 interface RepairSuggestion {
@@ -687,6 +688,46 @@ export default function QuoteCheckerPage() {
                 </p>
               )}
             </div>
+
+            {/* Related OBD Codes */}
+            {result.relatedObdCodes && result.relatedObdCodes.length > 0 && (
+              <div className="p-4 bg-surface-0 rounded-xl border border-surface-border mb-4">
+                <h3 className="text-sm font-semibold text-text-primary mb-3 font-heading">
+                  Related OBD-II Codes
+                </h3>
+                <div className="space-y-2">
+                  {result.relatedObdCodes.map((obd) => (
+                    <a
+                      key={obd.code}
+                      href={`/obd/${obd.code.toLowerCase()}`}
+                      className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-surface-1 transition-colors group"
+                    >
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-bold bg-primary/10 text-primary shrink-0">
+                        {obd.code}
+                      </span>
+                      <span className="text-sm text-text-secondary flex-1 min-w-0 truncate">
+                        {obd.title}
+                      </span>
+                      <svg
+                        className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors shrink-0"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                      </svg>
+                    </a>
+                  ))}
+                </div>
+                <p className="text-xs text-text-muted mt-2">
+                  These OBD codes may be related to the repair type you searched. Click any code to see symptoms, causes, and estimated repair costs.
+                </p>
+              </div>
+            )}
 
             {/* Disclaimer */}
             <p className="text-xs text-text-muted italic text-center">
