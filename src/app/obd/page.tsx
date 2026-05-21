@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTopObdCodes } from "@/lib/data/server";
+import { getTopObdCodes, searchObdCodes } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -42,8 +42,15 @@ function severityLabel(severity: number): string {
   return "1-2";
 }
 
-export default async function ObdLandingPage() {
-  const topCodes = await getTopObdCodes(20);
+export default async function ObdLandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const query = q?.trim() || "";
+  const results = query ? await searchObdCodes(query) : [];
+  const topCodes = query ? [] : await getTopObdCodes(20);
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -103,6 +110,7 @@ export default async function ObdLandingPage() {
             <input
               name="q"
               type="search"
+              defaultValue={query}
               placeholder="Enter OBD code (e.g. P0420, P0300, P0171)..."
               className="w-full h-14 pl-12 pr-5 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
             />
@@ -112,51 +120,103 @@ export default async function ObdLandingPage() {
           </p>
         </form>
 
-        {/* Common Codes */}
-        <section>
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
-            Common Diagnostic Codes
-          </h2>
+        {/* Search Results */}
+        {query && (
+          <section className="mb-8">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-1">
+              Results for &ldquo;{query}&rdquo;
+            </h2>
+            <p className="text-sm text-text-muted mb-4">{results.length} code{results.length !== 1 ? "s" : ""} found</p>
 
-          {topCodes.length === 0 ? (
-            <div className="text-center py-12 bg-surface-1 rounded-xl border border-surface-border">
-              <p className="text-text-muted text-sm">No codes available. The database may not be seeded yet.</p>
-            </div>
-          ) : (
-            <div className="grid gap-2">
-              {topCodes.map((c) => (
-                <Link
-                  key={c.code}
-                  href={`/obd/${c.code.toLowerCase()}`}
-                  className="group flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150"
-                >
-                  <span className="text-lg font-mono font-bold text-text-primary group-hover:text-primary transition-colors shrink-0 w-20">
-                    {c.code}
-                  </span>
-                  <span className="flex-1 min-w-0 text-sm text-text-secondary truncate">
-                    {c.title}
-                  </span>
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-heading border shrink-0 ${severityBadgeClass(c.severity)}`}
+            {results.length === 0 ? (
+              <div className="text-center py-12 bg-surface-1 rounded-xl border border-surface-border">
+                <p className="text-text-muted text-sm">No codes found matching &ldquo;{query}&rdquo;.</p>
+                <p className="text-text-muted text-xs mt-1">Try searching by code (e.g. P0420) or by description keyword.</p>
+              </div>
+            ) : (
+              <div className="grid gap-2">
+                {results.map((c) => (
+                  <Link
+                    key={c.code}
+                    href={`/obd/${c.code.toLowerCase()}`}
+                    className="group flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150"
                   >
-                    S{severityLabel(c.severity)}
-                  </span>
-                  <svg
-                    className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    <span className="text-lg font-mono font-bold text-text-primary group-hover:text-primary transition-colors shrink-0 w-20">
+                      {c.code}
+                    </span>
+                    <span className="flex-1 min-w-0 text-sm text-text-secondary line-clamp-2">
+                      {c.title}
+                    </span>
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-heading border shrink-0 ${severityBadgeClass(c.severity)}`}
+                    >
+                      S{severityLabel(c.severity)}
+                    </span>
+                    <svg
+                      className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Common Codes */}
+        {!query && (
+          <section>
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
+              Common Diagnostic Codes
+            </h2>
+
+            {topCodes.length === 0 ? (
+              <div className="text-center py-12 bg-surface-1 rounded-xl border border-surface-border">
+                <p className="text-text-muted text-sm">No codes available. Check back soon.</p>
+              </div>
+            ) : (
+              <div className="grid gap-2">
+                {topCodes.map((c) => (
+                  <Link
+                    key={c.code}
+                    href={`/obd/${c.code.toLowerCase()}`}
+                    className="group flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150"
                   >
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
+                    <span className="text-lg font-mono font-bold text-text-primary group-hover:text-primary transition-colors shrink-0 w-20">
+                      {c.code}
+                    </span>
+                    <span className="flex-1 min-w-0 text-sm text-text-secondary line-clamp-2">
+                      {c.title}
+                    </span>
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-heading border shrink-0 ${severityBadgeClass(c.severity)}`}
+                    >
+                      S{severityLabel(c.severity)}
+                    </span>
+                    <svg
+                      className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Browse all link */}
         <div className="mt-6 text-center">
