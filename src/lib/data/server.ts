@@ -1727,23 +1727,24 @@ const TIER_VEHICLES: Record<string, { make: string; model: string }[]> = {
 export async function getRepairCosts(slug: string): Promise<RepairCostFull | null> {
   const supabase = await createServerSupabase();
 
-  // Normalize slug: replace dashes with underscores for DB lookup
+  // Normalize slug: convert URL dashes to underscores (DB convention)
+  // Also try original slug as fallback
   const dbSlug = slug.replace(/-/g, "_");
 
-  // Try the normalized slug; if not found, try the original
-  let { data } = await supabase
+  let { data, error } = await supabase
     .from("repair_costs")
     .select("*")
-    .eq("repair_slug", dbSlug)
+    .or(`repair_slug.eq.${dbSlug},repair_slug.eq.${slug}`)
     .order("min_cost", { ascending: true });
 
-  if (!data || data.length === 0) {
-    const result = await supabase
+  if (error || !data || data.length === 0) {
+    // Fuzzy fallback: try ILIKE match
+    const fuzzy = await supabase
       .from("repair_costs")
       .select("*")
-      .eq("repair_slug", slug)
+      .ilike("repair_slug", `%${dbSlug}%`)
       .order("min_cost", { ascending: true });
-    data = result.data;
+    data = fuzzy.data;
   }
 
   if (!data || data.length === 0) return null;
