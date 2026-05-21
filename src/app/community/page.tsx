@@ -7,6 +7,7 @@ import {
 } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ToolCTAs from "@/components/ToolCTAs";
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
 import { timeAgo } from "@/lib/utils";
@@ -222,8 +223,11 @@ export default async function CommunityPage() {
             </section>
           </div>
 
-          {/* Right column: Top Contributors */}
+          {/* Right column: Tool CTAs + Top Contributors */}
           <aside className="space-y-6">
+            {/* Tool CTAs */}
+            <ToolCTAs />
+
             {/* Top Contributors */}
             <div className="bg-surface-1 rounded-xl border border-surface-border p-5">
               <h2 className="text-sm font-bold text-text-primary font-heading flex items-center gap-2 mb-4">

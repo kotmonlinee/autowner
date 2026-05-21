@@ -225,3 +225,18 @@ body::before {
 .dark .prose-dark code {
   background: var(--color-surface-3);
 }
+
+/* ── Auto-linked OBD codes in post/comment content ─────────── */
+.obd-code-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--color-primary);
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+.obd-code-link:hover {
+  color: var(--color-primary-glow);
+  text-decoration-thickness: 2px;
+}

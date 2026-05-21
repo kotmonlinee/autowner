@@ -75,6 +75,45 @@ function slugify(text: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
+/**
+ * Post-process the rendered HTML to auto-link OBD-II diagnostic trouble codes.
+ * Wraps codes like P0420, P0301, C0035, U0100 in links to /obd/[code],
+ * but avoids double-wrapping codes that are already inside an anchor tag.
+ */
+function autoLinkObdCodes(html: string): string {
+  // First, extract all existing <a>...</a> tags and replace with placeholders
+  // so we don't accidentally double-wrap OBD codes inside links.
+  const anchors: string[] = [];
+  const htmlWithoutAnchors = html.replace(
+    /<a\b[^>]*>.*?<\/a>/gi,
+    (match) => {
+      anchors.push(match);
+      return `\x00OBD_ANCHOR_${anchors.length - 1}\x00`;
+    },
+  );
+
+  // Match OBD-II diagnostic trouble codes:
+  //   Powertrain:   P0xxx–P3xxx
+  //   Chassis:      C0xxx–C2xxx
+  //   Body:         B0xxx–B3xxx
+  //   Network:      U0xxx–U2xxx
+  // Case-insensitive, whole-word only.
+  const obdRegex =
+    /\b([Pp][0-3]\d{3}|[Cc][0-2]\d{3}|[Bb][0-3]\d{3}|[Uu][0-2]\d{3})\b/g;
+
+  const linkedHtml = htmlWithoutAnchors.replace(
+    obdRegex,
+    (_match, code) =>
+      `<a href="/obd/${code}" class="obd-code-link">${code}</a>`,
+  );
+
+  // Restore the original anchor tags
+  return linkedHtml.replace(
+    /\x00OBD_ANCHOR_(\d+)\x00/g,
+    (_match, index) => anchors[parseInt(index as string, 10)],
+  );
+}
+
 function addHeadingIds(html: string): string {
   // Match full h2/h3 elements: <h2>Text</h2> or <h2>Text with <strong>formatting</strong></h2>
   return html.replace(
@@ -91,7 +130,8 @@ function addHeadingIds(html: string): string {
 export default function MarkdownBody({ content, className }: { content: string; className?: string }) {
   const rawHtml = marked.parse(content, { async: false }) as string;
   const withImages = enhanceImages(rawHtml);
-  const html = addHeadingIds(withImages);
+  const withObdLinks = autoLinkObdCodes(withImages);
+  const html = addHeadingIds(withObdLinks);
 
   const defaultClasses = "prose-dark text-[15px] leading-relaxed min-w-0";
   const combinedClasses = className ? `${defaultClasses} ${className}` : defaultClasses;

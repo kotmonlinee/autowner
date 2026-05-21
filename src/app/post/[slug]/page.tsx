@@ -7,6 +7,7 @@ import BookmarkButton from "@/components/BookmarkButton";
 import VoteButtons from "@/components/VoteButtons";
 import CommentSection from "@/components/CommentSection";
 import RelatedPosts from "@/components/RelatedPosts";
+import ToolCTAs from "@/components/ToolCTAs";
 import DiscussionPrompt from "@/components/DiscussionPrompt";
 import SimilarOwners from "@/components/SimilarOwners";
 import ShareButtons from "@/components/ShareButtons";
@@ -461,6 +462,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
           <aside className="w-72 shrink-0 hidden lg:block">
             <div className="sticky top-20 space-y-4">
+              <ToolCTAs />
               <RelatedPosts categoryId={post.category_id} excludeId={id} />
               {postVehicles.length > 0 && (
                 <SimilarOwners engineId={postVehicles[0].engine_id} />
