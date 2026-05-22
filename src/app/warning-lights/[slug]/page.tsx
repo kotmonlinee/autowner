@@ -146,7 +146,7 @@ export default async function WarningLightDetailPage({
         <div className="mb-8">
           <div className="flex items-start gap-4 mb-4">
             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${sev.iconBg}`}>
-              <WarningLightIcon slug={light.slug} size={32} />
+              <WarningLightIcon slug={light.slug} size={32} severity={light.severity} />
             </div>
             <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold text-text-primary font-heading mb-2">

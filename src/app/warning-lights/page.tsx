@@ -125,7 +125,7 @@ export default function WarningLightsPage() {
               >
                 {/* Icon + severity badge */}
                 <div className="flex items-start justify-between mb-3">
-                  <WarningLightIcon slug={light.slug} size={40} />
+                  <WarningLightIcon slug={light.slug} size={40} severity={light.severity} />
                   <span
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold font-heading ${sev.bg} ${sev.text} border ${sev.border}`}
                   >
