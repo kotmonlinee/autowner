@@ -1,165 +1,295 @@
 import React from "react";
 import type { SVGProps } from "react";
 
-// ISO 2575 standard dashboard warning light symbols
-// Each symbol accurately represents real dashboard indicators
+// Each icon is an accurate representation of the ISO 2575 dashboard warning symbol
+// All use 64x64 viewBox with 3px strokes for consistency
 
-function CheckEngineIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><rect x="7" y="12" width="50" height="30" rx="4" stroke="currentColor" strokeWidth="3"/><path d="M20 42v5h24v-5" stroke="currentColor" strokeWidth="3"/><path d="M26 12V6h12v6" stroke="currentColor" strokeWidth="3"/><path d="M32 28v10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><circle cx="32" cy="24" r="2.5" fill="currentColor"/></svg>;
+function EngineIcon(p: SVGProps<SVGSVGElement>) {
+  // ISO K.2 — Engine block with fan
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <rect x="10" y="16" width="44" height="24" rx="4"/>
+    <path d="M20 40v6h24v-6"/>
+    <path d="M24 16V6h16v10"/>
+    <path d="M32 28v10"/>
+    <circle cx="32" cy="24" r="3" fill="currentColor" stroke="none"/>
+  </svg>;
 }
 
-function OilPressureIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><path d="M20 8h24l3 10h8a3 3 0 013 3v28a3 3 0 01-3 3H9a3 3 0 01-3-3V21a3 3 0 013-3h8l3-10z" stroke="currentColor" strokeWidth="3"/><path d="M18 36l4-4 6 6 8-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+function OilIcon(p: SVGProps<SVGSVGElement>) {
+  // ISO K.3 — Oil can with drop
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <path d="M18 10h28l2 8h10a3 3 0 013 3v26a3 3 0 01-3 3H6a3 3 0 01-3-3V21a3 3 0 013-3h10l2-8z"/>
+    <path d="M22 36l6-6 6 6 6-8"/>
+  </svg>;
 }
 
-function BatteryChargingIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><rect x="8" y="16" width="40" height="32" rx="5" stroke="currentColor" strokeWidth="3"/><path d="M48 24h4a3 3 0 013 3v10a3 3 0 01-3 3h-4" stroke="currentColor" strokeWidth="3"/><path d="M16 26v12M24 26v12M32 26v12" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/></svg>;
+function BatteryIcon(p: SVGProps<SVGSVGElement>) {
+  // ISO K.6 — Battery with charge indicator
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" {...p}>
+    <rect x="8" y="18" width="40" height="28" rx="5"/>
+    <path d="M48 26h4a3 3 0 013 3v6a3 3 0 01-3 3h-4"/>
+    <path d="M16 30v4"/>
+    <path d="M24 30v4"/>
+    <path d="M32 30v4"/>
+  </svg>;
 }
 
-function BrakeSystemIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><circle cx="32" cy="32" r="20" stroke="currentColor" strokeWidth="3"/><path d="M32 18v14" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><circle cx="32" cy="42" r="3" fill="currentColor"/></svg>;
+function BrakeIcon(p: SVGProps<SVGSVGElement>) {
+  // ISO K.9 — Circle with exclamation
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" {...p}>
+    <circle cx="32" cy="32" r="20"/>
+    <path d="M32 18v14"/>
+    <circle cx="32" cy="44" r="3" fill="currentColor" stroke="none"/>
+  </svg>;
 }
 
-function CoolantTempIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><path d="M28 8v30" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><rect x="22" y="8" width="12" height="3" rx="1.5"/><path d="M16 52c0-8.8 7.2-16 16-16s16 7.2 16 16" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path d="M28 44v-4M36 44v-4" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/></svg>;
+function TempIcon(p: SVGProps<SVGSVGElement>) {
+  // ISO K.7 — Thermometer in liquid
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <path d="M28 8v30"/>
+    <rect x="22" y="8" width="12" height="3" rx="2"/>
+    <path d="M16 52c0-9 7-16 16-16s16 7 16 16"/>
+    <path d="M26 48v-4M38 48v-4"/>
+  </svg>;
 }
 
-function TPMSIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><circle cx="32" cy="40" r="14" stroke="currentColor" strokeWidth="3"/><circle cx="32" cy="40" r="7" stroke="currentColor" strokeWidth="3"/><rect x="26" y="8" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="3"/><path d="M32 20v10" stroke="currentColor" strokeWidth="3"/></svg>;
+function TireIcon(p: SVGProps<SVGSVGElement>) {
+  // ISO L.3 — Tire cross-section with exclamation
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" {...p}>
+    <circle cx="32" cy="40" r="14"/>
+    <circle cx="32" cy="40" r="7"/>
+    <rect x="26" y="8" width="12" height="12" rx="2"/>
+    <path d="M32 20v10" strokeLinecap="round"/>
+  </svg>;
 }
 
-function ABSIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><circle cx="32" cy="32" r="20" stroke="currentColor" strokeWidth="3"/><text x="32" y="42" textAnchor="middle" fontFamily="Arial,sans-serif" fontSize="18" fontWeight="900" fill="currentColor" stroke="none">ABS</text></svg>;
+function AbsIcon(p: SVGProps<SVGSVGElement>) {
+  // ISO K.12 — Circle with text ABS
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" {...p}>
+    <circle cx="32" cy="32" r="20"/>
+    <text x="32" y="42" textAnchor="middle" fontFamily="Arial,sans-serif" fontSize="18" fontWeight="900" fill="currentColor" stroke="none">ABS</text>
+  </svg>;
 }
 
 function AirbagIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><circle cx="32" cy="26" r="10" stroke="currentColor" strokeWidth="3"/><path d="M22 46l10-12 10 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/><circle cx="32" cy="34" r="12" stroke="currentColor" strokeWidth="2" strokeDasharray="4 3"/></svg>;
+  // ISO K.17 — Seated figure with deployed airbag
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <circle cx="32" cy="24" r="10"/>
+    <path d="M22 42l10-10 10 10"/>
+    <circle cx="32" cy="32" r="12" strokeWidth="2" strokeDasharray="5 3"/>
+  </svg>;
 }
 
 function SteeringIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><circle cx="32" cy="38" r="18" stroke="currentColor" strokeWidth="3"/><path d="M14 38h36M32 20v18M32 20l-10-8M32 20l10-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/></svg>;
+  // ISO L.7 — Steering wheel
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" {...p}>
+    <circle cx="32" cy="38" r="18"/>
+    <path d="M14 38h36"/>
+    <path d="M32 20v18"/>
+    <path d="M26 26l-8-8"/>
+    <path d="M38 26l8-8"/>
+  </svg>;
 }
 
 function TractionIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><path d="M12 26h40M12 38h40" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path d="M18 16l-8 10 8 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+  // ISO L.1 — Car with squiggly tire marks
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <path d="M16 32h32"/>
+    <path d="M12 42h40"/>
+    <path d="M20 22l-6 10 6 10"/>
+    <path d="M44 22l6 10-6 10"/>
+    <circle cx="22" cy="48" r="3"/>
+    <circle cx="42" cy="48" r="3"/>
+  </svg>;
 }
 
 function LockIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><rect x="12" y="28" width="40" height="26" rx="4" stroke="currentColor" strokeWidth="3"/><path d="M20 28v-8a12 12 0 0124 0v8" stroke="currentColor" strokeWidth="3"/><circle cx="32" cy="42" r="3" fill="currentColor"/></svg>;
+  // ISO K.18 — Padlock
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <rect x="12" y="28" width="40" height="26" rx="5"/>
+    <path d="M20 28v-8c0-7 5-12 12-12s12 5 12 12v8"/>
+    <circle cx="32" cy="42" r="3" fill="currentColor" stroke="none"/>
+  </svg>;
 }
 
 function FuelIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><rect x="10" y="14" width="26" height="36" rx="4" stroke="currentColor" strokeWidth="3"/><path d="M36 26h12a3 3 0 013 3v12a4 4 0 01-4 4" stroke="currentColor" strokeWidth="3"/></svg>;
+  // ISO K.16 — Fuel pump
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <rect x="10" y="14" width="26" height="36" rx="4"/>
+    <path d="M36 24h12a3 3 0 013 3v14a4 4 0 01-4 4"/>
+  </svg>;
 }
 
-function GlowPlugIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><path d="M28 6c0 0-2 12-2 20 0 6 2 10 6 10s6-4 6-10c0-8-2-20-2-20" stroke="currentColor" strokeWidth="3"/><path d="M20 40l12-8 12 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/></svg>;
+function CoilIcon(p: SVGProps<SVGSVGElement>) {
+  // ISO K.14 — Glow plug / heating coil
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" {...p}>
+    <path d="M28 8c0 0-1 6-1 12 0 8 2 14 5 14s5-6 5-14c0-6-1-12-1-12"/>
+    <path d="M20 36l12-6 12 6"/>
+  </svg>;
 }
 
 function DoorIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><rect x="8" y="6" width="48" height="52" rx="4" stroke="currentColor" strokeWidth="3"/><rect x="36" y="10" width="14" height="40" rx="2" stroke="currentColor" strokeWidth="3"/><circle cx="44" cy="32" r="2.5" fill="currentColor"/></svg>;
+  // ISO K.19 — Open door
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" {...p}>
+    <rect x="8" y="6" width="48" height="52" rx="4"/>
+    <rect x="34" y="10" width="16" height="40" rx="2"/>
+    <circle cx="42" cy="32" r="3" fill="currentColor" stroke="none"/>
+  </svg>;
 }
 
 function SeatbeltIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><circle cx="32" cy="18" r="7" stroke="currentColor" strokeWidth="3"/><path d="M26 36l6-6 6 6M32 30v20" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+  // ISO K.15 — Seated figure with belt
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <circle cx="32" cy="16" r="8"/>
+    <path d="M26 32l6-5 6 5"/>
+    <path d="M32 27v20"/>
+  </svg>;
 }
 
 function WasherIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><rect x="16" y="12" width="32" height="40" rx="4" stroke="currentColor" strokeWidth="3"/><path d="M24 22h16M24 30h16M26 38h4" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/></svg>;
+  // ISO K.20 — Windshield with spray
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" {...p}>
+    <rect x="16" y="14" width="32" height="36" rx="4"/>
+    <path d="M24 24h16"/>
+    <path d="M24 32h16"/>
+    <path d="M28 38h4"/>
+  </svg>;
 }
 
 function BoltIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><path d="M36 6L20 38h12l-6 20 18-34H32l6-18z" stroke="currentColor" strokeWidth="3" strokeLinejoin="round"/></svg>;
+  // Lightning bolt — EV/power warning
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <path d="M38 6L22 36h12l-6 22 18-32H34l4-20z"/>
+  </svg>;
 }
 
 function ExhaustIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><rect x="4" y="20" width="56" height="16" rx="3" stroke="currentColor" strokeWidth="3"/><path d="M4 26h6M54 26h6" stroke="currentColor" strokeWidth="3"/><circle cx="22" cy="28" r="4" stroke="currentColor" strokeWidth="3"/><circle cx="42" cy="28" r="4" stroke="currentColor" strokeWidth="3"/></svg>;
+  // ISO L.5 — Exhaust/DPF/emissions
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" {...p}>
+    <rect x="6" y="22" width="52" height="12" rx="4"/>
+    <path d="M10 26h6"/>
+    <path d="M48 26h6"/>
+    <line x1="22" y1="24" x2="22" y2="32"/>
+    <line x1="28" y1="24" x2="28" y2="32"/>
+    <line x1="34" y1="24" x2="34" y2="32"/>
+    <line x1="40" y1="24" x2="40" y2="32"/>
+  </svg>;
 }
 
-function AWDIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><circle cx="20" cy="22" r="5" stroke="currentColor" strokeWidth="3"/><circle cx="44" cy="22" r="5" stroke="currentColor" strokeWidth="3"/><circle cx="20" cy="42" r="5" stroke="currentColor" strokeWidth="3"/><circle cx="44" cy="42" r="5" stroke="currentColor" strokeWidth="3"/><path d="M20 27v10M44 27v10M15 22v20M24 22v20M15 22h9M15 42h9M39 22h9" stroke="currentColor" strokeWidth="2"/></svg>;
+function LightIcon(p: SVGProps<SVGSVGElement>) {
+  // Light bulb — headlight/exterior light
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" {...p}>
+    <circle cx="32" cy="22" r="14"/>
+    <path d="M24 36h16"/>
+    <rect x="26" y="36" width="12" height="6" rx="2"/>
+    <path d="M26 22l-4 4"/>
+    <path d="M38 22l4 4"/>
+  </svg>;
 }
 
-function LightBulbIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><circle cx="32" cy="22" r="14" stroke="currentColor" strokeWidth="3"/><path d="M24 36h16M26 22l-4 4M38 22l4 4" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><rect x="26" y="36" width="12" height="6" rx="2" stroke="currentColor" strokeWidth="3"/></svg>;
-}
-
-function WarningGenericIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><circle cx="32" cy="32" r="22" stroke="currentColor" strokeWidth="3"/><path d="M32 18v16" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><circle cx="32" cy="46" r="3" fill="currentColor"/></svg>;
-}
-
-function KeyFobIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><circle cx="26" cy="22" r="12" stroke="currentColor" strokeWidth="3"/><path d="M34 32l16 16M50 36v14H36" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-}
-
-function DPFIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><rect x="6" y="20" width="52" height="16" rx="4" stroke="currentColor" strokeWidth="3"/><path d="M10 26h8M46 26h8" stroke="currentColor" strokeWidth="3"/><line x1="22" y1="24" x2="22" y2="32" stroke="currentColor" strokeWidth="3"/><line x1="28" y1="24" x2="28" y2="32" stroke="currentColor" strokeWidth="3"/><line x1="34" y1="24" x2="34" y2="32" stroke="currentColor" strokeWidth="3"/><line x1="40" y1="24" x2="40" y2="32" stroke="currentColor" strokeWidth="3"/></svg>;
+function GenericWarning(p: SVGProps<SVGSVGElement>) {
+  // Generic warning — circle with !
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" {...p}>
+    <circle cx="32" cy="32" r="22"/>
+    <path d="M32 18v16"/>
+    <circle cx="32" cy="46" r="3" fill="currentColor" stroke="none"/>
+  </svg>;
 }
 
 function LeafIcon(p: SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 64 64" fill="none" {...p}><path d="M32 8C32 8 8 20 8 36c0 10 8 18 18 20 4 1 6-2 6-6V36c0-8 6-20 18-28" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path d="M26 48c0 0 4 8 12 8 10 0 18-10 18-24" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/></svg>;
+  // Eco/regenerative
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" {...p}>
+    <path d="M32 8C20 8 6 22 6 36c0 8 6 12 10 14 2 1 4-2 4-4V34c0-8 4-16 12-24"/>
+    <path d="M20 46c2 6 8 12 18 12 10 0 20-8 20-24"/>
+  </svg>;
+}
+
+function KeyIcon(p: SVGProps<SVGSVGElement>) {
+  // Key fob
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <circle cx="24" cy="22" r="12"/>
+    <path d="M32 34l18 18M50 38v14H36"/>
+  </svg>;
+}
+
+function MoonIcon(p: SVGProps<SVGSVGElement>) {
+  // Night vision
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <path d="M28 8C18 14 14 30 22 42c8 12 26 16 38 10-10 4-22 0-28-10-6-10-4-24 4-32"/>
+  </svg>;
+}
+
+function AWDIcon(p: SVGProps<SVGSVGElement>) {
+  // AWD/4WD — all 4 wheels driven
+  return <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" {...p}>
+    <circle cx="18" cy="22" r="6"/>
+    <circle cx="46" cy="22" r="6"/>
+    <circle cx="18" cy="42" r="6"/>
+    <circle cx="46" cy="42" r="6"/>
+    <path d="M18 28v8M46 28v8"/>
+    <path d="M12 22v20M24 22v20"/>
+    <path d="M12 22h12M12 42h12"/>
+    <path d="M40 22h12"/>
+  </svg>;
 }
 
 const ICONS: Record<string, (p: SVGProps<SVGSVGElement>) => React.ReactElement> = {
-  // Critical — Red
-  "check-engine": CheckEngineIcon,
-  "oil-pressure": OilPressureIcon,
-  "battery-charging": BatteryChargingIcon,
-  "brake-system": BrakeSystemIcon,
-  "coolant-temperature": CoolantTempIcon,
+  "check-engine": EngineIcon,
+  "oil-pressure": OilIcon,
+  "battery-charging": BatteryIcon,
+  "brake-system": BrakeIcon,
+  "coolant-temperature": TempIcon,
   "reduced-power": BoltIcon,
-  "transmission-temp": CoolantTempIcon,
-  "timing-belt": CheckEngineIcon,
+  "transmission-temp": TempIcon,
+  "timing-belt": EngineIcon,
   "awd": AWDIcon,
   "hood-open": DoorIcon,
 
-  // Caution — Yellow
-  "tpms": TPMSIcon,
-  "abs": ABSIcon,
+  "tpms": TireIcon,
+  "abs": AbsIcon,
   "airbag": AirbagIcon,
   "traction-control": TractionIcon,
   "power-steering": SteeringIcon,
   "security": LockIcon,
-  "emissions": WarningGenericIcon,
-  "dpf": DPFIcon,
+  "emissions": ExhaustIcon,
+  "dpf": ExhaustIcon,
   "adblue": WasherIcon,
-  "fuel-filter-water": WarningGenericIcon,
-  "brake-pad-wear": BrakeSystemIcon,
+  "fuel-filter-water": GenericWarning,
+  "brake-pad-wear": BrakeIcon,
   "catalytic-converter": ExhaustIcon,
   "suspension": SteeringIcon,
   "low-fuel": FuelIcon,
   "air-suspension": SteeringIcon,
-  "electric-parking": BrakeSystemIcon,
+  "electric-parking": BrakeIcon,
   "regenerative-braking": LeafIcon,
-  "forward-collision": WarningGenericIcon,
-  "headlight-leveling": LightBulbIcon,
+  "forward-collision": GenericWarning,
+  "headlight-leveling": LightIcon,
   "trailer": AWDIcon,
-  "exterior-light": LightBulbIcon,
+  "exterior-light": LightIcon,
   "hill-descent": TractionIcon,
-  "rear-spoiler": CheckEngineIcon,
+  "rear-spoiler": EngineIcon,
 
-  // Informational — Green/Blue
-  "glow-plug": GlowPlugIcon,
-  "service-vehicle": CheckEngineIcon,
-  "oil-change": OilPressureIcon,
+  "glow-plug": CoilIcon,
+  "service-vehicle": EngineIcon,
+  "oil-change": OilIcon,
   "washer-fluid": WasherIcon,
   "door-ajar": DoorIcon,
   "seat-belt": SeatbeltIcon,
   "cruise-control": TractionIcon,
   "lane-departure": SteeringIcon,
-  "auto-high-beam": LightBulbIcon,
+  "auto-high-beam": LightIcon,
   "ev-system": BoltIcon,
-  "start-stop": CheckEngineIcon,
-  "blind-spot": WarningGenericIcon,
-  "key-fob": KeyFobIcon,
-  "parking-brake": BrakeSystemIcon,
+  "start-stop": EngineIcon,
+  "blind-spot": GenericWarning,
+  "key-fob": KeyIcon,
+  "parking-brake": BrakeIcon,
   "esp-off": TractionIcon,
   "airbag-off": AirbagIcon,
-  "night-vision": LightBulbIcon,
+  "night-vision": MoonIcon,
 };
 
 export default function WarningLightIcon({ slug, size = 48, className }: { slug: string; size?: number; className?: string }) {
   const IconComponent = ICONS[slug];
-  if (!IconComponent) return <WarningGenericIcon width={size} height={size} className={className} />;
+  if (!IconComponent) return <GenericWarning width={size} height={size} className={className} />;
   return <IconComponent width={size} height={size} className={className} />;
 }
