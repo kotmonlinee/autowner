@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import AvatarUploader from "@/components/AvatarUploader";
 import VehicleSelector from "@/components/VehicleSelector";
 import type { VehicleSelectedInfo } from "@/components/VehicleSelector";
@@ -321,6 +322,7 @@ export default function SettingsPage() {
         <Navbar />
 
         <main id="main-content" className="flex-1 max-w-2xl mx-auto px-5 py-10 w-full">
+          <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Settings" }]} />
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-text-primary font-heading">
               My Garage
@@ -499,6 +501,7 @@ export default function SettingsPage() {
       <Navbar />
 
       <main id="main-content" className="flex-1 max-w-2xl mx-auto px-5 py-10 w-full">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Settings" }]} />
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-text-primary font-heading">
             Settings

@@ -5,6 +5,7 @@ import PostCard from "@/components/PostCard";
 import CategoryFilter from "@/components/CategoryFilter";
 import Pagination from "@/components/Pagination";
 import SearchTracker from "@/components/SearchTracker";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       <Navbar />
       {q && <SearchTracker query={q} />}
       <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 w-full">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Search" }]} />
         <div className="mb-6">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h1 className="text-xl font-bold text-text-primary font-heading">

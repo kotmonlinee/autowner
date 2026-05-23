@@ -152,7 +152,7 @@ export default async function RepairCostLandingPage() {
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full max-w-full overflow-hidden">
         {/* Breadcrumb */}
         <nav
           className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading"
@@ -204,13 +204,13 @@ export default async function RepairCostLandingPage() {
                 <Link
                   key={repair.slug}
                   href={`/repair-cost/${repair.slug}`}
-                  className="group bg-surface-1 border border-surface-border rounded-xl p-4 hover:border-primary/20 hover:shadow-sm transition-all duration-150"
+                  className="group bg-surface-1 border border-surface-border rounded-xl p-4 hover:border-primary/20 hover:shadow-sm transition-all duration-150 max-w-full overflow-hidden"
                 >
                   <h3 className="text-sm font-semibold text-text-primary font-heading group-hover:text-primary transition-colors mb-2 line-clamp-2">
                     {repair.name}
                   </h3>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold text-text-primary font-heading">
+                  <div className="flex items-baseline gap-2 max-w-full">
+                    <span className="text-lg font-bold text-text-primary font-heading truncate">
                       {formatCurrency(repair.minCost)} &ndash; {formatCurrency(repair.maxCost)}
                     </span>
                   </div>
@@ -249,7 +249,7 @@ export default async function RepairCostLandingPage() {
               return (
                 <div
                   key={cat.slug}
-                  className="bg-surface-1 rounded-xl border border-surface-border p-5 hover:border-primary/20 hover:shadow-sm transition-all duration-150"
+                  className="bg-surface-1 rounded-xl border border-surface-border p-5 hover:border-primary/20 hover:shadow-sm transition-all duration-150 max-w-full overflow-hidden"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">

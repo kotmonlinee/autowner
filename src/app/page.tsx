@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { getTrendingPosts } from "@/lib/data/server";
+import { getTrendingPosts, getRecentActivityCount } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CommonRepairCosts from "@/components/CommonRepairCosts";
+import SmartSearchBar from "@/components/SmartSearchBar";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -113,6 +114,7 @@ const tools = [
 
 export default async function HomePage() {
   const trendingPosts = await getTrendingPosts(5);
+  const activity = await getRecentActivityCount();
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -141,42 +143,36 @@ export default async function HomePage() {
           </p>
 
           {/* Search */}
-          <form
-            action="/community"
-            method="GET"
-            className="mt-10 max-w-2xl mx-auto flex gap-3"
-          >
-            <div className="relative flex-1">
-              <svg
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input
-                name="search"
-                type="search"
-                placeholder="Enter your repair issue or quote..."
-                className="w-full h-14 pl-12 pr-5 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-              />
-            </div>
-            <button
-              type="submit"
-              className="h-14 px-8 bg-primary text-white font-semibold font-heading rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/25 text-base shrink-0"
-            >
-              Check Now
-            </button>
-          </form>
+          <SmartSearchBar />
         </div>
 
         {/* Bottom gradient separator */}
         <div className="h-px bg-gradient-to-r from-transparent via-surface-border to-transparent" />
+      </section>
+
+      {/* ── Site Activity Banner ────────────────────────── */}
+      <section className="w-full bg-surface-0" aria-label="Site activity">
+        <div className="max-w-5xl mx-auto px-5 pb-2">
+          <div className="flex items-center justify-center gap-2.5 py-2.5 px-5 bg-primary/[0.04] dark:bg-primary/5 border border-primary/10 dark:border-primary/15 rounded-xl text-sm text-text-secondary font-heading">
+            <svg
+              className="w-4 h-4 text-primary shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            <span>
+              This week:{" "}
+              <strong className="text-text-primary">{activity.newArticles} new article{activity.newArticles !== 1 ? "s" : ""}</strong>
+              {", "}
+              <strong className="text-text-primary">{activity.newDiscussions} new discussion{activity.newDiscussions !== 1 ? "s" : ""}</strong>
+            </span>
+          </div>
+        </div>
       </section>
 
       {/* ── Tool Cards Section ───────────────────────────── */}
@@ -196,22 +192,36 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 lg:gap-6">
-            {tools.map((tool) => (
+            {tools.map((tool) => {
+              const isQuoteChecker = tool.href === "/quote-checker";
+              return (
               <Link
                 key={tool.href}
                 href={tool.href}
-                className="group flex flex-col p-6 sm:p-7 bg-surface-1 rounded-2xl border border-surface-border hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                className={`group flex flex-col p-6 sm:p-7 bg-surface-1 rounded-2xl border transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${
+                  isQuoteChecker
+                    ? "border-l-4 border-l-primary border-primary/20 bg-primary/[0.03] hover:border-primary/40"
+                    : "border-surface-border hover:border-primary/30"
+                }`}
               >
                 {/* Icon */}
                 <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-colors duration-200">
                   {tool.icon}
                 </div>
 
-                {/* Text */}
-                <h3 className="text-lg sm:text-xl font-bold text-text-primary font-heading group-hover:text-primary transition-colors duration-150">
-                  {tool.title}
-                </h3>
-                <p className="mt-2 text-text-muted text-sm sm:text-base leading-relaxed">
+                {/* Title row with badge */}
+                <div className="flex items-center gap-2.5 mb-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-text-primary font-heading group-hover:text-primary transition-colors duration-150">
+                    {tool.title}
+                  </h3>
+                  {isQuoteChecker && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/15 text-primary border border-primary/25 font-heading">
+                      Try it free
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-text-muted text-sm sm:text-base leading-relaxed">
                   {tool.description}
                 </p>
 
@@ -232,7 +242,8 @@ export default async function HomePage() {
                   </svg>
                 </span>
               </Link>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

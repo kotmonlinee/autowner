@@ -223,7 +223,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         {/* Cross-link: Quote Checker */}
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-6">
           <Link
-            href="/quote-checker"
+            href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`}
             className="flex items-center justify-between gap-4 text-sm"
           >
             <span className="text-text-secondary">
@@ -376,7 +376,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               <strong className="text-text-secondary">Disclaimer:</strong> Prices are estimates only
               and may vary by location, vehicle condition, shop rates, and parts availability. Always
               get multiple quotes before authorizing repairs. Use our{" "}
-              <Link href="/quote-checker" className="text-primary hover:text-primary-glow underline">
+              <Link href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`} className="text-primary hover:text-primary-glow underline">
                 Quote Checker
               </Link>{" "}
               to verify your mechanic&apos;s estimate.
@@ -396,7 +396,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               </p>
             </div>
             <Link
-              href="/quote-checker"
+              href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
             >
               Check your quote

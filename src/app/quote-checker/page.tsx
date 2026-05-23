@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { fetchVehicleMakes } from "@/lib/data/browser";
@@ -96,13 +97,68 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
-export default function QuoteCheckerPage() {
-  const [make, setMake] = useState("");
-  const [model, setModel] = useState("");
-  const [year, setYear] = useState("");
-  const [repairType, setRepairType] = useState("");
-  const [quoteAmount, setQuoteAmount] = useState("");
-  const [state, setState] = useState("");
+function buildShareText(
+  result: AssessmentResult | null,
+  repairType: string,
+  make: string,
+  model: string,
+  year: string,
+): string {
+  const vehicleInfo = make ? ` for ${make} ${model} ${year}` : "";
+
+  if (result) {
+    const quoteStr = formatCurrency(result.quoteAmount);
+    const rangeStr =
+      result.minCost != null && result.maxCost != null
+        ? `${formatCurrency(result.minCost)}-${formatCurrency(result.maxCost)}`
+        : "typical range";
+
+    let assessmentText = "";
+    switch (result.assessment) {
+      case "Fair":
+        assessmentText = "is fair";
+        break;
+      case "Slightly High":
+        assessmentText = "is slightly high";
+        break;
+      case "Overpriced":
+        assessmentText = "is overpriced";
+        break;
+      case "Below Average":
+        assessmentText = "is below average";
+        break;
+      case "Insufficient Data":
+        assessmentText = "was checked";
+        break;
+    }
+
+    return `AutOwner says my ${quoteStr} ${repairType.toLowerCase()} quote${vehicleInfo} ${assessmentText}. Typical range: ${rangeStr}.`;
+  }
+
+  return `I just checked my ${repairType} quote${vehicleInfo} on AutOwner. See if your mechanic is charging you fairly.`;
+}
+
+// ── Inner component (uses useSearchParams — must be inside Suspense) ──
+
+function QuoteCheckerContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Parse initial values from URL search params
+  const initialRepair = searchParams.get("repair") ?? "";
+  const initialMake = searchParams.get("make") ?? "";
+  const initialModel = searchParams.get("model") ?? "";
+  const initialYear = searchParams.get("year") ?? "";
+  const initialQuote = searchParams.get("quote") ?? "";
+  const initialState = searchParams.get("state") ?? "";
+
+  const [make, setMake] = useState(initialMake);
+  const [model, setModel] = useState(initialModel);
+  const [year, setYear] = useState(initialYear);
+  const [repairType, setRepairType] = useState(initialRepair);
+  const [quoteAmount, setQuoteAmount] = useState(initialQuote);
+  const [state, setState] = useState(initialState);
   const [makes, setMakes] = useState<{ name: string }[]>([]);
   const [makeSuggestions, setMakeSuggestions] = useState<string[]>([]);
   const [showMakeDropdown, setShowMakeDropdown] = useState(false);
@@ -112,11 +168,13 @@ export default function QuoteCheckerPage() {
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const makeInputRef = useRef<HTMLInputElement>(null);
   const makeDropdownRef = useRef<HTMLDivElement>(null);
   const repairInputRef = useRef<HTMLInputElement>(null);
   const repairDropdownRef = useRef<HTMLDivElement>(null);
+  const autoSubmittedRef = useRef(false);
 
   // Load vehicle makes for autocomplete
   useEffect(() => {
@@ -225,6 +283,72 @@ export default function QuoteCheckerPage() {
     return FALLBACK_REPAIRS.slice(0, 8);
   })();
 
+  // ── Core: perform the quote check (shared by manual + auto submit) ──
+
+  async function performCheck(
+    m: string,
+    mod: string,
+    y: string,
+    repair: string,
+    quote: number,
+    st: string,
+  ) {
+    setError("");
+    setResult(null);
+    setLoading(true);
+
+    const yearNum = parseInt(y, 10);
+
+    try {
+      const res = await fetch("/api/quote-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          repairType: repair,
+          make: m,
+          model: mod,
+          year: yearNum,
+          quoteAmount: quote,
+          state: st || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Failed to check quote");
+      }
+
+      const data: AssessmentResult = await res.json();
+      setResult(data);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ── Auto-submit when URL has all required params ──
+
+  useEffect(() => {
+    if (autoSubmittedRef.current) return;
+
+    const hasAllParams =
+      initialRepair && initialMake && initialModel && initialYear && initialQuote;
+    if (!hasAllParams) return;
+
+    const quote = parseFloat(initialQuote);
+    if (isNaN(quote) || quote <= 0) return;
+
+    const yearNum = parseInt(initialYear, 10);
+    if (isNaN(yearNum) || yearNum < 1900 || yearNum > new Date().getFullYear() + 2) return;
+
+    autoSubmittedRef.current = true;
+    performCheck(initialMake, initialModel, initialYear, initialRepair, quote, initialState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Manual submit ──
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -264,12 +388,70 @@ export default function QuoteCheckerPage() {
 
       const data: AssessmentResult = await res.json();
       setResult(data);
+
+      // Update URL with current form params so user can share
+      updateUrlParams();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   }
+
+  // ── URL management ──
+
+  function updateUrlParams() {
+    const params = new URLSearchParams();
+    if (repairType) params.set("repair", repairType);
+    if (make) params.set("make", make);
+    if (model) params.set("model", model);
+    if (year) params.set("year", year);
+    if (quoteAmount) params.set("quote", quoteAmount);
+    if (state) params.set("state", state);
+
+    const newUrl = `${pathname}?${params.toString()}`;
+    router.replace(newUrl, { scroll: false });
+  }
+
+  function getShareableUrl(): string {
+    const params = new URLSearchParams();
+    if (repairType) params.set("repair", repairType);
+    if (make) params.set("make", make);
+    if (model) params.set("model", model);
+    if (year) params.set("year", year);
+    if (quoteAmount) params.set("quote", quoteAmount);
+    if (state) params.set("state", state);
+    return `https://www.autowner.com${pathname}?${params.toString()}`;
+  }
+
+  // ── Copy link ──
+
+  async function handleCopyLink() {
+    const url = getShareableUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  // ── Social share URLs ──
+
+  const shareText = buildShareText(result, repairType, make, model, year);
+  const encodedShareText = encodeURIComponent(shareText);
+  const encodedShareUrl = encodeURIComponent(getShareableUrl());
+  const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodedShareText}&url=${encodedShareUrl}`;
+  const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedShareUrl}&quote=${encodedShareText}`;
 
   const assessmentStyle = result ? ASSESSMENT_COLORS[result.assessment] : null;
 
@@ -619,6 +801,91 @@ export default function QuoteCheckerPage() {
               </div>
             ) : null}
 
+            {/* ── Share & Copy Section ── */}
+            <div className="mb-4 p-4 bg-surface-0 rounded-xl border border-surface-border">
+              <h3 className="text-sm font-semibold text-text-primary mb-3 font-heading">
+                Share this result
+              </h3>
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Copy link button */}
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-surface-border bg-surface-1 text-sm font-medium text-text-secondary hover:border-primary/30 hover:text-primary transition-colors font-heading"
+                >
+                  {copied ? (
+                    <>
+                      <svg
+                        className="w-4 h-4 text-emerald-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                      Copy link
+                    </>
+                  )}
+                </button>
+
+                {/* Twitter/X share */}
+                <a
+                  href={twitterShareUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-surface-border bg-surface-1 text-sm font-medium text-text-secondary hover:border-[#1DA1F2]/30 hover:text-[#1DA1F2] transition-colors font-heading"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                  Share on X
+                </a>
+
+                {/* Facebook share */}
+                <a
+                  href={facebookShareUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-surface-border bg-surface-1 text-sm font-medium text-text-secondary hover:border-[#1877F2]/30 hover:text-[#1877F2] transition-colors font-heading"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
+                  Share on Facebook
+                </a>
+              </div>
+              <p className="text-xs text-text-muted mt-2">
+                Anyone with this link will see the same assessment.
+              </p>
+            </div>
+
             {/* Explainer */}
             <div className="p-4 bg-surface-0 rounded-xl border border-surface-border mb-4">
               <h3 className="text-sm font-semibold text-text-primary mb-2 font-heading">
@@ -769,5 +1036,45 @@ export default function QuoteCheckerPage() {
 
       <Footer />
     </div>
+  );
+}
+
+// ── Suspense fallback skeleton ──
+
+function QuoteCheckerFallback() {
+  return (
+    <div className="min-h-screen bg-surface-0 flex flex-col">
+      <Navbar />
+      <main className="max-w-3xl mx-auto px-5 py-10 w-full flex-1">
+        <div className="animate-pulse">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-surface-1" />
+            <div className="h-8 bg-surface-1 rounded w-48" />
+          </div>
+          <div className="h-4 bg-surface-1 rounded w-96 mb-8" />
+          <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 sm:p-8 space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-12 bg-surface-0 rounded-xl" />
+              ))}
+            </div>
+            <div className="h-12 bg-surface-0 rounded-xl" />
+            <div className="h-12 bg-surface-0 rounded-xl" />
+            <div className="h-12 bg-primary/40 rounded-xl" />
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+// ── Default export with Suspense boundary (required for useSearchParams) ──
+
+export default function QuoteCheckerPage() {
+  return (
+    <Suspense fallback={<QuoteCheckerFallback />}>
+      <QuoteCheckerContent />
+    </Suspense>
   );
 }

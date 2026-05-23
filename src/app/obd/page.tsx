@@ -3,6 +3,7 @@ import { getTopObdCodes, searchObdCodes } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "OBD-II Code Decoder — AutOwner",
@@ -50,13 +51,19 @@ export default async function ObdLandingPage({
   const { q } = await searchParams;
   const query = q?.trim() || "";
   const results = query ? await searchObdCodes(query) : [];
+
+  // Direct redirect when exactly one result matches
+  if (results.length === 1) {
+    redirect(`/obd/${results[0].code.toLowerCase()}`);
+  }
+
   const topCodes = query ? [] : await getTopObdCodes(20);
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
+      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full max-w-full overflow-hidden">
         {/* Breadcrumb */}
         <nav
           className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading"
@@ -139,7 +146,7 @@ export default async function ObdLandingPage({
                   <Link
                     key={c.code}
                     href={`/obd/${c.code.toLowerCase()}`}
-                    className="group flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150"
+                    className="group flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150 max-w-full overflow-hidden"
                   >
                     <span className="text-lg font-mono font-bold text-text-primary group-hover:text-primary transition-colors shrink-0 w-20">
                       {c.code}
@@ -187,7 +194,7 @@ export default async function ObdLandingPage({
                   <Link
                     key={c.code}
                     href={`/obd/${c.code.toLowerCase()}`}
-                    className="group flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150"
+                    className="group flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150 max-w-full overflow-hidden"
                   >
                     <span className="text-lg font-mono font-bold text-text-primary group-hover:text-primary transition-colors shrink-0 w-20">
                       {c.code}

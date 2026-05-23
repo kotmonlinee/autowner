@@ -7,6 +7,7 @@ import {
 } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import ToolCTAs from "@/components/ToolCTAs";
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
@@ -35,6 +36,8 @@ export default async function CommunityPage() {
       <Navbar />
 
       <main id="main-content" className="flex-1 max-w-5xl mx-auto px-5 py-8 w-full">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Community" }]} />
+
         {/* Hero */}
         <div className="mb-10 text-center">
           <h1 className="text-3xl font-bold text-text-primary font-heading mb-3">

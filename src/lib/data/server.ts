@@ -1871,6 +1871,33 @@ export async function getRepairCategoryCounts(
  * Return popular repair types with their overall cost ranges.
  * Popularity is approximated by how many distinct tier/make/model rows exist per repair.
  */
+// ── Homepage Activity ──────────────────────────────────────
+
+export async function getRecentActivityCount(): Promise<{ newArticles: number; newDiscussions: number }> {
+  const supabase = await createServerSupabase();
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [
+    { count: articleCount },
+    { count: commentCount },
+  ] = await Promise.all([
+    supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "approved")
+      .gte("created_at", sevenDaysAgo),
+    supabase
+      .from("comments")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", sevenDaysAgo),
+  ]);
+
+  return {
+    newArticles: articleCount ?? 0,
+    newDiscussions: commentCount ?? 0,
+  };
+}
+
 export async function getPopularRepairCosts(limit = 10): Promise<{
   name: string;
   slug: string;

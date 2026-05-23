@@ -68,7 +68,7 @@ export default function WarningLightsPage() {
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="max-w-6xl mx-auto px-5 py-10 w-full flex-1">
+      <main id="main-content" className="max-w-6xl mx-auto px-5 py-10 w-full flex-1 max-w-full overflow-hidden">
         {/* Page header */}
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-3">
@@ -121,7 +121,7 @@ export default function WarningLightsPage() {
               <Link
                 key={light.slug}
                 href={`/warning-lights/${light.slug}`}
-                className={`group flex flex-col p-5 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${sev.bg} ${sev.border}`}
+                className={`group flex flex-col p-5 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md max-w-full overflow-hidden ${sev.bg} ${sev.border}`}
               >
                 {/* Icon + severity badge */}
                 <div className="flex items-start justify-between mb-3">
@@ -145,8 +145,8 @@ export default function WarningLightsPage() {
                 </p>
 
                 {/* Cost range */}
-                <div className="flex items-center justify-between text-xs text-text-muted pt-3 border-t border-surface-border">
-                  <span>
+                <div className="flex items-center justify-between text-xs text-text-muted pt-3 border-t border-surface-border gap-2 max-w-full">
+                  <span className="truncate">
                     Cost: {formatCurrency(light.min_cost)} &ndash;{" "}
                     {formatCurrency(light.max_cost)}
                   </span>

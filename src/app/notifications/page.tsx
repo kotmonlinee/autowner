@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { timeAgo } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -77,6 +78,8 @@ export default async function NotificationsPage() {
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <Navbar />
       <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Notifications" }]} />
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
