@@ -1682,13 +1682,24 @@ export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code
 
 export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
   const supabase = await createServerSupabase();
-  const { data } = await supabase
-    .from("obd_codes")
-    .select("code, title, severity")
-    .order("severity", { ascending: false })
-    .order("code", { ascending: true })
-    .limit(limit);
-  return (data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [];
+  const allCodes: Pick<ObdCode, "code" | "title" | "severity">[] = [];
+  const pageSize = 1000;
+  let page = 0;
+  while (allCodes.length < limit) {
+    const from = page * pageSize;
+    const to = from + pageSize - 1;
+    const { data } = await supabase
+      .from("obd_codes")
+      .select("code, title, severity")
+      .order("severity", { ascending: false })
+      .order("code", { ascending: true })
+      .range(from, to);
+    if (!data || data.length === 0) break;
+    allCodes.push(...(data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]));
+    if (data.length < pageSize) break;
+    page++;
+  }
+  return allCodes.slice(0, limit);
 }
 
 // ── Repair Costs ───────────────────────────────────────────
