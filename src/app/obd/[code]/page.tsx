@@ -129,7 +129,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         {/* Structured Data */}
         {faqJsonLd && (
           <script
@@ -498,7 +498,7 @@ function ObdNotFound({ code }: { code: string }) {
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
-      <main className="max-w-3xl mx-auto px-5 py-16 flex-1 w-full text-center">
+      <main className="max-w-4xl mx-auto px-5 py-16 flex-1 w-full text-center">
         <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-surface-1 border border-surface-border flex items-center justify-center">
           <svg
             className="w-8 h-8 text-text-muted"

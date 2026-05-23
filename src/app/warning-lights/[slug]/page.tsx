@@ -97,7 +97,7 @@ export default async function WarningLightDetailPage({
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-10 w-full flex-1">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-10 w-full flex-1">
         {/* Breadcrumb */}
         <nav className="mb-6" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm text-text-muted">

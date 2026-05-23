@@ -239,7 +239,7 @@ function SubmitForm() {
         )}
       </nav>
 
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-8 w-full">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-8 w-full">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-text-primary font-heading">
             {draftId ? "Edit Draft" : "Create a Post"}

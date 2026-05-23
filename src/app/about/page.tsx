@@ -16,7 +16,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <Navbar />
       <main id="main-content" className="flex-1">
-        <div className="max-w-3xl mx-auto px-5 py-16 sm:py-24">
+        <div className="max-w-4xl mx-auto px-5 py-16 sm:py-24">
           {/* Header */}
           <div className="mb-12">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary font-heading mb-3">

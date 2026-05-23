@@ -122,7 +122,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         {/* Structured Data */}
         <script
           type="application/ld+json"

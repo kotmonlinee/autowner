@@ -459,7 +459,7 @@ function QuoteCheckerContent() {
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-10 w-full flex-1">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-10 w-full flex-1">
         {/* Page header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-3">
@@ -1045,7 +1045,7 @@ function QuoteCheckerFallback() {
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
-      <main className="max-w-3xl mx-auto px-5 py-10 w-full flex-1">
+      <main className="max-w-4xl mx-auto px-5 py-10 w-full flex-1">
         <div className="animate-pulse">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-xl bg-surface-1" />

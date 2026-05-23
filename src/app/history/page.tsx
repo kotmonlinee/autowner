@@ -19,7 +19,7 @@ export default async function HistoryPage() {
     return (
       <div className="min-h-screen bg-surface-0 relative flex flex-col">
         <Navbar />
-        <main id="main-content" className="max-w-7xl mx-auto px-5 py-6 flex-1 w-full">
+        <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
           <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "History" }]} />
           <div className="mb-6 pb-4 border-b border-surface-border">
             <h1 className="text-2xl font-bold text-text-primary font-heading">
@@ -41,7 +41,7 @@ export default async function HistoryPage() {
   return (
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <Navbar />
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "History" }]} />
         <div className="mb-6 pb-4 border-b border-surface-border flex items-center justify-between">
           <div>

@@ -68,7 +68,7 @@ export default function WarningLightsPage() {
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="max-w-6xl mx-auto px-5 py-10 w-full flex-1 max-w-full overflow-hidden">
+      <main id="main-content" className="max-w-5xl mx-auto px-5 py-10 w-full flex-1 max-w-full overflow-hidden">
         {/* Page header */}
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-3">

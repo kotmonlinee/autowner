@@ -33,7 +33,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     <div className="min-h-screen bg-surface-0 relative">
       <Navbar />
       {q && <SearchTracker query={q} />}
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 w-full">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 w-full">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Search" }]} />
         <div className="mb-6">
           <div className="flex items-center justify-between flex-wrap gap-3">

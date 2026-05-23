@@ -81,7 +81,7 @@ export default async function EditPostPage({
   return (
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <Navbar />
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         {/* Breadcrumb */}
         <nav className="mb-5 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">
