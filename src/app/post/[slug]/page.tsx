@@ -236,7 +236,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <ReadingProgress />
       <Navbar />
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         <div className="flex gap-8">
           <article className="flex-1 min-w-0">
             {/* JSON-LD Structured Data */}
