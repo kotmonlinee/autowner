@@ -1,8 +1,7 @@
 import { getPosts, getCategories, getAllRepairSlugs, getTopObdCodes } from "@/lib/data/server";
 import { warningLights } from "@/lib/warning-lights-data";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 3600; // CDN caches for 1 hour
+export const revalidate = 3600;
 
 function xmlEscape(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
@@ -72,7 +71,8 @@ export async function GET() {
   return new Response(xml, {
     headers: {
       "Content-Type": "application/xml",
-      "Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+      "CDN-Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+      "Vercel-CDN-Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
     },
   });
 }
