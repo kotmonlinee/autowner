@@ -1,0 +1,78 @@
+import { getPosts, getCategories, getAllRepairSlugs, getTopObdCodes } from "@/lib/data/server";
+import { warningLights } from "@/lib/warning-lights-data";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 3600; // CDN caches for 1 hour
+
+function xmlEscape(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+}
+
+function urlEntry(loc: string, lastmod: string, changefreq: string, priority: number): string {
+  return `  <url>\n    <loc>${xmlEscape(loc)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+}
+
+export async function GET() {
+  const baseUrl = "https://www.autowner.com";
+  const now = new Date().toISOString();
+
+  const [{ posts }, categories, repairSlugs, topObdCodes] = await Promise.all([
+    getPosts({ limit: 10000 }),
+    getCategories(),
+    getAllRepairSlugs(),
+    getTopObdCodes(10000),
+  ]);
+
+  const urls: string[] = [];
+
+  // Static pages
+  urls.push(urlEntry(baseUrl, now, "hourly", 1.0));
+  urls.push(urlEntry(`${baseUrl}/community`, now, "hourly", 0.9));
+  urls.push(urlEntry(`${baseUrl}/about`, now, "monthly", 0.4));
+  urls.push(urlEntry(`${baseUrl}/privacy`, now, "yearly", 0.1));
+  urls.push(urlEntry(`${baseUrl}/terms`, now, "yearly", 0.1));
+  urls.push(urlEntry(`${baseUrl}/search`, now, "weekly", 0.4));
+
+  // Tool landing pages
+  urls.push(urlEntry(`${baseUrl}/repair-cost`, now, "weekly", 0.9));
+  urls.push(urlEntry(`${baseUrl}/obd`, now, "weekly", 0.8));
+  urls.push(urlEntry(`${baseUrl}/quote-checker`, now, "weekly", 0.8));
+  urls.push(urlEntry(`${baseUrl}/warning-lights`, now, "weekly", 0.9));
+
+  // Category pages
+  for (const cat of categories) {
+    urls.push(urlEntry(`${baseUrl}/?category=${cat.slug}`, now, "daily", 0.7));
+  }
+
+  // Repair cost detail pages
+  for (const slug of repairSlugs) {
+    urls.push(urlEntry(`${baseUrl}/repair-cost/${slug}`, now, "monthly", 0.7));
+  }
+
+  // OBD code detail pages
+  for (const c of topObdCodes) {
+    urls.push(urlEntry(`${baseUrl}/obd/${c.code.toLowerCase()}`, now, "monthly", 0.7));
+  }
+
+  // Warning light detail pages
+  for (const l of warningLights) {
+    urls.push(urlEntry(`${baseUrl}/warning-lights/${l.slug}`, now, "monthly", 0.7));
+  }
+
+  // Post pages
+  for (const p of posts) {
+    const slug = p.slug || p.id;
+    const lastmod = p.updated_at ? new Date(p.updated_at).toISOString() : now;
+    const priority = p.content_type === "guide" || p.content_type === "review" ? 0.9 : 0.6;
+    urls.push(urlEntry(`${baseUrl}/post/${slug}`, lastmod, "weekly", priority));
+  }
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`;
+
+  return new Response(xml, {
+    headers: {
+      "Content-Type": "application/xml",
+      "Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+    },
+  });
+}
