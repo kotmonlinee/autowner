@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { fetchVehicleMakes } from "@/lib/data/browser";
+import { fetchVehicleMakes, fetchVehicleModels, fetchVehicleGenerations } from "@/lib/data/browser";
 
 interface AssessmentResult {
   assessment: "Fair" | "Slightly High" | "Overpriced" | "Below Average" | "Insufficient Data";
@@ -159,9 +159,11 @@ function QuoteCheckerContent() {
   const [repairType, setRepairType] = useState(initialRepair);
   const [quoteAmount, setQuoteAmount] = useState(initialQuote);
   const [state, setState] = useState(initialState);
-  const [makes, setMakes] = useState<{ name: string }[]>([]);
-  const [makeSuggestions, setMakeSuggestions] = useState<string[]>([]);
-  const [showMakeDropdown, setShowMakeDropdown] = useState(false);
+  const [makes, setMakes] = useState<{ name: string; slug: string }[]>([]);
+  const [selectedMakeSlug, setSelectedMakeSlug] = useState("");
+  const [availableModels, setAvailableModels] = useState<{ name: string; slug: string }[]>([]);
+  const [selectedModelSlug, setSelectedModelSlug] = useState("");
+  const [generationYears, setGenerationYears] = useState<{ start: number; end: number | null }[]>([]);
   const [showRepairDropdown, setShowRepairDropdown] = useState(false);
   const [repairSuggestions, setRepairSuggestions] = useState<RepairSuggestion[]>([]);
   const [repairLoading, setRepairLoading] = useState(false);
@@ -170,47 +172,38 @@ function QuoteCheckerContent() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const makeInputRef = useRef<HTMLInputElement>(null);
-  const makeDropdownRef = useRef<HTMLDivElement>(null);
   const repairInputRef = useRef<HTMLInputElement>(null);
   const repairDropdownRef = useRef<HTMLDivElement>(null);
   const autoSubmittedRef = useRef(false);
 
-  // Load vehicle makes for autocomplete
+  // Load vehicle makes for dropdown
   useEffect(() => {
     fetchVehicleMakes().then((data) => setMakes(data));
   }, []);
 
-  // Filter make suggestions as user types
+  // Cascade: when make changes, load models
   useEffect(() => {
-    if (make.length > 0) {
-      const filtered = makes
-        .filter((m) => m.name.toLowerCase().includes(make.toLowerCase()))
-        .map((m) => m.name)
-        .slice(0, 8);
-      setMakeSuggestions(filtered.length > 0 ? filtered : []);
-      setShowMakeDropdown(filtered.length > 0);
-    } else {
-      setMakeSuggestions([]);
-      setShowMakeDropdown(false);
+    if (!selectedMakeSlug) {
+      setAvailableModels([]);
+      return;
     }
-  }, [make, makes]);
+    fetchVehicleModels(selectedMakeSlug).then((data) => {
+      setAvailableModels(data.map((m) => ({ name: m.name, slug: m.slug })));
+    });
+  }, [selectedMakeSlug]);
 
-  // Close make dropdown on outside click
+  // Cascade: when model changes, load generations for year range
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (
-        makeDropdownRef.current &&
-        !makeDropdownRef.current.contains(e.target as Node) &&
-        makeInputRef.current &&
-        !makeInputRef.current.contains(e.target as Node)
-      ) {
-        setShowMakeDropdown(false);
-      }
+    if (!selectedMakeSlug || !selectedModelSlug) {
+      setGenerationYears([]);
+      return;
     }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+    fetchVehicleGenerations(selectedModelSlug, selectedMakeSlug).then((data) => {
+      setGenerationYears(
+        data.map((g) => ({ start: g.year_start, end: g.year_end })),
+      );
+    });
+  }, [selectedModelSlug, selectedMakeSlug]);
 
   // Close repair dropdown on outside click
   useEffect(() => {
@@ -495,50 +488,35 @@ function QuoteCheckerContent() {
           className="bg-surface-1 border border-surface-border rounded-2xl p-6 sm:p-8 space-y-5"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Make — with autocomplete */}
-            <div className="relative">
+            {/* Make — dropdown from vehicle database */}
+            <div>
               <label
                 htmlFor="make"
                 className="block text-sm font-semibold text-text-primary mb-1.5 font-heading"
               >
                 Vehicle Make <span className="text-red-500">*</span>
               </label>
-              <input
-                ref={makeInputRef}
+              <select
                 id="make"
-                type="text"
-                value={make}
-                onChange={(e) => setMake(e.target.value)}
-                onFocus={() => {
-                  if (makeSuggestions.length > 0) setShowMakeDropdown(true);
+                value={selectedMakeSlug}
+                onChange={(e) => {
+                  const slug = e.target.value;
+                  setSelectedMakeSlug(slug);
+                  const m = makes.find((x) => x.slug === slug);
+                  setMake(m?.name ?? "");
+                  setSelectedModelSlug("");
+                  setModel("");
                 }}
-                placeholder="e.g. Toyota, Honda, Ford"
-                className="w-full h-12 px-4 bg-surface-0 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                autoComplete="off"
-              />
-              {showMakeDropdown && makeSuggestions.length > 0 && (
-                <div
-                  ref={makeDropdownRef}
-                  className="absolute z-20 left-0 right-0 mt-1 bg-surface-0 border border-surface-border rounded-xl shadow-lg overflow-hidden"
-                >
-                  {makeSuggestions.map((name) => (
-                    <button
-                      key={name}
-                      type="button"
-                      onClick={() => {
-                        setMake(name);
-                        setShowMakeDropdown(false);
-                      }}
-                      className="w-full text-left px-4 py-2.5 text-text-primary hover:bg-surface-1 transition-colors text-sm"
-                    >
-                      {name}
-                    </button>
-                  ))}
-                </div>
-              )}
+                className="w-full h-12 px-4 bg-surface-0 border border-surface-border rounded-xl text-text-primary text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none font-heading"
+              >
+                <option value="">Select make</option>
+                {makes.map((m) => (
+                  <option key={m.slug} value={m.slug}>{m.name}</option>
+                ))}
+              </select>
             </div>
 
-            {/* Model */}
+            {/* Model — cascading dropdown */}
             <div>
               <label
                 htmlFor="model"
@@ -546,14 +524,28 @@ function QuoteCheckerContent() {
               >
                 Vehicle Model <span className="text-red-500">*</span>
               </label>
-              <input
+              <select
                 id="model"
-                type="text"
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                placeholder="e.g. Camry, Civic, F-150"
-                className="w-full h-12 px-4 bg-surface-0 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-              />
+                value={selectedModelSlug}
+                onChange={(e) => {
+                  const slug = e.target.value;
+                  setSelectedModelSlug(slug);
+                  const m = availableModels.find((x) => x.slug === slug);
+                  setModel(m?.name ?? "");
+                }}
+                disabled={!selectedMakeSlug}
+                className="w-full h-12 px-4 bg-surface-0 border border-surface-border rounded-xl text-text-primary text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none font-heading disabled:opacity-50"
+              >
+                <option value="">{selectedMakeSlug ? "Select model" : "Select make first"}</option>
+                {availableModels.map((m) => (
+                  <option key={m.slug} value={m.slug}>{m.name}</option>
+                ))}
+              </select>
+              {generationYears.length > 0 && (
+                <p className="text-xs text-text-muted mt-1 font-heading">
+                  {generationYears.map((g) => g.end ? `${g.start}–${g.end}` : `${g.start}+`).join(", ")}
+                </p>
+              )}
             </div>
 
             {/* Year */}
