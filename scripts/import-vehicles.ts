@@ -33,7 +33,7 @@ const BRAND_SLUGS: Record<string, string> = {
   "alpine": "alpine", "abarth": "abarth", "lancia": "lancia",
   "smart": "smart", "maybach": "maybach", "pagani": "pagani",
   "koenigsegg": "koenigsegg", "shelby": "shelby",
-  "byd": "byd", "nio": "nio", "polestar": "polestar",
+  "byd": "byd", "nio": "nio",
   "mg": "mg", "rover": "rover", "triumph": "triumph",
   "isuzu": "isuzu", "ssangyong": "ssangyong",
   "ineos": "ineos", "vinfast": "vinfast",
