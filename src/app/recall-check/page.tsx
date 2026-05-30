@@ -55,7 +55,8 @@ export default function RecallCheckPage() {
               { make: "BMW", model: "3 Series", year: "2020" },
               { make: "Subaru", model: "Outback", year: "2020" },
             ].map((v) => (
-              <a key={`${v.make}-${v.model}-${v.year}`} href={`/recall-check`}
+              <a key={`${v.make}-${v.model}-${v.year}`}
+                href={`/recall-check?make=${encodeURIComponent(v.make)}&model=${encodeURIComponent(v.model)}&year=${v.year}`}
                 className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/20 transition-colors font-heading">
                 {v.make} {v.model} ({v.year})
               </a>

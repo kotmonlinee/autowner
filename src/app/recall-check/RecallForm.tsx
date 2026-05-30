@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { fetchVehicleMakes } from "@/lib/data/browser";
 
-const YEAR = new Date().getFullYear();
-const YEARS = Array.from({ length: YEAR - 1991 }, (_, i) => String(YEAR - i));
+const CURR_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: CURR_YEAR - 1991 }, (_, i) => String(CURR_YEAR - i));
 
 interface Recall {
   NHTSACampaignNumber: string;
@@ -18,11 +19,17 @@ interface Recall {
 }
 
 export default function RecallForm() {
+  const searchParams = useSearchParams();
+  const initialMake = searchParams.get("make") ?? "";
+  const initialModel = searchParams.get("model") ?? "";
+  const initialYear = searchParams.get("year") ?? "";
+  const autoSubmitted = useRef(false);
+
   const [makes, setMakes] = useState<{ name: string; slug: string }[]>([]);
   const [models, setModels] = useState<string[]>([]);
-  const [make, setMake] = useState("");
-  const [model, setModel] = useState("");
-  const [year, setYear] = useState("");
+  const [make, setMake] = useState(initialMake);
+  const [model, setModel] = useState(initialModel);
+  const [year, setYear] = useState(initialYear);
   const [recalls, setRecalls] = useState<Recall[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,14 +47,12 @@ export default function RecallForm() {
       .then((d) => setModels(d.models ?? []));
   }, [make, year]);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!make || !model || !year) return;
+  const doSearch = async (m: string, mo: string, y: string) => {
     setLoading(true);
     setError("");
     setRecalls(null);
     try {
-      const r = await fetch(`/api/recalls?action=search&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`);
+      const r = await fetch(`/api/recalls?action=search&make=${encodeURIComponent(m)}&model=${encodeURIComponent(mo)}&year=${y}`);
       const d = await r.json();
       if (d.error) { setError(d.error); return; }
       setRecalls(d.recalls ?? []);
@@ -57,6 +62,20 @@ export default function RecallForm() {
       setLoading(false);
     }
   };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!make || !model || !year) return;
+    doSearch(make, model, year);
+  };
+
+  // Auto-search when navigated with URL params
+  useEffect(() => {
+    if (initialMake && initialModel && initialYear && !autoSubmitted.current && models.length >= 0) {
+      autoSubmitted.current = true;
+      doSearch(initialMake, initialModel, initialYear);
+    }
+  }, [initialMake, initialModel, initialYear, models]);
 
   if (!makes.length) {
     return (
