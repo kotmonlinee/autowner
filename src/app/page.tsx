@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTrendingPosts, getRecentActivityCount } from "@/lib/data/server";
+import { TOP_OBD_CODES, TOP_REPAIRS } from "@/lib/internal-linking";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CommonRepairCosts from "@/components/CommonRepairCosts";
@@ -293,6 +294,78 @@ export default async function HomePage() {
               </Link>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Popular Searches ─────────────────────────────── */}
+      <section className="w-full bg-surface-0" aria-labelledby="popular-heading">
+        <div className="max-w-5xl mx-auto px-5 py-12 sm:py-16">
+          <div className="text-center mb-8">
+            <h2
+              id="popular-heading"
+              className="text-xl sm:text-2xl font-bold text-text-primary font-heading"
+            >
+              Popular Searches
+            </h2>
+            <p className="mt-2 text-text-muted text-sm">
+              Jump to the most commonly searched repairs and diagnostic codes
+            </p>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">
+              Top OBD-II Codes
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {TOP_OBD_CODES.map((obd) => (
+                <Link
+                  key={obd.code}
+                  href={`/obd/${obd.code.toLowerCase()}`}
+                  className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-xs font-mono font-medium text-primary hover:border-primary/30 hover:bg-primary/5 hover:-translate-y-px transition-all duration-150"
+                  title={obd.title}
+                >
+                  {obd.code}
+                </Link>
+              ))}
+            </div>
+            <Link
+              href="/obd"
+              className="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading"
+            >
+              View all 12,000+ codes
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </Link>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">
+              Top Repair Costs
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {TOP_REPAIRS.map((repair) => (
+                <Link
+                  key={repair.slug}
+                  href={`/repair-cost/${repair.slug}`}
+                  className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-xs font-medium text-primary hover:border-primary/30 hover:bg-primary/5 hover:-translate-y-px transition-all duration-150 font-heading"
+                >
+                  {repair.name}
+                </Link>
+              ))}
+            </div>
+            <Link
+              href="/repair-cost"
+              className="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading"
+            >
+              Compare all repair costs
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </Link>
           </div>
         </div>
       </section>

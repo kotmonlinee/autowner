@@ -4,6 +4,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WarningLightIcon from "@/components/WarningLightIcon";
+import { getRelatedRepairs, TOP_REPAIRS } from "@/lib/internal-linking";
 import {
   warningLights,
   getWarningLightBySlug,
@@ -404,6 +405,47 @@ export default async function WarningLightDetailPage({
             </p>
           </section>
         )}
+
+        {/* Related Repair Costs */}
+        <section
+          className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-4"
+          aria-labelledby="repair-heading"
+        >
+          <h2
+            id="repair-heading"
+            className="text-lg font-bold text-text-primary font-heading mb-3"
+          >
+            Related Repair Costs
+          </h2>
+          <p className="text-text-muted text-sm mb-3">
+            Common repairs associated with this warning light:
+          </p>
+          <div className="space-y-2">
+            {TOP_REPAIRS.slice(0, 5).map((repair) => (
+              <Link
+                key={repair.slug}
+                href={`/repair-cost/${repair.slug}`}
+                className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
+              >
+                {repair.name}
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </Link>
+            ))}
+          </div>
+          <Link
+            href="/repair-cost"
+            className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-primary hover:text-primary-glow transition-colors"
+          >
+            Browse all repair costs
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </Link>
+        </section>
 
         {/* FAQ Section */}
         <section

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getObdCode, getRelatedObdCodes } from "@/lib/data/server";
+import { getRelatedRepairs } from "@/lib/internal-linking";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -135,6 +136,8 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
     getObdCode(code),
     getRelatedObdCodes(code, 5),
   ]);
+
+  const relatedRepairs = getRelatedRepairs(obd?.title ?? "", 3);
 
   if (!obd) {
     return <ObdNotFound code={code} />;
@@ -579,7 +582,39 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           </div>
         )}
 
-        {/* Cross-links from cost section */}
+        {/* Cross-links: Related Repair Costs */}
+        {relatedRepairs.length > 0 && (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+              Related Repair Costs
+            </h2>
+            <div className="space-y-2">
+              {relatedRepairs.map((repair) => (
+                <Link
+                  key={repair.slug}
+                  href={`/repair-cost/${repair.slug}`}
+                  className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
+                >
+                  {repair.name} Replacement Cost
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* General tool cross-links */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
           <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
             Explore Repair Costs
@@ -589,7 +624,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
               href="/repair-cost"
               className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
             >
-              See detailed cost breakdown by vehicle type
+              See all repair cost estimates
               <svg
                 className="w-4 h-4"
                 viewBox="0 0 24 24"

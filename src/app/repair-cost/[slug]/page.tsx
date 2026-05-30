@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getRepairCosts } from "@/lib/data/server";
+import { TOP_OBD_CODES } from "@/lib/internal-linking";
 import type { RepairCostFull, RepairCostTier } from "@/lib/types";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -432,6 +433,37 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               to verify your mechanic&apos;s estimate.
             </p>
           </div>
+        </div>
+
+        {/* Common OBD Codes */}
+        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+            Common OBD-II Codes
+          </h2>
+          <p className="text-text-muted text-xs mb-3">
+            These diagnostic trouble codes are commonly related to this repair type:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {TOP_OBD_CODES.slice(0, 8).map((obd) => (
+              <Link
+                key={obd.code}
+                href={`/obd/${obd.code.toLowerCase()}`}
+                className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-xs font-mono font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors"
+              >
+                {obd.code}
+              </Link>
+            ))}
+          </div>
+          <Link
+            href="/obd"
+            className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-primary hover:text-primary-glow transition-colors"
+          >
+            Browse all OBD-II codes
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </Link>
         </div>
 
         {/* CTA */}
