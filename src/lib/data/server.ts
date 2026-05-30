@@ -1719,16 +1719,20 @@ export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code
 }
 
 export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
-  try {
-    const supabase = await createServerSupabase();
+  const supabase = await createServerSupabase();
+  const allCodes: Pick<ObdCode, "code" | "title" | "severity">[] = [];
+
+  for (let offset = 0; offset < limit; offset += 1000) {
     const { data } = await supabase
       .from("obd_codes")
       .select("code, title, severity")
-      .limit(limit);
-    return (data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [];
-  } catch {
-    return [];
+      .range(offset, offset + 999);
+    if (!data || data.length === 0) break;
+    allCodes.push(...(data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]));
+    if (data.length < 1000) break;
   }
+
+  return allCodes.slice(0, limit);
 }
 
 // ── Repair Costs ───────────────────────────────────────────
