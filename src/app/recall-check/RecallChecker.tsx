@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { fetchVehicleMakes } from "@/lib/data/browser";
 import type { NhtsaRecall } from "@/lib/nhtsa";
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -17,14 +16,12 @@ export default function RecallChecker() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Load makes from our vehicle database
+  // Load makes from our vehicle database via API
   useEffect(() => {
-    fetchVehicleMakes().then((data) =>
-      setMakes(data.map((m: Record<string, unknown>) => ({
-        name: m.name as string,
-        slug: m.slug as string,
-      }))),
-    );
+    fetch("/api/vehicles?action=makes")
+      .then((r) => r.json())
+      .then((d) => { if (d.makes) setMakes(d.makes); })
+      .catch(() => {});
   }, []);
 
   // Load models from NHTSA when make + year change
