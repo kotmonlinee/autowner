@@ -172,7 +172,7 @@ export default async function HomePage() {
 
       {/* ── Hero Section ─────────────────────────────────── */}
       <section className="relative w-full bg-surface-0" aria-labelledby="hero-heading">
-        <div className="max-w-5xl mx-auto px-5 pt-20 pb-16 sm:pt-28 sm:pb-24 text-center">
+        <div className="max-w-5xl mx-auto px-5 pt-20 sm:pt-28 text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold font-heading tracking-wide mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
@@ -196,13 +196,8 @@ export default async function HomePage() {
           <SmartSearchBar />
         </div>
 
-        {/* Bottom gradient separator */}
-        <div className="h-px bg-gradient-to-r from-transparent via-surface-border to-transparent" />
-      </section>
-
-      {/* ── Site Activity Banner ────────────────────────── */}
-      <section className="w-full bg-surface-0" aria-label="Site activity">
-        <div className="max-w-5xl mx-auto px-5 pb-2">
+        {/* Site Activity Banner — inside hero */}
+        <div className="max-w-5xl mx-auto px-5 pb-8 sm:pb-10">
           <div className="flex items-center justify-center gap-2.5 py-2.5 px-5 bg-primary/[0.04] dark:bg-primary/5 border border-primary/10 dark:border-primary/15 rounded-xl text-sm text-text-secondary font-heading">
             <svg
               className="w-4 h-4 text-primary shrink-0"
@@ -223,11 +218,14 @@ export default async function HomePage() {
             </span>
           </div>
         </div>
+
+        {/* Bottom gradient separator */}
+        <div className="h-px bg-gradient-to-r from-transparent via-surface-border to-transparent" />
       </section>
 
-      {/* ── Tool Cards Section ───────────────────────────── */}
+      {/* ── Tools Section ──────────────────────────────────── */}
       <section className="w-full bg-surface-0" aria-labelledby="tools-heading">
-        <div className="max-w-5xl mx-auto px-5 py-16 sm:py-20 lg:py-24">
+        <div className="max-w-5xl mx-auto px-5 pt-16 sm:pt-20 pb-8">
           <div className="text-center mb-12">
             <h2
               id="tools-heading"
@@ -296,19 +294,15 @@ export default async function HomePage() {
             })}
           </div>
         </div>
-      </section>
 
-      {/* ── Popular Searches ─────────────────────────────── */}
-      <section className="w-full bg-surface-0" aria-labelledby="popular-heading">
-        <div className="max-w-5xl mx-auto px-5 py-12 sm:py-16">
+        {/* Popular Searches — inside Tools section */}
+        <div className="max-w-5xl mx-auto px-5">
+          <div className="border-t border-surface-border pt-10 sm:pt-12 pb-12 sm:pb-16">
           <div className="text-center mb-8">
-            <h2
-              id="popular-heading"
-              className="text-xl sm:text-2xl font-bold text-text-primary font-heading"
-            >
+            <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-2">
               Popular Searches
-            </h2>
-            <p className="mt-2 text-text-muted text-sm">
+            </p>
+            <p className="text-text-muted text-sm">
               Jump to the most commonly searched repairs and diagnostic codes
             </p>
           </div>
@@ -368,6 +362,7 @@ export default async function HomePage() {
             </Link>
           </div>
         </div>
+        </div>
       </section>
 
       {/* ── Common Repair Costs Section ───────────────────── */}
@@ -378,7 +373,7 @@ export default async function HomePage() {
         className="w-full bg-surface-1 border-y border-surface-border"
         aria-labelledby="community-heading"
       >
-        <div className="max-w-5xl mx-auto px-5 py-16 sm:py-20 lg:py-24">
+        <div className="max-w-5xl mx-auto px-5 py-12 sm:py-16">
           <div className="flex items-end justify-between mb-10">
             <div>
               <h2
