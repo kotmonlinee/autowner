@@ -43,83 +43,47 @@ function severityStylesDark(severity: number): string {
   }
 }
 
-// ── Benefit statement helper ────────────────────────────
+// ── Driving safety advice ────────────────────────────────
 
-function generateBenefitStatement(code: string, title: string, fixes: string[]): string {
-  const t = title.toLowerCase();
-  if (t.includes("catalyst") || t.includes("catalytic")) {
-    return "Don't Replace Your Cat Yet";
+function getDrivingAdvice(severity: number): { emoji: string; text: string; bgClass: string; borderClass: string } {
+  if (severity >= 5) {
+    return {
+      emoji: "⚠️",
+      text: "Stop driving — this code indicates a critical issue that could cause severe engine damage or safety risk. Tow to a shop immediately.",
+      bgClass: "bg-red-50 dark:bg-red-950",
+      borderClass: "border-red-300 dark:border-red-800",
+    };
   }
-  if (t.includes("misfire")) {
-    if (t.includes("random")) return "Start With Spark Plugs ($40)";
-    if (/\bcylinder\s*[1-9]/i.test(t)) return "Swap Coils to Diagnose Free";
-    return "Start With Spark Plugs ($40)";
+  if (severity === 4) {
+    return {
+      emoji: "⚠️",
+      text: "Limited driving — get to a repair shop within 1–2 days. Avoid long trips and highway speeds.",
+      bgClass: "bg-orange-50 dark:bg-orange-950",
+      borderClass: "border-orange-300 dark:border-orange-800",
+    };
   }
-  if (t.includes("lean") && (t.includes("bank") || t.includes("system") || t.includes("fuel"))) {
-    return "Usually a $15 Vacuum Leak";
+  if (severity >= 2) {
+    return {
+      emoji: "⚠️",
+      text: "Short-distance driving is usually OK, but have this diagnosed within a week to prevent further damage.",
+      bgClass: "bg-yellow-50 dark:bg-yellow-950",
+      borderClass: "border-yellow-300 dark:border-yellow-800",
+    };
   }
-  if (t.includes("rich")) {
-    return "Often Just a Dirty MAF Sensor";
-  }
-  if (t.includes("oxygen") || t.includes("o2 sensor") || t.includes("o2s")) {
-    return "Don't Skip the Downstream Sensor";
-  }
-  if (t.includes("evaporative") || t.includes("evap")) {
-    return "Check Your Gas Cap First ($0)";
-  }
-  if (t.includes("egr")) {
-    return "Clean Your EGR Valve First";
-  }
-  if (t.includes("mass air") || t.includes("maf") || t.includes("mass or volume")) {
-    return "Try Cleaning Before Replacing";
-  }
-  if (t.includes("knock")) {
-    return "Could Be Bad Gas or Sensor";
-  }
-  if (t.includes("injector")) {
-    return "Try Cleaner Before Replacing";
-  }
-  if (t.includes("throttle") || t.includes("idle air") || t.includes("iac")) {
-    return "Clean Your Throttle Body First";
-  }
-  if (t.includes("thermostat") || t.includes("coolant temp")) {
-    return "Easy DIY Thermostat Swap";
-  }
-  if (t.includes("ignition") || t.includes("coil")) {
-    return "Swap Coils to Diagnose Free";
-  }
-  if (t.includes("camshaft") || t.includes("crankshaft")) {
-    return "Check Oil Level & Sensor First";
-  }
-  if (t.includes("turbo") || t.includes("boost") || t.includes("supercharger")) {
-    return "Check for Boost Leaks First";
-  }
-  if (t.includes("abs") || t.includes("brake")) {
-    return "Often a Wheel Speed Sensor";
-  }
-  if (t.includes("airbag") || t.includes("srs")) {
-    return "Don't Panic — Often Minor Fix";
-  }
-  if (t.includes("transmission") || t.includes("trans")) {
-    return "Check Fluid Before Major Repairs";
-  }
-  if (t.includes("emission")) {
-    return "Most Fixes Are Under $200";
-  }
-  if (t.includes("fuel pressure")) {
-    return "Check Fuel Filter First ($20)";
-  }
-  if (t.includes("fuel trim")) {
-    return "Start With Vacuum Leak Check";
-  }
-  if (t.includes("cylinder")) {
-    return "Swap Coils to Isolate the Issue";
-  }
-  // Fallback: use first fix if short
-  if (fixes.length > 0 && fixes[0].length < 45) {
-    return `Likely Fix: ${fixes[0]}`;
-  }
-  return "Most Fixes Are Affordable DIY";
+  return {
+    emoji: "✅",
+    text: "Safe to drive — this is an informational or minor issue. Schedule diagnosis at your convenience.",
+    bgClass: "bg-green-50 dark:bg-green-950",
+    borderClass: "border-green-300 dark:border-green-800",
+  };
+}
+
+// ── Natural language intro helper ────────────────────────
+
+function generateNaturalIntro(obd: { code: string; title: string }): string {
+  // Build a natural first sentence from the code title
+  const titleLower = obd.title.charAt(0).toLowerCase() + obd.title.slice(1);
+  return `${obd.code} usually means ${titleLower}.`;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
@@ -129,45 +93,12 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
     return { title: "OBD Code Not Found — AutOwner" };
   }
 
-  // ── Benefit-driven title ──
-  const benefit = generateBenefitStatement(obd.code, obd.title, obd.fixes);
-  let pageTitle = `${obd.code}: ${benefit}`;
+  // New: Simple, consistent title format
+  // "{CODE} Code: Symptoms, Causes & Repair Cost — AutOwner"
+  const title = `${obd.code} Code: Symptoms, Causes & Repair Cost — AutOwner`;
 
-  // Add cost range if available
-  if (obd.min_cost != null && obd.min_cost > 0) {
-    let costSuffix: string;
-    if (obd.max_cost != null && obd.max_cost !== obd.min_cost) {
-      costSuffix = ` ($${obd.min_cost}–$${obd.max_cost})`;
-    } else {
-      costSuffix = ` (from $${obd.min_cost})`;
-    }
-    // Only append if total is under 65 chars
-    if ((pageTitle + costSuffix).length <= 65) {
-      pageTitle += costSuffix;
-    }
-  }
-  pageTitle = pageTitle.length > 65 ? pageTitle.substring(0, 62).replace(/\s+$/, "") + "..." : pageTitle;
-  const title = `${pageTitle} — AutOwner`;
-
-  // ── Compelling description ──
-  const problemBrief = obd.title.length > 100
-    ? obd.title.substring(0, 97).replace(/\s+$/g, "") + "..."
-    : obd.title;
-  let description = `${obd.code}: ${problemBrief.charAt(0).toLowerCase() + problemBrief.slice(1)}.`;
-  if (obd.fixes.length > 0) {
-    const cheapestFix = obd.fixes[0];
-    description += ` Typical fix: ${cheapestFix}`;
-    if (obd.min_cost != null && obd.min_cost > 0) {
-      if (obd.max_cost != null && obd.max_cost !== obd.min_cost) {
-        description += ` ($${obd.min_cost}–$${obd.max_cost}).`;
-      } else {
-        description += ` (from $${obd.min_cost}).`;
-      }
-    } else {
-      description += ".";
-    }
-  }
-  description += " Learn symptoms, causes, and all repair options before visiting a mechanic.";
+  // New: Simple meta description template
+  const description = `Learn what ${obd.code} means, common symptoms, repair costs, and whether it's safe to keep driving. Get trusted diagnostics for ${obd.code}.`;
 
   return {
     title,
@@ -205,30 +136,64 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
   const sev = severityColor(obd.severity);
   const sevDark = severityStylesDark(obd.severity);
+  const driving = getDrivingAdvice(obd.severity);
+  const naturalIntro = generateNaturalIntro(obd);
 
   const canonCode = obd.code.toLowerCase();
 
-  // FAQ structured data from symptoms, causes, fixes
+  // ── FAQ items ──────────────────────────────────────────
+
   const faqItems: { question: string; answer: string }[] = [];
 
-  if (obd.symptoms.length > 0) {
-    faqItems.push({
-      question: `What are the symptoms of code ${obd.code}?`,
-      answer: obd.symptoms.join(". ") + ".",
-    });
-  }
-  if (obd.causes.length > 0) {
-    faqItems.push({
-      question: `What causes OBD code ${obd.code}?`,
-      answer: obd.causes.join(". ") + ".",
-    });
+  // 1. What does {CODE} mean?
+  const meaningAnswer = obd.title
+    ? `${obd.code} stands for "${obd.title}". ${naturalIntro}`
+    : `${obd.code} is a diagnostic trouble code that indicates ${naturalIntro}`;
+  faqItems.push({
+    question: `What does ${obd.code} mean?`,
+    answer: meaningAnswer,
+  });
+
+  // 2. Can you drive with {CODE}?
+  faqItems.push({
+    question: `Can you drive with ${obd.code}?`,
+    answer: driving.text.replace(/^[⚠️✅]\s*/, ""),
+  });
+
+  // 3. How much does it cost to fix {CODE}?
+  let costAnswer: string;
+  if (obd.min_cost != null && obd.max_cost != null && obd.min_cost > 0) {
+    if (obd.max_cost !== obd.min_cost) {
+      costAnswer = `Repair costs for ${obd.code} typically range from $${obd.min_cost} to $${obd.max_cost}, depending on your vehicle make, model, and local labor rates. `;
+    } else {
+      costAnswer = `The typical repair cost for ${obd.code} starts at approximately $${obd.min_cost}, though costs vary by vehicle and location. `;
+    }
+  } else {
+    costAnswer = `Repair costs for ${obd.code} vary widely depending on the root cause, your vehicle, and local labor rates. `;
   }
   if (obd.fixes.length > 0) {
-    faqItems.push({
-      question: `How do you fix OBD code ${obd.code}?`,
-      answer: obd.fixes.join(". ") + ".",
-    });
+    costAnswer += `Common fixes include: ${obd.fixes.slice(0, 3).join("; ")}.`;
+  } else {
+    costAnswer += `A professional diagnosis is recommended to determine the exact cause and cost.`;
   }
+  faqItems.push({
+    question: `How much does it cost to fix ${obd.code}?`,
+    answer: costAnswer,
+  });
+
+  // 4. Will {CODE} clear itself?
+  let clearAnswer: string;
+  if (obd.severity <= 1) {
+    clearAnswer = `${obd.code} may clear itself after a few drive cycles if the underlying issue was temporary (such as a loose gas cap or minor sensor glitch). However, if the underlying problem persists, the code will return. It's best to have the vehicle diagnosed even if the light goes off.`;
+  } else if (obd.severity <= 3) {
+    clearAnswer = `${obd.code} is unlikely to clear itself permanently. Even if the check engine light turns off temporarily, the underlying issue typically remains and the code will return. Proper diagnosis and repair are recommended.`;
+  } else {
+    clearAnswer = `${obd.code} will not clear itself. This code indicates a serious issue that requires immediate attention. The check engine light will remain on until the problem is properly diagnosed and repaired.`;
+  }
+  faqItems.push({
+    question: `Will ${obd.code} clear itself?`,
+    answer: clearAnswer,
+  });
 
   const faqJsonLd =
     faqItems.length > 0
@@ -251,7 +216,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
     "@context": "https://schema.org",
     "@type": "Article",
     headline: `${obd.code}: ${obd.title}`,
-    description: `OBD-II diagnostic trouble code ${obd.code}: ${obd.title}. Severity: ${obd.severity}/5.`,
+    description: `Learn what ${obd.code} means, common symptoms, repair costs, and whether it's safe to keep driving.`,
     datePublished: "2024-01-01T00:00:00Z",
     dateModified: new Date().toISOString(),
     author: {
@@ -410,10 +375,27 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             {obd.title}
           </h2>
           <p className="text-text-muted text-sm leading-relaxed">
-            OBD-II diagnostic trouble code <strong className="text-text-secondary">{obd.code}</strong> indicates a
-            fault detected by the vehicle&apos;s onboard computer. This code applies to all OBD-II
-            compliant vehicles and should be addressed promptly to avoid potential engine or emissions system damage.
+            {naturalIntro}
           </p>
+        </div>
+
+        {/* NEW: Above-the-Fold "Can you still drive?" Answer Block */}
+        <div className={`${driving.bgClass} rounded-xl border-2 ${driving.borderClass} p-5 mb-4`}>
+          <h3 className="text-base font-heading font-bold text-text-primary mb-2">
+            Can you still drive with {obd.code}?
+          </h3>
+          <p className="text-sm leading-relaxed text-text-secondary mb-3">
+            <span className="mr-1.5">{driving.emoji}</span>
+            {driving.text}
+          </p>
+          {obd.min_cost != null && obd.min_cost > 0 && (
+            <p className="text-sm font-semibold text-text-primary">
+              Typical repair cost:{" "}
+              {obd.max_cost != null && obd.max_cost !== obd.min_cost
+                ? `$${obd.min_cost} – $${obd.max_cost}`
+                : `$${obd.min_cost}+`}
+            </p>
+          )}
         </div>
 
         {/* Severity Explanation */}
@@ -556,6 +538,38 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
               These are estimated costs based on generic repair data. Actual costs may vary depending
               on your vehicle, location, and labor rates.
             </p>
+          </div>
+        )}
+
+        {/* NEW: FAQ Section */}
+        {faqItems.length > 0 && (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+            <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">
+              Frequently Asked Questions
+            </h3>
+            <div className="space-y-4">
+              {faqItems.map((item, i) => (
+                <details key={i} className="group" open={i === 0}>
+                  <summary className="flex items-center gap-2 cursor-pointer list-none font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors select-none">
+                    <svg
+                      className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                    {item.question}
+                  </summary>
+                  <p className="mt-2 ml-6 text-sm text-text-secondary leading-relaxed">
+                    {item.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
           </div>
         )}
 

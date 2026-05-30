@@ -7,29 +7,29 @@ import BackToTop from "@/components/BackToTop";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.autowner.com"),
-  title: "AutOwner — Car Aftermarket Community",
+  title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
   description:
-    "Find solutions for car maintenance, repair, modification, and more. Join the community of car enthusiasts.",
+    "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
   openGraph: {
     siteName: "AutOwner",
     type: "website",
-    title: "AutOwner — Car Aftermarket Community",
+    title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
     description:
-      "Find solutions for car maintenance, repair, modification, and more. Join the community of car enthusiasts.",
+      "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "AutOwner — Car Aftermarket Community",
+        alt: "Repair Cost Checker & OBD Code Lookup — AutOwner",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AutOwner — Car Aftermarket Community",
+    title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
     description:
-      "Find solutions for car maintenance, repair, modification, and more. Join the community of car enthusiasts.",
+      "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
     images: ["/og-image.png"],
   },
   robots: {

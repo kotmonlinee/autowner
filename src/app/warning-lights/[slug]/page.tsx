@@ -7,11 +7,48 @@ import WarningLightIcon from "@/components/WarningLightIcon";
 import {
   warningLights,
   getWarningLightBySlug,
+  type WarningLight,
   type WarningLightSeverity,
 } from "@/lib/warning-lights-data";
 
 export function generateStaticParams() {
   return warningLights.map((w) => ({ slug: w.slug }));
+}
+
+function generateWarningLightTitle(light: WarningLight): string {
+  const t = light.title;
+
+  if (t.includes("Check Engine")) {
+    return "Check Engine Light On? Can You Still Drive? — AutOwner";
+  }
+  if (t.includes("Oil Pressure")) {
+    return "Oil Pressure Warning: Stop Driving Immediately — AutOwner";
+  }
+  if (t.includes("Battery")) {
+    return "Battery Warning Light: What It Means & Repair Cost — AutOwner";
+  }
+  if (t.includes("Brake")) {
+    return "Brake Warning Light On? Causes & Repair Costs — AutOwner";
+  }
+  if (t.includes("ABS")) {
+    return "ABS Light On? Causes & Repair Costs — AutOwner";
+  }
+  if (t.includes("Airbag")) {
+    return "Airbag Light On? Causes & Repair Cost — AutOwner";
+  }
+  if (t.includes("Tire Pressure")) {
+    return "TPMS Light: What It Means & Safe Tire Pressure — AutOwner";
+  }
+  if (t.includes("Coolant")) {
+    return "Coolant Temperature Warning: Stop Driving? — AutOwner";
+  }
+
+  return `${t}: Symptoms, Causes & Repair Cost — AutOwner`;
+}
+
+function generateWarningLightDescription(light: WarningLight): string {
+  const desc = `Is your ${light.title} on? Learn what it means, common causes, repair costs, and whether it's safe to keep driving.`;
+  return desc.length <= 160 ? desc : desc.substring(0, 160);
 }
 
 export async function generateMetadata({
@@ -24,15 +61,19 @@ export async function generateMetadata({
   if (!light) {
     return { title: "Warning Light Not Found — AutOwner" };
   }
+
+  const seoTitle = generateWarningLightTitle(light);
+  const seoDescription = generateWarningLightDescription(light);
+
   return {
-    title: `${light.title} — Warning Lights Guide — AutOwner`,
-    description: light.meaning.substring(0, 160),
+    title: seoTitle,
+    description: seoDescription,
     alternates: {
       canonical: `https://www.autowner.com/warning-lights/${light.slug}`,
     },
     openGraph: {
-      title: `${light.title} — Warning Lights Guide`,
-      description: light.meaning.substring(0, 160),
+      title: seoTitle,
+      description: seoDescription,
     },
   };
 }
