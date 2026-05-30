@@ -38,6 +38,9 @@ async function ensureUniqueSlug(
 
 // ── Posts ────────────────────────────────────────────────
 
+// Columns for post lists (excludes heavy fields: body, search_vector, quick_answer)
+const POST_LIST = "id, title, slug, created_at, updated_at, author_id, category_id, status, source, content_type, vote_score, view_count, comment_count, is_pinned, thumbnail_url, reading_time_minutes";
+
 export async function getPosts(opts: {
   sort?: "hot" | "new" | "popular";
   categorySlug?: string;
@@ -296,18 +299,24 @@ export async function getPopularTags(limit = 15) {
 
   if (!tags?.length) return [];
 
+  // Batch all post count queries in parallel instead of N+1 loop
+  const counts = await Promise.all(
+    tags.map((tag) =>
+      supabase
+        .from("post_tags")
+        .select("id", { count: "exact", head: true })
+        .eq("tag_id", tag.id),
+    ),
+  );
+
   const result: { id: string; name: string; slug: string; post_count: number }[] = [];
-  for (const tag of tags) {
-    const { count } = await supabase
-      .from("post_tags")
-      .select("id", { count: "exact", head: true })
-      .eq("tag_id", tag.id);
-    if (count && count > 0) {
+  for (let i = 0; i < tags.length; i++) {
+    if (counts[i].count && counts[i].count! > 0) {
       result.push({
-        id: tag.id,
-        name: tag.name,
-        slug: tag.slug,
-        post_count: count,
+        id: tags[i].id,
+        name: tags[i].name,
+        slug: tags[i].slug,
+        post_count: counts[i].count!,
       });
     }
   }
@@ -685,7 +694,7 @@ export async function getPendingPosts() {
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from("posts")
-    .select("*, profiles(username, avatar_url), categories(name)")
+    .select(`${POST_LIST}, profiles(username, avatar_url), categories(name)`)
     .eq("status", "pending")
     .order("created_at", { ascending: false })
     .limit(50);
@@ -1066,27 +1075,28 @@ export async function getAllUsers(search?: string, limit = 50) {
 
   const { data, error } = await query;
   if (error) throw error;
+  if (!data?.length) return [];
 
-  // Fetch post count for each user
-  const users = [];
-  for (const p of (data ?? [])) {
-    const { count } = await supabase
-      .from("posts")
-      .select("id", { count: "exact", head: true })
-      .eq("author_id", p.id);
-    users.push({
-      id: p.id,
-      username: p.username,
-      avatar_url: p.avatar_url,
-      created_at: p.created_at,
-      is_banned: p.is_banned ?? false,
-      banned_at: p.banned_at ?? null,
-      ban_reason: p.ban_reason ?? null,
-      post_count: count ?? 0,
-    });
-  }
+  // Batch all post count queries in parallel instead of N+1 loop
+  const postCounts = await Promise.all(
+    data.map((p) =>
+      supabase
+        .from("posts")
+        .select("id", { count: "exact", head: true })
+        .eq("author_id", p.id),
+    ),
+  );
 
-  return users;
+  return data.map((p, i) => ({
+    id: p.id,
+    username: p.username,
+    avatar_url: p.avatar_url,
+    created_at: p.created_at,
+    is_banned: p.is_banned ?? false,
+    banned_at: p.banned_at ?? null,
+    ban_reason: p.ban_reason ?? null,
+    post_count: postCounts[i].count ?? 0,
+  }));
 }
 
 // ── Admin: Car Tag Management ───────────────────────────
@@ -1100,22 +1110,22 @@ export async function getAllCarTags() {
 
   if (!tags?.length) return [];
 
-  // Fetch post count for each tag
-  const result = [];
-  for (const tag of tags) {
-    const { count } = await supabase
-      .from("post_tags")
-      .select("id", { count: "exact", head: true })
-      .eq("tag_id", tag.id);
-    result.push({
-      id: tag.id,
-      name: tag.name,
-      slug: tag.slug,
-      post_count: count ?? 0,
-    });
-  }
+  // Batch all post count queries in parallel instead of N+1 loop
+  const counts = await Promise.all(
+    tags.map((tag) =>
+      supabase
+        .from("post_tags")
+        .select("id", { count: "exact", head: true })
+        .eq("tag_id", tag.id),
+    ),
+  );
 
-  return result;
+  return tags.map((tag, i) => ({
+    id: tag.id,
+    name: tag.name,
+    slug: tag.slug,
+    post_count: counts[i].count ?? 0,
+  }));
 }
 
 export async function renameCarTag(id: string, name: string) {
@@ -1523,17 +1533,22 @@ export async function getTrendingVehicles(limit = 8) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit);
 
-  // Fetch engine details for each
-  const result = [];
-  for (const [engineId, followerCount] of sorted) {
-    const { data: engine } = await supabase
-      .from("vehicle_engines")
-      .select("id, code, name, displacement, fuel_type, horsepower, vehicle_generations(name, year_start, year_end, vehicle_models(name, slug, vehicle_makes(name, slug)))")
-      .eq("id", engineId)
-      .single();
+  // Batch fetch engine details in parallel instead of N+1 loop
+  const engineResults = await Promise.all(
+    sorted.map(([engineId]) =>
+      supabase
+        .from("vehicle_engines")
+        .select("id, code, name, displacement, fuel_type, horsepower, vehicle_generations(name, year_start, year_end, vehicle_models(name, slug, vehicle_makes(name, slug)))")
+        .eq("id", engineId)
+        .single(),
+    ),
+  );
 
-    if (engine) {
-      result.push({ ...(engine as Record<string, unknown>), follower_count: followerCount });
+  const result = [];
+  for (let i = 0; i < sorted.length; i++) {
+    const engineData = engineResults[i].data;
+    if (engineData) {
+      result.push({ ...(engineData as unknown as Record<string, unknown>), follower_count: sorted[i][1] });
     }
   }
 

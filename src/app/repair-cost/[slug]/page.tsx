@@ -3,6 +3,8 @@ import { getRepairCosts } from "@/lib/data/server";
 import { TOP_OBD_CODES } from "@/lib/internal-linking";
 import type { RepairCostFull, RepairCostTier } from "@/lib/types";
 import Navbar from "@/components/Navbar";
+
+export const revalidate = 86400; // ISR: revalidate every 24 hours (static reference data)
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { notFound } from "next/navigation";

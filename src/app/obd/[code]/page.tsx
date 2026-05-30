@@ -3,6 +3,8 @@ import { getObdCode, getRelatedObdCodes } from "@/lib/data/server";
 import { getRelatedRepairs } from "@/lib/internal-linking";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+
+export const revalidate = 86400; // ISR: revalidate every 24 hours (static reference data)
 import Link from "next/link";
 import { notFound } from "next/navigation";
 

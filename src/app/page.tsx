@@ -114,8 +114,10 @@ const tools = [
 ];
 
 export default async function HomePage() {
-  const trendingPosts = await getTrendingPosts(5);
-  const activity = await getRecentActivityCount();
+  const [trendingPosts, activity] = await Promise.all([
+    getTrendingPosts(5),
+    getRecentActivityCount(),
+  ]);
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">

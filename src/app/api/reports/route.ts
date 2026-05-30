@@ -1,11 +1,15 @@
 import { getCurrentUser } from "@/lib/data/server";
 import { createServerSupabase } from "@/lib/supabase-server";
+import { withRateLimit } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) return NextResponse.json({ error: "Login required" }, { status: 401 });
+
+    const limited = await withRateLimit(user.id, "reports:create", 3, 60);
+    if (limited) return limited;
 
     let body: {
       targetType?: string;
