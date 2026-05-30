@@ -68,6 +68,20 @@ export default function WarningLightsPage() {
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://www.autowner.com" },
+              { "@type": "ListItem", position: 2, name: "Dashboard Warning Lights", item: "https://www.autowner.com/warning-lights" },
+            ],
+          }),
+        }}
+      />
+
       <main id="main-content" className="max-w-5xl mx-auto px-5 py-10 w-full flex-1 max-w-full overflow-hidden">
         {/* Page header */}
         <div className="mb-10">

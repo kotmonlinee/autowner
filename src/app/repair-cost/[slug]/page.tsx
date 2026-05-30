@@ -65,6 +65,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         },
       ],
     },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["https://www.autowner.com/og-default.jpg"],
+    },
   };
 }
 

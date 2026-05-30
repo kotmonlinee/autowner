@@ -75,6 +75,12 @@ export async function generateMetadata({
       title: seoTitle,
       description: seoDescription,
     },
+    twitter: {
+      card: "summary_large_image",
+      title: seoTitle,
+      description: seoDescription,
+      images: ["https://www.autowner.com/og-default.jpg"],
+    },
   };
 }
 

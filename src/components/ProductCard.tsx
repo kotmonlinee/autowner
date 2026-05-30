@@ -112,7 +112,7 @@ export default function ProductCard({
               <a
                 href={link}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer nofollow"
                 className="inline-flex items-center gap-1 text-[11px] font-bold text-amber dark:text-amber-dark hover:underline font-heading"
               >
                 View on Amazon
@@ -134,7 +134,7 @@ export default function ProductCard({
               <a
                 href={`https://www.amazon.com/s?k=${encodeURIComponent(name)}`}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer nofollow"
                 className="inline-flex items-center gap-1 text-[11px] font-bold text-text-muted hover:text-amber dark:hover:text-amber-dark transition-colors font-heading"
               >
                 Check price

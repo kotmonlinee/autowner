@@ -89,6 +89,27 @@ function readingTime(body: string): string {
   return `${Math.max(1, minutes)} min read`;
 }
 
+function extractDescription(body: string, maxLength = 160): string {
+  const text = body
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/!\[.*?\]\(.*?\)/g, "")
+    .replace(/\[([^\]]*)\]\(.*?\)/g, "$1")
+    .replace(/[*_`~>]/g, "")
+    .replace(/\n{2,}/g, ". ")
+    .replace(/\n/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  if (text.length <= maxLength) return text;
+
+  const truncated = text.slice(0, maxLength);
+  const lastPeriod = truncated.lastIndexOf(".");
+  if (lastPeriod > maxLength * 0.5) {
+    return truncated.slice(0, lastPeriod + 1);
+  }
+  return `${truncated}…`;
+}
+
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
   if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
@@ -107,7 +128,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   if (!post) return { title: "Post Not Found" };
-  const description = post.body.replace(/[#*`\[\]()>!\[\]]/g, "").slice(0, 160);
+  const description = extractDescription(post.body);
   const canonicalSlug = post.slug || post.id;
   return {
     title: `${post.title}`,

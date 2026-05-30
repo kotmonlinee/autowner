@@ -120,6 +120,12 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
         },
       ],
     },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["https://www.autowner.com/og-default.jpg"],
+    },
   };
 }
 
@@ -217,7 +223,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
     "@type": "Article",
     headline: `${obd.code}: ${obd.title}`,
     description: `Learn what ${obd.code} means, common symptoms, repair costs, and whether it's safe to keep driving.`,
-    datePublished: "2024-01-01T00:00:00Z",
+    datePublished: new Date().toISOString(),
     dateModified: new Date().toISOString(),
     author: {
       "@type": "Organization",

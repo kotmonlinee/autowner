@@ -63,6 +63,20 @@ export default async function ObdLandingPage({
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://www.autowner.com" },
+              { "@type": "ListItem", position: 2, name: "OBD Codes", item: "https://www.autowner.com/obd" },
+            ],
+          }),
+        }}
+      />
+
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full max-w-full overflow-hidden">
         {/* Breadcrumb */}
         <nav
