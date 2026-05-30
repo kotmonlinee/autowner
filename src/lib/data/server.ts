@@ -1721,15 +1721,18 @@ export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code
 export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
   const supabase = await createServerSupabase();
   const allCodes: Pick<ObdCode, "code" | "title" | "severity">[] = [];
+  let lastId = 0;
 
-  for (let offset = 0; offset < limit; offset += 1000) {
+  while (allCodes.length < limit) {
     const { data } = await supabase
       .from("obd_codes")
-      .select("code, title, severity")
-      .range(offset, offset + 999);
+      .select("id, code, title, severity")
+      .gt("id", lastId)
+      .order("id", { ascending: true })
+      .limit(1000);
     if (!data || data.length === 0) break;
-    allCodes.push(...(data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]));
-    if (data.length < 1000) break;
+    allCodes.push(...data);
+    lastId = data[data.length - 1].id;
   }
 
   return allCodes.slice(0, limit);
