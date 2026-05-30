@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import NewsletterForm from "./NewsletterForm";
 
@@ -17,15 +18,14 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           {/* Logo + tagline */}
           <div className="flex flex-col items-center sm:items-start gap-1">
-            <Link href="/" className="flex items-center gap-2 group">
-              <span className="w-7 h-7 rounded-md bg-primary flex items-center justify-center group-hover:bg-primary-glow transition-colors">
-                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </span>
-              <span className="text-display text-base text-text-primary tracking-wide">
-                AUTO<span className="text-primary">WNER</span>
-              </span>
+            <Link href="/" className="flex items-center group">
+              <Image
+                src="/logo.png"
+                alt="AutOwner"
+                width={150}
+                height={100}
+                className="h-9 w-auto"
+              />
             </Link>
             <p className="text-sm text-text-muted mt-1">
               The car aftermarket community. Maintenance, repair, mods & more.

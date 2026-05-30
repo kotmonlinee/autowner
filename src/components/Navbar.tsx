@@ -63,9 +63,9 @@ export default function Navbar() {
             <Image
               src="/logo.png"
               alt="AutOwner"
-              width={120}
-              height={32}
-              className="h-8 w-auto"
+              width={150}
+              height={100}
+              className="h-12 w-auto"
               priority
             />
           </Link>
