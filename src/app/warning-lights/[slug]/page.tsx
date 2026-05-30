@@ -19,31 +19,31 @@ function generateWarningLightTitle(light: WarningLight): string {
   const t = light.title;
 
   if (t.includes("Check Engine")) {
-    return "Check Engine Light On? Can You Still Drive? — AutOwner";
+    return "Check Engine Light On? Can You Still Drive?";
   }
   if (t.includes("Oil Pressure")) {
-    return "Oil Pressure Warning: Stop Driving Immediately — AutOwner";
+    return "Oil Pressure Warning: Stop Driving Immediately";
   }
   if (t.includes("Battery")) {
-    return "Battery Warning Light: What It Means & Repair Cost — AutOwner";
+    return "Battery Warning Light: What It Means & Repair Cost";
   }
   if (t.includes("Brake")) {
-    return "Brake Warning Light On? Causes & Repair Costs — AutOwner";
+    return "Brake Warning Light On? Causes & Repair Costs";
   }
   if (t.includes("ABS")) {
-    return "ABS Light On? Causes & Repair Costs — AutOwner";
+    return "ABS Light On? Causes & Repair Costs";
   }
   if (t.includes("Airbag")) {
-    return "Airbag Light On? Causes & Repair Cost — AutOwner";
+    return "Airbag Light On? Causes & Repair Cost";
   }
   if (t.includes("Tire Pressure")) {
-    return "TPMS Light: What It Means & Safe Tire Pressure — AutOwner";
+    return "TPMS Light: What It Means & Safe Tire Pressure";
   }
   if (t.includes("Coolant")) {
-    return "Coolant Temperature Warning: Stop Driving? — AutOwner";
+    return "Coolant Temperature Warning: Stop Driving?";
   }
 
-  return `${t}: Symptoms, Causes & Repair Cost — AutOwner`;
+  return `${t}: Symptoms, Causes & Repair Cost`;
 }
 
 function generateWarningLightDescription(light: WarningLight): string {
@@ -59,7 +59,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const light = getWarningLightBySlug(slug);
   if (!light) {
-    return { title: "Warning Light Not Found — AutOwner" };
+    return { title: "Warning Light Not Found" };
   }
 
   const seoTitle = generateWarningLightTitle(light);

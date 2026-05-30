@@ -8,7 +8,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import AnonymousBookmarks from "@/components/AnonymousBookmarks";
 
 export const metadata: Metadata = {
-  title: "My Bookmarks — AutOwner",
+  title: "My Bookmarks",
   description: "Your saved posts on AutOwner.",
 };
 

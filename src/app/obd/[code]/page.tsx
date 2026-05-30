@@ -90,12 +90,12 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
   const { code } = await params;
   const obd = await getObdCode(code);
   if (!obd) {
-    return { title: "OBD Code Not Found — AutOwner" };
+    return { title: "OBD Code Not Found" };
   }
 
   // New: Simple, consistent title format
-  // "{CODE} Code: Symptoms, Causes & Repair Cost — AutOwner"
-  const title = `${obd.code} Code: Symptoms, Causes & Repair Cost — AutOwner`;
+  // "{CODE} Code: Symptoms, Causes & Repair Cost"
+  const title = `${obd.code} Code: Symptoms, Causes & Repair Cost`;
 
   // New: Simple meta description template
   const description = `Learn what ${obd.code} means, common symptoms, repair costs, and whether it's safe to keep driving. Get trusted diagnostics for ${obd.code}.`;

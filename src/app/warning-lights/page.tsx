@@ -6,14 +6,14 @@ import WarningLightIcon from "@/components/WarningLightIcon";
 import { warningLights, type WarningLightSeverity } from "@/lib/warning-lights-data";
 
 export const metadata: Metadata = {
-  title: "Dashboard Warning Lights Guide — AutOwner",
+  title: "Dashboard Warning Lights Guide",
   description:
     "Identify and understand every dashboard warning light. Learn what each symbol means, how urgent it is, and what it might cost to fix.",
   alternates: {
     canonical: "https://www.autowner.com/warning-lights",
   },
   openGraph: {
-    title: "Dashboard Warning Lights Guide — AutOwner",
+    title: "Dashboard Warning Lights Guide",
     description:
       "Identify and understand every dashboard warning light. Learn what each symbol means, how urgent it is, and what it might cost to fix.",
   },

@@ -31,7 +31,7 @@ export async function generateMetadata({
   params: Promise<{ engineId: string }>;
 }): Promise<Metadata> {
   const engine = await getEngineById((await params).engineId);
-  if (!engine) return { title: "Vehicle Not Found — AutOwner" };
+  if (!engine) return { title: "Vehicle Not Found" };
 
   const gen = (engine as Record<string, unknown>).vehicle_generations as Record<string, unknown>;
   const model = gen.vehicle_models as Record<string, unknown>;
@@ -41,8 +41,11 @@ export async function generateMetadata({
   const description = `${engine.name} — ${engine.displacement} ${engine.fuel_type}, ${engine.horsepower} hp. ${formatYearRange(engine.year_start as number, engine.year_end as number | null)}.`;
 
   return {
-    title: `${title} — AutOwner`,
+    title,
     description,
+    alternates: {
+      canonical: `https://www.autowner.com/vehicle/${(await params).engineId}`,
+    },
   };
 }
 

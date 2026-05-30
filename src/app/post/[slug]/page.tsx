@@ -106,11 +106,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     post = await getPostByIdAny(slug);
   }
 
-  if (!post) return { title: "Post Not Found — AutOwner" };
+  if (!post) return { title: "Post Not Found" };
   const description = post.body.replace(/[#*`\[\]()>!\[\]]/g, "").slice(0, 160);
   const canonicalSlug = post.slug || post.id;
   return {
-    title: `${post.title} — AutOwner`,
+    title: `${post.title}`,
     description,
     alternates: {
       canonical: `https://www.autowner.com/post/${canonicalSlug}`,

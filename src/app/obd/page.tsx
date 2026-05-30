@@ -6,14 +6,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "OBD-II Code Decoder — AutOwner",
+  title: "OBD-II Code Decoder",
   description:
     "Decode diagnostic trouble codes (DTCs) from your vehicle's check engine light. Search by code, find symptoms, causes, fixes, and estimated repair costs.",
   alternates: {
     canonical: "https://www.autowner.com/obd",
   },
   openGraph: {
-    title: "OBD-II Code Decoder — AutOwner",
+    title: "OBD-II Code Decoder",
     description:
       "Decode diagnostic trouble codes (DTCs) from your vehicle's check engine light. Find symptoms, causes, and repair costs.",
     type: "website",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
         url: "https://www.autowner.com/og-default.jpg",
         width: 1200,
         height: 630,
-        alt: "OBD-II Code Decoder — AutOwner",
+        alt: "OBD-II Code Decoder",
       },
     ],
   },

@@ -23,12 +23,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { username } = await params;
   const profile = await getUserProfile(username);
-  if (!profile) return { title: "User Not Found — AutOwner" };
+  if (!profile) return { title: "User Not Found" };
   return {
-    title: `${profile.username} — AutOwner`,
+    title: profile.username,
     description: `${profile.username} is a member of AutOwner with ${profile.post_count} post${profile.post_count === 1 ? "" : "s"} and ${profile.comment_count} comment${profile.comment_count === 1 ? "" : "s"}.`,
+    alternates: {
+      canonical: `https://www.autowner.com/user/${profile.username}`,
+    },
     openGraph: {
-      title: `${profile.username} — AutOwner`,
+      title: profile.username,
       description: `View ${profile.username}'s profile, posts, and activity on AutOwner.`,
     },
   };

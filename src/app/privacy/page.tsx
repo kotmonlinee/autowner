@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — AutOwner",
+  title: "Privacy Policy",
   description:
     "AutOwner's privacy policy. Learn what data we collect, how we use cookies, and your rights regarding your personal information.",
   alternates: {

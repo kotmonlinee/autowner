@@ -7,7 +7,10 @@ import BackToTop from "@/components/BackToTop";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.autowner.com"),
-  title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
+  title: {
+    template: "%s | AutOwner",
+    default: "Repair Cost Checker & OBD Code Lookup", // homepage inherits this when not overridden
+  },
   description:
     "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
   openGraph: {

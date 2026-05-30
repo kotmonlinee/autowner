@@ -14,7 +14,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import { timeAgo } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Notifications — AutOwner",
+  title: "Notifications",
   description: "View your notifications on AutOwner.",
 };
 

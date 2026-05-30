@@ -14,7 +14,7 @@ import Avatar from "@/components/Avatar";
 import { timeAgo } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Community — AutOwner",
+  title: "Community",
   description:
     "Join the AutOwner community. See active discussions, top contributors, and trending vehicles across the car enthusiast community.",
   alternates: {

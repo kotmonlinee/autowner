@@ -6,14 +6,14 @@ import RepairSearchFilter from "@/components/RepairSearchFilter";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Repair Cost Estimator — Compare Prices by Vehicle Tier — AutOwner",
+  title: "Repair Cost Estimator — Compare Prices by Vehicle Tier",
   description:
     "Compare car repair costs across 5 vehicle tiers. Find estimates for brakes, engine, transmission, suspension, AC, exhaust, and more. See labor vs parts breakdown.",
   alternates: {
     canonical: "https://www.autowner.com/repair-cost",
   },
   openGraph: {
-    title: "Repair Cost Estimator — AutOwner",
+    title: "Repair Cost Estimator",
     description:
       "Compare car repair costs across 5 vehicle tiers. Find estimates for brakes, engine, transmission, suspension, and more.",
     type: "website",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
         url: "https://www.autowner.com/og-default.jpg",
         width: 1200,
         height: 630,
-        alt: "Repair Cost Estimator — AutOwner",
+        alt: "Repair Cost Estimator",
       },
     ],
   },

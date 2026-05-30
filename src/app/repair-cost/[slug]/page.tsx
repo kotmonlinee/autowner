@@ -41,9 +41,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const repair = await getRepairCosts(slug);
   if (!repair) {
-    return { title: "Repair Cost Not Found — AutOwner" };
+    return { title: "Repair Cost Not Found" };
   }
-  const title = `${repair.name} — Cost Estimate & Price Guide — AutOwner`;
+  const title = `${repair.name} — Cost Estimate & Price Guide`;
   const description = `${repair.name} typically costs ${formatRange(repair.overallMin, repair.overallMax)}. Compare prices across 5 vehicle tiers. Average cost: ${formatMoney(repair.overallAvg)}.`;
   return {
     title,

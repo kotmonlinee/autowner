@@ -9,7 +9,7 @@ import DeleteDraftButton from "./DeleteDraftButton";
 import { timeAgo } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "My Drafts — AutOwner",
+  title: "My Drafts",
   description: "Your saved draft posts on AutOwner.",
 };
 

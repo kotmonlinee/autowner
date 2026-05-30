@@ -9,7 +9,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Search — AutOwner",
+  title: "Search",
   description: "Search AutOwner for car maintenance guides, repair tutorials, and community discussions.",
   robots: {
     index: false,

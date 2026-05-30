@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <html lang="en" className="dark">
       <head>
-        <title>404 — Page Not Found — AutOwner</title>
+        <title>404 — Page Not Found</title>
         <meta name="robots" content="noindex, follow" />
       </head>
       <body className="bg-surface-0 text-text-primary min-h-screen font-body antialiased">

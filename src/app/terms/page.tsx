@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — AutOwner",
+  title: "Terms of Service",
   description:
     "AutOwner's terms of service. Understand your rights, user conduct expectations, content ownership, and disclaimers.",
   alternates: {

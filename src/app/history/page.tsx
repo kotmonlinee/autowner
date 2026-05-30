@@ -8,7 +8,7 @@ import AnonymousHistory from "@/components/AnonymousHistory";
 import { timeAgo } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Reading History — AutOwner",
+  title: "Reading History",
   description: "Posts you have recently viewed on AutOwner.",
 };
 
