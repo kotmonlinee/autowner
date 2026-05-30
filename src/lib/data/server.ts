@@ -1720,16 +1720,27 @@ export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code
 
 export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
   const supabase = await createServerSupabase();
-  // Use .limit() directly instead of manual pagination with .range().
-  // The old pagination loop was hitting PostgREST max-rows ceilings and
-  // returning far fewer codes than the database actually contains.
-  const { data } = await supabase
-    .from("obd_codes")
-    .select("code, title, severity")
-    .order("severity", { ascending: false })
-    .order("code", { ascending: true })
-    .limit(limit);
-  return (data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [];
+  const allCodes: Record<string, unknown>[] = [];
+  const pageSize = 900;
+  let page = 0;
+
+  while (allCodes.length < limit) {
+    const from = page * pageSize;
+    const to = from + pageSize - 1;
+    const { data, error } = await supabase
+      .from("obd_codes")
+      .select("code, title, severity")
+      .order("severity", { ascending: false })
+      .order("code", { ascending: true })
+      .range(from, to);
+
+    if (error || !data || data.length === 0) break;
+    allCodes.push(...data);
+    if (data.length < pageSize) break;
+    page++;
+  }
+
+  return (allCodes as unknown as Pick<ObdCode, "code" | "title" | "severity">[]).slice(0, limit);
 }
 
 // ── Repair Costs ───────────────────────────────────────────
