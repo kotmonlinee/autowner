@@ -111,6 +111,27 @@ const tools = [
       </svg>
     ),
   },
+  {
+    title: "Recall Check",
+    description: "Check for open safety recalls",
+    href: "/recall-check",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-7 h-7"
+      >
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+        <circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
 ];
 
 export default async function HomePage() {
@@ -241,7 +262,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 lg:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
             {tools.map((tool) => {
               const isQuoteChecker = tool.href === "/quote-checker";
               return (
