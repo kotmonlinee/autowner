@@ -181,7 +181,7 @@ function QuoteCheckerContent() {
     fetchVehicleMakes().then((data) => setMakes(data));
   }, []);
 
-  // Cascade: when make changes, load models
+  // Cascade: when make changes, load models from our DB
   useEffect(() => {
     if (!selectedMakeSlug) {
       setAvailableModels([]);
@@ -191,6 +191,27 @@ function QuoteCheckerContent() {
       setAvailableModels(data.map((m) => ({ name: m.name, slug: m.slug })));
     });
   }, [selectedMakeSlug]);
+
+  // Supplement models from NHTSA when year is set (more comprehensive)
+  useEffect(() => {
+    if (!make || !year || year.length !== 4) return;
+    fetch(`/api/recalls?action=models&make=${encodeURIComponent(make)}&year=${year}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.models?.length) return;
+        setAvailableModels((prev) => {
+          const existing = new Set(prev.map((m) => m.name.toLowerCase()));
+          const merged = [...prev];
+          for (const name of d.models) {
+            if (!existing.has(name.toLowerCase())) {
+              merged.push({ name, slug: name.toLowerCase().replace(/\s+/g, "-") });
+            }
+          }
+          return merged;
+        });
+      })
+      .catch(() => {});
+  }, [make, year]);
 
   // Cascade: when model changes, load generations for year range
   useEffect(() => {
