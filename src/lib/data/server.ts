@@ -1732,11 +1732,11 @@ export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" |
       .select("code, title, severity")
       .order("severity", { ascending: false })
       .order("code", { ascending: true })
+      .order("id", { ascending: true })
       .range(from, to);
 
     if (error || !data || data.length === 0) break;
     allCodes.push(...data);
-    if (data.length < pageSize) break;
     page++;
   }
 
