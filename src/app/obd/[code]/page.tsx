@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getObdCode } from "@/lib/data/server";
+import { getObdCode, getRelatedObdCodes } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -43,14 +43,132 @@ function severityStylesDark(severity: number): string {
   }
 }
 
+// ── Benefit statement helper ────────────────────────────
+
+function generateBenefitStatement(code: string, title: string, fixes: string[]): string {
+  const t = title.toLowerCase();
+  if (t.includes("catalyst") || t.includes("catalytic")) {
+    return "Don't Replace Your Cat Yet";
+  }
+  if (t.includes("misfire")) {
+    if (t.includes("random")) return "Start With Spark Plugs ($40)";
+    if (/\bcylinder\s*[1-9]/i.test(t)) return "Swap Coils to Diagnose Free";
+    return "Start With Spark Plugs ($40)";
+  }
+  if (t.includes("lean") && (t.includes("bank") || t.includes("system") || t.includes("fuel"))) {
+    return "Usually a $15 Vacuum Leak";
+  }
+  if (t.includes("rich")) {
+    return "Often Just a Dirty MAF Sensor";
+  }
+  if (t.includes("oxygen") || t.includes("o2 sensor") || t.includes("o2s")) {
+    return "Don't Skip the Downstream Sensor";
+  }
+  if (t.includes("evaporative") || t.includes("evap")) {
+    return "Check Your Gas Cap First ($0)";
+  }
+  if (t.includes("egr")) {
+    return "Clean Your EGR Valve First";
+  }
+  if (t.includes("mass air") || t.includes("maf") || t.includes("mass or volume")) {
+    return "Try Cleaning Before Replacing";
+  }
+  if (t.includes("knock")) {
+    return "Could Be Bad Gas or Sensor";
+  }
+  if (t.includes("injector")) {
+    return "Try Cleaner Before Replacing";
+  }
+  if (t.includes("throttle") || t.includes("idle air") || t.includes("iac")) {
+    return "Clean Your Throttle Body First";
+  }
+  if (t.includes("thermostat") || t.includes("coolant temp")) {
+    return "Easy DIY Thermostat Swap";
+  }
+  if (t.includes("ignition") || t.includes("coil")) {
+    return "Swap Coils to Diagnose Free";
+  }
+  if (t.includes("camshaft") || t.includes("crankshaft")) {
+    return "Check Oil Level & Sensor First";
+  }
+  if (t.includes("turbo") || t.includes("boost") || t.includes("supercharger")) {
+    return "Check for Boost Leaks First";
+  }
+  if (t.includes("abs") || t.includes("brake")) {
+    return "Often a Wheel Speed Sensor";
+  }
+  if (t.includes("airbag") || t.includes("srs")) {
+    return "Don't Panic — Often Minor Fix";
+  }
+  if (t.includes("transmission") || t.includes("trans")) {
+    return "Check Fluid Before Major Repairs";
+  }
+  if (t.includes("emission")) {
+    return "Most Fixes Are Under $200";
+  }
+  if (t.includes("fuel pressure")) {
+    return "Check Fuel Filter First ($20)";
+  }
+  if (t.includes("fuel trim")) {
+    return "Start With Vacuum Leak Check";
+  }
+  if (t.includes("cylinder")) {
+    return "Swap Coils to Isolate the Issue";
+  }
+  // Fallback: use first fix if short
+  if (fixes.length > 0 && fixes[0].length < 45) {
+    return `Likely Fix: ${fixes[0]}`;
+  }
+  return "Most Fixes Are Affordable DIY";
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
   const { code } = await params;
   const obd = await getObdCode(code);
   if (!obd) {
     return { title: "OBD Code Not Found — AutOwner" };
   }
-  const title = `${obd.code} — ${obd.title} — AutOwner`;
-  const description = `OBD-II code ${obd.code}: ${obd.title}. Severity: ${obd.severity}/5. Learn symptoms, causes, fixes, and estimated repair costs.`;
+
+  // ── Benefit-driven title ──
+  const benefit = generateBenefitStatement(obd.code, obd.title, obd.fixes);
+  let pageTitle = `${obd.code}: ${benefit}`;
+
+  // Add cost range if available
+  if (obd.min_cost != null && obd.min_cost > 0) {
+    let costSuffix: string;
+    if (obd.max_cost != null && obd.max_cost !== obd.min_cost) {
+      costSuffix = ` ($${obd.min_cost}–$${obd.max_cost})`;
+    } else {
+      costSuffix = ` (from $${obd.min_cost})`;
+    }
+    // Only append if total is under 65 chars
+    if ((pageTitle + costSuffix).length <= 65) {
+      pageTitle += costSuffix;
+    }
+  }
+  pageTitle = pageTitle.length > 65 ? pageTitle.substring(0, 62).replace(/\s+$/, "") + "..." : pageTitle;
+  const title = `${pageTitle} — AutOwner`;
+
+  // ── Compelling description ──
+  const problemBrief = obd.title.length > 100
+    ? obd.title.substring(0, 97).replace(/\s+$/g, "") + "..."
+    : obd.title;
+  let description = `${obd.code}: ${problemBrief.charAt(0).toLowerCase() + problemBrief.slice(1)}.`;
+  if (obd.fixes.length > 0) {
+    const cheapestFix = obd.fixes[0];
+    description += ` Typical fix: ${cheapestFix}`;
+    if (obd.min_cost != null && obd.min_cost > 0) {
+      if (obd.max_cost != null && obd.max_cost !== obd.min_cost) {
+        description += ` ($${obd.min_cost}–$${obd.max_cost}).`;
+      } else {
+        description += ` (from $${obd.min_cost}).`;
+      }
+    } else {
+      description += ".";
+    }
+  }
+  description += " Learn symptoms, causes, and all repair options before visiting a mechanic.";
+
   return {
     title,
     description,
@@ -76,7 +194,10 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
 
 export default async function ObdCodePage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
-  const obd = await getObdCode(code);
+  const [obd, relatedCodes] = await Promise.all([
+    getObdCode(code),
+    getRelatedObdCodes(code, 5),
+  ]);
 
   if (!obd) {
     return <ObdNotFound code={code} />;
@@ -125,12 +246,69 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
         }
       : null;
 
+  // Article structured data
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: `${obd.code}: ${obd.title}`,
+    description: `OBD-II diagnostic trouble code ${obd.code}: ${obd.title}. Severity: ${obd.severity}/5.`,
+    datePublished: "2024-01-01T00:00:00Z",
+    dateModified: new Date().toISOString(),
+    author: {
+      "@type": "Organization",
+      name: "AutOwner",
+      url: "https://www.autowner.com",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "AutOwner",
+      url: "https://www.autowner.com",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://www.autowner.com/obd/${canonCode}`,
+    },
+  };
+
+  // BreadcrumbList structured data
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://www.autowner.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "OBD Codes",
+        item: "https://www.autowner.com/obd",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: obd.code,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        />
         {faqJsonLd && (
           <script
             type="application/ld+json"
@@ -425,6 +603,32 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             </Link>
           </div>
         </div>
+
+        {/* Related OBD-II Codes */}
+        {relatedCodes.length > 0 && (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+            <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+              Related OBD-II Codes
+            </h3>
+            <p className="text-text-muted text-sm mb-3">
+              These codes are in the same range as {obd.code} and often share similar causes and fixes.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {relatedCodes.map((rel) => (
+                <Link
+                  key={rel.code}
+                  href={`/obd/${rel.code.toLowerCase()}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                >
+                  {rel.code}
+                  <span className="text-text-muted font-sans font-normal text-xs">
+                    &mdash; {rel.title.length > 50 ? rel.title.substring(0, 47) + "..." : rel.title}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">

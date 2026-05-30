@@ -1642,6 +1642,44 @@ function parseJsonArray(val: unknown): string[] {
   return [];
 }
 
+export async function getRelatedObdCodes(code: string, limit = 5): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
+  const supabase = await createServerSupabase();
+  const normalized = code.toUpperCase().trim();
+
+  // Determine prefix for related codes:
+  // - P-codes: use first 3 characters (e.g., "P04" for "P0420")
+  // - C/B/U codes: use first character
+  let prefix: string;
+  if (/^[P]\d{4}$/i.test(normalized)) {
+    prefix = normalized.substring(0, 3);
+  } else {
+    prefix = normalized.charAt(0);
+  }
+
+  const { data } = await supabase
+    .from("obd_codes")
+    .select("code, title, severity")
+    .ilike("code", `${prefix}%`)
+    .neq("code", normalized)
+    .order("severity", { ascending: false })
+    .order("code", { ascending: true })
+    .limit(limit + 5);
+
+  const results = (data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [];
+
+  // Deduplicate by code just in case
+  const seen = new Set<string>();
+  const unique: Pick<ObdCode, "code" | "title" | "severity">[] = [];
+  for (const row of results) {
+    if (!seen.has(row.code)) {
+      seen.add(row.code);
+      unique.push(row);
+    }
+  }
+
+  return unique.slice(0, limit);
+}
+
 export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
   const supabase = await createServerSupabase();
   const trimmed = query.trim().toUpperCase();
