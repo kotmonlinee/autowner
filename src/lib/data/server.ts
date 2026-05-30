@@ -1719,22 +1719,16 @@ export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code
 }
 
 export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
-  const supabase = await createServerSupabase();
-  const allCodes: Record<string, unknown>[] = [];
-  let lastId = "";
-  const pageSize = 900;
-
-  while (allCodes.length < limit) {
-    let query = supabase.from("obd_codes").select("id, code, title, severity").order("id", { ascending: true }).limit(pageSize);
-    if (lastId) query = query.gt("id", lastId);
-    const { data, error } = await query;
-    if (error || !data || data.length === 0) break;
-    allCodes.push(...data);
-    lastId = data[data.length - 1].id as string;
-    if (data.length < pageSize) break;
+  try {
+    const supabase = await createServerSupabase();
+    const { data } = await supabase
+      .from("obd_codes")
+      .select("code, title, severity")
+      .limit(limit);
+    return (data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [];
+  } catch {
+    return [];
   }
-
-  return (allCodes as unknown as Pick<ObdCode, "code" | "title" | "severity">[]).slice(0, limit);
 }
 
 // ── Repair Costs ───────────────────────────────────────────
