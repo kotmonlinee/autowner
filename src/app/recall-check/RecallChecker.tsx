@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { fetchVehicleMakes } from "@/lib/data/browser";
 import type { NhtsaRecall } from "@/lib/nhtsa";
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: CURRENT_YEAR - 1991 }, (_, i) => String(CURRENT_YEAR - i));
 
 export default function RecallChecker() {
-  const [makes, setMakes] = useState<string[]>([]);
+  const [makes, setMakes] = useState<{ name: string; slug: string }[]>([]);
   const [models, setModels] = useState<string[]>([]);
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
@@ -16,15 +17,17 @@ export default function RecallChecker() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Load makes on mount
+  // Load makes from our vehicle database
   useEffect(() => {
-    fetch("/api/recalls?action=makes")
-      .then((r) => r.json())
-      .then((d) => { if (d.makes) setMakes(d.makes); })
-      .catch(() => {});
+    fetchVehicleMakes().then((data) =>
+      setMakes(data.map((m: Record<string, unknown>) => ({
+        name: m.name as string,
+        slug: m.slug as string,
+      }))),
+    );
   }, []);
 
-  // Load models when make + year change
+  // Load models from NHTSA when make + year change
   useEffect(() => {
     if (!make || !year) { setModels([]); return; }
     setModel("");
@@ -94,7 +97,7 @@ export default function RecallChecker() {
             >
               <option value="">Select make</option>
               {makes.map((m) => (
-                <option key={m} value={m}>{m}</option>
+                <option key={m.slug} value={m.name}>{m.name}</option>
               ))}
             </select>
           </div>
