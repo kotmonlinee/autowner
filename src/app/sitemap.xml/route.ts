@@ -19,7 +19,7 @@ export async function GET() {
     getPosts({ limit: 10000 }),
     getCategories(),
     getAllRepairSlugs(),
-    getTopObdCodes(10000),
+    getTopObdCodes(15000),
   ]);
 
   const urls: string[] = [];

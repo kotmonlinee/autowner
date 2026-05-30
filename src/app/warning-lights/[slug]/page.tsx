@@ -134,11 +134,94 @@ export default async function WarningLightDetailPage({
 
   const sev = SEVERITY_CONFIG[light.severity];
 
+  // ── Structured Data ──────────────────────────────────
+
+  const faqItems = [
+    {
+      question: `What does the ${light.title} mean?`,
+      answer: light.meaning,
+    },
+    {
+      question: `Can I still drive with the ${light.title} on?`,
+      answer: light.can_drive,
+    },
+    {
+      question: `How much does it cost to fix the ${light.title}?`,
+      answer: `Repair costs typically range from ${formatCurrency(light.min_cost)} to ${formatCurrency(light.max_cost)}, depending on the underlying cause, your vehicle make and model, and local labor rates. Always get multiple quotes for an accurate price.`,
+    },
+    {
+      question: `What causes the ${light.title} to come on?`,
+      answer: light.causes.join(". ") + ".",
+    },
+  ];
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: light.title,
+    description: light.meaning.substring(0, 160),
+    datePublished: new Date().toISOString(),
+    publisher: {
+      "@type": "Organization",
+      name: "AutOwner",
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://www.autowner.com/",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Warning Lights",
+        item: "https://www.autowner.com/warning-lights",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: light.title,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-10 w-full flex-1">
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        />
         {/* Breadcrumb */}
         <nav className="mb-6" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm text-text-muted">
@@ -315,6 +398,31 @@ export default async function WarningLightDetailPage({
             </p>
           </section>
         )}
+
+        {/* FAQ Section */}
+        <section
+          className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-4"
+          aria-labelledby="faq-heading"
+        >
+          <h2
+            id="faq-heading"
+            className="text-lg font-bold text-text-primary font-heading mb-4"
+          >
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-4">
+            {faqItems.map((item, i) => (
+              <div key={i}>
+                <h3 className="text-sm font-heading font-semibold text-text-secondary mb-1">
+                  {item.question}
+                </h3>
+                <p className="text-sm text-text-muted leading-relaxed">
+                  {item.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* Back link */}
         <div className="mt-8 text-center">

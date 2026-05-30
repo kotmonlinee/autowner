@@ -118,6 +118,42 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
     })),
   };
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: `${repair.name} — Cost Estimate & Price Guide`,
+    description: `${repair.name} typically costs ${formatRange(repair.overallMin, repair.overallMax)}. Compare prices across 5 vehicle tiers.`,
+    datePublished: new Date().toISOString(),
+    publisher: {
+      "@type": "Organization",
+      name: "AutOwner",
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://www.autowner.com/",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Repair Costs",
+        item: "https://www.autowner.com/repair-cost",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: repair.name,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
@@ -127,6 +163,14 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
         />
 
         {/* Breadcrumb */}
