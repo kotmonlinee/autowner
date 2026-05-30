@@ -104,7 +104,7 @@ export default function Navbar() {
               href="/recall-check"
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
-              Recalls
+              Recall Check
             </Link>
             <Link
               href="/community"
