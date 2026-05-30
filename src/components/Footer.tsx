@@ -24,7 +24,7 @@ export default function Footer() {
                 alt="AutOwner"
                 width={150}
                 height={100}
-                className="h-9 w-auto"
+                className="h-10 w-auto"
               />
             </Link>
             <p className="text-sm text-text-muted mt-1">
