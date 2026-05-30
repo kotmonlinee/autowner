@@ -74,11 +74,11 @@ export default function ReportButton({
       {/* Flag icon button */}
       <button
         onClick={handleOpen}
-        className="p-1 text-text-muted hover:text-amber-400 transition-colors rounded"
+        className="p-2.5 text-text-muted hover:text-amber-400 transition-colors rounded-lg"
         title="Report this content"
         aria-label="Report this content"
       >
-        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -138,7 +138,7 @@ export default function ReportButton({
                   </h3>
                   <button
                     onClick={handleClose}
-                    className="p-1 text-text-muted hover:text-text-secondary transition-colors rounded"
+                    className="p-2.5 text-text-muted hover:text-text-secondary transition-colors rounded-lg"
                     aria-label="Close"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

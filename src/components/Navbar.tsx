@@ -205,7 +205,7 @@ export default function Navbar() {
             onClick={() => setMenuOpen((prev) => !prev)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
-            className="sm:hidden ml-auto shrink-0 w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-md hover:bg-surface-2 transition-colors"
+            className="lg:hidden ml-auto shrink-0 w-11 h-11 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-surface-2 transition-colors"
           >
             {/* Top line */}
             <span

@@ -10,7 +10,7 @@ const config: Config = {
         surface: {
           0: "var(--bg-primary)",
           1: "var(--bg-secondary)",
-          2: "var(--bg-secondary)",
+          2: "var(--bg-elevated)",
           3: "var(--bg-tertiary)",
           4: "var(--bg-border)",
           border: "var(--bg-border)",

@@ -121,10 +121,10 @@ export default function CommentItem({
                 {depth <= maxDepth && (
                   <button
                     onClick={() => { setReplying(!replying); setReplyBody(""); setError(""); }}
-                    className="p-1 text-text-muted hover:text-primary transition-colors rounded"
+                    className="p-2.5 text-text-muted hover:text-primary transition-colors rounded-lg"
                     title="Reply"
                   >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                     </svg>
                   </button>
@@ -134,19 +134,19 @@ export default function CommentItem({
                   <>
                     <button
                       onClick={() => { setEditBody(comment.body); setEditing(true); setError(""); }}
-                      className="p-1 text-text-muted hover:text-primary transition-colors rounded"
+                      className="p-2.5 text-text-muted hover:text-primary transition-colors rounded-lg"
                       title="Edit comment"
                     >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
                     </button>
                     <button
                       onClick={() => { setShowDeleteConfirm(true); setError(""); }}
-                      className="p-1 text-text-muted hover:text-red-400 transition-colors rounded"
+                      className="p-2.5 text-text-muted hover:text-red-400 transition-colors rounded-lg"
                       title="Delete comment"
                     >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
