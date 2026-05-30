@@ -2,69 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const OBD_CODE_RE = /^[PCBU]\d{4}$/i;
-const QUOTE_KEYWORDS = ["$", "quote", "quoted", "estimate"];
-const REPAIR_KEYWORDS = [
-  "brake", "brakes",
-  "oil",
-  "engine",
-  "transmission", "trans",
-  "ac", "air conditioning",
-  "alternator",
-  "battery",
-  "starter",
-  "radiator",
-  "water pump",
-  "timing belt",
-  "head gasket",
-  "muffler", "exhaust",
-  "catalytic converter",
-  "spark plug",
-  "fuel pump",
-  "struts", "shocks",
-  "ball joint",
-  "tie rod",
-  "wheel bearing",
-  "clutch",
-  "differential",
-  "power steering",
-  "compressor",
-  "evaporator",
-  "heater core",
-  "thermostat",
-  "serpentine belt",
-  "ignition coil",
-  "oxygen sensor", "o2 sensor",
-  "mass air flow", "maf sensor",
-  "egr valve",
-  "pcv valve",
-  "crankshaft", "camshaft",
-  "cv joint", "cv axle",
-  "control arm",
-  "sway bar",
-  "rack and pinion",
-  "fuel filter",
-  "cabin filter",
-  "air filter",
-  "tires", "tire",
-  "alignment",
-  "overheating", "overheat",
-];
-
-function matchesOBDCode(input: string): boolean {
-  return OBD_CODE_RE.test(input.trim());
-}
-
-function containsQuoteKeyword(input: string): boolean {
-  const lower = input.toLowerCase();
-  return QUOTE_KEYWORDS.some((kw) => lower.includes(kw));
-}
-
-function containsRepairKeyword(input: string): boolean {
-  const lower = input.toLowerCase();
-  return REPAIR_KEYWORDS.some((kw) => lower.includes(kw));
-}
+import { resolveSearchRoute } from "@/lib/search-routing";
 
 export default function SmartSearchBar() {
   const [query, setQuery] = useState("");
@@ -72,18 +10,8 @@ export default function SmartSearchBar() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = query.trim();
-    if (!trimmed) return;
-
-    if (matchesOBDCode(trimmed)) {
-      router.push(`/obd/${trimmed.toLowerCase()}`);
-    } else if (containsQuoteKeyword(trimmed)) {
-      router.push("/quote-checker");
-    } else if (containsRepairKeyword(trimmed)) {
-      router.push(`/repair-cost?q=${encodeURIComponent(trimmed)}`);
-    } else {
-      router.push(`/community?q=${encodeURIComponent(trimmed)}`);
-    }
+    const route = resolveSearchRoute(query);
+    if (route) router.push(route);
   };
 
   return (
