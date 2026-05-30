@@ -53,7 +53,15 @@ function enhanceImages(html: string): string {
       newAttrs += ' loading="lazy"';
     }
 
-    const imgTag = `<img${newAttrs}>`;
+    // Add default width/height to prevent CLS (browsers reserve space via aspect-ratio)
+    if (!/width\s*=/i.test(newAttrs)) {
+      newAttrs += ' width="800"';
+    }
+    if (!/height\s*=/i.test(newAttrs)) {
+      newAttrs += ' height="450"';
+    }
+
+    const imgTag = `<img${newAttrs} style="max-width:100%;height:auto">`;
 
     // If there's no meaningful src, just return the img tag as-is
     if (!cleanSrc || cleanSrc.startsWith("data:")) {

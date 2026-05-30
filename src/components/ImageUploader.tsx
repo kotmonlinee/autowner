@@ -195,7 +195,10 @@ export default function ImageUploader({ onChange }: ImageUploaderProps) {
           <img
             src={url}
             alt="Uploaded preview"
+            width={800}
+            height={450}
             className="w-full max-h-48 object-contain bg-surface-0"
+            style={{ maxWidth: "100%", height: "auto" }}
           />
           <div className="p-3 flex items-center gap-2">
             <input

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 interface ProductCardProps {
@@ -53,13 +54,14 @@ export default function ProductCard({
     <div className="my-4 bg-surface-2 rounded-xl border-l-4 border-amber dark:border-amber-dark border-t border-r border-b border-surface-border overflow-hidden">
       <div className="flex items-start gap-4 p-4">
         {/* Product image placeholder or actual image */}
-        <div className="w-16 h-16 shrink-0 rounded-lg bg-surface-3 border border-surface-border flex items-center justify-center overflow-hidden">
+        <div className="w-16 h-16 shrink-0 rounded-lg bg-surface-3 border border-surface-border flex items-center justify-center overflow-hidden relative">
           {imageUrl ? (
-            <img
+            <Image
               src={imageUrl}
               alt={name}
-              className="w-full h-full object-cover"
-              loading="lazy"
+              fill
+              sizes="64px"
+              className="object-cover"
             />
           ) : (
             <svg
