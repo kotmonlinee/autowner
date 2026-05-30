@@ -192,28 +192,6 @@ function QuoteCheckerContent() {
     });
   }, [selectedMakeSlug]);
 
-  // Supplement models from NHTSA for more complete coverage
-  useEffect(() => {
-    if (!make) return;
-    // Fetch NHTSA models for current year as a representative sample
-    const currentYear = new Date().getFullYear();
-    fetch(`/api/recalls?action=models&make=${encodeURIComponent(make)}&year=${currentYear}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (!d.models?.length) return;
-        setAvailableModels((prev) => {
-          const existing = new Set(prev.map((m) => m.name.toLowerCase()));
-          const merged = [...prev];
-          for (const name of d.models) {
-            if (!existing.has(name.toLowerCase())) {
-              merged.push({ name, slug: name.toLowerCase().replace(/\s+/g, "-") });
-            }
-          }
-          return merged;
-        });
-      })
-      .catch(() => {});
-  }, [make]);
 
   // Cascade: when model changes, load generations for year range
   useEffect(() => {
