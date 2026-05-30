@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSessionUser, onAuthChange, signOut, fetchProfile } from "@/lib/data/browser";
@@ -58,15 +59,15 @@ export default function Navbar() {
       <nav className="sticky top-0 z-50 bg-surface-0/80 backdrop-blur-xl" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-5 h-16 flex items-center gap-6 border-b border-surface-border">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            <span className="w-8 h-8 rounded-md bg-primary flex items-center justify-center group-hover:bg-primary-glow transition-colors">
-              <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </span>
-            <span className="text-display text-lg text-text-primary tracking-wide">
-              AUTO<span className="text-primary">WNER</span>
-            </span>
+          <Link href="/" className="flex items-center shrink-0 group">
+            <Image
+              src="/logo.png"
+              alt="AutOwner"
+              width={120}
+              height={32}
+              className="h-8 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop SearchBar */}
