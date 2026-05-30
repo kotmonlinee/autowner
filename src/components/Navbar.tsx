@@ -230,8 +230,8 @@ export default function Navbar() {
 
         {/* Mobile slide-down menu */}
         <div
-          className={`sm:hidden overflow-hidden transition-all duration-200 ease-in-out ${
-            menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          className={`lg:hidden overflow-hidden transition-all duration-200 ease-in-out ${
+            menuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
           <div className="px-5 pb-4 pt-1 space-y-3 bg-surface-0/95 backdrop-blur-xl">
@@ -397,7 +397,7 @@ export default function Navbar() {
       {/* Backdrop overlay when menu is open */}
       {menuOpen && (
         <div
-          className="sm:hidden fixed inset-0 top-16 z-40 bg-black/40 backdrop-blur-sm"
+          className="lg:hidden fixed inset-0 top-16 z-40 bg-black/40 backdrop-blur-sm"
           onClick={() => setMenuOpen(false)}
           aria-hidden="true"
         />

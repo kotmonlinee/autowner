@@ -481,8 +481,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             </div>
           </article>
 
-          <aside className="w-72 shrink-0 hidden lg:block">
-            <div className="sticky top-20 space-y-4">
+          <aside className="w-full lg:w-72 lg:shrink-0 mt-8 lg:mt-0">
+            <div className="lg:sticky lg:top-20 space-y-4">
               <ToolCTAs />
               <RelatedPosts categoryId={post.category_id} excludeId={id} />
               {postVehicles.length > 0 && (

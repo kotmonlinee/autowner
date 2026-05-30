@@ -89,7 +89,7 @@ export default function SmartSearchBar() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-10 max-w-2xl mx-auto flex gap-3"
+      className="mt-6 sm:mt-10 max-w-2xl mx-auto flex gap-3"
       role="search"
     >
       <div className="relative flex-1">
