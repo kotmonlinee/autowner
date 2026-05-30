@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getVehicleMakes } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RecallChecker from "./RecallChecker";
@@ -25,7 +26,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RecallCheckPage() {
+export default async function RecallCheckPage() {
+  const makes = await getVehicleMakes();
+
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
@@ -41,7 +44,7 @@ export default function RecallCheckPage() {
           </p>
         </div>
 
-        <RecallChecker />
+        <RecallChecker makes={makes as { name: string; slug: string }[]} />
       </main>
 
       <Footer />

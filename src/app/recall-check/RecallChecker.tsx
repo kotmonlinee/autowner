@@ -6,8 +6,11 @@ import type { NhtsaRecall } from "@/lib/nhtsa";
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: CURRENT_YEAR - 1991 }, (_, i) => String(CURRENT_YEAR - i));
 
-export default function RecallChecker() {
-  const [makes, setMakes] = useState<{ name: string; slug: string }[]>([]);
+export default function RecallChecker({
+  makes: initialMakes,
+}: {
+  makes: { name: string; slug: string }[];
+}) {
   const [models, setModels] = useState<string[]>([]);
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
@@ -15,14 +18,6 @@ export default function RecallChecker() {
   const [recalls, setRecalls] = useState<NhtsaRecall[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  // Load makes from server API (bypasses RLS)
-  useEffect(() => {
-    fetch("/api/vehicles?action=makes")
-      .then((r) => r.json())
-      .then((d) => setMakes(d.makes ?? []))
-      .catch(() => {});
-  }, []);
 
   // Load models from NHTSA when make + year change
   useEffect(() => {
@@ -93,7 +88,7 @@ export default function RecallChecker() {
               required
             >
               <option value="">Select make</option>
-              {makes.map((m) => (
+              {initialMakes.map((m) => (
                 <option key={m.slug} value={m.name}>{m.name}</option>
               ))}
             </select>
