@@ -438,7 +438,7 @@ function StepIndicator({
           <div key={s.key} className="flex items-center gap-1.5">
             {/* Step dot + label */}
             <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider font-heading transition-all duration-150 ${
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider font-heading transition-all duration-150 ${
                 isActive
                   ? "bg-primary/10 text-primary border border-primary/20"
                   : isDone
@@ -690,7 +690,7 @@ function StepSelector({
                         <span className="font-semibold text-text-primary font-heading text-sm">
                           {gen.year_start}&ndash;{gen.year_end ?? "Pres"} &middot; {gen.name}
                         </span>
-                        <span className="text-[10px] font-mono text-text-muted bg-surface-3 px-1.5 py-0.5 rounded">
+                        <span className="text-xs font-mono text-text-muted bg-surface-3 px-1.5 py-0.5 rounded">
                           {engine.code}
                         </span>
                       </div>

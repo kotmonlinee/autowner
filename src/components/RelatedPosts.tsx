@@ -25,12 +25,12 @@ export default async function RelatedPosts({
         {posts.map((post: any, i: number) => (
           <Link key={post.id} href={`/post/${post.slug || post.id}`} className="block group">
             <div className="flex items-start gap-2.5">
-              <span className="text-[10px] font-bold text-text-muted mt-0.5 font-heading tabular-nums">
+              <span className="text-xs font-bold text-text-muted mt-0.5 font-heading tabular-nums">
                 {(i + 1).toString().padStart(2, "0")}
               </span>
               <div>
                 <p className="text-sm text-text-secondary group-hover:text-primary transition-colors line-clamp-2 font-medium leading-snug">{post.title}</p>
-                <div className="flex items-center gap-2 mt-1 text-[11px] text-text-muted">
+                <div className="flex items-center gap-2 mt-1 text-xs text-text-muted">
                   <span>{post.vote_score} pts</span><span>·</span><span>{post.comment_count} replies</span>
                 </div>
               </div>

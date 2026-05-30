@@ -54,7 +54,7 @@ export default async function SimilarOwners({ engineId }: SimilarOwnersProps) {
           <p className="text-xs font-semibold text-text-secondary font-heading truncate">
             {vehicleName}
           </p>
-          <p className="text-[10px] text-text-muted truncate">
+          <p className="text-xs text-text-muted truncate">
             {genName} ({engineCode})
           </p>
         </div>
@@ -73,7 +73,7 @@ export default async function SimilarOwners({ engineId }: SimilarOwnersProps) {
       {recentPosts.length > 0 && (
         <>
           <div className="h-px bg-surface-border mb-3" />
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted font-heading mb-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-text-muted font-heading mb-2">
             Recent {vehicleName} posts
           </p>
           <div className="space-y-1.5">
@@ -83,7 +83,7 @@ export default async function SimilarOwners({ engineId }: SimilarOwnersProps) {
                 href={`/post/${post.slug || post.id}`}
                 className="flex items-start gap-2 group"
               >
-                <span className="text-[10px] font-bold text-text-muted mt-0.5 font-heading tabular-nums shrink-0">
+                <span className="text-xs font-bold text-text-muted mt-0.5 font-heading tabular-nums shrink-0">
                   {(i + 1).toString().padStart(2, "0")}
                 </span>
                 <span className="text-xs text-text-secondary group-hover:text-primary transition-colors line-clamp-2 leading-snug">

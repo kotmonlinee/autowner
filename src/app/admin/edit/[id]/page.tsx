@@ -55,7 +55,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
             <h1 className="text-xl font-bold text-text-primary font-heading">Edit Post</h1>
             <p className="text-sm text-text-muted mt-0.5">
               {post.source === "scraped" && (
-                <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-[10px] font-bold uppercase border border-amber-700/20 dark:border-amber-400/20 mr-2">
+                <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-xs font-bold uppercase border border-amber-700/20 dark:border-amber-400/20 mr-2">
                   {post.source}
                 </span>
               )}
@@ -143,7 +143,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
               <p className="text-xs text-text-muted mb-2">
                 Paste JSON for the Quick Diagnosis card. Leave empty to remove. Example:
               </p>
-              <pre className="text-[11px] text-text-muted bg-surface-0 rounded-lg p-2 mb-2 overflow-x-auto border border-surface-border">
+              <pre className="text-xs text-text-muted bg-surface-0 rounded-lg p-2 mb-2 overflow-x-auto border border-surface-border">
 {`{
   "most_likely_cause": "Loose gas cap",
   "probability": "60%",

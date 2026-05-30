@@ -3,7 +3,7 @@ import Image from "next/image";
 type AvatarSize = "sm" | "md" | "lg";
 
 const sizeClasses: Record<AvatarSize, string> = {
-  sm: "w-5 h-5 text-[10px]",
+  sm: "w-5 h-5 text-xs",
   md: "w-8 h-8 text-sm",
   lg: "w-16 h-16 text-2xl",
 };

@@ -123,7 +123,7 @@ export default function ArticleTOC({ body }: { body: string }) {
                   : "text-text-secondary font-medium"
               }`}
             >
-              <span className="text-[10px] font-bold text-text-muted mr-1.5 tabular-nums">
+              <span className="text-xs font-bold text-text-muted mr-1.5 tabular-nums">
                 {(i + 1).toString().padStart(2, "0")}
               </span>
               {h.text}

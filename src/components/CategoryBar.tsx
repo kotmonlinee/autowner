@@ -12,7 +12,7 @@ export default function CategoryBar({
 }) {
   return (
     <div className="md:hidden mb-4 -mx-5 px-5">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted font-heading mb-2 px-0.5">
+      <p className="text-xs font-bold uppercase tracking-widest text-text-muted font-heading mb-2 px-0.5">
         Browse
       </p>
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">

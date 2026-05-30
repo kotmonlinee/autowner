@@ -7,7 +7,7 @@ export default async function PopularTags() {
   if (tags.length === 0) {
     return (
       <div className="mt-4 pt-3 border-t border-surface-border">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted font-heading mb-3 px-2">
+        <p className="text-xs font-bold uppercase tracking-widest text-text-muted font-heading mb-3 px-2">
           Popular Tags
         </p>
         <p className="text-xs text-text-muted px-2">No tags yet</p>
@@ -27,7 +27,7 @@ export default async function PopularTags() {
 
   return (
     <div className="mt-4 pt-3 border-t border-surface-border">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted font-heading mb-3 px-2">
+      <p className="text-xs font-bold uppercase tracking-widest text-text-muted font-heading mb-3 px-2">
         Popular Tags
       </p>
       <div className="flex flex-wrap gap-1.5 px-2">

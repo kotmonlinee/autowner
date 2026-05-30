@@ -177,8 +177,8 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
             <div className="flex-1 min-w-0">
               <Link href={`/post/${post.slug || post.id}`} className="font-semibold text-text-primary hover:text-primary transition-colors font-heading">{post.title}</Link>
               <div className="flex items-center gap-3 text-xs text-text-muted mt-1.5">
-                <span className="px-1.5 py-0.5 bg-surface-3 rounded text-[10px] font-bold uppercase font-heading">{post.categories?.name}</span>
-                <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-[10px] font-bold uppercase border border-amber-700/20 dark:border-amber-400/20">{post.source}</span>
+                <span className="px-1.5 py-0.5 bg-surface-3 rounded text-xs font-bold uppercase font-heading">{post.categories?.name}</span>
+                <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-xs font-bold uppercase border border-amber-700/20 dark:border-amber-400/20">{post.source}</span>
                 <span>{new Date(post.created_at).toLocaleDateString()}</span>
               </div>
             </div>
@@ -242,10 +242,10 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
               <div key={report.id} className="bg-surface-1 rounded-xl border border-surface-border p-4 flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-1.5 py-0.5 bg-surface-3 rounded text-[10px] font-bold uppercase font-heading">
+                    <span className="px-1.5 py-0.5 bg-surface-3 rounded text-xs font-bold uppercase font-heading">
                       {report.target_type}
                     </span>
-                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                    <span className={`px-1.5 py-0.5 rounded text-xs font-bold uppercase border ${
                       report.reason === "spam"
                         ? "bg-red-400/10 text-red-400 border-red-400/20"
                         : report.reason === "harassment"
@@ -365,15 +365,15 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                 <div className="flex-1 min-w-0">
                   <Link href={`/post/${post.slug || post.id}`} className="font-semibold text-text-primary hover:text-primary transition-colors font-heading">{post.title}</Link>
                   <div className="flex items-center gap-3 text-xs text-text-muted mt-1.5">
-                    <span className="px-1.5 py-0.5 bg-surface-3 rounded text-[10px] font-bold uppercase font-heading">{post.categories?.name ?? "none"}</span>
-                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                    <span className="px-1.5 py-0.5 bg-surface-3 rounded text-xs font-bold uppercase font-heading">{post.categories?.name ?? "none"}</span>
+                    <span className={`px-1.5 py-0.5 rounded text-xs font-bold uppercase border ${
                       post.status === "approved"
                         ? "bg-emerald-600/10 dark:bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 border-emerald-600/20 dark:border-emerald-400/20"
                         : post.status === "rejected"
                         ? "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
                         : "bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 border-amber-700/20 dark:border-amber-400/20"
                     }`}>{post.status}</span>
-                    <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-[10px] font-bold uppercase border border-amber-700/20 dark:border-amber-400/20">{post.source}</span>
+                    <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-xs font-bold uppercase border border-amber-700/20 dark:border-amber-400/20">{post.source}</span>
                     <span>{new Date(post.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
@@ -441,11 +441,11 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       {user.is_banned ? (
-                        <span className="px-2 py-0.5 bg-red-400/10 text-red-400 rounded text-[10px] font-bold uppercase border border-red-400/20">
+                        <span className="px-2 py-0.5 bg-red-400/10 text-red-400 rounded text-xs font-bold uppercase border border-red-400/20">
                           Banned
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 bg-emerald-600/10 dark:bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 rounded text-[10px] font-bold uppercase border border-emerald-600/20 dark:border-emerald-400/20">
+                        <span className="px-2 py-0.5 bg-emerald-600/10 dark:bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 rounded text-xs font-bold uppercase border border-emerald-600/20 dark:border-emerald-400/20">
                           Active
                         </span>
                       )}

@@ -194,7 +194,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
             </svg>
           </div>
           <p className="text-xs font-semibold text-text-primary font-heading mb-0.5">Your Garage</p>
-          <p className="text-[11px] text-text-muted mb-2.5">Add your car for personalized content</p>
+          <p className="text-xs text-text-muted mb-2.5">Add your car for personalized content</p>
           <button onClick={startSelector} className="w-full py-2 text-xs font-bold text-white bg-primary rounded-lg hover:bg-primary-glow transition-colors font-heading">
             + Add Your Vehicle
           </button>
@@ -226,7 +226,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
           </div>
 
           {/* Selected breadcrumb */}
-          <div className="flex items-center gap-1 px-3.5 py-2 text-[10px] text-text-muted font-heading border-b border-surface-border">
+          <div className="flex items-center gap-1 px-3.5 py-2 text-xs text-text-muted font-heading border-b border-surface-border">
             <span className={selectedMake ? "text-text-primary font-semibold" : ""}>{selectedMake?.name || "?"}</span>
             {selectedModel && <><span>›</span><span className="text-text-primary font-semibold">{selectedModel.name}</span></>}
             {selectedGeneration && <><span>›</span><span className="text-text-muted">{selectedGeneration.name}</span></>}
@@ -262,7 +262,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
                   <div className="flex flex-wrap gap-1 mb-2">
                     {generations.map(g => (
                       <button key={g.id} onClick={() => selectGeneration(g)}
-                        className={`px-2 py-1 text-[10px] font-medium rounded-md transition-colors font-heading ${
+                        className={`px-2 py-1 text-xs font-medium rounded-md transition-colors font-heading ${
                           selectedGeneration?.id === g.id ? "bg-primary/10 text-primary" : "bg-surface-2 text-text-muted hover:text-text-secondary"
                         }`}
                       >
@@ -278,7 +278,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-semibold text-text-primary font-heading">{e.name}</p>
-                        <p className="text-[10px] text-text-muted mt-0.5">
+                        <p className="text-xs text-text-muted mt-0.5">
                           {e.code} {e.displacement && `· ${e.displacement}`} {e.fuel_type && `· ${e.fuel_type}`} {e.horsepower && `· ${e.horsepower}hp`}
                         </p>
                       </div>
@@ -314,9 +314,9 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-text-primary font-heading truncate">{title}</p>
-              {sub && <p className="text-[10px] text-text-muted truncate mt-0.5">{sub}</p>}
+              {sub && <p className="text-xs text-text-muted truncate mt-0.5">{sub}</p>}
               {isActive && (
-                <span className="inline-flex items-center gap-1 mt-1.5 px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full font-heading">
+                <span className="inline-flex items-center gap-1 mt-1.5 px-1.5 py-0.5 bg-primary/10 text-primary text-xs font-bold rounded-full font-heading">
                   <span className="w-1 h-1 rounded-full bg-primary animate-pulse" />
                   Filtering
                 </span>

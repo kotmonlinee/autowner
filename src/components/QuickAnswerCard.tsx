@@ -84,7 +84,7 @@ export default function QuickAnswerCard({ quick_answer }: { quick_answer: QuickA
         {/* First step */}
         {first_step && (
           <div className="flex items-start gap-2">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold font-heading shrink-0 mt-0.5">
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-xs font-bold font-heading shrink-0 mt-0.5">
               1
             </span>
             <div>
@@ -107,7 +107,7 @@ export default function QuickAnswerCard({ quick_answer }: { quick_answer: QuickA
             <ol className="mt-1.5 space-y-1 list-none">
               {next_steps.map((step, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-3 text-text-secondary text-[10px] font-bold font-heading shrink-0 mt-0.5">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-3 text-text-secondary text-xs font-bold font-heading shrink-0 mt-0.5">
                     {i + 2}
                   </span>
                   <span className="text-sm text-text-primary leading-snug">{step}</span>

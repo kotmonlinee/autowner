@@ -436,7 +436,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={handleRemoveAnonVehicle}
-                  className="px-2 py-1 text-[10px] font-semibold rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/5 transition-colors font-heading shrink-0"
+                  className="px-2 py-1 text-xs font-semibold rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/5 transition-colors font-heading shrink-0"
                 >
                   Remove
                 </button>
@@ -866,7 +866,7 @@ export default function SettingsPage() {
                         {model?.name ?? "Unknown model"}
                       </p>
                       {v.is_primary && (
-                        <span className="shrink-0 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-primary/10 text-primary border border-primary/20 font-heading">
+                        <span className="shrink-0 px-1.5 py-0.5 text-xs font-bold rounded-full bg-primary/10 text-primary border border-primary/20 font-heading">
                           Primary
                         </span>
                       )}
@@ -884,7 +884,7 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={() => handleSetPrimary(v.id)}
-                        className="px-2 py-1 text-[10px] font-semibold rounded-md text-text-muted hover:text-primary hover:bg-primary/5 transition-colors font-heading"
+                        className="px-2 py-1 text-xs font-semibold rounded-md text-text-muted hover:text-primary hover:bg-primary/5 transition-colors font-heading"
                         title="Set as primary vehicle"
                       >
                         Primary
@@ -893,7 +893,7 @@ export default function SettingsPage() {
                     <button
                       type="button"
                       onClick={() => handleRemoveVehicle(v.id)}
-                      className="px-2 py-1 text-[10px] font-semibold rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/5 transition-colors font-heading"
+                      className="px-2 py-1 text-xs font-semibold rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/5 transition-colors font-heading"
                       title="Remove vehicle"
                     >
                       Remove

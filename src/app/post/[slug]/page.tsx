@@ -317,13 +317,13 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 <>
                   <div className="flex items-center gap-2 mb-3">
                     {post.categories && (
-                      <Link href={`/?category=${post.categories.slug}`} className="inline-flex items-center gap-1 px-2.5 py-1 bg-surface-3 text-text-secondary rounded-full text-[10px] font-bold uppercase tracking-wider hover:bg-surface-4 hover:text-primary transition-colors font-heading">
+                      <Link href={`/?category=${post.categories.slug}`} className="inline-flex items-center gap-1 px-2.5 py-1 bg-surface-3 text-text-secondary rounded-full text-xs font-bold uppercase tracking-wider hover:bg-surface-4 hover:text-primary transition-colors font-heading">
                         <span className="w-1 h-1 rounded-full bg-primary" />
                         {post.categories.name}
                       </Link>
                     )}
                     {post.source === "scraped" && (
-                      <span className="px-2 py-1 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-[10px] font-bold font-heading tracking-wide border border-amber-700/20 dark:border-amber-400/20">AUTO</span>
+                      <span className="px-2 py-1 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-xs font-bold font-heading tracking-wide border border-amber-700/20 dark:border-amber-400/20">AUTO</span>
                     )}
                   </div>
 
@@ -383,7 +383,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                   {/* Linked vehicles */}
                   {postVehicles && postVehicles.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-surface-border space-y-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted font-heading">
+                      <span className="text-xs font-bold uppercase tracking-wider text-text-muted font-heading">
                         Vehicle:
                       </span>
                       <div className="flex flex-wrap items-center gap-2">
@@ -441,7 +441,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                   <h3 className="text-sm font-bold text-text-primary font-heading uppercase tracking-wider">
                     Recommended Products
                   </h3>
-                  <span className="text-[10px] text-text-muted ml-auto font-heading">
+                  <span className="text-xs text-text-muted ml-auto font-heading">
                     We may earn a commission from purchases
                   </span>
                 </div>

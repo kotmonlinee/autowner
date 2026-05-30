@@ -169,7 +169,7 @@ export default async function ObdLandingPage({
                       {c.title}
                     </span>
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-heading border shrink-0 ${severityBadgeClass(c.severity)}`}
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold font-heading border shrink-0 ${severityBadgeClass(c.severity)}`}
                     >
                       S{severityLabel(c.severity)}
                     </span>
@@ -217,7 +217,7 @@ export default async function ObdLandingPage({
                       {c.title}
                     </span>
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-heading border shrink-0 ${severityBadgeClass(c.severity)}`}
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold font-heading border shrink-0 ${severityBadgeClass(c.severity)}`}
                     >
                       S{severityLabel(c.severity)}
                     </span>

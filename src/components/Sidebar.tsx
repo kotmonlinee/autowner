@@ -56,7 +56,7 @@ export default async function Sidebar({ active }: { active?: string }) {
         </Suspense>
 
         <div className="px-2 pb-2 mb-2 border-b border-surface-border">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted font-heading">Browse</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-text-muted font-heading">Browse</p>
         </div>
         <Link
           href="/"
@@ -89,7 +89,7 @@ export default async function Sidebar({ active }: { active?: string }) {
         ))}
 
         <div className="mt-4 px-2 pt-3 border-t border-surface-border">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted font-heading mb-1">Community</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-text-muted font-heading mb-1">Community</p>
         </div>
         <a href="https://www.reddit.com/r/cars/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-text-muted hover:text-orange-400 hover:bg-surface-2 transition-all duration-150 font-heading border-l-2 border-transparent">r/cars ↗</a>
         <a href="https://www.reddit.com/r/MechanicAdvice/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-text-muted hover:text-orange-400 hover:bg-surface-2 transition-all duration-150 font-heading border-l-2 border-transparent">r/MechanicAdvice ↗</a>

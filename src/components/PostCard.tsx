@@ -48,39 +48,39 @@ export default function PostCard({
           {post.categories && (
             <Link
               href={`/?category=${post.categories.slug}`}
-              className="inline-flex items-center gap-1 px-2 py-0.5 bg-surface-3 text-text-secondary rounded-full text-[10px] font-bold uppercase tracking-wider hover:bg-surface-4 hover:text-primary transition-colors font-heading"
+              className="inline-flex items-center gap-1 px-2 py-0.5 bg-surface-3 text-text-secondary rounded-full text-xs font-bold uppercase tracking-wider hover:bg-surface-4 hover:text-primary transition-colors font-heading"
             >
               <span className="w-1 h-1 rounded-full bg-primary" />
               {post.categories.name}
             </Link>
           )}
           {post.is_pinned && (
-            <span className="px-1.5 py-0.5 bg-purple-600/10 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded text-[10px] font-medium font-heading tracking-wide border border-purple-600/20 dark:border-purple-500/20">
+            <span className="px-1.5 py-0.5 bg-purple-600/10 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded text-xs font-medium font-heading tracking-wide border border-purple-600/20 dark:border-purple-500/20">
               PINNED
             </span>
           )}
           {post.source === "scraped" && (
-            <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-[10px] font-medium font-heading tracking-wide border border-amber-700/20 dark:border-amber-400/20">
+            <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-xs font-medium font-heading tracking-wide border border-amber-700/20 dark:border-amber-400/20">
               AUTO
             </span>
           )}
           {post.content_type === "guide" && (
-            <span className="px-1.5 py-0.5 bg-teal-600/10 dark:bg-teal-400/10 text-teal-600 dark:text-teal-400 rounded text-[10px] font-medium font-heading tracking-wide border border-teal-600/20 dark:border-teal-400/20">
+            <span className="px-1.5 py-0.5 bg-teal-600/10 dark:bg-teal-400/10 text-teal-600 dark:text-teal-400 rounded text-xs font-medium font-heading tracking-wide border border-teal-600/20 dark:border-teal-400/20">
               GUIDE
             </span>
           )}
           {post.content_type === "review" && (
-            <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded text-[10px] font-medium font-heading tracking-wide border border-amber-700/20 dark:border-amber-500/20">
+            <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded text-xs font-medium font-heading tracking-wide border border-amber-700/20 dark:border-amber-500/20">
               REVIEW
             </span>
           )}
           {isRelevantToUser && (
-            <span className="px-1.5 py-0.5 bg-emerald-600/10 dark:bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 rounded text-[10px] font-medium font-heading tracking-wide border border-emerald-600/20 dark:border-emerald-400/20">
+            <span className="px-1.5 py-0.5 bg-emerald-600/10 dark:bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 rounded text-xs font-medium font-heading tracking-wide border border-emerald-600/20 dark:border-emerald-400/20">
               Your Car
             </span>
           )}
           {isNew && (
-            <span className="px-1.5 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-bold font-heading tracking-wide border border-primary/20">
+            <span className="px-1.5 py-0.5 bg-primary/10 text-primary rounded text-xs font-bold font-heading tracking-wide border border-primary/20">
               NEW
             </span>
           )}
@@ -88,7 +88,7 @@ export default function PostCard({
 
         {/* Title */}
         <Link href={`/post/${post.slug || post.id}`} aria-label={`Read: ${post.title}`}>
-          <h3 className="text-[15px] font-semibold text-text-primary line-clamp-2 group-hover:text-primary transition-colors duration-150 font-heading leading-snug">
+          <h3 className="text-base font-semibold text-text-primary line-clamp-2 group-hover:text-primary transition-colors duration-150 font-heading leading-snug">
             {post.title}
           </h3>
         </Link>
@@ -100,7 +100,7 @@ export default function PostCard({
               <Link
                 key={pt.car_tags.slug}
                 href={`/?tag=${pt.car_tags.slug}`}
-                className="px-2 py-0.5 bg-surface-3 text-text-muted rounded-md text-[10px] font-medium hover:bg-surface-4 hover:text-text-secondary transition-colors"
+                className="px-2 py-0.5 bg-surface-3 text-text-muted rounded-md text-xs font-medium hover:bg-surface-4 hover:text-text-secondary transition-colors"
               >
                 {pt.car_tags.name}
               </Link>

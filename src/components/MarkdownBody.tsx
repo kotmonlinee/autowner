@@ -141,7 +141,7 @@ export default function MarkdownBody({ content, className }: { content: string; 
   const withObdLinks = autoLinkObdCodes(withImages);
   const html = addHeadingIds(withObdLinks);
 
-  const defaultClasses = "prose-dark text-[15px] leading-relaxed min-w-0";
+  const defaultClasses = "prose-dark text-base leading-relaxed min-w-0";
   const combinedClasses = className ? `${defaultClasses} ${className}` : defaultClasses;
 
   return (

@@ -88,7 +88,7 @@ export default function ProductCard({
             {rating !== undefined && (
               <span className="inline-flex items-center gap-1">
                 {renderStars(rating)}
-                <span className="text-[10px] font-bold text-text-muted ml-0.5 tabular-nums">
+                <span className="text-xs font-bold text-text-muted ml-0.5 tabular-nums">
                   {rating.toFixed(1)}
                 </span>
               </span>
@@ -105,7 +105,7 @@ export default function ProductCard({
                 {price}
               </span>
             ) : (
-              <span className="text-[11px] text-text-muted italic">
+              <span className="text-xs text-text-muted italic">
                 Price check coming soon
               </span>
             )}
@@ -115,7 +115,7 @@ export default function ProductCard({
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="inline-flex items-center gap-1 text-[11px] font-bold text-amber dark:text-amber-dark hover:underline font-heading"
+                className="inline-flex items-center gap-1 text-xs font-bold text-amber dark:text-amber-dark hover:underline font-heading"
               >
                 View on Amazon
                 <svg
@@ -137,7 +137,7 @@ export default function ProductCard({
                 href={`https://www.amazon.com/s?k=${encodeURIComponent(name)}`}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="inline-flex items-center gap-1 text-[11px] font-bold text-text-muted hover:text-amber dark:hover:text-amber-dark transition-colors font-heading"
+                className="inline-flex items-center gap-1 text-xs font-bold text-text-muted hover:text-amber dark:hover:text-amber-dark transition-colors font-heading"
               >
                 Check price
                 <svg

@@ -563,7 +563,7 @@ function TierCard({ tier, repairName }: { tier: RepairCostTier; repairName: stri
             Parts: {formatMoney(tier.parts)}
           </span>
         </div>
-        <span className="ml-auto text-[10px] font-heading text-text-muted">
+        <span className="ml-auto text-xs font-heading text-text-muted">
           {tier.confidence === "high" ? "High confidence" : tier.confidence === "medium" ? "Medium confidence" : "Estimate"}
         </span>
       </div>

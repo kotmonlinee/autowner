@@ -265,7 +265,7 @@ export default async function HomePage() {
                     {tool.title}
                   </h3>
                   {isQuoteChecker && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/15 text-primary border border-primary/25 font-heading">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide bg-primary/15 text-primary border border-primary/25 font-heading">
                       Try it free
                     </span>
                   )}

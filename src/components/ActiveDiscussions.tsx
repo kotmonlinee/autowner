@@ -7,7 +7,7 @@ export default async function ActiveDiscussions() {
   if (posts.length === 0) {
     return (
       <div className="mt-4 pt-3 border-t border-surface-border">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted font-heading mb-3 px-2">
+        <p className="text-xs font-bold uppercase tracking-widest text-text-muted font-heading mb-3 px-2">
           Active Discussions
         </p>
         <p className="text-xs text-text-muted px-2">No active discussions</p>
@@ -17,7 +17,7 @@ export default async function ActiveDiscussions() {
 
   return (
     <div className="mt-4 pt-3 border-t border-surface-border">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted font-heading mb-3 px-2">
+      <p className="text-xs font-bold uppercase tracking-widest text-text-muted font-heading mb-3 px-2">
         Active Discussions
       </p>
       <ol className="space-y-0.5">

@@ -168,11 +168,11 @@ export default async function VehiclePage({
               <div className="flex-1">
                 {/* Make badge */}
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-surface-3 text-text-muted font-heading uppercase tracking-wider">
+                  <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-surface-3 text-text-muted font-heading uppercase tracking-wider">
                     {makeName}
                   </span>
                   {genYearStart && (
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber/10 text-amber border border-amber/20 font-heading">
+                    <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-amber/10 text-amber border border-amber/20 font-heading">
                       {formatYearRange(genYearStart, genYearEnd)}
                     </span>
                   )}
