@@ -19,12 +19,10 @@ export default function Footer() {
           {/* Logo + tagline */}
           <div className="flex flex-col items-center sm:items-start gap-1">
             <Link href="/" className="flex items-center group">
-              <Image
+              <img
                 src="/logo.png"
                 alt="AutOwner"
-                width={150}
-                height={100}
-                className="h-10 w-auto"
+                style={{ height: "36px", width: "auto" }}
               />
             </Link>
             <p className="text-sm text-text-muted mt-1">

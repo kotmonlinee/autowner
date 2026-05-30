@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSessionUser, onAuthChange, signOut, fetchProfile } from "@/lib/data/browser";
@@ -60,13 +59,10 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-5 h-16 flex items-center gap-6 border-b border-surface-border">
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0 group">
-            <Image
+            <img
               src="/logo.png"
               alt="AutOwner"
-              width={84}
-              height={56}
-              className="h-14 w-auto"
-              priority
+              style={{ height: "52px", width: "auto", display: "block" }}
             />
           </Link>
 
