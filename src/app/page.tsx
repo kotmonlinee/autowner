@@ -7,22 +7,22 @@ import SmartSearchBar from "@/components/SmartSearchBar";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "AutOwner — Car Ownership Made Easier",
+  title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
   description:
-    "Check repair costs, verify mechanic quotes, decode warning lights and OBD codes. Make smarter car repair decisions with AutOwner.",
+    "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
   alternates: {
     canonical: "https://www.autowner.com",
   },
   openGraph: {
     siteName: "AutOwner",
     type: "website",
-    title: "AutOwner — Car Ownership Made Easier",
+    title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
     description:
-      "Check repair costs, verify mechanic quotes, decode warning lights and OBD codes.",
+      "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AutOwner — Car Ownership Made Easier",
+    title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
     description:
       "Check repair costs, verify mechanic quotes, decode warning lights and OBD codes.",
   },
