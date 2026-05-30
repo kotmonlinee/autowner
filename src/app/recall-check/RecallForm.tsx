@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchVehicleMakes } from "@/lib/data/browser";
 
@@ -23,7 +23,6 @@ export default function RecallForm() {
   const initialMake = searchParams.get("make") ?? "";
   const initialModel = searchParams.get("model") ?? "";
   const initialYear = searchParams.get("year") ?? "";
-  const autoSubmitted = useRef(false);
 
   const [makes, setMakes] = useState<{ name: string; slug: string }[]>([]);
   const [models, setModels] = useState<string[]>([]);
@@ -68,14 +67,6 @@ export default function RecallForm() {
     if (!make || !model || !year) return;
     doSearch(make, model, year);
   };
-
-  // Auto-search when navigated with URL params
-  useEffect(() => {
-    if (initialMake && initialModel && initialYear && !autoSubmitted.current && models.length >= 0) {
-      autoSubmitted.current = true;
-      doSearch(initialMake, initialModel, initialYear);
-    }
-  }, [initialMake, initialModel, initialYear, models]);
 
   if (!makes.length) {
     return (
