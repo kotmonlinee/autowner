@@ -120,6 +120,55 @@ export default async function HomePage() {
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                name: "AutOwner",
+                url: "https://www.autowner.com",
+                description:
+                  "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
+                logo: {
+                  "@type": "ImageObject",
+                  url: "https://www.autowner.com/og-image.png",
+                  width: 1200,
+                  height: 630,
+                },
+                foundingDate: "2024",
+                knowsAbout: [
+                  "Car Repair",
+                  "OBD-II Diagnostic Trouble Codes",
+                  "Dashboard Warning Lights",
+                  "Auto Maintenance",
+                  "Mechanic Quote Verification",
+                ],
+              },
+              {
+                "@type": "WebSite",
+                name: "AutOwner",
+                url: "https://www.autowner.com",
+                description:
+                  "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
+                potentialAction: {
+                  "@type": "SearchAction",
+                  target: {
+                    "@type": "EntryPoint",
+                    urlTemplate:
+                      "https://www.autowner.com/search?q={search_term_string}",
+                  },
+                  "query-input": "required name=search_term_string",
+                },
+              },
+            ],
+          }),
+        }}
+      />
+
       {/* ── Hero Section ─────────────────────────────────── */}
       <section className="relative w-full bg-surface-0" aria-labelledby="hero-heading">
         <div className="max-w-5xl mx-auto px-5 pt-20 pb-16 sm:pt-28 sm:pb-24 text-center">
