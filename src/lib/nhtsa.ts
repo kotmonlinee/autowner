@@ -65,7 +65,7 @@ export async function getVehicleModels(
 ): Promise<string[]> {
   const params = new URLSearchParams({ make, modelYear: year });
   const url = `${BASE}/products/vehicle/models?${params}&issueType=r`;
-  const res = await fetch(url, { next: { revalidate: 86400 } });
+  const res = await fetch(url, { cache: "no-store" });
 
   if (!res.ok) return [];
 

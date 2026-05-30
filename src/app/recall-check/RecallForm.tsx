@@ -33,10 +33,12 @@ export default function RecallForm() {
 
   useEffect(() => {
     if (!make || !year) { setModels([]); setModel(""); return; }
-    fetch(`/api/recalls?action=models&make=${encodeURIComponent(make)}&year=${year}`)
+    const controller = new AbortController();
+    fetch(`/api/recalls?action=models&make=${encodeURIComponent(make)}&year=${year}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => setModels(d.models ?? []))
-      .catch(() => {});
+      .catch((err) => { if (err.name !== "AbortError") setModels([]); });
+    return () => controller.abort();
   }, [make, year]);
 
   const handleSearch = async (e: React.FormEvent) => {
