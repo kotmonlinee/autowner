@@ -35,7 +35,58 @@ export default function RecallCheckPage() {
             NHTSA (National Highway Traffic Safety Administration).
           </p>
         </div>
+
+        {/* Most Checked Vehicles */}
+        <div className="mb-8 p-5 bg-surface-1 rounded-2xl border border-surface-border">
+          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Most Checked Vehicles</h2>
+          <p className="text-xs text-text-muted mb-3">Click to quickly check recalls for these commonly searched vehicles:</p>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { make: "Toyota", model: "Camry", year: "2020" },
+              { make: "Honda", model: "Civic", year: "2019" },
+              { make: "Ford", model: "F-150", year: "2020" },
+              { make: "Toyota", model: "RAV4", year: "2020" },
+              { make: "Honda", model: "Accord", year: "2019" },
+              { make: "Chevrolet", model: "Silverado 1500", year: "2020" },
+              { make: "Nissan", model: "Altima", year: "2019" },
+              { make: "Jeep", model: "Grand Cherokee", year: "2020" },
+              { make: "Ford", model: "Explorer", year: "2020" },
+              { make: "Hyundai", model: "Elantra", year: "2019" },
+              { make: "BMW", model: "3 Series", year: "2020" },
+              { make: "Subaru", model: "Outback", year: "2020" },
+            ].map((v) => (
+              <a key={`${v.make}-${v.model}-${v.year}`} href={`/recall-check`}
+                className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/20 transition-colors font-heading">
+                {v.make} {v.model} ({v.year})
+              </a>
+            ))}
+          </div>
+        </div>
+
         <RecallForm />
+
+        {/* FAQ */}
+        <section className="mt-12 pt-10 border-t border-surface-border" aria-labelledby="faq-heading">
+          <h2 id="faq-heading" className="text-xl font-heading font-bold text-text-primary mb-6">Frequently Asked Questions</h2>
+          <div className="space-y-3">
+            {[
+              { q: "Are vehicle safety recalls free to fix?", a: "Yes. By law, all safety recalls must be repaired free of charge by authorized dealerships. The manufacturer covers all parts and labor costs. Never pay for a safety recall repair." },
+              { q: "How do I know if my car has an open recall?", a: "Use our free recall checker above — select your vehicle's make, model, and year to see all open recalls from the NHTSA database. You can also check by VIN on NHTSA.gov/safercar for the most accurate results." },
+              { q: "What does 'Park It' or 'Park Outside' mean?", a: "'Park It' means the recall is so critical you should not drive the vehicle until repaired. 'Park Outside' means the vehicle should be parked away from structures due to fire risk. Both are the highest severity recall classifications." },
+              { q: "How often are recalls issued?", a: "The NHTSA issues hundreds of recalls each year covering millions of vehicles. Manufacturers also self-report defects. New recalls are published daily — check your vehicle regularly." },
+              { q: "Can I still drive with an open recall?", a: "Most recalls are safe to drive while you wait for repairs. However, if your recall is marked 'Park It' or 'Do Not Drive', you should stop driving immediately and contact your dealer for towing and repair arrangements." },
+              { q: "Does a recall affect my car's value?", a: "Open recalls do not directly reduce resale value but should be disclosed to buyers. Completed recall repairs show up on vehicle history reports like Carfax, which can give buyers confidence." },
+            ].map((faq, i) => (
+              <details key={i} className="group bg-surface-1 rounded-xl border border-surface-border">
+                <summary className="flex items-center gap-2 cursor-pointer list-none p-4 font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
+                  <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+                  {faq.q}
+                </summary>
+                <p className="px-4 pb-4 ml-6 text-sm text-text-secondary leading-relaxed">{faq.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
       </main>
       <Footer />
     </div>

@@ -483,6 +483,49 @@ function QuoteCheckerContent() {
           </p>
         </div>
 
+        {/* How It Works */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {[
+            { step: "1", title: "Enter vehicle", desc: "Select your make, model, and year." },
+            { step: "2", title: "Add repair & price", desc: "Choose the repair type and the quote amount." },
+            { step: "3", title: "Get assessment", desc: "See if your quote is fair, high, or a ripoff." },
+          ].map((s) => (
+            <div key={s.step} className="flex gap-3 p-4 bg-surface-1 rounded-xl border border-surface-border">
+              <span className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-bold font-heading shrink-0">{s.step}</span>
+              <div>
+                <h3 className="text-sm font-heading font-semibold text-text-primary">{s.title}</h3>
+                <p className="text-xs text-text-muted mt-0.5">{s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Most Checked Repairs */}
+        <div className="mb-8 p-5 bg-surface-1 rounded-2xl border border-surface-border">
+          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Most Checked Repairs</h2>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { name: "Brake Pad Replacement", cost: "$200–500" },
+              { name: "Alternator Replacement", cost: "$400–800" },
+              { name: "Water Pump Replacement", cost: "$350–700" },
+              { name: "Starter Replacement", cost: "$300–600" },
+              { name: "Oxygen Sensor", cost: "$200–400" },
+              { name: "Spark Plug Replacement", cost: "$150–350" },
+              { name: "Catalytic Converter", cost: "$800–2,500" },
+              { name: "A/C Compressor", cost: "$500–1,200" },
+              { name: "Fuel Pump Replacement", cost: "$400–900" },
+              { name: "Timing Belt Replacement", cost: "$500–1,000" },
+            ].map((r) => (
+              <Link key={r.name} href={`/repair-cost/${r.name.toLowerCase().replace(/\s+/g, "-")}`}
+                className="inline-flex flex-col px-3 py-2 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors">
+                <span className="text-xs font-medium text-text-primary font-heading">{r.name}</span>
+                <span className="text-[10px] text-text-muted font-heading">{r.cost}</span>
+              </Link>
+            ))}
+          </div>
+          <p className="text-xs text-text-muted mt-3">Click any repair to see detailed cost estimates by vehicle tier.</p>
+        </div>
+
         {/* Form */}
         <form
           onSubmit={handleSubmit}
@@ -1025,6 +1068,28 @@ function QuoteCheckerContent() {
             </p>
           </div>
         )}
+
+        {/* FAQ */}
+        <section className="mt-12 pt-10 border-t border-surface-border" aria-labelledby="faq-heading">
+          <h2 id="faq-heading" className="text-xl font-heading font-bold text-text-primary mb-6">Frequently Asked Questions</h2>
+          <div className="space-y-3">
+            {[
+              { q: "How accurate is the repair cost data?", a: "Our repair cost data is sourced from a combination of NHTSA vehicle data, industry labor rate guides, and aggregated repair shop pricing. Estimates are broken down by vehicle tier (Economy, Mid-Range, Luxury, Truck/SUV, European) to reflect different labor and parts costs." },
+              { q: "What's considered a fair mechanic quote?", a: "A fair quote falls within the typical cost range for your vehicle type and includes reasonable labor rates. If your quote is within 10-15% of our estimated range, it's generally fair. Quotes 20%+ above our estimates may be overpriced." },
+              { q: "How much does labor vs parts cost?", a: "Labor typically accounts for 50-70% of most repair costs. Parts costs vary by vehicle tier — economy cars use more affordable aftermarket parts, while luxury and European vehicles require more expensive OEM or specialty parts." },
+              { q: "Should I get multiple quotes?", a: "Yes. We recommend getting at least 2-3 quotes for any repair over $500. Different shops have different labor rates and may use different quality parts. Use our tool to benchmark each quote." },
+              { q: "Can I use this for insurance estimates?", a: "Yes, our repair cost data can help you validate insurance repair estimates. However, insurance adjusters use their own labor rate guides and may include additional factors like rental car coverage and diminished value." },
+            ].map((faq, i) => (
+              <details key={i} className="group bg-surface-1 rounded-xl border border-surface-border">
+                <summary className="flex items-center gap-2 cursor-pointer list-none p-4 font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
+                  <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+                  {faq.q}
+                </summary>
+                <p className="px-4 pb-4 ml-6 text-sm text-text-secondary leading-relaxed">{faq.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
       </main>
 
       <Footer />
