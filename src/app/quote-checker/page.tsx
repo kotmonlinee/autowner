@@ -503,28 +503,35 @@ function QuoteCheckerContent() {
         {/* Most Checked Repairs */}
         <div className="mb-8 p-5 bg-surface-1 rounded-2xl border border-surface-border">
           <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Most Checked Repairs</h2>
-          <div className="flex flex-wrap gap-2">
+          <p className="text-xs text-text-muted mb-3">Click to pre-fill the form with vehicle + repair. Just enter your quoted price.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {[
-              { name: "Brake Pad Replacement", cost: "$200–500" },
-              { name: "Alternator Replacement", cost: "$400–800" },
-              { name: "Water Pump Replacement", cost: "$350–700" },
-              { name: "Starter Replacement", cost: "$300–600" },
-              { name: "Oxygen Sensor", cost: "$200–400" },
-              { name: "Spark Plug Replacement", cost: "$150–350" },
-              { name: "Catalytic Converter", cost: "$800–2,500" },
-              { name: "A/C Compressor", cost: "$500–1,200" },
-              { name: "Fuel Pump Replacement", cost: "$400–900" },
-              { name: "Timing Belt Replacement", cost: "$500–1,000" },
+              { make: "Toyota", makeSlug: "toyota", model: "Camry", modelSlug: "camry", year: "2020", repair: "Brake Pad Replacement", cost: "$200–500" },
+              { make: "Honda", makeSlug: "honda", model: "Civic", modelSlug: "civic", year: "2019", repair: "Alternator Replacement", cost: "$400–800" },
+              { make: "Ford", makeSlug: "ford", model: "F-150", modelSlug: "f-150", year: "2020", repair: "Water Pump Replacement", cost: "$350–700" },
+              { make: "Toyota", makeSlug: "toyota", model: "RAV4", modelSlug: "rav4", year: "2021", repair: "Starter Replacement", cost: "$300–600" },
+              { make: "Honda", makeSlug: "honda", model: "Accord", modelSlug: "accord", year: "2019", repair: "Spark Plug Replacement", cost: "$150–350" },
+              { make: "Chevrolet", makeSlug: "chevrolet", model: "Silverado 1500", modelSlug: "silverado-1500", year: "2020", repair: "Fuel Pump Replacement", cost: "$400–900" },
             ].map((r) => (
-              <button key={r.name} type="button"
-                onClick={() => { setRepairType(r.name); setShowRepairDropdown(false); }}
-                className="inline-flex flex-col px-3 py-2 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer text-left">
-                <span className="text-xs font-medium text-text-primary font-heading">{r.name}</span>
-                <span className="text-[10px] text-text-muted font-heading">{r.cost}</span>
+              <button key={`${r.make}-${r.model}-${r.repair}`} type="button"
+                onClick={() => {
+                  setSelectedMakeSlug(r.makeSlug);
+                  setMake(r.make);
+                  setSelectedModelSlug(r.modelSlug);
+                  setModel(r.model);
+                  setYear(r.year);
+                  setRepairType(r.repair);
+                  setShowRepairDropdown(false);
+                }}
+                className="flex items-center gap-3 p-3 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer text-left">
+                <span className="text-[10px] font-bold text-text-muted font-heading uppercase shrink-0">{r.cost}</span>
+                <div className="min-w-0">
+                  <span className="text-xs font-medium text-text-primary font-heading block truncate">{r.make} {r.model} ({r.year})</span>
+                  <span className="text-[10px] text-text-muted font-heading">{r.repair}</span>
+                </div>
               </button>
             ))}
           </div>
-          <p className="text-xs text-text-muted mt-3">Click any repair to pre-fill the form below and check your quote.</p>
         </div>
 
         {/* Form */}
