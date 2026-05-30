@@ -70,5 +70,5 @@ export async function getVehicleModels(
   if (!res.ok) return [];
 
   const data: { Count: number; results: { model: string }[] } = await res.json();
-  return (data.results ?? []).map((r) => r.model).sort();
+  return [...new Set((data.results ?? []).map((r) => r.model))].sort();
 }
