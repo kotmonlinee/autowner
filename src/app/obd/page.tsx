@@ -77,7 +77,7 @@ export default async function ObdLandingPage({
         }}
       />
 
-      <main id="main-content" className="max-w-5xl mx-auto px-5 py-6 flex-1 w-full max-w-full overflow-hidden">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         {/* Breadcrumb */}
         <nav
           className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading"

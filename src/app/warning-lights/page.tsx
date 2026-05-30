@@ -82,7 +82,7 @@ export default function WarningLightsPage() {
         }}
       />
 
-      <main id="main-content" className="max-w-5xl mx-auto px-5 py-10 w-full flex-1 max-w-full overflow-hidden">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-10 w-full flex-1">
         {/* Page header */}
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-3">
