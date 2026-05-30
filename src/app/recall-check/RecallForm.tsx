@@ -39,11 +39,19 @@ export default function RecallForm() {
 
   useEffect(() => {
     setModels([]);
-    setModel("");
-    if (!make || !year) return;
+    if (!make || !year) { setModel(""); return; }
     fetch(`/api/recalls?action=models&make=${encodeURIComponent(make)}&year=${year}`)
       .then((r) => r.json())
-      .then((d) => setModels(d.models ?? []));
+      .then((d) => {
+        const list = d.models ?? [];
+        setModels(list);
+        // Case-insensitive match for pre-filled model from URL
+        setModel((prev) => {
+          if (!prev) return "";
+          const match = list.find((m: string) => m.toLowerCase() === prev.toLowerCase());
+          return match ?? prev;
+        });
+      });
   }, [make, year]);
 
   const doSearch = async (m: string, mo: string, y: string) => {
