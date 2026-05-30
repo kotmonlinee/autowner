@@ -9,6 +9,19 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.autowner.com/privacy",
   },
+  openGraph: {
+    title: "Privacy Policy",
+    description:
+      "Learn what data we collect, how we use cookies, and your rights regarding your personal information.",
+    type: "website",
+    url: "https://www.autowner.com/privacy",
+  },
+  twitter: {
+    card: "summary",
+    title: "Privacy Policy",
+    description:
+      "Learn what data we collect, how we use cookies, and your rights regarding your personal information.",
+  },
 };
 
 export default function PrivacyPage() {

@@ -377,9 +377,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             </span>
           </div>
 
-          <h2 className="text-xl font-heading font-semibold text-text-primary mb-3">
+          <p className="text-xl font-heading font-semibold text-text-primary mb-3">
             {obd.title}
-          </h2>
+          </p>
           <p className="text-text-muted text-sm leading-relaxed">
             {naturalIntro}
           </p>
@@ -387,9 +387,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
         {/* NEW: Above-the-Fold "Can you still drive?" Answer Block */}
         <div className={`${driving.bgClass} rounded-xl border-2 ${driving.borderClass} p-5 mb-4`}>
-          <h3 className="text-base font-heading font-bold text-text-primary mb-2">
+          <h2 className="text-base font-heading font-bold text-text-primary mb-2">
             Can you still drive with {obd.code}?
-          </h3>
+          </h2>
           <p className="text-sm leading-relaxed text-text-secondary mb-3">
             <span className="mr-1.5">{driving.emoji}</span>
             {driving.text}
@@ -406,9 +406,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
         {/* Severity Explanation */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-          <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
             Severity Level {obd.severity} &mdash; {sev.label}
-          </h3>
+          </h2>
           <p className="text-text-muted text-sm leading-relaxed">
             {obd.severity <= 2 && (
               <>
@@ -444,9 +444,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
         {/* Symptoms */}
         {obd.symptoms.length > 0 && (
           <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
               Common Symptoms
-            </h3>
+            </h2>
             <ul className="space-y-2">
               {obd.symptoms.map((s, i) => (
                 <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
@@ -473,9 +473,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
         {/* Possible Causes */}
         {obd.causes.length > 0 && (
           <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
               Possible Causes
-            </h3>
+            </h2>
             <ul className="space-y-2">
               {obd.causes.map((c, i) => (
                 <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
@@ -502,9 +502,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
         {/* Common Fixes */}
         {obd.fixes.length > 0 && (
           <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
               Common Fixes
-            </h3>
+            </h2>
             <ul className="space-y-2">
               {obd.fixes.map((f, i) => (
                 <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
@@ -529,9 +529,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
         {/* Estimated Repair Cost */}
         {obd.min_cost != null && obd.max_cost != null && (
           <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
               Estimated Repair Cost
-            </h3>
+            </h2>
             <div className="flex items-baseline gap-3">
               <span className="text-2xl font-bold text-text-primary font-heading">
                 ${obd.min_cost} &ndash; ${obd.max_cost}
@@ -550,9 +550,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
         {/* NEW: FAQ Section */}
         {faqItems.length > 0 && (
           <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">
               Frequently Asked Questions
-            </h3>
+            </h2>
             <div className="space-y-4">
               {faqItems.map((item, i) => (
                 <details key={i} className="group" open={i === 0}>
@@ -581,9 +581,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
         {/* Cross-links from cost section */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-          <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
             Explore Repair Costs
-          </h3>
+          </h2>
           <div className="space-y-2">
             <Link
               href="/repair-cost"
@@ -627,9 +627,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
         {/* Related OBD-II Codes */}
         {relatedCodes.length > 0 && (
           <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
               Related OBD-II Codes
-            </h3>
+            </h2>
             <p className="text-text-muted text-sm mb-3">
               These codes are in the same range as {obd.code} and often share similar causes and fixes.
             </p>
@@ -654,9 +654,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="flex-1">
-              <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">
+              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">
                 Worried about repair costs?
-              </h3>
+              </h2>
               <p className="text-text-muted text-sm">
                 Get transparent estimates and verify your mechanic&apos;s quote before authorizing repairs.
               </p>
@@ -684,9 +684,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
         {/* Related Forum Posts */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-          <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
             Related Discussions
-          </h3>
+          </h2>
           <p className="text-text-muted text-sm mb-3">
             See what other car owners are saying about this code and related repairs.
           </p>

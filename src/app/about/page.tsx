@@ -3,11 +3,24 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "About AutOwner — Car Aftermarket Community",
+  title: "About",
   description:
     "Learn about AutOwner, a community built by and for car enthusiasts. Maintenance advice, repair guides, and modification inspiration from ASE-certified mechanics and dedicated DIYers.",
   alternates: {
     canonical: "https://www.autowner.com/about",
+  },
+  openGraph: {
+    title: "About AutOwner",
+    description:
+      "A community built by and for car enthusiasts. Maintenance advice, repair guides, and modification inspiration.",
+    type: "website",
+    url: "https://www.autowner.com/about",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About AutOwner",
+    description:
+      "A community built by and for car enthusiasts. Maintenance advice, repair guides, and modification inspiration.",
   },
 };
 

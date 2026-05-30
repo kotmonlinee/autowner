@@ -9,6 +9,19 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.autowner.com/terms",
   },
+  openGraph: {
+    title: "Terms of Service",
+    description:
+      "Understand your rights, user conduct expectations, content ownership, and disclaimers.",
+    type: "website",
+    url: "https://www.autowner.com/terms",
+  },
+  twitter: {
+    card: "summary",
+    title: "Terms of Service",
+    description:
+      "Understand your rights, user conduct expectations, content ownership, and disclaimers.",
+  },
 };
 
 export default function TermsPage() {
