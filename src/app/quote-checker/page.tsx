@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { fetchVehicleMakes, fetchVehicleModels, fetchVehicleGenerations } from "@/lib/data/browser";
@@ -517,14 +516,15 @@ function QuoteCheckerContent() {
               { name: "Fuel Pump Replacement", cost: "$400–900" },
               { name: "Timing Belt Replacement", cost: "$500–1,000" },
             ].map((r) => (
-              <Link key={r.name} href={`/repair-cost/${r.name.toLowerCase().replace(/\s+/g, "-")}`}
-                className="inline-flex flex-col px-3 py-2 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors">
+              <button key={r.name} type="button"
+                onClick={() => { setRepairType(r.name); setShowRepairDropdown(false); }}
+                className="inline-flex flex-col px-3 py-2 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer text-left">
                 <span className="text-xs font-medium text-text-primary font-heading">{r.name}</span>
                 <span className="text-[10px] text-text-muted font-heading">{r.cost}</span>
-              </Link>
+              </button>
             ))}
           </div>
-          <p className="text-xs text-text-muted mt-3">Click any repair to see detailed cost estimates by vehicle tier.</p>
+          <p className="text-xs text-text-muted mt-3">Click any repair to pre-fill the form below and check your quote.</p>
         </div>
 
         {/* Form */}
