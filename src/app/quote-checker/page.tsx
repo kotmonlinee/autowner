@@ -192,10 +192,12 @@ function QuoteCheckerContent() {
     });
   }, [selectedMakeSlug]);
 
-  // Supplement models from NHTSA when year is set (more comprehensive)
+  // Supplement models from NHTSA for more complete coverage
   useEffect(() => {
-    if (!make || !year || year.length !== 4) return;
-    fetch(`/api/recalls?action=models&make=${encodeURIComponent(make)}&year=${year}`)
+    if (!make) return;
+    // Fetch NHTSA models for current year as a representative sample
+    const currentYear = new Date().getFullYear();
+    fetch(`/api/recalls?action=models&make=${encodeURIComponent(make)}&year=${currentYear}`)
       .then((r) => r.json())
       .then((d) => {
         if (!d.models?.length) return;
@@ -211,7 +213,7 @@ function QuoteCheckerContent() {
         });
       })
       .catch(() => {});
-  }, [make, year]);
+  }, [make]);
 
   // Cascade: when model changes, load generations for year range
   useEffect(() => {
