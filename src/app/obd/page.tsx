@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { getTopObdCodes, searchObdCodes } from "@/lib/data/server";
+import { getTopObdCodes, getObdCodesPaginated, searchObdCodes } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Pagination from "@/components/Pagination";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -46,9 +47,9 @@ function severityLabel(severity: number): string {
 export default async function ObdLandingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, page: pageParam } = await searchParams;
   const query = q?.trim() || "";
   const results = query ? await searchObdCodes(query) : [];
 
@@ -57,7 +58,11 @@ export default async function ObdLandingPage({
     redirect(`/obd/${results[0].code.toLowerCase()}`);
   }
 
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const topCodes = query ? [] : await getTopObdCodes(20);
+  const { codes: paginatedCodes, totalCount } = query
+    ? { codes: [] as Awaited<ReturnType<typeof getObdCodesPaginated>>["codes"], totalCount: 0 }
+    : await getObdCodesPaginated(page, 50);
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -191,60 +196,62 @@ export default async function ObdLandingPage({
           </section>
         )}
 
-        {/* Common Codes */}
+        {/* All Codes Browser */}
         {!query && (
           <section>
             <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
-              Common Diagnostic Codes
+              All Diagnostic Codes
             </h2>
 
-            {topCodes.length === 0 ? (
+            {paginatedCodes.length === 0 ? (
               <div className="text-center py-12 bg-surface-1 rounded-xl border border-surface-border">
                 <p className="text-text-muted text-sm">No codes available. Check back soon.</p>
               </div>
             ) : (
-              <div className="grid gap-2">
-                {topCodes.map((c) => (
-                  <Link
-                    key={c.code}
-                    href={`/obd/${c.code.toLowerCase()}`}
-                    className="group flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150 max-w-full overflow-hidden"
-                  >
-                    <span className="text-lg font-mono font-bold text-text-primary group-hover:text-primary transition-colors shrink-0 w-20">
-                      {c.code}
-                    </span>
-                    <span className="flex-1 min-w-0 text-sm text-text-secondary line-clamp-2">
-                      {c.title}
-                    </span>
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold font-heading border shrink-0 ${severityBadgeClass(c.severity)}`}
+              <>
+                <div className="grid gap-2">
+                  {paginatedCodes.map((c) => (
+                    <Link
+                      key={c.code}
+                      href={`/obd/${c.code.toLowerCase()}`}
+                      className="group flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150 max-w-full overflow-hidden"
                     >
-                      S{severityLabel(c.severity)}
-                    </span>
-                    <svg
-                      className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors shrink-0"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </Link>
-                ))}
-              </div>
+                      <span className="text-lg font-mono font-bold text-text-primary group-hover:text-primary transition-colors shrink-0 w-20">
+                        {c.code}
+                      </span>
+                      <span className="flex-1 min-w-0 text-sm text-text-secondary line-clamp-2">
+                        {c.title}
+                      </span>
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold font-heading border shrink-0 ${severityBadgeClass(c.severity)}`}
+                      >
+                        S{severityLabel(c.severity)}
+                      </span>
+                      <svg
+                        className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors shrink-0"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    </Link>
+                  ))}
+                </div>
+
+                <Pagination
+                  page={page}
+                  totalCount={totalCount}
+                  limit={50}
+                  basePath="/obd"
+                />
+              </>
             )}
           </section>
         )}
-
-        {/* Browse all link */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-text-muted mb-2">
-            Can&apos;t find your code? Try searching with the box above.
-          </p>
-        </div>
       </main>
 
       <Footer />

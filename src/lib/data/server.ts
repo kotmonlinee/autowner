@@ -1750,6 +1750,31 @@ export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" |
   return allCodes.slice(0, limit);
 }
 
+export async function getObdCodesPaginated(page: number, pageSize = 50): Promise<{
+  codes: Pick<ObdCode, "code" | "title" | "severity">[];
+  totalCount: number;
+}> {
+  const supabase = await createServerSupabase();
+  const offset = (page - 1) * pageSize;
+
+  const [{ data, error }, { count }] = await Promise.all([
+    supabase
+      .from("obd_codes")
+      .select("code, title, severity")
+      .order("code", { ascending: true })
+      .range(offset, offset + pageSize - 1),
+    supabase
+      .from("obd_codes")
+      .select("code", { count: "exact", head: true }),
+  ]);
+
+  if (error) throw error;
+  return {
+    codes: (data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [],
+    totalCount: count ?? 0,
+  };
+}
+
 // ── Repair Costs ───────────────────────────────────────────
 
 const TIER_LABELS: Record<string, string> = {
