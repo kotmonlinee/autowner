@@ -1985,18 +1985,35 @@ export async function getRepairCategoryCounts(
 
 export async function getVehicleRepairSlugs(limit = 100): Promise<{ makeSlug: string; modelSlug: string; makeName: string; modelName: string }[]> {
   const supabase = await createServerSupabase();
-  // Get models with their makes, ordered by number of engines (richest data first)
+  // Top US models by sales popularity, grouped by brand
+  const POPULAR_ORDER = [
+    "f-150", "silverado-1500", "ram-1500", "tacoma", "tundra",
+    "civic", "accord", "camry", "corolla", "altima", "sentra",
+    "rav4", "cr-v", "rogue", "equinox", "escape", "tucson", "sportage",
+    "3-series", "c-class", "a4", "model-3", "model-y",
+    "wrangler", "grand-cherokee", "explorer", "highlander", "pilot",
+    "mustang", "charger", "outback", "forester", "cx-5",
+  ];
   const { data } = await supabase
     .from("vehicle_models")
     .select("slug, name, vehicle_makes!inner(slug, name)")
-    .order("slug")
-    .limit(limit);
-  return ((data as unknown as any[]) ?? []).map((m) => ({
+    .limit(300);
+  const all = ((data as unknown as any[]) ?? []).map((m) => ({
     modelSlug: m.slug,
     modelName: m.name,
     makeSlug: m.vehicle_makes.slug,
     makeName: m.vehicle_makes.name,
   }));
+  // Sort: known popular models first, then alphabetically
+  all.sort((a, b) => {
+    const ai = POPULAR_ORDER.indexOf(a.modelSlug);
+    const bi = POPULAR_ORDER.indexOf(b.modelSlug);
+    if (ai >= 0 && bi >= 0) return ai - bi;
+    if (ai >= 0) return -1;
+    if (bi >= 0) return 1;
+    return a.modelName.localeCompare(b.modelName);
+  });
+  return all.slice(0, limit);
 }
 
 // ── Homepage Activity ──────────────────────────────────────
