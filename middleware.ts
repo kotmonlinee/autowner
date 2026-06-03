@@ -3,8 +3,8 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  // Clean and canonicalize /obd/ URLs
-  const obdMatch = request.nextUrl.pathname.match(/^\/obd\/([PCBU]\d{4,5})/i);
+  // Clean and canonicalize /obd/ URLs (only 1-segment, not /obd/code/make/model)
+  const obdMatch = request.nextUrl.pathname.match(/^\/obd\/([PCBU]\d{4,5})$/i);
   if (obdMatch) {
     const code = obdMatch[1].toLowerCase();
     const cleanPath = `/obd/${code}`;
