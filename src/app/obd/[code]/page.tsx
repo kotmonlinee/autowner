@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 
 export const revalidate = 86400; // ISR: revalidate every 24 hours (static reference data)
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -138,7 +138,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
   // Redirect uppercase/case-variant URLs to lowercase canonical
   const lower = code.toLowerCase();
   if (code !== lower) {
-    redirect(`/obd/${lower}`);
+    permanentRedirect(`/obd/${lower}`);
   }
 
   const [obd, relatedCodes] = await Promise.all([
