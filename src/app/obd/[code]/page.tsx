@@ -135,10 +135,10 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
 export default async function ObdCodePage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
 
-  // Redirect uppercase/case-variant URLs to lowercase canonical
-  const lower = code.toLowerCase();
-  if (code !== lower) {
-    permanentRedirect(`/obd/${lower}`);
+  // Redirect uppercase/case-variant OBD code URLs to lowercase canonical
+  // Fixes Google "duplicate, user didn't select canonical" indexing error
+  if (code !== code.toLowerCase()) {
+    permanentRedirect(`/obd/${code.toLowerCase()}`);
   }
 
   const [obd, relatedCodes] = await Promise.all([
