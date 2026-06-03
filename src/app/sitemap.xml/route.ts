@@ -1,4 +1,4 @@
-import { getPosts, getCategories, getAllRepairSlugs, getTopObdCodes } from "@/lib/data/server";
+import { getPosts, getCategories, getAllRepairSlugs, getTopObdCodes, getVehicleRepairSlugs } from "@/lib/data/server";
 import { warningLights } from "@/lib/warning-lights-data";
 
 export const revalidate = 3600;
@@ -15,11 +15,12 @@ export async function GET() {
   const baseUrl = "https://www.autowner.com";
   const now = new Date().toISOString();
 
-  const [{ posts }, categories, repairSlugs, topObdCodes] = await Promise.all([
+  const [{ posts }, categories, repairSlugs, topObdCodes, vehicleModels] = await Promise.all([
     getPosts({ limit: 10000 }),
     getCategories(),
     getAllRepairSlugs(),
     getTopObdCodes(15000),
+    getVehicleRepairSlugs(100),
   ]);
 
   const urls: string[] = [];
@@ -46,6 +47,16 @@ export async function GET() {
   // Repair cost detail pages
   for (const slug of repairSlugs) {
     urls.push(urlEntry(`${baseUrl}/repair-cost/${slug}`, now, "monthly", 0.7));
+  }
+
+  // Vehicle-specific repair cost pages (model × repair cross-reference)
+  for (const vm of vehicleModels) {
+    for (const slug of repairSlugs) {
+      urls.push(urlEntry(
+        `${baseUrl}/repair-cost/${vm.makeSlug}/${vm.modelSlug}/${slug}`,
+        now, "monthly", 0.65,
+      ));
+    }
   }
 
   // OBD code detail pages

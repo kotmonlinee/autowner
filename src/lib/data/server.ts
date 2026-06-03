@@ -1981,6 +1981,24 @@ export async function getRepairCategoryCounts(
  * Return popular repair types with their overall cost ranges.
  * Popularity is approximated by how many distinct tier/make/model rows exist per repair.
  */
+// ── Vehicle Repair Cross Pages ────────────────────────────
+
+export async function getVehicleRepairSlugs(limit = 100): Promise<{ makeSlug: string; modelSlug: string; makeName: string; modelName: string }[]> {
+  const supabase = await createServerSupabase();
+  // Get models with their makes, ordered by number of engines (richest data first)
+  const { data } = await supabase
+    .from("vehicle_models")
+    .select("slug, name, vehicle_makes!inner(slug, name)")
+    .order("slug")
+    .limit(limit);
+  return ((data as unknown as any[]) ?? []).map((m) => ({
+    modelSlug: m.slug,
+    modelName: m.name,
+    makeSlug: m.vehicle_makes.slug,
+    makeName: m.vehicle_makes.name,
+  }));
+}
+
 // ── Homepage Activity ──────────────────────────────────────
 
 export async function getRecentActivityCount(): Promise<{ newArticles: number; newDiscussions: number }> {
