@@ -48,13 +48,9 @@ export async function GET() {
     urls.push(urlEntry(`${baseUrl}/repair-cost/${slug}`, now, "monthly", 0.7));
   }
 
-  // OBD code detail pages — only standard 5-char codes (P/C/B/U + 4 digits)
-  // Excludes extended/manufacturer-specific codes that cause indexing issues
-  const OBD_RE = /^[PCBU]\d{4}$/i;
+  // OBD code detail pages
   for (const c of topObdCodes) {
-    if (OBD_RE.test(c.code)) {
-      urls.push(urlEntry(`${baseUrl}/obd/${c.code.toLowerCase()}`, now, "monthly", 0.7));
-    }
+    urls.push(urlEntry(`${baseUrl}/obd/${c.code.toLowerCase()}`, now, "monthly", 0.7));
   }
 
   // Warning light detail pages

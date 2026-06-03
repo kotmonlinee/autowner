@@ -3,15 +3,18 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  // Redirect uppercase OBD codes to lowercase (SEO canonicalization)
-  // Skip remaining middleware for all /obd/ paths (no auth needed)
-  const obdMatch = request.nextUrl.pathname.match(/^\/obd\/([PCBU]\d{4})$/i);
+  // Clean and canonicalize /obd/ URLs
+  const obdMatch = request.nextUrl.pathname.match(/^\/obd\/([PCBU]\d{4,5})/i);
   if (obdMatch) {
-    const code = obdMatch[1];
-    if (code !== code.toLowerCase()) {
-      return NextResponse.redirect(new URL(`/obd/${code.toLowerCase()}`, request.url), 301);
+    const code = obdMatch[1].toLowerCase();
+    const cleanPath = `/obd/${code}`;
+    // Redirect if uppercase, or if path has trailing garbage (params are fine)
+    if (request.nextUrl.pathname !== cleanPath) {
+      const target = new URL(cleanPath, request.url);
+      target.search = request.nextUrl.search; // preserve query params
+      return NextResponse.redirect(target, 301);
     }
-    return NextResponse.next(); // lowercase OBD — skip auth checks
+    return NextResponse.next(); // clean lowercase OBD — skip auth checks
   }
 
   let response = NextResponse.next({ request });
