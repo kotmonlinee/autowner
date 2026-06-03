@@ -89,6 +89,7 @@ export default async function VehicleRepairPage({
   const relatedRecalls = recalls.filter((r) =>
     repairName.toLowerCase().split(" ").some((w) => w.length > 3 && r.Component?.toLowerCase().includes(w)),
   );
+  const showRecalls = relatedRecalls.length > 0 ? relatedRecalls : recalls.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -225,16 +226,16 @@ export default async function VehicleRepairPage({
         </div>
 
         {/* 5. Related Recalls */}
-        {relatedRecalls.length > 0 && (
+        {showRecalls.length > 0 && (
           <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-6">
             <h2 className="text-lg font-heading font-bold text-text-primary mb-3">
-              {makeName} {modelName} Recalls Related to {repairName}
+              {makeName} {modelName} Safety Recalls
             </h2>
             <p className="text-xs text-text-muted mb-4">
-              A recall may cover the cost of this repair. Check if your vehicle is affected:
+              Open safety recalls for this vehicle. Some may cover repair costs:
             </p>
             <div className="space-y-2">
-              {relatedRecalls.slice(0, 5).map((r) => (
+              {showRecalls.slice(0, 5).map((r) => (
                 <div key={r.NHTSACampaignNumber} className={`p-4 rounded-xl border ${r.parkIt ? "border-red-200 dark:border-red-800 bg-red-50/20" : "bg-surface-0 border-surface-border"}`}>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-mono text-text-muted">{r.NHTSACampaignNumber}</span>

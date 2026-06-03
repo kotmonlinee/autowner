@@ -39,7 +39,10 @@ export async function searchRecalls(
   const params = new URLSearchParams({ make, model, modelYear: year });
   const url = `${BASE}/recalls/recallsByVehicle?${params}`;
 
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(url, {
+    cache: "no-store",
+    headers: { "User-Agent": "AutOwner/1.0 (https://www.autowner.com)" },
+  });
 
   if (!res.ok) return [];
 
