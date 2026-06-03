@@ -90,16 +90,13 @@ export default async function DesignBPage() {
       {/* Hero */}
       <section className="relative w-full bg-surface-0 pt-16 sm:pt-24 pb-12 sm:pb-16">
         <div className="max-w-4xl mx-auto px-5 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold font-heading tracking-wide mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            Free car repair tools
-          </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display text-text-primary tracking-wide leading-tight">
-            Know what your repair{" "}
-            <span className="text-primary">should cost</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display text-text-primary tracking-wide leading-tight">
+            What's wrong with{" "}
+            <span className="text-primary">your car</span>
+            <span className="text-text-muted">?</span>
           </h1>
-          <p className="mt-3 text-lg text-text-muted max-w-lg mx-auto font-heading">
-            Check repair costs, decode OBD codes, identify warning lights, and verify mechanic quotes.
+          <p className="mt-4 text-lg sm:text-xl text-text-muted max-w-xl mx-auto font-heading">
+            Check repair costs, decode warning lights & OBD codes, and verify mechanic quotes.
           </p>
           <div className="mt-6">
             <SmartSearchBar />
