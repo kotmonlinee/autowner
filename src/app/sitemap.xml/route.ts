@@ -50,7 +50,10 @@ export async function GET() {
 
   // OBD code detail pages
   for (const c of topObdCodes) {
-    urls.push(urlEntry(`${baseUrl}/obd/${c.code.toLowerCase()}`, now, "monthly", 0.7));
+    const code = c.code;
+    // Skip codes with non-alphanumeric garbage (comma, tab, newline, etc.)
+    if (!/^[A-Z0-9]+$/i.test(code)) continue;
+    urls.push(urlEntry(`${baseUrl}/obd/${code.toLowerCase()}`, now, "monthly", 0.7));
   }
 
   // Warning light detail pages
