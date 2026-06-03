@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getRepairCosts } from "@/lib/data/server";
+import { getRepairCosts, getVehicleRepairSlugs } from "@/lib/data/server";
 import { TOP_OBD_CODES } from "@/lib/internal-linking";
 import type { RepairCostFull, RepairCostTier } from "@/lib/types";
 import Navbar from "@/components/Navbar";
@@ -79,7 +79,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function RepairCostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const repair = await getRepairCosts(slug);
+  const [repair, popularVehicles] = await Promise.all([
+    getRepairCosts(slug),
+    getVehicleRepairSlugs(20),
+  ]);
 
   if (!repair) notFound();
 
@@ -465,6 +468,34 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               <line x1="5" y1="12" x2="19" y2="12" />
               <polyline points="12 5 19 12 12 19" />
             </svg>
+          </Link>
+        </div>
+
+        {/* Cost for Popular Vehicles */}
+        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+            {repair.name} Cost for Popular Vehicles
+          </h2>
+          <p className="text-xs text-text-muted mb-3">
+            See how much this repair costs for specific makes and models:
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {popularVehicles.slice(0, 20).map((v) => (
+              <Link
+                key={`${v.makeSlug}-${v.modelSlug}`}
+                href={`/repair-cost/${v.makeSlug}/${v.modelSlug}/${slug}`}
+                className="px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors font-heading truncate"
+                title={`${v.makeName} ${v.modelName} ${repair.name}`}
+              >
+                {v.makeName} {v.modelName}
+              </Link>
+            ))}
+          </div>
+          <Link
+            href="/repair-cost"
+            className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading"
+          >
+            Compare all vehicles →
           </Link>
         </div>
 
