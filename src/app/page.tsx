@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getRecentActivityCount } from "@/lib/data/server";
+import { getTrendingPosts, getRecentActivityCount } from "@/lib/data/server";
+import { TOP_OBD_CODES, TOP_REPAIRS } from "@/lib/internal-linking";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SmartSearchBar from "@/components/SmartSearchBar";
@@ -22,31 +23,77 @@ export const metadata: Metadata = {
   },
 };
 
-// ── Design A: Search-Centric ──────────────────────────────────
-
-const popularSearches = [
-  "Brake pad replacement cost",
-  "Check engine light P0420",
-  "Airbag warning light on",
-  "Alternator replacement estimate",
-  "Timing belt cost F-150",
-  "Oil change price near me",
-  "Catalytic converter repair",
-  "TPMS sensor replacement",
-  "Transmission fluid flush cost",
-  "AC compressor not working",
-];
-
 const tools = [
-  { title: "Repair Costs", desc: "See what repairs should cost", href: "/repair-cost", color: "bg-blue-500" },
-  { title: "OBD-II Codes", desc: "Decode check engine lights", href: "/obd", color: "bg-amber-500" },
-  { title: "Warning Lights", desc: "Understand dashboard symbols", href: "/warning-lights", color: "bg-red-500" },
-  { title: "Recall Check", desc: "Check for safety recalls", href: "/recall-check", color: "bg-emerald-500" },
-  { title: "Quote Checker", desc: "Verify mechanic quotes", href: "/quote-checker", color: "bg-purple-500" },
-  { title: "Community", desc: "Discuss with car owners", href: "/community", color: "bg-cyan-500" },
+  {
+    title: "Repair Cost Estimator",
+    desc: "Instant cost estimates for 55+ repairs across 5 vehicle tiers. See labor vs. parts breakdown.",
+    href: "/repair-cost",
+    accent: "bg-blue-500",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+        <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      </svg>
+    ),
+  },
+  {
+    title: "OBD-II Code Decoder",
+    desc: "12,000+ diagnostic trouble codes with symptoms, causes, fixes, and estimated repair costs.",
+    href: "/obd",
+    accent: "bg-amber-500",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+        <rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01" />
+      </svg>
+    ),
+  },
+  {
+    title: "Warning Lights Guide",
+    desc: "Identify 50 dashboard warning symbols. Learn what they mean, how urgent they are, and what to do.",
+    href: "/warning-lights",
+    accent: "bg-red-500",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    ),
+  },
+  {
+    title: "Quote Checker",
+    desc: "Got a mechanic's quote? Enter it here and compare against real repair cost data. No login needed.",
+    href: "/quote-checker",
+    accent: "bg-purple-500",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
+      </svg>
+    ),
+  },
+  {
+    title: "Recall Check",
+    desc: "Search NHTSA safety recalls by make, model, and year. Find out if your vehicle has open recalls.",
+    href: "/recall-check",
+    accent: "bg-emerald-500",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" />
+      </svg>
+    ),
+  },
+  {
+    title: "Community",
+    desc: "Join discussions with fellow car owners. Share repairs, mods, and maintenance tips.",
+    href: "/community",
+    accent: "bg-cyan-500",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
+  },
 ];
 
 export default async function HomePage() {
+  const trendingPosts = await getTrendingPosts(5);
   const activity = await getRecentActivityCount();
 
   return (
@@ -54,125 +101,120 @@ export default async function HomePage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative w-full bg-surface-0 pt-24 sm:pt-32 pb-16 sm:pb-20">
-        <div className="max-w-3xl mx-auto px-5 text-center">
+      <section className="relative w-full bg-surface-0 pt-16 sm:pt-24 pb-12 sm:pb-16">
+        <div className="max-w-4xl mx-auto px-5 text-center">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display text-text-primary tracking-wide leading-tight">
             What's wrong with{" "}
             <span className="text-primary">your car</span>
             <span className="text-text-muted">?</span>
           </h1>
-          <p className="mt-4 text-lg sm:text-xl text-text-muted max-w-xl mx-auto leading-relaxed font-heading">
+          <p className="mt-4 text-lg sm:text-xl text-text-muted max-w-xl mx-auto font-heading">
             Check repair costs, decode warning lights & OBD codes, and verify mechanic quotes.
           </p>
-
-          <div className="mt-8 mb-6">
+          <div className="mt-6">
             <SmartSearchBar />
           </div>
-
-          <div className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto">
-            {popularSearches.map((q) => (
-              <Link
-                key={q}
-                href={`/repair-cost?q=${encodeURIComponent(q)}`}
-                className="px-3 py-1.5 rounded-lg text-xs text-text-muted hover:text-primary hover:bg-primary/5 transition-colors font-heading"
-              >
-                {q}
-              </Link>
-            ))}
-          </div>
-
-          <div className="mt-4 text-xs text-text-muted font-heading">
-            <strong className="text-text-primary">{activity.newArticles}</strong> new articles this week ·{" "}
+          <div className="mt-3 text-xs text-text-muted font-heading">
+            <strong className="text-text-primary">{activity.newArticles}</strong> new articles ·{" "}
             <strong className="text-text-primary">{activity.newDiscussions}</strong> new discussions
           </div>
         </div>
       </section>
 
-      {/* Tool Strip */}
-      <section className="w-full bg-surface-1 border-y border-surface-border">
-        <div className="max-w-5xl mx-auto px-5 py-8">
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-            {tools.map((t) => (
+      {/* Tool Cards — 3 large + 3 small */}
+      <section className="w-full bg-surface-0" aria-labelledby="tools-heading">
+        <div className="max-w-5xl mx-auto px-5 pb-16">
+          {/* Top row: 3 large cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+            {tools.slice(0, 3).map((tool) => (
               <Link
-                key={t.href}
-                href={t.href}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-surface-2 transition-colors group"
+                key={tool.href}
+                href={tool.href}
+                className="group flex flex-col p-6 sm:p-8 bg-surface-1 rounded-2xl border border-surface-border hover:border-primary/20 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
               >
-                <div className={`w-10 h-10 rounded-xl ${t.color} flex items-center justify-center`}>
-                  <span className="text-white text-xs font-bold font-heading">{t.title.charAt(0)}</span>
+                <div className={`w-14 h-14 rounded-2xl ${tool.accent} text-white flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-200`}>
+                  {tool.icon}
                 </div>
-                <span className="text-xs font-medium text-text-primary font-heading text-center group-hover:text-primary transition-colors">{t.title}</span>
+                <h2 className="text-xl font-heading font-bold text-text-primary mb-2 group-hover:text-primary transition-colors">
+                  {tool.title}
+                </h2>
+                <p className="text-sm text-text-muted leading-relaxed flex-1">{tool.desc}</p>
+                <span className="inline-flex items-center gap-1.5 mt-5 text-sm font-medium text-primary font-heading opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-200">
+                  Get started
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                </span>
               </Link>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Popular Content */}
-      <section className="w-full bg-surface-0">
-        <div className="max-w-5xl mx-auto px-5 py-16">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-heading font-bold text-text-primary">
-              Most searched repairs & codes
-            </h2>
-            <p className="mt-2 text-text-muted text-sm">Real estimates from NHTSA repair cost data</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { title: "Brake Pad Replacement", range: "$200 – $500", href: "/repair-cost/brake-pads-front" },
-              { title: "Oxygen Sensor Replacement", range: "$200 – $400", href: "/repair-cost/oxygen-sensor" },
-              { title: "Catalytic Converter", range: "$800 – $2,500", href: "/repair-cost/catalytic-converter" },
-              { title: "Alternator Replacement", range: "$400 – $800", href: "/repair-cost/alternator" },
-              { title: "Starter Replacement", range: "$300 – $600", href: "/repair-cost/starter" },
-              { title: "Water Pump Replacement", range: "$350 – $700", href: "/repair-cost/water-pump" },
-              { title: "Spark Plugs Replacement", range: "$150 – $350", href: "/repair-cost/spark-plugs" },
-              { title: "Fuel Pump Replacement", range: "$400 – $900", href: "/repair-cost/fuel-pump" },
-              { title: "Timing Belt Replacement", range: "$500 – $1,000", href: "/repair-cost/timing-belt" },
-            ].map((r) => (
+          {/* Bottom row: 3 small cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {tools.slice(3).map((tool) => (
               <Link
-                key={r.href}
-                href={r.href}
-                className="flex items-center justify-between p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm transition-all duration-150 group"
+                key={tool.href}
+                href={tool.href}
+                className="group flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm transition-all duration-150"
               >
-                <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors">{r.title}</span>
-                <span className="text-sm font-bold text-primary font-heading">{r.range}</span>
+                <div className={`w-10 h-10 rounded-xl ${tool.accent} text-white flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200`}>
+                  <span className="text-white w-5 h-5">{tool.icon}</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">{tool.title}</h3>
+                  <p className="text-xs text-text-muted mt-0.5 line-clamp-1">{tool.desc.split(".")[0]}</p>
+                </div>
               </Link>
             ))}
-          </div>
-          <div className="text-center mt-6">
-            <Link href="/repair-cost" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
-              Browse all repair costs →
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* Popular OBD Codes */}
-      <section className="w-full bg-surface-1 border-t border-surface-border">
-        <div className="max-w-5xl mx-auto px-5 py-12">
-          <div className="text-center mb-8">
-            <h2 className="text-xl font-heading font-bold text-text-primary">Top Diagnostic Codes</h2>
-            <p className="mt-1 text-text-muted text-sm">Search by OBD-II code to find your issue</p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto">
-            {["P0420","P0300","P0171","P0455","P0442","P0401","P0301","P0302","P0303","P0304","P0430","P0135","P0141","P0440","P0446","P0128","P0325","P0400","P0500","P0700"].map((code) => (
-              <Link
-                key={code}
-                href={`/obd/${code.toLowerCase()}`}
-                className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-xs font-mono font-medium text-primary hover:border-primary/30 hover:bg-primary/5 hover:-translate-y-px transition-all duration-150"
-              >
-                {code}
-              </Link>
-            ))}
-          </div>
-          <div className="text-center mt-5">
-            <Link href="/obd" className="text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
-              View all 12,000+ codes →
-            </Link>
+      {/* Popular Searches */}
+      <section className="w-full bg-surface-1 border-y border-surface-border">
+        <div className="max-w-5xl mx-auto px-5 py-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Top OBD-II Codes</h3>
+              <div className="flex flex-wrap gap-2">
+                {TOP_OBD_CODES.map((c) => (
+                  <Link key={c.code} href={`/obd/${c.code.toLowerCase()}`} className="px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-xs font-mono font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c.code}</Link>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Top Repair Costs</h3>
+              <div className="flex flex-wrap gap-2">
+                {TOP_REPAIRS.map((r) => (
+                  <Link key={r.slug} href={`/repair-cost/${r.slug}`} className="px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-xs font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors font-heading">{r.name}</Link>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* Community */}
+      {trendingPosts.length > 0 && (
+        <section className="w-full bg-surface-0">
+          <div className="max-w-5xl mx-auto px-5 py-12">
+            <div className="flex items-end justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-heading font-bold text-text-primary">Trending Discussions</h2>
+                <p className="text-sm text-text-muted mt-1">From the community</p>
+              </div>
+              <Link href="/community" className="text-sm font-semibold text-primary hover:text-primary-glow transition-colors font-heading">View all →</Link>
+            </div>
+            <div className="space-y-2">
+              {trendingPosts.map((post, i) => (
+                <Link key={post.id} href={`/post/${post.slug || post.id}`} className="flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm transition-all duration-150 group">
+                  <span className="w-8 h-8 rounded-lg bg-surface-0 border border-surface-border flex items-center justify-center text-xs font-bold text-text-muted font-heading shrink-0 group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="flex-1 text-sm font-medium text-text-secondary group-hover:text-text-primary truncate transition-colors font-heading">{post.title}</span>
+                  <span className="text-xs text-text-muted shrink-0">{post.comment_count}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </div>
