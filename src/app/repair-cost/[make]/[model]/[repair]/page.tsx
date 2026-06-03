@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getVehicleRepairCost } from "@/lib/data/server";
 import { getRelatedRepairs } from "@/lib/internal-linking";
-import { getVehicleImage } from "@/lib/wiki-image";
+import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createServerSupabase } from "@/lib/supabase-server";
@@ -80,10 +80,11 @@ export default async function VehicleRepairPage({
   const modelName = data.model.name;
   const repairName = data.repair.name;
 
-  const [obdCodes, generations, vehicleImage] = await Promise.all([
+  const vehicleImageUrl = getVehicleImageUrl(make, model);
+
+  const [obdCodes, generations] = await Promise.all([
     getRelatedObdCodes(repairName, make),
     getVehicleGenerations(make, model),
-    getVehicleImage(makeName, modelName),
   ]);
 
   return (
@@ -109,12 +110,10 @@ export default async function VehicleRepairPage({
               What does a {repairName.toLowerCase()} cost for a {makeName} {modelName}? Get the estimated price range, labor vs. parts breakdown, and related recalls.
             </p>
           </div>
-          {vehicleImage && (
+          {vehicleImageUrl && (
             <img
-              src={vehicleImage.source}
+              src={vehicleImageUrl}
               alt={`${makeName} ${modelName}`}
-              width={vehicleImage.width}
-              height={vehicleImage.height}
               className="w-full md:w-72 h-48 object-cover rounded-2xl border border-surface-border bg-surface-1 shrink-0"
               loading="lazy"
             />
