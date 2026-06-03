@@ -6,6 +6,8 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 // ── Helpers ──────────────────────────────────────────────
 
 function severityColor(severity: number): { bg: string; text: string; border: string; label: string } {
