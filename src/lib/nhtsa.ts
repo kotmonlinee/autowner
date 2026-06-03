@@ -39,9 +39,7 @@ export async function searchRecalls(
   const params = new URLSearchParams({ make, model, modelYear: year });
   const url = `${BASE}/recalls/recallsByVehicle?${params}`;
 
-  const res = await fetch(url, {
-    next: { revalidate: 3600 }, // Cache 1 hour — recall data changes slowly
-  });
+  const res = await fetch(url, { cache: "no-store" });
 
   if (!res.ok) return [];
 

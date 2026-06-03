@@ -81,7 +81,7 @@ export default async function VehicleRepairPage({
   const repairName = data.repair.name;
 
   const [recalls, obdCodes, generations] = await Promise.all([
-    searchRecalls(makeName, modelName, String(new Date().getFullYear())).catch(() => [] as Awaited<ReturnType<typeof searchRecalls>>),
+    searchRecalls(makeName, modelName, "2020").catch(() => [] as Awaited<ReturnType<typeof searchRecalls>>),
     getRelatedObdCodes(repairName, make),
     getVehicleGenerations(make, model),
   ]);
