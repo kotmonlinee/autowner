@@ -130,8 +130,15 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
   };
 }
 
+const OBD_CODE_RE = /^[PCBU]\d{4}$/i;
+
 export default async function ObdCodePage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
+
+  // Only standard 5-char OBD codes are valid
+  if (!OBD_CODE_RE.test(code)) {
+    notFound();
+  }
 
   const [obd, relatedCodes] = await Promise.all([
     getObdCode(code),
