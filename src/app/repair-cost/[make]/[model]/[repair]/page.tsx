@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getVehicleRepairCost } from "@/lib/data/server";
-import { searchRecalls } from "@/lib/nhtsa";
 import { getRelatedRepairs } from "@/lib/internal-linking";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -80,16 +79,10 @@ export default async function VehicleRepairPage({
   const modelName = data.model.name;
   const repairName = data.repair.name;
 
-  const [recalls, obdCodes, generations] = await Promise.all([
-    searchRecalls(makeName, modelName, "2020").catch(() => [] as Awaited<ReturnType<typeof searchRecalls>>),
+  const [obdCodes, generations] = await Promise.all([
     getRelatedObdCodes(repairName, make),
     getVehicleGenerations(make, model),
   ]);
-
-  const relatedRecalls = recalls.filter((r) =>
-    repairName.toLowerCase().split(" ").some((w) => w.length > 3 && r.Component?.toLowerCase().includes(w)),
-  );
-  const showRecalls = relatedRecalls.length > 0 ? relatedRecalls : recalls.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -225,34 +218,30 @@ export default async function VehicleRepairPage({
           </div>
         </div>
 
-        {/* 5. Related Recalls */}
-        {showRecalls.length > 0 && (
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-6">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-3">
-              {makeName} {modelName} Safety Recalls
-            </h2>
-            <p className="text-xs text-text-muted mb-4">
-              Open safety recalls for this vehicle. Some may cover repair costs:
-            </p>
-            <div className="space-y-2">
-              {showRecalls.slice(0, 5).map((r) => (
-                <div key={r.NHTSACampaignNumber} className={`p-4 rounded-xl border ${r.parkIt ? "border-red-200 dark:border-red-800 bg-red-50/20" : "bg-surface-0 border-surface-border"}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-mono text-text-muted">{r.NHTSACampaignNumber}</span>
-                    {r.parkIt && <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 font-heading">Park It</span>}
-                    {r.parkOutSide && <span className="px-2 py-0.5 rounded text-xs font-bold bg-orange-50 dark:bg-orange-950 text-orange-600 dark:text-orange-400 font-heading">Park Outside</span>}
-                  </div>
-                  <p className="text-sm font-heading font-semibold text-text-primary">{r.Component}</p>
-                  <p className="text-xs text-text-secondary mt-1">{r.Summary}</p>
-                </div>
-              ))}
+        {/* 5. Safety Recalls */}
+        <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-2xl border border-amber-200 dark:border-amber-800 p-6 mb-6">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
             </div>
-            <Link href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`}
-              className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
-              Check all recalls for this vehicle →
-            </Link>
+            <div>
+              <h2 className="text-lg font-heading font-bold text-text-primary mb-1">
+                Check for Open Safety Recalls
+              </h2>
+              <p className="text-sm text-text-secondary mb-3">
+                Your {makeName} {modelName} may have open safety recalls. Repairs covered by a recall are <strong>free</strong> at dealerships.
+              </p>
+              <Link
+                href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors font-heading"
+              >
+                Check Recalls Now →
+              </Link>
+            </div>
           </div>
-        )}
+        </div>
 
         {/* 6. Related Tools */}
         <div className="bg-surface-1 rounded-2xl border border-surface-border p-6">
