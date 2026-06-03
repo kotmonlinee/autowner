@@ -6,6 +6,7 @@ import { getRelatedRepairs } from "@/lib/internal-linking";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import VehicleImage from "@/components/VehicleImage";
 import { createServerSupabase } from "@/lib/supabase-server";
 
 function formatMoney(n: number): string {
@@ -111,12 +112,7 @@ export default async function VehicleRepairPage({
             </p>
           </div>
           {vehicleImageUrl && (
-            <img
-              src={vehicleImageUrl}
-              alt={`${makeName} ${modelName}`}
-              className="w-full md:w-72 h-48 object-cover rounded-2xl border border-surface-border bg-surface-1 shrink-0"
-              loading="lazy"
-            />
+            <VehicleImage src={vehicleImageUrl} alt={`${makeName} ${modelName}`} />
           )}
         </div>
 
