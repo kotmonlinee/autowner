@@ -3,6 +3,15 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+  // Redirect uppercase OBD codes to lowercase (SEO canonicalization)
+  const obdMatch = request.nextUrl.pathname.match(/^\/obd\/([PCBU]\d{4})$/i);
+  if (obdMatch) {
+    const code = obdMatch[1];
+    if (code !== code.toLowerCase()) {
+      return NextResponse.redirect(new URL(`/obd/${code.toLowerCase()}`, request.url), 301);
+    }
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -113,6 +122,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/obd/:path*",
     "/submit/:path*",
     "/admin/:path*",
     "/bookmarks/:path*",

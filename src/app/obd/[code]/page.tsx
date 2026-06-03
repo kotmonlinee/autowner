@@ -4,9 +4,7 @@ import { getRelatedRepairs } from "@/lib/internal-linking";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
+import { notFound } from "next/navigation";
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -134,12 +132,6 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
 
 export default async function ObdCodePage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
-
-  // Redirect uppercase/case-variant OBD code URLs to lowercase canonical
-  // Fixes Google "duplicate, user didn't select canonical" indexing error
-  if (code !== code.toLowerCase()) {
-    redirect(`/obd/${code.toLowerCase()}`);
-  }
 
   const [obd, relatedCodes] = await Promise.all([
     getObdCode(code),
