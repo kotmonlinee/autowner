@@ -192,6 +192,36 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Browse by Vehicle */}
+      <section className="w-full bg-surface-0">
+        <div className="max-w-5xl mx-auto px-5 py-10">
+          <div className="text-center mb-6">
+            <h2 className="text-xl font-heading font-bold text-text-primary">Browse by Vehicle</h2>
+            <p className="text-sm text-text-muted mt-1">See repair costs for your specific car</p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto">
+            {[
+              "toyota/camry","honda/civic","ford/f-150","toyota/rav4","honda/accord",
+              "chevrolet/silverado-1500","jeep/wrangler","ford/mustang","bmw/3-series",
+              "tesla/model-3","toyota/corolla","honda/cr-v","subaru/outback","nissan/altima",
+              "hyundai/elantra","dodge/charger","jeep/grand-cherokee","ford/explorer",
+              "tesla/model-y","toyota/tacoma",
+            ].map((slug) => {
+              const [make, model] = slug.split("/");
+              return (
+                <Link
+                  key={slug}
+                  href={`/vehicles/${make}/${model}`}
+                  className="px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/20 hover:bg-primary/5 transition-colors font-heading"
+                >
+                  {make.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} {model.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* Community */}
       {trendingPosts.length > 0 && (
         <section className="w-full bg-surface-0">
