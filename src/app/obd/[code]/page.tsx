@@ -4,7 +4,7 @@ import { getRelatedRepairs } from "@/lib/internal-linking";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -136,7 +136,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
   // Redirect uppercase/case-variant OBD code URLs to lowercase canonical
   // Fixes Google "duplicate, user didn't select canonical" indexing error
   if (code !== code.toLowerCase()) {
-    permanentRedirect(`/obd/${code.toLowerCase()}`);
+    redirect(`/obd/${code.toLowerCase()}`);
   }
 
   const [obd, relatedCodes] = await Promise.all([
