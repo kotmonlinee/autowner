@@ -178,7 +178,14 @@ function QuoteCheckerContent() {
 
   // Load vehicle makes for dropdown
   useEffect(() => {
-    fetchVehicleMakes().then((data) => setMakes(data));
+    fetchVehicleMakes().then((data) => {
+      setMakes(data);
+      // If URL had make param, find matching slug and set it
+      if (initialMake) {
+        const match = data.find((m) => m.name.toLowerCase() === initialMake.toLowerCase());
+        if (match) setSelectedMakeSlug(match.slug);
+      }
+    });
   }, []);
 
   // Cascade: when make changes, load models from our DB
@@ -188,7 +195,13 @@ function QuoteCheckerContent() {
       return;
     }
     fetchVehicleModels(selectedMakeSlug).then((data) => {
-      setAvailableModels(data.map((m) => ({ name: m.name, slug: m.slug })));
+      const models = data.map((m) => ({ name: m.name, slug: m.slug }));
+      setAvailableModels(models);
+      // If URL had model param, find matching slug
+      if (initialModel) {
+        const match = models.find((m) => m.name.toLowerCase() === initialModel.toLowerCase());
+        if (match) setSelectedModelSlug(match.slug);
+      }
     });
   }, [selectedMakeSlug]);
 
