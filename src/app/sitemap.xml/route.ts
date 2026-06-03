@@ -52,10 +52,20 @@ export async function GET() {
   // Vehicle-specific repair cost pages (model × repair cross-reference)
   for (const vm of vehicleModels) {
     for (const slug of repairSlugs) {
-      urls.push(urlEntry(
-        `${baseUrl}/repair-cost/${vm.makeSlug}/${vm.modelSlug}/${slug}`,
-        now, "monthly", 0.65,
-      ));
+      urls.push(urlEntry(`${baseUrl}/repair-cost/${vm.makeSlug}/${vm.modelSlug}/${slug}`, now, "monthly", 0.65));
+    }
+  }
+
+  // Vehicle Hub pages
+  for (const vm of vehicleModels) {
+    urls.push(urlEntry(`${baseUrl}/vehicles/${vm.makeSlug}/${vm.modelSlug}`, now, "monthly", 0.7));
+  }
+
+  // OBD code × Vehicle cross-reference pages (top 50 codes × top 20 models)
+  const standardObdCodes = topObdCodes.filter((c) => /^[PCBU]\d{4}$/i.test(c.code)).slice(0, 50);
+  for (const c of standardObdCodes) {
+    for (const vm of vehicleModels.slice(0, 20)) {
+      urls.push(urlEntry(`${baseUrl}/obd/${c.code.toLowerCase()}/${vm.makeSlug}/${vm.modelSlug}`, now, "monthly", 0.6));
     }
   }
 
