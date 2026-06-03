@@ -1808,6 +1808,43 @@ const TIER_VEHICLES: Record<string, { make: string; model: string }[]> = {
   ],
 };
 
+// ── Vehicle-specific repair cost ─────────────────────────
+
+const MAKE_TIER: Record<string, string> = {
+  toyota: "economy", honda: "economy", nissan: "economy", hyundai: "economy",
+  kia: "economy", subaru: "economy", mazda: "economy", volkswagen: "mid_range",
+  ford: "mid_range", chevrolet: "mid_range", gmc: "truck_suv", dodge: "mid_range",
+  jeep: "truck_suv", ram: "truck_suv", chrysler: "mid_range", buick: "mid_range",
+  bmw: "european", "mercedes-benz": "european", audi: "european",
+  porsche: "european", volvo: "european", "land-rover": "european",
+  mini: "european", jaguar: "european",
+  cadillac: "luxury", lexus: "luxury", acura: "luxury", infiniti: "luxury",
+  lincoln: "luxury", genesis: "luxury",
+  tesla: "luxury", rivian: "truck_suv", lucid: "luxury",
+};
+
+export async function getVehicleRepairCost(
+  makeSlug: string, modelSlug: string, repairSlug: string,
+): Promise<{
+  make: { name: string; slug: string };
+  model: { name: string; slug: string };
+  repair: RepairCostFull;
+  tier: string;
+  tierLabel: string;
+} | null> {
+  const supabase = await createServerSupabase();
+  const [makeRes, modelRes, repairData] = await Promise.all([
+    supabase.from("vehicle_makes").select("name, slug").eq("slug", makeSlug).single(),
+    supabase.from("vehicle_models").select("name, slug, vehicle_makes!inner(slug)").eq("slug", modelSlug).eq("vehicle_makes.slug", makeSlug).single(),
+    getRepairCosts(repairSlug),
+  ]);
+  const make = makeRes.data as { name: string; slug: string } | null;
+  const model = modelRes.data as { name: string; slug: string } | null;
+  if (!make || !model || !repairData) return null;
+  const tier = MAKE_TIER[makeSlug] ?? "mid_range";
+  return { make, model, repair: repairData, tier, tierLabel: TIER_LABELS[tier] ?? tier };
+}
+
 export async function getRepairCosts(slug: string): Promise<RepairCostFull | null> {
   const supabase = await createServerSupabase();
 
