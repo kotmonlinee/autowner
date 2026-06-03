@@ -94,12 +94,15 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
     return { title: "OBD Code Not Found" };
   }
 
-  // New: Simple, consistent title format
-  // "{CODE} Code: Symptoms, Causes & Repair Cost"
-  const title = `${obd.code} Code: Symptoms, Causes & Repair Cost`;
+  const title = `${obd.code} Code: Meaning, Repair Cost & Can You Still Drive?`;
 
-  // New: Simple meta description template
-  const description = `Learn what ${obd.code} means, common symptoms, repair costs, and whether it's safe to keep driving. Get trusted diagnostics for ${obd.code}.`;
+  const costRange = obd.min_cost != null && obd.max_cost != null
+    ? `$${obd.min_cost}–$${obd.max_cost}`
+    : null;
+  const costText = costRange
+    ? `Repair costs typically ${costRange}. `
+    : "";
+  const description = `${costText}Learn what ${obd.code} means, common causes, symptoms, and whether it's safe to keep driving.`;
 
   return {
     title,
