@@ -222,13 +222,13 @@ export default async function VehicleHubPage({
         <div className="bg-surface-1 rounded-2xl border border-surface-border p-6">
           <h2 className="text-lg font-heading font-bold text-text-primary mb-4">More for {makeName} Owners</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Link href={`/recall-check?make=${encodeURIComponent(makeName)}`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-sm font-heading font-semibold text-text-primary text-center">
+            <Link href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-sm font-heading font-semibold text-text-primary text-center">
               Safety Recalls
             </Link>
             <Link href={`/warning-lights`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-sm font-heading font-semibold text-text-primary text-center">
               Warning Lights Guide
             </Link>
-            <Link href={`/quote-checker`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-sm font-heading font-semibold text-text-primary text-center">
+            <Link href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-sm font-heading font-semibold text-text-primary text-center">
               Check a Quote
             </Link>
           </div>
