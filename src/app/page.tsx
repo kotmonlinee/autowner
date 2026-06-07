@@ -4,6 +4,7 @@ import { TOP_OBD_CODES, TOP_REPAIRS } from "@/lib/internal-linking";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SmartSearchBar from "@/components/SmartSearchBar";
+import DiagnosisLink from "@/components/DiagnosisLink";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -114,6 +115,7 @@ export default async function HomePage() {
           <div className="mt-6">
             <SmartSearchBar />
           </div>
+          <DiagnosisLink />
           <div className="mt-3 text-xs text-text-muted font-heading">
             <strong className="text-text-primary">{activity.newArticles}</strong> new articles ·{" "}
             <strong className="text-text-primary">{activity.newDiscussions}</strong> new discussions
