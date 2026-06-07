@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DiagnosisWizard from "./DiagnosisWizard";
@@ -26,7 +27,9 @@ export default function DiagnosisPage() {
             Tell us what's happening with your car. We'll help identify possible causes, OBD-II codes, and repair options.
           </p>
         </div>
-        <DiagnosisWizard />
+        <Suspense fallback={<div className="text-center py-12"><div className="w-8 h-8 mx-auto mb-3 rounded-full border-2 border-primary border-t-transparent animate-spin"/></div>}>
+          <DiagnosisWizard />
+        </Suspense>
       </main>
       <Footer />
     </div>
