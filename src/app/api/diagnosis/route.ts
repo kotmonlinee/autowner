@@ -23,9 +23,24 @@ Return ONLY valid JSON with this structure:
 Rules: severity: "critical"=stop driving, "high"=serious, "medium"=schedule soon, "low"=monitor. 2-3 causes ordered. Max 4 codes/keywords. Write for non-mechanic.`;
 
 function generateSlug(symptoms: string, vehicle?: string): string {
-  const base = symptoms.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").substring(0, 60);
-  if (vehicle) return `${base}-${vehicle.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").substring(0, 30)}`;
-  return base;
+  // Extract key terms: symptom type + location + trigger
+  const parts = symptoms.match(/Symptom: ([^.]+)\. Location: ([^.]+)\. When: ([^.]+)\./);
+  const baseParts: string[] = [];
+  if (parts) {
+    baseParts.push(parts[1].trim(), parts[2].trim(), parts[3].trim());
+  } else {
+    baseParts.push(symptoms);
+  }
+  // Add vehicle if provided
+  if (vehicle) baseParts.push(vehicle);
+  // Generate clean slug
+  return baseParts.join(" ")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/(^-|-$)/g, "")
+    .substring(0, 80);
 }
 
 export async function POST(request: Request) {
