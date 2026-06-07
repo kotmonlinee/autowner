@@ -215,7 +215,12 @@ async function main() {
           if (existing) { vehicleSkipped++; continue; }
 
           try {
-            await callAI(symptoms);
+            const diag = await callAI(symptoms);
+            await (supabase.from("diagnoses") as any).insert({
+              slug, symptom_path: symptoms.substring(0, 200),
+              vehicle_make: v.make, vehicle_model: v.model, vehicle_year: v.year,
+              diagnosis_json: diag, view_count: 1,
+            });
             vehicleTotal++;
             if (vehicleTotal % 20 === 0) process.stdout.write(".");
           } catch (e: any) {
