@@ -6,15 +6,17 @@
     </linearGradient>
   </defs>
 
-  <!-- Wrench icon -->
-  <g transform="translate(12, 4)">
-    <circle cx="18" cy="38" r="14" fill="none" stroke="url(#g)" stroke-width="5"/>
-    <circle cx="18" cy="38" r="5" fill="url(#g)"/>
-    <line x1="30" y1="26" x2="56" y2="0" stroke="url(#g)" stroke-width="6" stroke-linecap="round"/>
+  <!-- Wrench — angled, with proper jaw cutout using clip-path -->
+  <g transform="translate(18, 40) rotate(-30)">
+    <!-- Handle -->
+    <rect x="16" y="-5" width="38" height="10" rx="5" fill="url(#g)"/>
+    <!-- Jaw head -->
+    <path fill-rule="evenodd" fill="url(#g)"
+      d="M0,-11 L0,11 L12,11 L12,8 L6,4 L6,-4 L12,-8 L12,-11 Z M4,-5 L4,5 L8,5 L8,-5 Z"/>
   </g>
 
   <!-- AUTOWNER -->
-  <text x="76" y="54" font-family="'Russo One','Arial Black',sans-serif" font-size="40" fill="#f0f1f3" letter-spacing="4">
+  <text x="72" y="54" font-family="'Russo One','Arial Black',sans-serif" font-size="40" fill="#f0f1f3" letter-spacing="4">
     AUTO<tspan fill="url(#g)">WNER</tspan>
   </text>
 </svg>
