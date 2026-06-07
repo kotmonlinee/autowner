@@ -36,6 +36,7 @@ export default function DiagnosisWizard() {
   const [makeSlug, setMakeSlug] = useState("");
   const [modelName, setModelName] = useState("");
   const [year, setYear] = useState("");
+  const [extraNotes, setExtraNotes] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AiResult | null>(null);
@@ -47,13 +48,14 @@ export default function DiagnosisWizard() {
     fetchVehicleModels(makeSlug).then(d => setModels(d.map((m: any) => ({ name: m.name, slug: m.slug }))));
   }, [makeSlug]);
 
-  const reset = () => { setStep(0); setS1(null); setS2(null); setS3(null); setResult(null); setError(""); };
+  const reset = () => { setStep(0); setS1(null); setS2(null); setS3(null); setResult(null); setError(""); setExtraNotes(""); };
 
   const handleDiagnose = async () => {
     if (!s1 || !s2 || !s3) return;
     setLoading(true); setError("");
     const v = makeName ? `${[makeName, modelName, year].filter(Boolean).join(" ")}` : "unknown vehicle";
-    const q = `Vehicle: ${v}. Symptom: ${s1.label}. Location: ${s2.label}. When: ${s3.label}.`;
+    const extra = extraNotes.trim() ? ` Additional notes: ${extraNotes.trim()}.` : "";
+    const q = `Vehicle: ${v}. Symptom: ${s1.label}. Location: ${s2.label}. When: ${s3.label}.${extra}`;
     try {
       const r = await fetch("/api/diagnosis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ symptoms: q }) });
       const d = await r.json();
@@ -182,6 +184,14 @@ export default function DiagnosisWizard() {
                 {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
               </select>
             </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-1.5">Anything else? (Optional)</label>
+            <textarea value={extraNotes} onChange={e => setExtraNotes(e.target.value)}
+              className="w-full px-4 py-3 bg-surface-0 border border-surface-border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all resize-none"
+              rows={2}
+              placeholder="e.g., The noise started after I had my brakes replaced last month, or It only happens when the engine is warm..."/>
           </div>
 
           <button onClick={handleDiagnose} disabled={loading}
