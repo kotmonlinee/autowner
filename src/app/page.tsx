@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTrendingPosts, getRecentActivityCount } from "@/lib/data/server";
+import { getTrendingPosts } from "@/lib/data/server";
 import { TOP_OBD_CODES, TOP_REPAIRS } from "@/lib/internal-linking";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -95,7 +95,6 @@ const tools = [
 
 export default async function HomePage() {
   const trendingPosts = await getTrendingPosts(5);
-  const activity = await getRecentActivityCount();
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -116,10 +115,6 @@ export default async function HomePage() {
             <SmartSearchBar />
           </div>
           <DiagnosisLink />
-          <div className="mt-3 text-xs text-text-muted font-heading">
-            <strong className="text-text-primary">{activity.newArticles}</strong> new articles ·{" "}
-            <strong className="text-text-primary">{activity.newDiscussions}</strong> new discussions
-          </div>
         </div>
       </section>
 

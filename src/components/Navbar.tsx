@@ -70,6 +70,12 @@ export default function Navbar() {
           {/* Desktop nav links */}
           <div className="hidden lg:flex items-center gap-0.5 shrink-0">
             <Link
+              href="/symptom-checker"
+              className="px-2.5 py-2 text-sm font-medium text-text-primary hover:text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
+            >
+              AI Diagnosis
+            </Link>
+            <Link
               href="/repair-cost"
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
@@ -98,12 +104,6 @@ export default function Navbar() {
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
               Recall Check
-            </Link>
-            <Link
-              href="/symptom-checker"
-              className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
-            >
-              AI Diagnosis
             </Link>
             <Link
               href="/community"
