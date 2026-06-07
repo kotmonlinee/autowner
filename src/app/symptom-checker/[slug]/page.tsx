@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { resolveRepairSlug } from "@/lib/internal-linking";
+import ShareButtons from "@/components/ShareButtons";
 import { TriangleAlert, Sparkles, CircleAlert, Gauge } from "lucide-react";
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string }> = {
@@ -105,6 +106,11 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
 
         <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-xl border border-amber-200 dark:border-amber-800 p-4 mb-6">
           <div className="flex items-start gap-3"><TriangleAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" /><div><p className="text-xs font-heading font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1">Disclaimer</p><p className="text-xs text-text-secondary leading-relaxed">This AI-generated diagnosis is for informational reference only. Always consult a qualified mechanic for an in-person inspection. AutOwner is not responsible for decisions made based on this information.</p></div></div>
+        </div>
+
+        <div className="mb-6 p-4 bg-surface-0 rounded-xl border border-surface-border">
+          <h3 className="text-sm font-semibold text-text-primary mb-3 font-heading">Share this diagnosis</h3>
+          <ShareButtons url={`https://www.autowner.com/symptom-checker/${slug}`} title={d.title} />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

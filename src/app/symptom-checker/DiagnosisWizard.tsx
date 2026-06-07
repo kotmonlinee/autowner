@@ -6,6 +6,7 @@ import { TriangleAlert, Sparkles, CircleAlert, Gauge, SendHorizonal, ChevronRigh
 import { fetchVehicleMakes, fetchVehicleModels } from "@/lib/data/browser";
 import { STEP1, STEP2, type Step2Option, type Option } from "@/lib/diagnosis-tree";
 import { resolveRepairSlug } from "@/lib/internal-linking";
+import ShareButtons from "@/components/ShareButtons";
 
 type Severity = "low" | "medium" | "high" | "critical";
 const SEVERITY_CONFIG: Record<Severity, { bg: string; text: string; border: string; label: string }> = {
@@ -281,9 +282,9 @@ export default function DiagnosisWizard() {
           </div>
 
           {resultSlug && (
-            <div className="text-center mb-4">
-              <span className="text-xs text-text-muted font-heading">Shareable link: </span>
-              <Link href={`/symptom-checker/${resultSlug}`} className="text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">autowner.com/symptom-checker/{resultSlug}</Link>
+            <div className="mb-4 p-4 bg-surface-0 rounded-xl border border-surface-border">
+              <h3 className="text-sm font-semibold text-text-primary mb-3 font-heading">Share this diagnosis</h3>
+              <ShareButtons url={`https://www.autowner.com/symptom-checker/${resultSlug}`} title={result?.title ?? "AI Car Diagnosis"} />
             </div>
           )}
 
