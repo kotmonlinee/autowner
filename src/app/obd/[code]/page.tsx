@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { createServiceSupabase } from "@/lib/supabase-server";
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -140,6 +141,22 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
     getObdCode(code),
     getRelatedObdCodes(code, 5),
   ]);
+
+  // Fetch related diagnoses that mention this OBD code
+  let relatedDiagnoses: { slug: string; title: string; severity: string }[] = [];
+  try {
+    const diagSupabase = await createServiceSupabase();
+    const { data: diagData } = await (diagSupabase.from("diagnoses") as any)
+      .select("slug, diagnosis_json, view_count")
+      .contains("diagnosis_json", { possibleCodes: [obd?.code ?? code.toUpperCase()] })
+      .order("view_count", { ascending: false })
+      .limit(5);
+    relatedDiagnoses = (diagData ?? []).map((d: any) => ({
+      slug: d.slug,
+      title: d.diagnosis_json?.title ?? "Car Diagnosis",
+      severity: d.diagnosis_json?.severity ?? "medium",
+    }));
+  } catch { /* diagnoses table may not exist */ }
 
   const relatedRepairs = getRelatedRepairs(obd?.title ?? "", 3);
 
@@ -631,6 +648,24 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             </div>
           </div>
         </div>
+
+        {/* Related Symptom Diagnoses */}
+        {relatedDiagnoses.length > 0 && (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+              {obd.code} Symptoms & Diagnosis
+            </h2>
+            <p className="text-xs text-text-muted mb-3">People with this code often experience these symptoms:</p>
+            <div className="space-y-2">
+              {relatedDiagnoses.map((d) => (
+                <Link key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-lg border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
+                  <span className="text-sm font-medium text-text-primary group-hover:text-primary transition-colors">{d.title}</span>
+                  <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${d.severity === "critical" ? "bg-red-50 text-red-700" : d.severity === "high" ? "bg-orange-50 text-orange-700" : "bg-amber-50 text-amber-700"} font-heading`}>{d.severity}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* General tool cross-links */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
