@@ -155,8 +155,8 @@ export default async function HomePage() {
                 href={tool.href}
                 className="group flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm transition-all duration-150"
               >
-                <div className={`w-10 h-10 rounded-xl ${tool.accent} text-white flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200`}>
-                  <span className="text-white w-5 h-5">{tool.icon}</span>
+                <div className={`w-10 h-10 rounded-xl ${tool.accent} text-white flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200 [&_svg]:w-5 [&_svg]:h-5`}>
+                  {tool.icon}
                 </div>
                 <div>
                   <h3 className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">{tool.title}</h3>
