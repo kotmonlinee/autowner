@@ -27,10 +27,17 @@ const SEVERITY_CONFIG: Record<Severity, { bg: string; text: string; border: stri
   low: { bg: "bg-emerald-50 dark:bg-emerald-950/30", text: "text-emerald-700 dark:text-emerald-400", border: "border-emerald-200 dark:border-emerald-800", label: "Low Concern" },
 };
 
+interface CauseItem {
+  description: string;
+  likelihood: string;
+}
 interface AiResult {
   title: string;
   severity: Severity;
-  description: string;
+  summary: string;
+  causes: CauseItem[];
+  whatToDo: string;
+  costEstimate: string;
   possibleCodes: string[];
   repairKeywords: string[];
 }
@@ -186,35 +193,71 @@ export default function DiagnosisWizard() {
         <div>
           <button onClick={handleReset} className="text-xs text-text-muted hover:text-primary transition-colors font-heading mb-6 inline-flex items-center gap-1">← Diagnose another issue</button>
 
+          {/* Header */}
           <div className={`${sev.bg} rounded-2xl border ${sev.border} p-5 mb-6`}>
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-xl ${sev.bg} border ${sev.border} flex items-center justify-center`}><TriangleAlert className={`w-6 h-6 ${sev.text}`} /></div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2"><h2 className="text-xl font-heading font-bold text-text-primary">{displayResult.title}</h2><Sparkles className="w-4 h-4 text-primary"/></div>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${sev.border} ${sev.text} font-heading mt-1`}>{sev.label}</span>
+              <div className={`w-12 h-12 rounded-xl ${sev.bg} border ${sev.border} flex items-center justify-center shrink-0`}><TriangleAlert className={`w-6 h-6 ${sev.text}`} /></div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2"><h2 className="text-xl font-heading font-bold text-text-primary">{displayResult.title}</h2><Sparkles className="w-4 h-4 text-primary shrink-0"/></div>
+                <p className="text-sm text-text-secondary mt-1">{displayResult.summary}</p>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${sev.border} ${sev.text} font-heading mt-2`}>{sev.label}</span>
               </div>
             </div>
           </div>
 
-          <p className="text-sm text-text-secondary leading-relaxed mb-8">{displayResult.description}</p>
-
-          {displayResult.possibleCodes.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Possible OBD-II Codes</h3>
-              <div className="flex flex-wrap gap-2">
-                {displayResult.possibleCodes.map(code => (
-                  <Link key={code} href={`/obd/${code.toLowerCase()}`} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-1 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{code}</Link>
-                ))}
+          {/* Possible Causes */}
+          {displayResult.causes?.length > 0 && (
+            <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
+              <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Possible Causes</h3>
+              <div className="space-y-3">
+                {displayResult.causes.map((cause, i) => {
+                  const badge = cause.likelihood === "most likely" ? "bg-red-50 text-red-700 border-red-200" : cause.likelihood === "possible" ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-surface-0 text-text-muted border-surface-border";
+                  return (
+                    <div key={i} className="flex items-start gap-3 p-3 bg-surface-0 rounded-xl border border-surface-border">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 mt-0.5 ${badge} font-heading`}>{cause.likelihood}</span>
+                      <p className="text-sm text-text-secondary leading-relaxed">{cause.description}</p>
+                    </div>
+                  );
+                })}
               </div>
-              <Link href="/obd" className="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">Browse all 12,000+ codes →</Link>
             </div>
           )}
 
+          {/* What To Do */}
+          {displayResult.whatToDo && (
+            <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
+              <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">What You Should Do</h3>
+              <p className="text-sm text-text-secondary leading-relaxed">{displayResult.whatToDo}</p>
+            </div>
+          )}
+
+          {/* Cost + Codes row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            {displayResult.costEstimate && (
+              <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
+                <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Estimated Repair Cost</h3>
+                <p className="text-2xl font-heading font-bold text-text-primary">{displayResult.costEstimate}</p>
+                <p className="text-xs text-text-muted mt-1">Typical shop price including parts and labor</p>
+              </div>
+            )}
+            {displayResult.possibleCodes.length > 0 && (
+              <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
+                <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Related OBD-II Codes</h3>
+                <div className="flex flex-wrap gap-2">
+                  {displayResult.possibleCodes.map(code => (
+                    <Link key={code} href={`/obd/${code.toLowerCase()}`} className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{code}</Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Repair Links */}
           {displayResult.repairKeywords.length > 0 && (
-            <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-6">
-              <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Recommended Repairs</h3>
+            <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
+              <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h3>
               <div className="space-y-2">
-                {displayResult.repairKeywords.map((item) => {
+                {displayResult.repairKeywords.map(item => {
                   const slug = item.toLowerCase().replace(/\s+/g, "-");
                   return (
                     <Link key={slug} href={`/repair-cost/${slug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
@@ -227,6 +270,20 @@ export default function DiagnosisWizard() {
             </div>
           )}
 
+          {/* Disclaimer */}
+          <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-xl border border-amber-200 dark:border-amber-800 p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <TriangleAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-heading font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1">Disclaimer</p>
+                <p className="text-xs text-text-secondary leading-relaxed">
+                  This AI-generated diagnosis is for informational reference only and does not constitute professional mechanical advice. Results are based on symptom patterns and may not reflect your vehicle's actual condition. Always consult a qualified mechanic for an in-person inspection and definitive diagnosis. AutOwner is not responsible for decisions made based on this information.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Next Steps */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Link href="/repair-cost" className="flex flex-col items-center gap-2 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group"><CircleAlert className="w-5 h-5 text-primary"/><span className="text-xs font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">Browse Repair Costs</span></Link>
             <Link href="/recall-check" className="flex flex-col items-center gap-2 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group"><TriangleAlert className="w-5 h-5 text-primary"/><span className="text-xs font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">Check Safety Recalls</span></Link>
