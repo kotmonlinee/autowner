@@ -4,6 +4,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
+import { resolveRepairSlug } from "@/lib/internal-linking";
 import { TriangleAlert, Sparkles, CircleAlert, Gauge } from "lucide-react";
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string }> = {
@@ -93,7 +94,11 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
             <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h2>
             <div className="space-y-2">
-              {d.repairKeywords.map((item: string) => <Link key={item} href={`/repair-cost/${item.toLowerCase().replace(/\s+/g, "-")}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group"><span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors">{item}</span><span className="text-xs text-text-muted font-heading">View estimate →</span></Link>)}
+              {d.repairKeywords.map((item: string) => {
+                  const slug = resolveRepairSlug(item);
+                  if (!slug) return null;
+                  return <Link key={item} href={`/repair-cost/${slug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group"><span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors">{item}</span><span className="text-xs text-text-muted font-heading">View estimate →</span></Link>;
+                })}
             </div>
           </div>
         )}

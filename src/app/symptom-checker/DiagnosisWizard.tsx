@@ -5,6 +5,7 @@ import Link from "next/link";
 import { TriangleAlert, Sparkles, CircleAlert, Gauge, SendHorizonal, ChevronRight } from "lucide-react";
 import { fetchVehicleMakes, fetchVehicleModels } from "@/lib/data/browser";
 import { STEP1, STEP2, type Step2Option, type Option } from "@/lib/diagnosis-tree";
+import { resolveRepairSlug } from "@/lib/internal-linking";
 
 type Severity = "low" | "medium" | "high" | "critical";
 const SEVERITY_CONFIG: Record<Severity, { bg: string; text: string; border: string; label: string }> = {
@@ -260,7 +261,11 @@ export default function DiagnosisWizard() {
             <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
               <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h3>
               <div className="space-y-2">
-                {result.repairKeywords.map(item => <Link key={item} href={`/repair-cost/${item.toLowerCase().replace(/\s+/g, "-")}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group"><span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors">{item}</span><span className="text-xs text-text-muted font-heading">View estimate →</span></Link>)}
+                {result.repairKeywords.map(item => {
+                  const slug = resolveRepairSlug(item);
+                  if (!slug) return null;
+                  return <Link key={item} href={`/repair-cost/${slug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group"><span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors">{item}</span><span className="text-xs text-text-muted font-heading">View estimate →</span></Link>;
+                })}
               </div>
             </div>
           )}

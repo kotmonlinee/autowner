@@ -82,6 +82,23 @@ export function getRelatedRepairs(obdTitle: string, maxResults = 3): RepairLink[
   return matches;
 }
 
+export function resolveRepairSlug(keyword: string): string | null {
+  const lower = keyword.toLowerCase();
+  for (const entry of REPAIR_KEYWORDS) {
+    if (entry.keywords.some((kw) => lower.includes(kw))) {
+      return entry.slug;
+    }
+  }
+  // Fallback: try direct slugification against known slugs
+  const slugified = lower.replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  for (const entry of REPAIR_KEYWORDS) {
+    if (entry.slug.includes(slugified) || slugified.includes(entry.slug)) {
+      return entry.slug;
+    }
+  }
+  return null;
+}
+
 export function getRelatedObdCodes(repairName: string, maxResults = 3): string[] {
   const lower = repairName.toLowerCase();
   for (const entry of REPAIR_KEYWORDS) {
