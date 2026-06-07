@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { createServerSupabase } from "@/lib/supabase-server";
+import { createServiceSupabase } from "@/lib/supabase-server";
 import { TriangleAlert, Sparkles, CircleAlert, Gauge } from "lucide-react";
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string }> = {
@@ -15,8 +15,8 @@ const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createServerSupabase();
-  const { data } = await supabase.from("diagnoses").select("diagnosis_json").eq("slug", slug).maybeSingle();
+  const supabase = await createServiceSupabase();
+  const { data } = await (supabase.from("diagnoses") as any).select("diagnosis_json").eq("slug", slug).maybeSingle();
   if (!data) return { title: "Diagnosis Not Found" };
   const d = (data as any).diagnosis_json;
   return { title: `${d.title} | AutOwner AI Diagnosis`, description: d.summary };
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function DiagnosisResultPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createServerSupabase();
-  const { data } = await supabase.from("diagnoses").select("*").eq("slug", slug).maybeSingle();
+  const { data } = await (supabase.from("diagnoses") as any).select("*").eq("slug", slug).maybeSingle();
   if (!data) notFound();
 
   const d = (data as any).diagnosis_json;
