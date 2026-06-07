@@ -37,7 +37,7 @@ export default function WarningLightIcon({ slug, size = 48, severity, className 
   }, [slug]);
 
   return (
-    <span className={`inline-flex items-center justify-center rounded-xl ${colors.bg} ring-1 ${colors.ring} shrink-0 ${className ?? ""}`} style={{ width: size + 8, height: size + 8 }}>
+    <span className={`inline-flex items-center justify-center rounded-xl overflow-hidden ${colors.bg} ring-1 ${colors.ring} shrink-0 ${className ?? ""}`} style={{ width: size + 8, height: size + 8 }}>
       {LucideIcon ? (
         <span className={colors.stroke}>
           <LucideIcon size={iconSize} strokeWidth={2} />
@@ -50,6 +50,7 @@ export default function WarningLightIcon({ slug, size = 48, severity, className 
             alt=""
             width={iconSize}
             height={iconSize}
+            className="rounded-lg"
             style={{ display: failed ? "none" : "block" }}
           />
           {failed && (
