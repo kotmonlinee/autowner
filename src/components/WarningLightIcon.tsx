@@ -46,7 +46,7 @@ export default function WarningLightIcon({ slug, size = 48, severity, className 
         <>
           <img
             ref={imgRef}
-            src={`/warning-lights/${slug}.jpg`}
+            src={`/warning-lights/${slug}.jpg?v=2`}
             alt=""
             width={iconSize}
             height={iconSize}
