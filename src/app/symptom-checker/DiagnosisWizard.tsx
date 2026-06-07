@@ -153,9 +153,16 @@ export default function DiagnosisWizard() {
             </div>
           </div>
 
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-6">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Your Vehicle (Optional)</h2>
-            <p className="text-xs text-text-muted mb-4">Adding your car's info helps the AI give a more accurate diagnosis and repair cost estimate</p>
+          <div className="bg-primary/5 border-2 border-primary/20 rounded-2xl p-5 mb-6">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider">Add Your Vehicle for Better Results</h2>
+                <p className="text-xs text-text-secondary mt-1">Telling us what you drive makes the diagnosis <strong className="text-primary">significantly more accurate</strong> — the AI can factor in model-specific issues, recall history, and real repair costs for your exact car.</p>
+              </div>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <select value={makeName} onChange={e => {
                 const m = makes.find(x => x.name === e.target.value);
