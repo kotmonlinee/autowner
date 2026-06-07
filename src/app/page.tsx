@@ -7,13 +7,13 @@ import SmartSearchBar from "@/components/SmartSearchBar";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Repair Cost Checker & OBD Code Lookup",
+  title: { absolute: "AutOwner — Free Car Repair Tools" },
   description:
     "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
   alternates: { canonical: "https://www.autowner.com" },
   openGraph: {
     siteName: "AutOwner", type: "website",
-    title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
+    title: "AutOwner — Free Car Repair Tools",
     description: "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
   },
   twitter: {

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.autowner.com"),
   title: {
     template: "%s | AutOwner",
-    default: "Repair Cost Checker & OBD Code Lookup", // homepage inherits this when not overridden
+    default: "AutOwner — Free Car Repair Tools",
   },
   description:
     "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "AutOwner",
     type: "website",
-    title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
+    title: "AutOwner — Free Car Repair Tools",
     description:
       "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
     images: [
@@ -29,13 +29,13 @@ export const metadata: Metadata = {
         url: "/logo.svg",
         width: 500,
         height: 100,
-        alt: "AutOwner Logo",
+        alt: "AutOwner",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
+    title: "AutOwner — Free Car Repair Tools",
     description:
       "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
     images: ["/logo.svg"],
