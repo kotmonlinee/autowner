@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Wrench } from "lucide-react";
 import Link from "next/link";
 import NewsletterForm from "./NewsletterForm";
 
@@ -18,12 +18,11 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           {/* Logo + tagline */}
           <div className="flex flex-col items-center sm:items-start gap-1">
-            <Link href="/" className="flex items-center group">
-              <img
-                src="/logo.svg"
-                alt="AutOwner"
-                style={{ height: "32px", width: "auto" }}
-              />
+            <Link href="/" className="flex items-center gap-2 group">
+              <Wrench className="w-5 h-5 text-primary group-hover:text-primary-glow transition-colors" strokeWidth={2.5} />
+              <span className="text-display text-lg text-text-primary tracking-wide">
+                AUTO<span className="text-primary">WNER</span>
+              </span>
             </Link>
             <p className="text-sm text-text-muted mt-1">
               The car aftermarket community. Maintenance, repair, mods & more.
