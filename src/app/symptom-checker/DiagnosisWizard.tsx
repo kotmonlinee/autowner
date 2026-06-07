@@ -308,7 +308,7 @@ export default function DiagnosisWizard() {
             <div className="mt-4 p-4 bg-surface-1 rounded-xl border border-surface-border">
               <h3 className="text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-2">More for Your {makeName} {modelName}</h3>
               <div className="flex flex-wrap gap-2">
-                <Link href={`/vehicles/${makeSlug}/${modelSlug}`} className="text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">All Repair Costs →</Link>
+                <Link href={`/vehicles/${makeSlug}/${modelName.toLowerCase().replace(/\s+/g, "-")}`} className="text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">All Repair Costs →</Link>
                 <span className="text-text-muted">·</span>
                 <Link href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">Safety Recalls →</Link>
                 <span className="text-text-muted">·</span>
