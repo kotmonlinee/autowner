@@ -15,7 +15,7 @@ export default function DiagnosisLink() {
     return () => input.removeEventListener("input", handler);
   }, []);
 
-  const href = query.trim() ? `/diagnosis?q=${encodeURIComponent(query.trim())}` : "/diagnosis";
+  const href = query.trim() ? `/symptom-checker?q=${encodeURIComponent(query.trim())}` : "/symptom-checker";
 
   return (
     <div className="mt-2 text-sm font-heading">
