@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 80" width="400" height="80">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Wrench icon -->
+  <g transform="translate(12, 4)">
+    <circle cx="18" cy="38" r="14" fill="none" stroke="url(#g)" stroke-width="5"/>
+    <circle cx="18" cy="38" r="5" fill="url(#g)"/>
+    <line x1="30" y1="26" x2="56" y2="0" stroke="url(#g)" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <!-- AUTOWNER -->
+  <text x="76" y="54" font-family="'Russo One','Arial Black',sans-serif" font-size="40" fill="#f0f1f3" letter-spacing="4">
+    AUTO<tspan fill="url(#g)">WNER</tspan>
+  </text>
+</svg>

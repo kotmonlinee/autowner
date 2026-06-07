@@ -20,9 +20,9 @@ export default function Footer() {
           <div className="flex flex-col items-center sm:items-start gap-1">
             <Link href="/" className="flex items-center group">
               <img
-                src="/logo.png"
+                src="/logo.svg"
                 alt="AutOwner"
-                style={{ height: "36px", width: "auto" }}
+                style={{ height: "32px", width: "auto" }}
               />
             </Link>
             <p className="text-sm text-text-muted mt-1">

@@ -15,8 +15,8 @@ export const metadata: Metadata = {
   description:
     "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/logo.svg",
+    apple: "/logo.svg",
   },
   openGraph: {
     siteName: "AutOwner",
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
       "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
     images: [
       {
-        url: "/logo.png",
-        width: 1536,
-        height: 1024,
+        url: "/logo.svg",
+        width: 500,
+        height: 100,
         alt: "AutOwner Logo",
       },
     ],
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
     description:
       "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
-    images: ["/logo.png"],
+    images: ["/logo.svg"],
   },
   robots: {
     index: true,

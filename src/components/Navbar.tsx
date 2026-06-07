@@ -60,9 +60,9 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0 group">
             <img
-              src="/logo.png"
+              src="/logo.svg"
               alt="AutOwner"
-              style={{ height: "52px", width: "auto", display: "block" }}
+              style={{ height: "44px", width: "auto", display: "block" }}
             />
           </Link>
 
