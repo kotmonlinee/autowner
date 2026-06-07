@@ -87,14 +87,24 @@ export default function DiagnosisWizard() {
           <StepIndicator />
           <h2 className="text-xl font-heading font-bold text-text-primary mb-1">What do you notice?</h2>
           <p className="text-sm text-text-muted mb-5">Pick the symptom that best describes what's happening</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
-            {STEP1.map(o => (
-              <button key={o.key} onClick={() => { setS1(o); setStep(1); }}
-                className="flex items-center justify-between gap-3 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all text-left group">
-                <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">{o.label}</span>
-                <ChevronRight className="w-4 h-4 text-text-muted shrink-0" />
-              </button>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            {STEP1.map((o, i) => {
+              const emojis = ["🔊","👃","📳","⚡","💡","🔑","💧","🌡️","🛞","📋"];
+              const accents = ["border-l-blue-500","border-l-purple-500","border-l-orange-500","border-l-amber-500","border-l-red-500","border-l-emerald-500","border-l-cyan-500","border-l-teal-500","border-l-rose-500","border-l-gray-500"];
+              return (
+                <button key={o.key} onClick={() => { setS1(o); setStep(1); }}
+                  className={`flex items-center gap-4 p-5 bg-surface-1 rounded-xl border border-l-4 border-surface-border hover:shadow-md hover:-translate-y-0.5 transition-all text-left group ${accents[i] ?? "border-l-primary"} hover:bg-surface-2/50`}>
+                  <span className="text-3xl shrink-0">{emojis[i]}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-base font-heading font-bold text-text-primary group-hover:text-primary transition-colors">{o.label}</div>
+                    <div className="text-xs text-text-muted mt-1">
+                      {["Clicking, squealing, grinding, or rattling","Sweet, burning, fuel, or musty smells","Shaking steering wheel, body, or seats","Slow acceleration, hesitation, surging","Check engine, ABS, battery, oil light","Hard to start, won't crank, clicks","Oil, coolant, or water under the car","AC blows warm, weak airflow, smells","Brakes feel soft, steering is heavy","Anything else bothering you"][i]}
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+                </button>
+              );
+            })}
           </div>
           <SelectedPath items={selectedPath} />
         </div>
