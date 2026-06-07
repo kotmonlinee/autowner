@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { getTrendingPosts } from "@/lib/data/server";
 import { TOP_OBD_CODES, TOP_REPAIRS } from "@/lib/internal-linking";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -94,7 +93,6 @@ const tools = [
 ];
 
 export default async function HomePage() {
-  const trendingPosts = await getTrendingPosts(5);
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -218,30 +216,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Community */}
-      {trendingPosts.length > 0 && (
-        <section className="w-full bg-surface-0">
-          <div className="max-w-5xl mx-auto px-5 py-12">
-            <div className="flex items-end justify-between mb-6">
-              <div>
-                <h2 className="text-xl font-heading font-bold text-text-primary">Trending Discussions</h2>
-                <p className="text-sm text-text-muted mt-1">From the community</p>
-              </div>
-              <Link href="/community" className="text-sm font-semibold text-primary hover:text-primary-glow transition-colors font-heading">View all →</Link>
-            </div>
-            <div className="space-y-2">
-              {trendingPosts.map((post, i) => (
-                <Link key={post.id} href={`/post/${post.slug || post.id}`} className="flex items-center gap-4 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm transition-all duration-150 group">
-                  <span className="w-8 h-8 rounded-lg bg-surface-0 border border-surface-border flex items-center justify-center text-xs font-bold text-text-muted font-heading shrink-0 group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="flex-1 text-sm font-medium text-text-secondary group-hover:text-text-primary truncate transition-colors font-heading">{post.title}</span>
-                  <span className="text-xs text-text-muted shrink-0">{post.comment_count}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       <Footer />
     </div>
