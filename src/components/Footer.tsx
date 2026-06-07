@@ -21,7 +21,7 @@ export default function Footer() {
               <img src="/logo.svg" alt="AutOwner" style={{ height: "32px", width: "auto" }} />
             </Link>
             <p className="text-sm text-text-muted mt-1">
-              The car aftermarket community. Maintenance, repair, mods & more.
+            AI-powered car diagnosis, repair costs & OBD code lookup. Know what's wrong with your car.
             </p>
           </div>
 

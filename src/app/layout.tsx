@@ -10,10 +10,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.autowner.com"),
   title: {
     template: "%s | AutOwner",
-    default: "AutOwner — Free Car Repair Tools",
+    default: "AutOwner — What's Wrong with Your Car?",
   },
   description:
-    "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
+    "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification. Know what's wrong with your car and what it should cost to fix.",
   icons: {
     icon: "/favicon.svg",
     apple: "/favicon.svg",
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "AutOwner",
     type: "website",
-    title: "AutOwner — Free Car Repair Tools",
+    title: "AutOwner — What's Wrong with Your Car?",
     description:
-      "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
+      "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification. Know what's wrong and what it should cost.",
     images: [
       {
         url: "/logo.svg",
@@ -35,9 +35,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AutOwner — Free Car Repair Tools",
+    title: "AutOwner — What's Wrong with Your Car?",
     description:
-      "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
+      "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification.",
     images: ["/logo.svg"],
   },
   robots: {

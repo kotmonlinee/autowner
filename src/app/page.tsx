@@ -7,14 +7,14 @@ import DiagnosisLink from "@/components/DiagnosisLink";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: { absolute: "AutOwner — Free Car Repair Tools" },
+  title: { absolute: "AutOwner — What's Wrong with Your Car?" },
   description:
-    "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
+    "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification.",
   alternates: { canonical: "https://www.autowner.com" },
   openGraph: {
     siteName: "AutOwner", type: "website",
-    title: "AutOwner — Free Car Repair Tools",
-    description: "Check repair costs, decode OBD trouble codes, identify warning lights, and verify mechanic quotes. Free tools for car owners.",
+    title: "AutOwner — What's Wrong with Your Car?",
+    description: "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification.",
   },
   twitter: {
     card: "summary_large_image",
@@ -80,13 +80,13 @@ const tools = [
     ),
   },
   {
-    title: "Community",
-    desc: "Join discussions with fellow car owners. Share repairs, mods, and maintenance tips.",
-    href: "/community",
-    accent: "bg-cyan-500",
+    title: "AI Diagnosis",
+    desc: "Tell us your symptoms. AI analyzes possible causes, OBD codes, and repair costs.",
+    href: "/symptom-checker",
+    accent: "bg-violet-500",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
       </svg>
     ),
   },
