@@ -303,6 +303,19 @@ export default function DiagnosisWizard() {
             <Link href="/recall-check" className="flex flex-col items-center gap-2 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group"><TriangleAlert className="w-5 h-5 text-primary"/><span className="text-xs font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">Check Safety Recalls</span></Link>
             <Link href="/quote-checker" className="flex flex-col items-center gap-2 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group"><Gauge className="w-5 h-5 text-primary"/><span className="text-xs font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">Verify a Mechanic Quote</span></Link>
           </div>
+
+          {makeName && (
+            <div className="mt-4 p-4 bg-surface-1 rounded-xl border border-surface-border">
+              <h3 className="text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-2">More for Your {makeName} {modelName}</h3>
+              <div className="flex flex-wrap gap-2">
+                <Link href={`/vehicles/${makeSlug}/${modelSlug}`} className="text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">All Repair Costs →</Link>
+                <span className="text-text-muted">·</span>
+                <Link href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">Safety Recalls →</Link>
+                <span className="text-text-muted">·</span>
+                <Link href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">Check a Quote →</Link>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
