@@ -32,7 +32,7 @@ const REPAIR_KEYWORDS: { keywords: string[]; slug: string; name: string }[] = [
   { keywords: ["thermostat"], slug: "thermostat", name: "Thermostat" },
   { keywords: ["head gasket", "cylinder head"], slug: "head-gasket", name: "Head Gasket" },
   { keywords: ["timing belt", "timing chain", "camshaft", "crankshaft"], slug: "timing-belt", name: "Timing Belt" },
-  { keywords: ["oil pressure", "oil pump", "oil level"], slug: "oil-pan-gasket", name: "Oil Service" },
+  { keywords: ["oil pressure", "oil pump", "oil level", "oil pan", "oil gasket"], slug: "oil-change-synthetic", name: "Oil Service" },
   { keywords: ["a/c", "air conditioning", "refrigerant", "compressor"], slug: "ac-compressor", name: "A/C Compressor" },
   { keywords: ["transmission", "shift solenoid", "torque converter", "tcm"], slug: "transmission-fluid", name: "Transmission Fluid" },
   { keywords: ["clutch"], slug: "clutch", name: "Clutch" },
