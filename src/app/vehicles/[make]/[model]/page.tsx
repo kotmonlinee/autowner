@@ -218,6 +218,18 @@ export default async function VehicleHubPage({
           </div>
         )}
 
+        {/* AI Diagnosis CTA */}
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 mb-4">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl shrink-0">🔍</span>
+            <div>
+              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Having a Problem with Your {makeName} {modelName}?</h2>
+              <p className="text-xs text-text-secondary mb-2">Not sure what repair you need? Use our AI symptom checker to diagnose the issue based on your car's symptoms.</p>
+              <Link href={`/symptom-checker`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">Diagnose Your {makeName} →</Link>
+            </div>
+          </div>
+        </div>
+
         {/* Quick Links */}
         <div className="bg-surface-1 rounded-2xl border border-surface-border p-6">
           <h2 className="text-lg font-heading font-bold text-text-primary mb-4">More for {makeName} Owners</h2>

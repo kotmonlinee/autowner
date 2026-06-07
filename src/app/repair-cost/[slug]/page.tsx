@@ -471,6 +471,18 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           </Link>
         </div>
 
+        {/* AI Diagnosis CTA */}
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl shrink-0">🔍</span>
+            <div>
+              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Not Sure This is the Right Repair?</h2>
+              <p className="text-xs text-text-secondary mb-2">Use our AI symptom checker to confirm your diagnosis before spending money on repairs.</p>
+              <Link href="/symptom-checker" className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">Diagnose Your Symptoms →</Link>
+            </div>
+          </div>
+        </div>
+
         {/* Cost for Popular Vehicles */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
           <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
