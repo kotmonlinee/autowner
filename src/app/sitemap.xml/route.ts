@@ -1,4 +1,5 @@
 import { getPosts, getCategories, getAllRepairSlugs, getTopObdCodes, getVehicleRepairSlugs } from "@/lib/data/server";
+import { createServiceSupabase } from "@/lib/supabase-server";
 import { warningLights } from "@/lib/warning-lights-data";
 
 export const revalidate = 3600;
@@ -89,6 +90,15 @@ export async function GET() {
     const priority = p.content_type === "guide" || p.content_type === "review" ? 0.9 : 0.6;
     urls.push(urlEntry(`${baseUrl}/post/${slug}`, lastmod, "weekly", priority));
   }
+
+  // AI Diagnosis pages
+  try {
+    const supabase = await createServiceSupabase();
+    const { data: diagnoses } = await (supabase.from("diagnoses") as any).select("slug, created_at").order("created_at", { ascending: false }).limit(2000);
+    for (const d of (diagnoses ?? [])) {
+      urls.push(urlEntry(`${baseUrl}/symptom-checker/${d.slug}`, d.created_at ?? now, "monthly", 0.6));
+    }
+  } catch { /* diagnoses table may not exist */ }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`;
 
