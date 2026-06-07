@@ -90,17 +90,15 @@ export async function POST(request: Request) {
     const diagnosis = JSON.parse(jsonMatch[0]);
 
     // 3. Save to DB
-    try {
-      await (supabase.from("diagnoses") as any).insert({
-        slug,
-        symptom_path: symptoms.substring(0, 200),
-        vehicle_make: make || null,
-        vehicle_model: model || null,
-        vehicle_year: year || null,
-        diagnosis_json: diagnosis,
-        view_count: 1,
-      });
-    } catch { /* non-critical, continue without caching */ }
+    await (supabase.from("diagnoses") as any).insert({
+      slug,
+      symptom_path: symptoms.substring(0, 200),
+      vehicle_make: make || null,
+      vehicle_model: model || null,
+      vehicle_year: year || null,
+      diagnosis_json: diagnosis,
+      view_count: 1,
+    });
 
     return NextResponse.json({ diagnosis, slug, cached: false });
 

@@ -6,6 +6,8 @@ import DiagnosisWizard from "./DiagnosisWizard";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { TriangleAlert, TrendingUp } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "AI Car Diagnosis — Symptom Checker",
   description: "Describe your car's symptoms and get possible OBD-II codes, repair suggestions, and cost estimates.",
