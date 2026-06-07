@@ -1,6 +1,5 @@
 "use client";
 
-import { Wrench } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSessionUser, onAuthChange, signOut, fetchProfile } from "@/lib/data/browser";
@@ -59,11 +58,8 @@ export default function Navbar() {
       <nav className="sticky top-0 z-50 bg-surface-0/80 backdrop-blur-xl" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-5 h-16 flex items-center gap-6 border-b border-surface-border">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0 group">
-            <Wrench className="w-6 h-6 text-primary group-hover:text-primary-glow transition-colors" strokeWidth={2.5} />
-            <span className="text-display text-xl text-text-primary tracking-wide">
-              AUTO<span className="text-primary">WNER</span>
-            </span>
+          <Link href="/" className="flex items-center shrink-0 group">
+            <img src="/logo.svg" alt="AutOwner" style={{ height: "44px", width: "auto" }} />
           </Link>
 
           {/* Desktop SearchBar */}
