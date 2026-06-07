@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { fetchVehicleMakes } from "@/lib/data/browser";
 
 // ── Decision Tree ────────────────────────────────────────
 
