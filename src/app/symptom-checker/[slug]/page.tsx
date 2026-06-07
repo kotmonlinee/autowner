@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function DiagnosisResultPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const { data } = await (supabase.from("diagnoses") as any).select("*").eq("slug", slug).maybeSingle();
   if (!data) notFound();
 
