@@ -100,6 +100,12 @@ export default function Navbar() {
               Recall Check
             </Link>
             <Link
+              href="/symptom-checker"
+              className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
+            >
+              AI Diagnosis
+            </Link>
+            <Link
               href="/community"
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
@@ -288,6 +294,16 @@ export default function Navbar() {
                   <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
                 Recall Check
+              </Link>
+              <Link
+                href="/symptom-checker"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors font-heading"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
+                AI Diagnosis
               </Link>
               <Link
                 href="/community"

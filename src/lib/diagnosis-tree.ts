@@ -22,6 +22,7 @@ export const STEP1: Option[] = [
   { key: "starting", label: "Hard to start or won't start" },
   { key: "fluid", label: "Fluid leaking under the car" },
   { key: "climate", label: "AC not cold or smells bad" },
+  { key: "brakes-steering", label: "Brake or steering issue" },
   { key: "other", label: "Something else is wrong" },
 ];
 
@@ -193,20 +194,16 @@ export const STEP2: Record<string, Step2Option[]> = {
       { key: "always", label: "Doesn't work" },
     ]},
   ],
-  other: [
-    { key: "high-fuel", label: "Sudden drop in fuel economy", step3s: [
-      { key: "recent", label: "Recently started" },
-      { key: "winter", label: "During winter" },
-    ]},
-    { key: "heavy-steering", label: "Steering feels heavy", step3s: [
+  "brakes-steering": [
+    { key: "heavy-steering", label: "Steering feels heavy or stiff", step3s: [
       { key: "always", label: "All the time" },
-      { key: "low-speed", label: "At low speed" },
+      { key: "low-speed", label: "At low speed or parking" },
     ]},
-    { key: "soft-brakes", label: "Brakes feel soft or weak", step3s: [
+    { key: "soft-brakes", label: "Brake pedal feels soft or spongy", step3s: [
       { key: "always", label: "All the time" },
       { key: "hard-stop", label: "During hard braking" },
     ]},
-    { key: "hard-brakes", label: "Brake pedal is very hard", step3s: [
+    { key: "hard-brakes", label: "Brake pedal is very hard to press", step3s: [
       { key: "always", label: "All the time" },
     ]},
     { key: "wont-move", label: "Car in gear but won't move", step3s: [
@@ -215,6 +212,12 @@ export const STEP2: Record<string, Step2Option[]> = {
     ]},
     { key: "hard-shift", label: "Harsh or jerky gear shifts", step3s: [
       { key: "every-shift", label: "Every shift" },
+    ]},
+  ],
+  other: [
+    { key: "high-fuel", label: "Sudden drop in fuel economy", step3s: [
+      { key: "recent", label: "Recently started" },
+      { key: "winter", label: "During winter" },
     ]},
   ],
 };
