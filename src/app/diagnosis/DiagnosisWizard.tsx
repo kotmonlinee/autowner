@@ -143,9 +143,9 @@ export default function DiagnosisWizard() {
                 rows={2} placeholder="Describe what's happening with your car..."/>
             </div>
           )}
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-4">{STEPS[0].title}</h2>
+          <h2 className="text-lg font-heading font-bold text-text-primary mb-4">{STEPS[0]!.title}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {STEPS[0]?.options.map((opt) => (
+            {STEPS[0]!.options.map((opt) => (
               <button key={opt.key} onClick={() => handleCategory(opt.key)}
                 className="flex flex-col items-start gap-2 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all text-left group">
                 <span className="text-2xl">{opt.icon}</span>
@@ -181,7 +181,7 @@ export default function DiagnosisWizard() {
           {result ? (
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl">{STEPS[0]?.options.find(o => o.key === category)?.icon}</span>
+                <span className="text-3xl">{STEPS[0]!.options.find(o => o.key === category)?.icon}</span>
                 <div>
                   <h2 className="text-xl font-heading font-bold text-text-primary">{result.title}</h2>
                   <span className={severityBadge(result.severity)}>
