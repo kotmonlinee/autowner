@@ -25,12 +25,12 @@ function formatMoney(n: number): string { return `$${n.toLocaleString("en-US")}`
 
 async function getVehicleInfo(makeSlug: string, modelSlug: string) {
   const supabase = await createServerSupabase();
-  const [{ data: make }, { data: model }] = await Promise.all([
-    supabase.from("vehicle_makes").select("name, slug").eq("slug", makeSlug).single(),
-    supabase.from("vehicle_models").select("name, slug").eq("slug", modelSlug).single(),
-  ]);
-  if (!make || !model) return null;
-  return { make: make as { name: string; slug: string }, model: model as { name: string; slug: string } };
+  const { data: make } = await supabase.from("vehicle_makes").select("id, name, slug").eq("slug", makeSlug).single();
+  if (!make) return null;
+  const m = make as { id: string; name: string; slug: string };
+  const { data: model } = await supabase.from("vehicle_models").select("name, slug").eq("slug", modelSlug).eq("make_id", m.id).single();
+  if (!model) return null;
+  return { make: { name: m.name, slug: m.slug }, model: model as { name: string; slug: string } };
 }
 
 async function getRepairCostsFor(makeSlug: string, repairSlugs: string[]) {
