@@ -40,6 +40,7 @@ export default function DiagnosisWizard() {
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AiResult | null>(null);
+  const [resultSlug, setResultSlug] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => { fetchVehicleMakes().then(setMakes); }, []);
@@ -48,7 +49,7 @@ export default function DiagnosisWizard() {
     fetchVehicleModels(makeSlug).then(d => setModels(d.map((m: any) => ({ name: m.name, slug: m.slug }))));
   }, [makeSlug]);
 
-  const reset = () => { setStep(0); setS1(null); setS2(null); setS3(null); setResult(null); setError(""); setExtraNotes(""); };
+  const reset = () => { setStep(0); setS1(null); setS2(null); setS3(null); setResult(null); setError(""); setExtraNotes(""); setResultSlug(""); };
 
   const handleDiagnose = async () => {
     if (!s1 || !s2 || !s3) return;
@@ -57,10 +58,10 @@ export default function DiagnosisWizard() {
     const extra = extraNotes.trim() ? ` Additional notes: ${extraNotes.trim()}.` : "";
     const q = `Vehicle: ${v}. Symptom: ${s1.label}. Location: ${s2.label}. When: ${s3.label}.${extra}`;
     try {
-      const r = await fetch("/api/diagnosis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ symptoms: q }) });
+      const r = await fetch("/api/diagnosis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ symptoms: q, make: makeName || undefined, model: modelName || undefined, year: year || undefined }) });
       const d = await r.json();
       if (d.error) { setError(d.error); return; }
-      setResult(d.diagnosis); setStep(4);
+      setResult(d.diagnosis); setResultSlug(d.slug || ""); setStep(4);
     } catch { setError("AI service unavailable. Please try again."); }
     finally { setLoading(false); }
   };
@@ -273,6 +274,13 @@ export default function DiagnosisWizard() {
               </div>
             </div>
           </div>
+
+          {resultSlug && (
+            <div className="text-center mb-4">
+              <span className="text-xs text-text-muted font-heading">Shareable link: </span>
+              <Link href={`/symptom-checker/${resultSlug}`} className="text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">autowner.com/symptom-checker/{resultSlug}</Link>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Link href="/repair-cost" className="flex flex-col items-center gap-2 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group"><CircleAlert className="w-5 h-5 text-primary"/><span className="text-xs font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">Browse Repair Costs</span></Link>
