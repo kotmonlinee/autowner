@@ -108,13 +108,31 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
+        {/* ── Possible Causes ── */}
+        {d.causes?.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Possible Causes</h2>
+            <div className="space-y-3">
+              {d.causes.map((c: any, i: number) => {
+                const lc = LIKELIHOOD_CONFIG[c.likelihood] ?? LIKELIHOOD_CONFIG["possible"];
+                return (
+                  <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${lc.bg} ${lc.border} border-l-4 ${lc.bar}`}>
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border shrink-0 mt-0.5 ${lc.bg} ${lc.text} ${lc.border} font-heading`}>{lc.label}</span>
+                    <p className="text-sm text-text-secondary leading-relaxed">{c.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* ── Cost estimate ── */}
         {d.costEstimate && (
           <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
                 <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-1">Estimated Repair Cost</p>
-                <p className="text-xl font-heading font-bold text-text-primary">{d.costEstimate}</p>
+                <p className="text-base font-heading font-bold text-text-primary">{d.costEstimate}</p>
               </div>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold font-heading ${costTier.color} bg-surface-0 border border-surface-border`}>{costTier.label}</span>
             </div>
@@ -142,24 +160,6 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               {d.possibleCodes.map((c: string) => (
                 <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Possible Causes ── */}
-        {d.causes?.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Possible Causes</h2>
-            <div className="space-y-3">
-              {d.causes.map((c: any, i: number) => {
-                const lc = LIKELIHOOD_CONFIG[c.likelihood] ?? LIKELIHOOD_CONFIG["possible"];
-                return (
-                  <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${lc.bg} ${lc.border} border-l-4 ${lc.bar}`}>
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border shrink-0 mt-0.5 ${lc.bg} ${lc.text} ${lc.border} font-heading`}>{lc.label}</span>
-                    <p className="text-sm text-text-secondary leading-relaxed">{c.description}</p>
-                  </div>
-                );
-              })}
             </div>
           </div>
         )}
