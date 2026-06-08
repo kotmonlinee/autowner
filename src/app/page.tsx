@@ -99,30 +99,30 @@ export default async function HomePage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative w-full bg-surface-0 pt-16 sm:pt-24 pb-8 sm:pb-12">
-        <div className="max-w-4xl mx-auto px-5 text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display text-text-primary tracking-wide leading-tight">
-            What's wrong with{" "}
-            <span className="text-primary">your car</span>
-            <span className="text-text-muted">?</span>
-          </h1>
-          <p className="mt-4 text-lg sm:text-xl text-text-muted max-w-xl mx-auto font-heading">
-            Check repair costs, decode warning lights & OBD codes, and verify mechanic quotes.
-          </p>
-          <div className="mt-6">
-            <SmartSearchBar />
-          </div>
-          <DiagnosisLink />
-        </div>
-
-        {/* Hero vehicle images */}
-        <div className="max-w-5xl mx-auto px-5 mt-10">
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 opacity-60">
-            {["toyota-camry", "honda-civic", "ford-f-150", "bmw-3-series", "tesla-model-y", "jeep-wrangler"].map((slug) => (
-              <div key={slug} className="aspect-[4/3] rounded-xl overflow-hidden bg-surface-2">
-                <img src={`/vehicles/${slug}.jpg`} alt="" className="w-full h-full object-cover" loading="lazy" />
+      <section className="relative w-full bg-surface-0 pt-16 sm:pt-24 pb-16 sm:pb-20 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-5">
+          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+            <div className="flex-1 text-center lg:text-left">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display text-text-primary tracking-wide leading-tight">
+                What's wrong with{" "}
+                <span className="text-primary">your car</span>
+                <span className="text-text-muted">?</span>
+              </h1>
+              <p className="mt-4 text-lg sm:text-xl text-text-muted max-w-xl mx-auto lg:mx-0 font-heading">
+                Check repair costs, decode warning lights & OBD codes, and verify mechanic quotes.
+              </p>
+              <div className="mt-6">
+                <SmartSearchBar />
               </div>
-            ))}
+              <DiagnosisLink />
+            </div>
+            <div className="flex-1 w-full max-w-lg lg:max-w-none">
+              <img
+                src="/hero.jpg"
+                alt=""
+                className="w-full h-auto rounded-2xl shadow-2xl"
+              />
+            </div>
           </div>
         </div>
       </section>
