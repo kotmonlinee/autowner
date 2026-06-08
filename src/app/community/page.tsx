@@ -62,7 +62,7 @@ export default async function CommunityPage() {
                   </svg>
                   Active Discussions
                 </h2>
-                <span className="text-xs text-text-muted">This week</span>
+                <span className="text-xs text-text-muted">Latest</span>
               </div>
 
               {activeDiscussions.length === 0 ? (
@@ -77,7 +77,7 @@ export default async function CommunityPage() {
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
                   <p className="text-text-muted text-sm">
-                    No active discussions this week. Be the first to start one!
+                    No discussions yet. Be the first to start one!
                   </p>
                   <Link
                     href="/submit"

@@ -1469,13 +1469,11 @@ export async function getVehicleDiscussions(engineId: string): Promise<PostWithR
 
 export async function getActiveDiscussions(limit = 5) {
   const supabase = await createServerSupabase();
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data } = await supabase
     .from("posts")
     .select("id, slug, title, comment_count, created_at")
     .eq("status", "approved")
-    .gte("created_at", sevenDaysAgo)
-    .order("comment_count", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(limit);
   return data ?? [];
 }
