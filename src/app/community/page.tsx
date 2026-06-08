@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getPosts, getTrendingVehicles } from "@/lib/data/server";
+import { createServiceSupabase } from "@/lib/supabase-server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -23,7 +24,7 @@ export default async function CommunityPage({
   const query = sp.q?.trim() || "";
   const page = Math.max(1, parseInt(sp.page || "1", 10) || 1);
 
-  const [{ posts, totalCount }, trendingVehicles] = await Promise.all([
+  const [postsResult, trendingVehicles] = await Promise.all([
     getPosts({
       sort: "new",
       search: query || undefined,
@@ -32,6 +33,17 @@ export default async function CommunityPage({
     }),
     query ? Promise.resolve([]) : getTrendingVehicles(6),
   ]);
+
+  // Count total posts separately for accurate pagination
+  const supabase = await createServiceSupabase();
+  let countQuery = supabase.from("posts").select("id", { count: "exact", head: true })
+    .eq("status", "approved")
+    .or("is_draft.is.null,is_draft.eq.false");
+  if (query) {
+    countQuery = countQuery.textSearch("search_vector", query, { config: "english" });
+  }
+  const { count } = await countQuery;
+  const totalCount = count ?? postsResult.posts.length;
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
@@ -76,7 +88,7 @@ export default async function CommunityPage({
             <span className="text-xs text-text-muted">{totalCount} posts</span>
           </div>
 
-          {posts.length === 0 ? (
+          {postsResult.posts.length === 0 ? (
             <div className="bg-surface-1 rounded-xl border border-surface-border p-8 text-center">
               <p className="text-text-muted text-sm">
                 {query ? "No discussions match your search." : "No discussions yet. Be the first to start one!"}
@@ -90,7 +102,7 @@ export default async function CommunityPage({
           ) : (
             <>
               <div className="space-y-2">
-                {posts.map((post) => (
+                {postsResult.posts.map((post) => (
                   <Link
                     key={post.id}
                     href={`/post/${post.slug || post.id}`}
