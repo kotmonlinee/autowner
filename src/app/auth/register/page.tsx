@@ -13,15 +13,25 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
-    setMessage("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true);
 
     const result = await signUp(email, password, username);
 
@@ -31,6 +41,9 @@ export default function RegisterPage() {
       return;
     }
 
+    // Sync any anonymous data (bookmarks, vehicle) to the new account
+    await syncOnLogin();
+
     // Check localStorage for anonymous vehicle selection
     let storedEngineId: string | null = null;
     try {
@@ -39,29 +52,12 @@ export default function RegisterPage() {
         const parsed = JSON.parse(raw);
         storedEngineId = parsed?.engineId || null;
       }
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
 
-    setLoading(false);
-
-    // Sync any anonymous data (bookmarks, vehicle, followed vehicles) to the new account
-    await syncOnLogin();
-
-    if (result.data?.session) {
-      // User is signed in immediately (email confirmation disabled or auto-confirm)
-      if (storedEngineId) {
-        router.push(`/?my_vehicle=1&engine_id=${storedEngineId}`);
-      } else {
-        router.push("/?welcome=1");
-      }
+    if (storedEngineId) {
+      router.push(`/?my_vehicle=1&engine_id=${storedEngineId}`);
     } else {
-      // Email confirmation required
-      if (storedEngineId) {
-        setMessage("Check your email for a confirmation link. We'll redirect you to your personalized feed once confirmed.");
-      } else {
-        setMessage("Check your email for a confirmation link.");
-      }
+      router.push("/?welcome=1");
     }
   };
 
@@ -91,7 +87,6 @@ export default function RegisterPage() {
           <p className="text-xs text-text-muted mt-3">AI diagnosis, repair estimates, OBD lookup — free.</p>
         </div>
         {error && <div className="mb-5 p-3.5 bg-severity-critical-bg border border-severity-critical-border rounded-xl text-severity-critical text-sm font-medium">{error}</div>}
-        {message && <div className="mb-5 p-3.5 bg-severity-info-bg border border-severity-info-border rounded-xl text-severity-info text-sm font-medium">{message}</div>}
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading">Username</label>
@@ -104,6 +99,10 @@ export default function RegisterPage() {
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading">Password</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" className="w-full px-4 py-2.5 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted" placeholder="Min. 6 characters" required minLength={6} />
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading">Confirm Password</label>
+            <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" className="w-full px-4 py-2.5 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted" placeholder="Re-enter your password" required minLength={6} />
           </div>
           <button type="submit" disabled={loading} className="w-full py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 disabled:opacity-50 disabled:hover:translate-y-0 font-heading shadow-sm shadow-primary/20">
             {loading ? "Creating..." : "Create Account"}
