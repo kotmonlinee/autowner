@@ -22,23 +22,23 @@ export const metadata: Metadata = {
 const SEVERITY_CONFIG: Record<WarningLightSeverity, { label: string; bg: string; text: string; border: string; order: number }> = {
   critical: {
     label: "Critical",
-    bg: "bg-surface-1 dark:bg-red-950/30",
-    text: "text-red-700 dark:text-red-400",
-    border: "border-l-4 border-red-500 dark:border dark:border-red-800 dark:border-l",
+    bg: "bg-severity-critical-bg",
+    text: "text-severity-critical",
+    border: "border-severity-critical-border",
     order: 0,
   },
   caution: {
     label: "Caution",
-    bg: "bg-surface-1 dark:bg-amber-950/30",
-    text: "text-amber-700 dark:text-amber-400",
-    border: "border-l-4 border-amber-500 dark:border dark:border-amber-800 dark:border-l",
+    bg: "bg-severity-caution-bg",
+    text: "text-severity-caution",
+    border: "border-severity-caution-border",
     order: 1,
   },
   informational: {
     label: "Informational",
-    bg: "bg-surface-1 dark:bg-emerald-950/30",
-    text: "text-emerald-700 dark:text-emerald-400",
-    border: "border-l-4 border-emerald-500 dark:border dark:border-emerald-800 dark:border-l",
+    bg: "bg-severity-info-bg",
+    text: "text-severity-info",
+    border: "border-severity-info-border",
     order: 2,
   },
 };
@@ -135,7 +135,7 @@ export default function WarningLightsPage() {
               <Link
                 key={light.slug}
                 href={`/warning-lights/${light.slug}`}
-                className={`group flex flex-col p-5 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md max-w-full overflow-hidden ${sev.bg} ${sev.border}`}
+                className={`group flex flex-col p-5 rounded-2xl border-l-4 dark:border dark:border-l transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md max-w-full overflow-hidden ${sev.bg} ${sev.border}`}
               >
                 {/* Icon + severity badge */}
                 <div className="flex items-start justify-between mb-3">

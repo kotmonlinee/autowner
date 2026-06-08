@@ -128,7 +128,7 @@ export default function AvatarUploader({
       )}
 
       {state === "done" && (
-        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+        <p className="text-xs text-severity-info font-medium">
           Avatar updated.
         </p>
       )}

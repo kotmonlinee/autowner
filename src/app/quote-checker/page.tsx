@@ -50,21 +50,21 @@ const FALLBACK_REPAIRS = [
 
 const ASSESSMENT_COLORS: Record<AssessmentResult["assessment"], { bg: string; text: string; border: string; label: string }> = {
   Fair: {
-    bg: "bg-emerald-50 dark:bg-emerald-950/20",
-    text: "text-emerald-700 dark:text-emerald-400",
-    border: "border-emerald-200 dark:border-emerald-800",
+    bg: "bg-severity-info-bg",
+    text: "text-severity-info",
+    border: "border-severity-info-border",
     label: "Fair Price",
   },
   "Slightly High": {
-    bg: "bg-amber-50 dark:bg-amber-950/20",
-    text: "text-amber-700 dark:text-amber-400",
-    border: "border-amber-200 dark:border-amber-800",
+    bg: "bg-severity-caution-bg",
+    text: "text-severity-caution",
+    border: "border-severity-caution-border",
     label: "Slightly High",
   },
   Overpriced: {
-    bg: "bg-red-50 dark:bg-red-950/20",
-    text: "text-red-700 dark:text-red-400",
-    border: "border-red-200 dark:border-red-800",
+    bg: "bg-severity-critical-bg",
+    text: "text-severity-critical",
+    border: "border-severity-critical-border",
     label: "Overpriced",
   },
   "Below Average": {
@@ -753,8 +753,8 @@ function QuoteCheckerContent() {
 
           {/* Error */}
           {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl">
-              <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+            <div className="p-4 bg-severity-critical-bg border border-severity-critical-border rounded-xl">
+              <p className="text-sm text-severity-critical">{error}</p>
             </div>
           )}
 

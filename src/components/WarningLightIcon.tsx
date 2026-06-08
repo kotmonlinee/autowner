@@ -5,9 +5,9 @@ import { Zap, Moon, RefreshCw, Timer } from "lucide-react";
 import { IMAGE_CACHE_VERSION } from "@/lib/constants";
 
 const severityColors = {
-  critical: { stroke: "text-red-500", bg: "bg-red-100 dark:bg-red-950/40", ring: "ring-red-200 dark:ring-red-900/30" },
-  caution: { stroke: "text-amber-500", bg: "bg-amber-100 dark:bg-amber-950/40", ring: "ring-amber-200 dark:ring-amber-900/30" },
-  informational: { stroke: "text-emerald-500", bg: "bg-emerald-100 dark:bg-emerald-950/40", ring: "ring-emerald-200 dark:ring-emerald-900/30" },
+  critical: { stroke: "text-severity-critical", bg: "bg-severity-critical-bg", ring: "ring-severity-critical-border" },
+  caution: { stroke: "text-severity-caution", bg: "bg-severity-caution-bg", ring: "ring-severity-caution-border" },
+  informational: { stroke: "text-severity-info", bg: "bg-severity-info-bg", ring: "ring-severity-info-border" },
 };
 
 const LUCIDE_FALLBACKS: Record<string, React.ComponentType<{ size?: number; strokeWidth?: number }>> = {

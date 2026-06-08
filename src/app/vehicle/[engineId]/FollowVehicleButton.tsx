@@ -116,7 +116,7 @@ export function FollowVehicleButton({
         title="Get notified when new content is posted about this vehicle"
         className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold font-heading transition-colors ${
           userId
-            ? "bg-emerald-600/10 dark:bg-emerald-500/10 border border-emerald-600/20 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 cursor-default"
+            ? "bg-emerald-600/10 dark:bg-emerald-500/10 border border-emerald-600/20 dark:border-emerald-500/20 text-severity-info cursor-default"
             : "bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 cursor-pointer"
         }`}
       >

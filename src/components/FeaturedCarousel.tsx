@@ -84,7 +84,7 @@ export default function FeaturedCarousel({
                       </span>
                     )}
                     {post.content_type === "review" && (
-                      <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded text-xs font-medium font-heading tracking-wide border border-amber-700/20 dark:border-amber-500/20">
+                      <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-500/10 text-severity-caution rounded text-xs font-medium font-heading tracking-wide border border-amber-700/20 dark:border-amber-500/20">
                         REVIEW
                       </span>
                     )}

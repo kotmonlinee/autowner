@@ -9,10 +9,10 @@ import ShareButtons from "@/components/ShareButtons";
 import { TriangleAlert, Sparkles, CircleAlert, Gauge } from "lucide-react";
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string }> = {
-  critical: { bg: "bg-red-50 dark:bg-red-950/30", text: "text-red-700 dark:text-red-400", border: "border-red-200 dark:border-red-800", label: "Critical — Stop Driving" },
+  critical: { bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", label: "Critical — Stop Driving" },
   high: { bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-orange-700 dark:text-orange-400", border: "border-orange-200 dark:border-orange-800", label: "Serious — Inspect Soon" },
-  medium: { bg: "bg-amber-50 dark:bg-amber-950/30", text: "text-amber-700 dark:text-amber-400", border: "border-amber-200 dark:border-amber-800", label: "Moderate — Schedule Repair" },
-  low: { bg: "bg-emerald-50 dark:bg-emerald-950/30", text: "text-emerald-700 dark:text-emerald-400", border: "border-emerald-200 dark:border-emerald-800", label: "Low Concern" },
+  medium: { bg: "bg-severity-caution-bg", text: "text-severity-caution", border: "border-severity-caution-border", label: "Moderate — Schedule Repair" },
+  low: { bg: "bg-severity-info-bg", text: "text-severity-info", border: "border-severity-info-border", label: "Low Concern" },
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -105,8 +105,8 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
-        <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-xl border border-amber-200 dark:border-amber-800 p-4 mb-6">
-          <div className="flex items-start gap-3"><TriangleAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" /><div><p className="text-xs font-heading font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1">Disclaimer</p><p className="text-xs text-text-secondary leading-relaxed">This AI-generated diagnosis is for informational reference only. Always consult a qualified mechanic for an in-person inspection. AutOwner is not responsible for decisions made based on this information.</p></div></div>
+        <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-xl border border-severity-caution-border p-4 mb-6">
+          <div className="flex items-start gap-3"><TriangleAlert className="w-4 h-4 text-severity-caution shrink-0 mt-0.5" /><div><p className="text-xs font-heading font-bold text-severity-caution uppercase tracking-wider mb-1">Disclaimer</p><p className="text-xs text-text-secondary leading-relaxed">This AI-generated diagnosis is for informational reference only. Always consult a qualified mechanic for an in-person inspection. AutOwner is not responsible for decisions made based on this information.</p></div></div>
         </div>
 
         <div className="mb-6 p-4 bg-surface-0 rounded-xl border border-surface-border">

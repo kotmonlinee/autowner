@@ -16,6 +16,15 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
+  --color-severity-critical: var(--severity-critical);
+  --color-severity-critical-bg: var(--severity-critical-bg);
+  --color-severity-critical-border: var(--severity-critical-border);
+  --color-severity-caution: var(--severity-caution);
+  --color-severity-caution-bg: var(--severity-caution-bg);
+  --color-severity-caution-border: var(--severity-caution-border);
+  --color-severity-info: var(--severity-info);
+  --color-severity-info-bg: var(--severity-info-bg);
+  --color-severity-info-border: var(--severity-info-border);
 }
 
 /* ── Light theme (default, no .dark class) ────────────────── */
@@ -34,6 +43,16 @@
   --color-primary-glow: #3b82f6;
   --color-amber: #d97706;
   --color-amber-dark: #b45309;
+
+  --severity-critical: #dc2626;
+  --severity-critical-bg: #fef2f2;
+  --severity-critical-border: #fecaca;
+  --severity-caution: #b45309;
+  --severity-caution-bg: #fefce8;
+  --severity-caution-border: #fde68a;
+  --severity-info: #059669;
+  --severity-info-bg: #ecfdf5;
+  --severity-info-border: #a7f3d0;
 }
 
 /* ── Dark theme (.dark class on <html>) ──────────────────── */
@@ -52,6 +71,16 @@
   --color-primary-glow: #60a5fa;
   --color-amber: #fbbf24;
   --color-amber-dark: #f59e0b;
+
+  --severity-critical: #f87171;
+  --severity-critical-bg: rgba(127, 29, 29, 0.3);
+  --severity-critical-border: #991b1b;
+  --severity-caution: #fbbf24;
+  --severity-caution-bg: rgba(120, 53, 15, 0.3);
+  --severity-caution-border: #92400e;
+  --severity-info: #34d399;
+  --severity-info-bg: rgba(6, 78, 59, 0.3);
+  --severity-info-border: #065f46;
 }
 
 /* Base */

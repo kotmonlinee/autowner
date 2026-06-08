@@ -91,25 +91,24 @@ const SEVERITY_CONFIG: Record<
 > = {
   critical: {
     label: "Critical — Stop driving",
-    bg: "bg-surface-1 dark:bg-red-950/30",
-    text: "text-red-700 dark:text-red-400",
-    border: "border-l-4 border-red-500 dark:border dark:border-red-800 dark:border-l",
-    iconBg: "bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400",
+    bg: "bg-severity-critical-bg",
+    text: "text-severity-critical",
+    border: "border-severity-critical-border",
+    iconBg: "bg-severity-critical-bg text-severity-critical",
   },
   caution: {
     label: "Caution — Service soon",
-    bg: "bg-surface-1 dark:bg-amber-950/30",
-    text: "text-amber-700 dark:text-amber-400",
-    border: "border-l-4 border-amber-500 dark:border dark:border-amber-800 dark:border-l",
-    iconBg: "bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400",
+    bg: "bg-severity-caution-bg",
+    text: "text-severity-caution",
+    border: "border-severity-caution-border",
+    iconBg: "bg-severity-caution-bg text-severity-caution",
   },
   informational: {
     label: "Informational — For your awareness",
-    bg: "bg-surface-1 dark:bg-emerald-950/30",
-    text: "text-emerald-700 dark:text-emerald-400",
-    border: "border-l-4 border-emerald-500 dark:border dark:border-emerald-800 dark:border-l",
-    iconBg:
-      "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400",
+    bg: "bg-severity-info-bg",
+    text: "text-severity-info",
+    border: "border-severity-info-border",
+    iconBg: "bg-severity-info-bg text-severity-info",
   },
 };
 

@@ -188,7 +188,7 @@ export default function TagActions({
             <button
               onClick={() => setMergeOpen(true)}
               disabled={loading}
-              className="px-3 py-1.5 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded-lg text-xs font-bold hover:bg-amber-700/20 dark:hover:bg-amber-400/20 transition-colors font-heading border border-amber-700/20 dark:border-amber-400/20 disabled:opacity-50"
+              className="px-3 py-1.5 bg-amber-700/10 dark:bg-amber-400/10 text-severity-caution rounded-lg text-xs font-bold hover:bg-amber-700/20 dark:hover:bg-amber-400/20 transition-colors font-heading border border-amber-700/20 dark:border-amber-400/20 disabled:opacity-50"
             >
               Merge
             </button>

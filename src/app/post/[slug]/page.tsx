@@ -323,7 +323,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                       </Link>
                     )}
                     {post.source === "scraped" && (
-                      <span className="px-2 py-1 bg-amber-700/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded text-xs font-bold font-heading tracking-wide border border-amber-700/20 dark:border-amber-400/20">AUTO</span>
+                      <span className="px-2 py-1 bg-amber-700/10 dark:bg-amber-400/10 text-severity-caution rounded text-xs font-bold font-heading tracking-wide border border-amber-700/20 dark:border-amber-400/20">AUTO</span>
                     )}
                   </div>
 

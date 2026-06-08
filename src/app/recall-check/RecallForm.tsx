@@ -136,7 +136,7 @@ export default function RecallForm() {
 
           {recalls.length === 0 ? (
             <div className="text-center py-16 bg-surface-1 rounded-2xl border border-surface-border">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-severity-info-bg border border-severity-info-border flex items-center justify-center">
                 <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
@@ -148,14 +148,14 @@ export default function RecallForm() {
             <div className="space-y-4">
               {recalls.map((r) => (
                 <div key={r.NHTSACampaignNumber}
-                  className={`bg-surface-1 rounded-2xl border p-5 sm:p-6 ${r.parkIt ? "border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/10" : r.parkOutSide ? "border-orange-200 dark:border-orange-800 bg-orange-50/30 dark:bg-orange-950/10" : "border-surface-border"}`}>
+                  className={`bg-surface-1 rounded-2xl border p-5 sm:p-6 ${r.parkIt ? "border-severity-critical-border bg-red-50/30 dark:bg-red-950/10" : r.parkOutSide ? "border-orange-200 dark:border-orange-800 bg-orange-50/30 dark:bg-orange-950/10" : "border-surface-border"}`}>
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-4">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-mono text-text-muted">{r.NHTSACampaignNumber}</span>
-                        {r.parkIt && <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 font-heading">Park It</span>}
+                        {r.parkIt && <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-severity-critical-bg text-severity-critical border border-severity-critical-border font-heading">Park It</span>}
                         {r.parkOutSide && <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800 font-heading">Park Outside</span>}
-                        {!r.parkIt && !r.parkOutSide && <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-heading">Recall</span>}
+                        {!r.parkIt && !r.parkOutSide && <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-severity-caution-bg text-severity-caution border border-severity-caution-border font-heading">Recall</span>}
                       </div>
                       <h3 className="text-base font-heading font-bold text-text-primary">{r.Component}</h3>
                     </div>
@@ -164,7 +164,7 @@ export default function RecallForm() {
                   <p className="text-sm text-text-secondary leading-relaxed mb-4">{r.Summary}</p>
                   {r.Consequence && (
                     <div className="mb-3 p-3 bg-red-500/5 border border-red-500/10 rounded-xl">
-                      <p className="text-xs font-heading font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-1">Safety Risk</p>
+                      <p className="text-xs font-heading font-bold text-severity-critical uppercase tracking-wider mb-1">Safety Risk</p>
                       <p className="text-sm text-text-secondary leading-relaxed">{r.Consequence}</p>
                     </div>
                   )}
