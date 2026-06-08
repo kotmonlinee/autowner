@@ -7,9 +7,7 @@ import BookmarkButton from "@/components/BookmarkButton";
 import VoteButtons from "@/components/VoteButtons";
 import CommentSection from "@/components/CommentSection";
 import RelatedPosts from "@/components/RelatedPosts";
-import ToolCTAs from "@/components/ToolCTAs";
 import DiscussionPrompt from "@/components/DiscussionPrompt";
-import SimilarOwners from "@/components/SimilarOwners";
 import ShareButtons from "@/components/ShareButtons";
 import MarkdownBody from "@/components/MarkdownBody";
 import QuickAnswerCard from "@/components/QuickAnswerCard";
@@ -258,8 +256,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       <ReadingProgress />
       <Navbar />
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
-        <div className="flex gap-8">
-          <article className="flex-1 min-w-0">
+          <article>
             {/* JSON-LD Structured Data */}
             <script
               type="application/ld+json"
@@ -480,17 +477,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               <RelatedPosts categoryId={post.category_id} excludeId={id} title="You Might Also Like" random />
             </div>
           </article>
-
-          <aside className="w-full lg:w-72 lg:shrink-0 mt-8 lg:mt-0">
-            <div className="lg:sticky lg:top-20 space-y-4">
-              <ToolCTAs />
-              <RelatedPosts categoryId={post.category_id} excludeId={id} />
-              {postVehicles.length > 0 && (
-                <SimilarOwners engineId={postVehicles[0].engine_id} />
-              )}
-            </div>
-          </aside>
-        </div>
       </main>
       <Footer />
     </div>
