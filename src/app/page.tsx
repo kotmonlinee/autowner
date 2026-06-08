@@ -99,7 +99,7 @@ export default async function HomePage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative w-full bg-surface-0 pt-16 sm:pt-24 pb-12 sm:pb-16">
+      <section className="relative w-full bg-surface-0 pt-16 sm:pt-24 pb-8 sm:pb-12">
         <div className="max-w-4xl mx-auto px-5 text-center">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display text-text-primary tracking-wide leading-tight">
             What's wrong with{" "}
@@ -113,6 +113,17 @@ export default async function HomePage() {
             <SmartSearchBar />
           </div>
           <DiagnosisLink />
+        </div>
+
+        {/* Hero vehicle images */}
+        <div className="max-w-5xl mx-auto px-5 mt-10">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 opacity-60">
+            {["toyota-camry", "honda-civic", "ford-f-150", "bmw-3-series", "tesla-model-y", "jeep-wrangler"].map((slug) => (
+              <div key={slug} className="aspect-[4/3] rounded-xl overflow-hidden bg-surface-2">
+                <img src={`/vehicles/${slug}.jpg`} alt="" className="w-full h-full object-cover" loading="lazy" />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
