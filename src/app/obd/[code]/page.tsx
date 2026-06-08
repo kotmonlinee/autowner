@@ -82,10 +82,21 @@ function getDrivingAdvice(severity: number): { emoji: string; text: string; bgCl
 
 // ── Natural language intro helper ────────────────────────
 
-function generateNaturalIntro(obd: { code: string; title: string }): string {
-  // Build a natural first sentence from the code title
-  const titleLower = obd.title.charAt(0).toLowerCase() + obd.title.slice(1);
-  return `${obd.code} usually means ${titleLower}.`;
+function generateNaturalIntro(obd: { code: string; title: string; symptoms: string[]; causes: string[]; severity: number }): string {
+  const parts: string[] = [];
+  if (obd.causes.length > 0) {
+    parts.push(`Commonly triggered by ${obd.causes.slice(0, 2).join(" or ").toLowerCase()}.`);
+  }
+  if (obd.symptoms.length > 0) {
+    const symptomList = obd.symptoms.slice(0, 3).join(", ").toLowerCase();
+    parts.push(`Symptoms may include ${symptomList}.`);
+  }
+  if (obd.severity >= 5) {
+    parts.push("This is a critical issue — do not continue driving.");
+  } else if (obd.severity >= 4) {
+    parts.push("Have this diagnosed promptly to avoid further damage.");
+  }
+  return parts.join(" ");
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
