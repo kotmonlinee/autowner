@@ -15,13 +15,6 @@ const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string
   low: { bg: "bg-severity-info-bg", text: "text-severity-info", border: "border-severity-info-border", label: "Low Concern", icon: <AlertTriangle className="w-6 h-6" /> },
 };
 
-const COST_TIERS: Record<string, { label: string; color: string }> = {
-  critical: { label: "High Cost", color: "text-severity-critical" },
-  high: { label: "Above Average", color: "text-orange-600 dark:text-orange-400" },
-  medium: { label: "Moderate", color: "text-severity-caution" },
-  low: { label: "Affordable", color: "text-severity-info" },
-};
-
 function parseCostRange(costStr: string): { min: number; max: number } | null {
   const match = costStr.match(/\$?([\d,]+)\s*[–-]\s*\$?([\d,]+)/);
   if (!match) return null;
@@ -53,7 +46,6 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   const d = diagnosis.diagnosis_json;
   const vehicle = diagnosis.vehicle_make ? `${diagnosis.vehicle_make} ${diagnosis.vehicle_model ?? ""} ${diagnosis.vehicle_year ?? ""}`.trim() : null;
   const sev = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.medium;
-  const costTier = COST_TIERS[d.severity] ?? COST_TIERS.medium;
   const cost = parseCostRange(d.costEstimate ?? "");
 
   return (
@@ -126,45 +118,37 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
-        {/* ── Cost + OBD Codes ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          {d.costEstimate && (
-            <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
-              <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Estimated Repair Cost</p>
-              <p className="text-2xl font-heading font-bold text-text-primary">{d.costEstimate}</p>
-              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold font-heading mt-2 ${costTier.color} bg-surface-0 border border-surface-border`}>{costTier.label}</span>
-              {cost && (
-                <div className="mt-4 pt-4 border-t border-surface-border">
-                  <div className="relative h-1.5 bg-surface-2 rounded-full overflow-hidden">
-                    <div className="absolute inset-y-0 left-0 bg-primary rounded-full" style={{ width: `${Math.min((cost.min / 2000) * 100, 100)}%` }} />
-                  </div>
-                  <p className="text-[11px] text-text-muted mt-1.5">${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>
-                </div>
-              )}
+        {/* ── Cost ── */}
+        {d.costEstimate && (
+          <div className="mb-6">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Estimated Repair Cost</h2>
+            <p className="text-sm text-text-secondary">{d.costEstimate}</p>
+            {cost && <p className="text-xs text-text-muted mt-1">Typical range: ${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>}
+          </div>
+        )}
+
+        {/* ── Related OBD Codes ── */}
+        {d.possibleCodes && d.possibleCodes.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Related OBD-II Codes</h2>
+            <div className="flex flex-wrap gap-1.5">
+              {d.possibleCodes.map((c: string) => (
+                <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-1 border border-surface-border text-xs font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
+              ))}
             </div>
-          )}
-          {d.possibleCodes && d.possibleCodes.length > 0 && (
-            <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
-              <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Related OBD-II Codes</p>
-              <div className="flex flex-wrap gap-1.5">
-                {d.possibleCodes.map((c: string) => (
-                  <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-0 border border-surface-border text-[13px] font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* ── Related Repairs ── */}
         {d.repairKeywords && d.repairKeywords.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h2>
-            <div className="flex flex-wrap gap-2">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Related Repairs</h2>
+            <div className="flex flex-wrap gap-1.5">
               {d.repairKeywords.map((item: string) => {
                 const repairSlug = resolveRepairSlug(item);
                 if (!repairSlug) return null;
                 return (
-                  <Link key={item} href={`/repair-cost/${repairSlug}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all font-heading font-medium">
+                  <Link key={item} href={`/repair-cost/${repairSlug}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/30 transition-all font-heading font-medium">
                     {item}
                     <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
@@ -174,21 +158,16 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
-        {/* ── Share + CTA ── */}
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-6 pt-6 border-t border-surface-border">
+        {/* ── Footer ── */}
+        <div className="flex items-center justify-between flex-wrap gap-3 pt-6 border-t border-surface-border mb-6">
           <div className="flex items-center gap-3">
             <span className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider">Share</span>
             <ShareButtons url={`https://www.autowner.com/symptom-checker/${slug}`} title={d.title} />
           </div>
-          <div className="flex items-center gap-2">
-            <Link href="/repair-cost" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary-glow transition-all font-heading">
-              Repair Costs
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-            <Link href="/quote-checker" className="inline-flex items-center gap-2 px-4 py-2 bg-surface-1 text-text-secondary text-sm font-bold rounded-lg border border-surface-border hover:border-primary/30 hover:text-text-primary transition-all font-heading">
-              Verify Quote
-            </Link>
-          </div>
+          <Link href="/repair-cost" className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+            Browse Repair Costs
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
         {/* ── Disclaimer ── */}
