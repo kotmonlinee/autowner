@@ -126,61 +126,47 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
-        {/* ── Cost estimate ── */}
-        {d.costEstimate && (
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-1">Estimated Repair Cost</p>
-                <p className="text-base font-heading font-bold text-text-primary">{d.costEstimate}</p>
-              </div>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold font-heading ${costTier.color} bg-surface-0 border border-surface-border`}>{costTier.label}</span>
-            </div>
-            {cost && (
-              <div className="mt-4 pt-4 border-t border-surface-border">
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-text-muted">Low</span>
-                  <span className="text-text-muted">High</span>
+        {/* ── Cost + OBD Codes ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          {d.costEstimate && (
+            <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
+              <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Estimated Repair Cost</p>
+              <p className="text-2xl font-heading font-bold text-text-primary">{d.costEstimate}</p>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold font-heading mt-2 ${costTier.color} bg-surface-0 border border-surface-border`}>{costTier.label}</span>
+              {cost && (
+                <div className="mt-4 pt-4 border-t border-surface-border">
+                  <div className="relative h-1.5 bg-surface-2 rounded-full overflow-hidden">
+                    <div className="absolute inset-y-0 left-0 bg-primary rounded-full" style={{ width: `${Math.min((cost.min / 2000) * 100, 100)}%` }} />
+                  </div>
+                  <p className="text-[11px] text-text-muted mt-1.5">${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>
                 </div>
-                <div className="relative h-1.5 bg-surface-2 rounded-full overflow-hidden">
-                  <div className="absolute inset-y-0 left-0 bg-primary/20 rounded-full w-full" />
-                  <div className="absolute inset-y-0 left-0 bg-primary rounded-full" style={{ width: `${Math.min((cost.min / 3000) * 100, 100)}%` }} />
-                </div>
-                <p className="text-xs text-text-muted mt-1.5">Typical range: ${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── Related OBD Codes ── */}
-        {d.possibleCodes && d.possibleCodes.length > 0 && (
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
-            <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Related OBD-II Codes</p>
-            <div className="flex flex-wrap gap-2">
-              {d.possibleCodes.map((c: string) => (
-                <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
-              ))}
+              )}
             </div>
-          </div>
-        )}
+          )}
+          {d.possibleCodes && d.possibleCodes.length > 0 && (
+            <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
+              <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Related OBD-II Codes</p>
+              <div className="flex flex-wrap gap-1.5">
+                {d.possibleCodes.map((c: string) => (
+                  <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-0 border border-surface-border text-[13px] font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ── Related Repairs ── */}
         {d.repairKeywords && d.repairKeywords.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4 flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <DollarSign className="w-4 h-4" />
-              </span>
-              Related Repairs
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h2>
+            <div className="flex flex-wrap gap-2">
               {d.repairKeywords.map((item: string) => {
                 const repairSlug = resolveRepairSlug(item);
                 if (!repairSlug) return null;
                 return (
-                  <Link key={item} href={`/repair-cost/${repairSlug}`} className="flex items-center justify-between p-3 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
-                    <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors truncate">{item}</span>
-                    <ChevronRight className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors shrink-0" />
+                  <Link key={item} href={`/repair-cost/${repairSlug}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all font-heading font-medium">
+                    {item}
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
                 );
               })}
@@ -188,23 +174,19 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
-        {/* ── Share ── */}
-        <div className="mb-6 p-4 bg-surface-1 rounded-xl border border-surface-border flex items-center justify-between flex-wrap gap-3">
-          <h3 className="text-sm font-semibold text-text-primary font-heading">Share this diagnosis</h3>
-          <ShareButtons url={`https://www.autowner.com/symptom-checker/${slug}`} title={d.title} />
-        </div>
-
-        {/* ── Next Steps CTA ── */}
-        <div className="mb-6 p-5 bg-primary/5 rounded-2xl border border-primary/15 text-center">
-          <p className="text-sm font-heading font-bold text-text-primary mb-1">Ready to estimate repair costs?</p>
-          <p className="text-xs text-text-muted mb-4">Browse repair estimates for your vehicle or verify a mechanic's quote.</p>
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-            <Link href="/repair-cost" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all font-heading shadow-sm shadow-primary/20">
-              Browse Repair Costs
-              <ArrowRight className="w-4 h-4" />
+        {/* ── Share + CTA ── */}
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-6 pt-6 border-t border-surface-border">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider">Share</span>
+            <ShareButtons url={`https://www.autowner.com/symptom-checker/${slug}`} title={d.title} />
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/repair-cost" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary-glow transition-all font-heading">
+              Repair Costs
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-            <Link href="/quote-checker" className="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-1 text-text-secondary text-sm font-bold rounded-xl border border-surface-border hover:border-primary/30 hover:text-text-primary transition-all font-heading">
-              Verify a Quote
+            <Link href="/quote-checker" className="inline-flex items-center gap-2 px-4 py-2 bg-surface-1 text-text-secondary text-sm font-bold rounded-lg border border-surface-border hover:border-primary/30 hover:text-text-primary transition-all font-heading">
+              Verify Quote
             </Link>
           </div>
         </div>
