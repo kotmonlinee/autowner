@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+export const revalidate = 86400;
+
 export const metadata: Metadata = {
   title: "Contact Us",
   description:

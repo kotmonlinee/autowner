@@ -5,6 +5,8 @@ import Link from "next/link";
 import WarningLightIcon from "@/components/WarningLightIcon";
 import { warningLights, type WarningLightSeverity } from "@/lib/warning-lights-data";
 
+export const revalidate = 86400;
+
 export const metadata: Metadata = {
   title: "Dashboard Warning Lights Guide",
   description:

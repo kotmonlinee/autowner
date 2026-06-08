@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+
+export const revalidate = 86400;
 import WarningLightIcon from "@/components/WarningLightIcon";
 import { getRelatedRepairs, TOP_REPAIRS } from "@/lib/internal-linking";
 import {
