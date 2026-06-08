@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import {
   getActiveDiscussions,
   getTrendingVehicles,
-  getCategories,
 } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -20,11 +19,10 @@ export const metadata: Metadata = {
 };
 
 export default async function CommunityPage() {
-  const [activeDiscussions, trendingVehicles, categories] =
+  const [activeDiscussions, trendingVehicles] =
     await Promise.all([
       getActiveDiscussions(8),
       getTrendingVehicles(6),
-      getCategories(),
     ]);
 
   return (
@@ -224,37 +222,6 @@ export default async function CommunityPage() {
 
           {/* Right column */}
           <aside className="space-y-6">
-            {/* Browse Categories */}
-            <div className="bg-surface-1 rounded-xl border border-surface-border p-5">
-              <h2 className="text-sm font-bold text-text-primary font-heading flex items-center gap-2 mb-4">
-                <svg
-                  className="w-4.5 h-4.5 text-text-muted"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                </svg>
-                Browse Categories
-              </h2>
-
-              <div className="space-y-1">
-                {categories.map((cat) => (
-                  <Link
-                    key={cat.id}
-                    href={`/?category=${cat.slug}`}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-all duration-150 font-heading"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/40" />
-                    {cat.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
             {/* CTA */}
             <div className="bg-primary/5 border border-primary/15 rounded-xl p-5 text-center">
               <h3 className="text-sm font-bold text-text-primary font-heading mb-2">
