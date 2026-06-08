@@ -146,17 +146,17 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
   let relatedDiagnoses: { slug: string; title: string; severity: string }[] = [];
   try {
     const diagSupabase = await createServiceSupabase();
-    const { data: diagData } = await (diagSupabase.from("diagnoses") as any)
+    const { data: diagData } = await diagSupabase.from("diagnoses")
       .select("slug, diagnosis_json, view_count")
       .contains("diagnosis_json", { possibleCodes: [obd?.code ?? code.toUpperCase()] })
       .order("view_count", { ascending: false })
       .limit(5);
-    relatedDiagnoses = (diagData ?? []).map((d: any) => ({
+    relatedDiagnoses = ((diagData ?? []) as unknown as import("@/lib/types").Diagnosis[]).map((d) => ({
       slug: d.slug,
       title: d.diagnosis_json?.title ?? "Car Diagnosis",
       severity: d.diagnosis_json?.severity ?? "medium",
     }));
-  } catch { /* diagnoses table may not exist */ }
+  } catch { /* diagnoses fetch failed, skip */ }
 
   const relatedRepairs = getRelatedRepairs(obd?.title ?? "", 3);
 

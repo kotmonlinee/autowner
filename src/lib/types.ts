@@ -18,7 +18,7 @@ export interface Database {
       bookmarks: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       notifications: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       rate_limits: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
-      views: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
+      diagnoses: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       error_logs: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       reports: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
       vehicle_makes: { Row: TableRow; Insert: TableRow; Update: TableRow; Relationships: any[] };
@@ -111,6 +111,11 @@ export type Profile = {
   username: string;
   avatar_url?: string | null;
   bio?: string | null;
+  is_banned?: boolean | null;
+  ban_reason?: string | null;
+  banned_at?: string | null;
+  last_active_at?: string | null;
+  last_visited_at?: string | null;
   created_at: string;
 };
 
@@ -258,4 +263,34 @@ export type RepairCostFull = {
   overallMax: number;
   overallAvg: number;
   confidence: string;
+};
+
+// ── AI Diagnosis ─────────────────────────────────────────────
+
+export type DiagnosisCause = {
+  likelihood: string;
+  description: string;
+};
+
+export type DiagnosisJson = {
+  title: string;
+  causes: DiagnosisCause[];
+  summary: string;
+  severity: string;
+  whatToDo: string;
+  costEstimate: string;
+  possibleCodes?: string[];
+  repairKeywords?: string[];
+};
+
+export type Diagnosis = {
+  id: string;
+  slug: string;
+  symptom_path: string;
+  vehicle_make: string | null;
+  vehicle_model: string | null;
+  vehicle_year: string | null;
+  diagnosis_json: DiagnosisJson;
+  view_count: number;
+  created_at: string;
 };

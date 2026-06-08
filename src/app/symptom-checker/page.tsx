@@ -22,15 +22,15 @@ const SEVERITY_COLORS: Record<string, string> = {
 
 export default async function DiagnosisPage() {
   // Fetch popular diagnoses
-  let popular: any[] = [];
+  let popular: import("@/lib/types").Diagnosis[] = [];
   try {
     const supabase = await createServiceSupabase();
-    const { data } = await (supabase.from("diagnoses") as any)
+    const { data } = await supabase.from("diagnoses")
       .select("slug, symptom_path, diagnosis_json, view_count, vehicle_make, vehicle_model")
       .order("view_count", { ascending: false })
       .limit(12);
-    popular = data ?? [];
-  } catch { /* table may not exist yet */ }
+    popular = (data ?? []) as unknown as import("@/lib/types").Diagnosis[];
+  } catch { /* diagnoses fetch failed, skip */ }
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">

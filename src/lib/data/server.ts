@@ -665,7 +665,7 @@ export async function deleteDraft(id: string, userId: string): Promise<void> {
   // Clean up related records
   await supabase.from("post_tags").delete().eq("post_id", id);
   await supabase.from("bookmarks").delete().eq("post_id", id);
-  await supabase.from("views").delete().eq("post_id", id);
+  // views table does not exist — skip
   const { data: comments } = await supabase.from("comments").select("id").eq("post_id", id);
   if (comments?.length) {
     await supabase.from("votes").delete().in("comment_id", comments.map((c) => c.id));
@@ -743,7 +743,7 @@ export async function deletePost(id: string) {
   // Delete related records first to avoid FK constraint violations
   await supabase.from("post_tags").delete().eq("post_id", id);
   await supabase.from("bookmarks").delete().eq("post_id", id);
-  await supabase.from("views").delete().eq("post_id", id);
+  // views table does not exist — skip
   const { data: comments } = await supabase.from("comments").select("id").eq("post_id", id);
   if (comments?.length) {
     await supabase.from("votes").delete().in("comment_id", comments.map((c) => c.id));

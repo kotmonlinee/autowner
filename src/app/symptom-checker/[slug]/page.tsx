@@ -18,20 +18,21 @@ const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createServiceSupabase();
-  const { data } = await (supabase.from("diagnoses") as any).select("diagnosis_json").eq("slug", slug).maybeSingle();
+  const { data } = await supabase.from("diagnoses").select("diagnosis_json").eq("slug", slug).maybeSingle();
   if (!data) return { title: "Diagnosis Not Found" };
-  const d = (data as any).diagnosis_json;
+  const d = (data as unknown as import("@/lib/types").Diagnosis).diagnosis_json;
   return { title: `${d.title} | AutOwner AI Diagnosis`, description: d.summary };
 }
 
 export default async function DiagnosisResultPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createServiceSupabase();
-  const { data } = await (supabase.from("diagnoses") as any).select("*").eq("slug", slug).maybeSingle();
+  const { data } = await supabase.from("diagnoses").select("*").eq("slug", slug).maybeSingle();
   if (!data) notFound();
 
-  const d = (data as any).diagnosis_json;
-  const vehicle = (data as any).vehicle_make ? `${(data as any).vehicle_make} ${(data as any).vehicle_model ?? ""} ${(data as any).vehicle_year ?? ""}`.trim() : null;
+  const diagnosis = data as unknown as import("@/lib/types").Diagnosis;
+  const d = diagnosis.diagnosis_json;
+  const vehicle = diagnosis.vehicle_make ? `${diagnosis.vehicle_make} ${diagnosis.vehicle_model ?? ""} ${diagnosis.vehicle_year ?? ""}`.trim() : null;
   const sev = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.medium;
 
   return (
@@ -81,7 +82,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               <p className="text-2xl font-heading font-bold text-text-primary">{d.costEstimate}</p>
             </div>
           )}
-          {d.possibleCodes?.length > 0 && (
+          {d.possibleCodes && d.possibleCodes.length > 0 && (
             <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
               <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Related OBD-II Codes</h2>
               <div className="flex flex-wrap gap-2">
@@ -91,7 +92,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           )}
         </div>
 
-        {d.repairKeywords?.length > 0 && (
+        {d.repairKeywords && d.repairKeywords.length > 0 && (
           <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
             <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h2>
             <div className="space-y-2">

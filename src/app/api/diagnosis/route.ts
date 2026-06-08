@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { withRateLimit } from "@/lib/rate-limit";
 import { createServiceSupabase } from "@/lib/supabase-server";
+import type { Diagnosis } from "@/lib/types";
 
 const DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions";
 
@@ -58,10 +59,10 @@ export async function POST(request: Request) {
     const supabase = await createServiceSupabase();
 
     // 1. Check cache: exact symptom match OR similar slug match
-    const { data: cached } = await (supabase.from("diagnoses") as any).select("*").eq("slug", slug).maybeSingle();
+    const { data: cached } = await supabase.from("diagnoses").select("*").eq("slug", slug).maybeSingle();
     if (cached) {
-      const cachedData = cached as any;
-      await (supabase.from("diagnoses") as any).update({ view_count: (cachedData.view_count || 1) + 1 }).eq("id", cachedData.id);
+      const cachedData = cached as unknown as Diagnosis;
+      await supabase.from("diagnoses").update({ view_count: (cachedData.view_count || 1) + 1 }).eq("id", cachedData.id);
       return NextResponse.json({
         diagnosis: cachedData.diagnosis_json,
         slug: cachedData.slug,
@@ -70,10 +71,10 @@ export async function POST(request: Request) {
     }
 
     // Also check ILIKE match on symptom_path for similar queries
-    const { data: similar } = await (supabase.from("diagnoses") as any).select("*").ilike("symptom_path", `%${symptoms.substring(0, 40)}%`).limit(1).maybeSingle();
+    const { data: similar } = await supabase.from("diagnoses").select("*").ilike("symptom_path", `%${symptoms.substring(0, 40)}%`).limit(1).maybeSingle();
     if (similar) {
-      const similarData = similar as any;
-      await (supabase.from("diagnoses") as any).update({ view_count: (similarData.view_count || 1) + 1 }).eq("id", similarData.id);
+      const similarData = similar as unknown as Diagnosis;
+      await supabase.from("diagnoses").update({ view_count: (similarData.view_count || 1) + 1 }).eq("id", similarData.id);
       return NextResponse.json({
         diagnosis: similarData.diagnosis_json,
         slug: similarData.slug,
@@ -105,7 +106,7 @@ export async function POST(request: Request) {
     const diagnosis = JSON.parse(jsonMatch[0]);
 
     // 3. Save to DB
-    await (supabase.from("diagnoses") as any).insert({
+    await supabase.from("diagnoses").insert({
       slug,
       symptom_path: symptoms.substring(0, 200),
       vehicle_make: make || null,
