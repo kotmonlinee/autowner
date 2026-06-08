@@ -7,15 +7,22 @@ function sitemapEntry(loc: string): string {
 }
 
 export function GET() {
-  const children = [
-    "/sitemap/pages",
-    "/sitemap/posts",
-    "/sitemap/obd-codes",
-    "/sitemap/repairs",
-    "/sitemap/diagnoses",
+  const entries: string[] = [
+    sitemapEntry(`${BASE_URL}/sitemap/pages`),
+    sitemapEntry(`${BASE_URL}/sitemap/posts`),
+    sitemapEntry(`${BASE_URL}/sitemap/diagnoses`),
   ];
 
-  const entries = children.map((path) => sitemapEntry(`${BASE_URL}${path}`));
+  // OBD codes: 5 pages of 3,000 each
+  for (let i = 0; i < 5; i++) {
+    entries.push(sitemapEntry(`${BASE_URL}/sitemap/obd-codes/${i}`));
+  }
+
+  // Repairs: 3 pages of 35 models each
+  for (let i = 0; i < 3; i++) {
+    entries.push(sitemapEntry(`${BASE_URL}/sitemap/repairs/${i}`));
+  }
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</sitemapindex>`;
 
   return xmlResponse(xml);
