@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getAllRepairSlugs, getRepairCategoryCounts, getPopularRepairCosts } from "@/lib/data/server";
+import { getRepairImageUrl } from "@/lib/repair-images";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RepairSearchFilter from "@/components/RepairSearchFilter";
@@ -214,12 +215,19 @@ export default async function RepairCostLandingPage() {
               Popular Repair Costs
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {popularRepairs.slice(0, 9).map((repair) => (
+              {popularRepairs.slice(0, 9).map((repair) => {
+                const img = getRepairImageUrl(repair.slug);
+                return (
                 <Link
                   key={repair.slug}
                   href={`/repair-cost/${repair.slug}`}
                   className="group bg-surface-1 border border-surface-border rounded-xl p-4 hover:border-primary/20 hover:shadow-sm transition-all duration-150 max-w-full overflow-hidden"
                 >
+                  {img && (
+                    <div className="w-full h-32 rounded-lg overflow-hidden mb-3 bg-surface-2">
+                      <img src={img} alt={repair.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    </div>
+                  )}
                   <h3 className="text-sm font-semibold text-text-primary font-heading group-hover:text-primary transition-colors mb-2 line-clamp-2">
                     {repair.name}
                   </h3>
@@ -237,7 +245,8 @@ export default async function RepairCostLandingPage() {
                     </span>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
             {popularRepairs.length > 9 && (
               <div className="text-center mt-4">
