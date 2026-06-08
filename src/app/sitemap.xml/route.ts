@@ -91,12 +91,22 @@ export async function GET() {
     urls.push(urlEntry(`${baseUrl}/post/${slug}`, lastmod, "weekly", priority));
   }
 
-  // AI Diagnosis pages
+  // AI Diagnosis pages — paginate to bypass Supabase 1,000-row limit
   try {
     const supabase = await createServiceSupabase();
-    const { data: diagnoses } = await supabase.from("diagnoses").select("slug, created_at").order("created_at", { ascending: false }).limit(2000);
-    for (const d of (diagnoses ?? [])) {
-      urls.push(urlEntry(`${baseUrl}/symptom-checker/${d.slug}`, d.created_at ?? now, "monthly", 0.6));
+    const BATCH = 1000;
+    let offset = 0;
+    while (true) {
+      const { data } = await supabase.from("diagnoses")
+        .select("slug, created_at")
+        .order("created_at", { ascending: false })
+        .range(offset, offset + BATCH - 1);
+      if (!data || data.length === 0) break;
+      for (const d of data) {
+        urls.push(urlEntry(`${baseUrl}/symptom-checker/${d.slug}`, d.created_at ?? now, "monthly", 0.6));
+      }
+      if (data.length < BATCH) break;
+      offset += BATCH;
     }
   } catch { /* diagnoses fetch failed, skip */ }
 
