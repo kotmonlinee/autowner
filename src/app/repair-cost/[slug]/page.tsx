@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getRepairCosts, getVehicleRepairSlugs } from "@/lib/data/server";
 import { TOP_OBD_CODES } from "@/lib/internal-linking";
 import type { RepairCostFull, RepairCostTier } from "@/lib/types";
+import { getRepairImageUrl } from "@/lib/repair-images";
 import Navbar from "@/components/Navbar";
 
 export const revalidate = 86400; // ISR: revalidate every 24 hours (static reference data)
@@ -225,15 +226,26 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           <span className="text-text-secondary truncate">{repair.name}</span>
         </nav>
 
-        {/* Title + Description */}
-        <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-2">
-            {repair.name}
-          </h1>
-          <p className="text-text-muted text-sm leading-relaxed">
-            Compare repair cost estimates across 5 vehicle tiers, including labor and parts breakdown.
-            All prices are estimates based on {confidenceLabel(repair.confidence).toLowerCase()}.
-          </p>
+        {/* Title + Image */}
+        <div className="flex items-start gap-5 mb-6">
+          {(() => {
+            const img = getRepairImageUrl(repair.slug.replace(/_/g, "-"));
+            if (!img) return null;
+            return (
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 bg-surface-2 border border-surface-border">
+                <img src={img} alt={repair.name} className="w-full h-full object-cover" />
+              </div>
+            );
+          })()}
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-2">
+              {repair.name}
+            </h1>
+            <p className="text-text-muted text-sm leading-relaxed">
+              Compare repair cost estimates across 5 vehicle tiers, including labor and parts breakdown.
+              All prices are estimates based on {confidenceLabel(repair.confidence).toLowerCase()}.
+            </p>
+          </div>
         </div>
 
         {/* Price Summary Card */}
