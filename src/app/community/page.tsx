@@ -44,9 +44,7 @@ export default async function CommunityPage() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left column: Active Discussions + Trending Vehicles */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="max-w-3xl mx-auto space-y-6">
             {/* Active Discussions */}
             <section>
               <div className="flex items-center justify-between mb-4">
@@ -218,38 +216,6 @@ export default async function CommunityPage() {
                 </div>
               )}
             </section>
-          </div>
-
-          {/* Right column */}
-          <aside className="space-y-6">
-            {/* CTA */}
-            <div className="bg-primary/5 border border-primary/15 rounded-xl p-5 text-center">
-              <h3 className="text-sm font-bold text-text-primary font-heading mb-2">
-                Have a question about your car?
-              </h3>
-              <p className="text-xs text-text-muted mb-4">
-                Get answers from experienced owners and mechanics in the community.
-              </p>
-              <Link
-                href="/submit"
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
-              >
-                <svg
-                  className="w-4 h-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-                Ask a Question
-              </Link>
-            </div>
-          </aside>
         </div>
       </main>
 
