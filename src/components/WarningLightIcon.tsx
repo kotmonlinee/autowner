@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { Zap, Moon, RefreshCw, Timer } from "lucide-react";
+import { IMAGE_CACHE_VERSION } from "@/lib/constants";
 
 const severityColors = {
   critical: { stroke: "text-red-500", bg: "bg-red-100 dark:bg-red-950/40", ring: "ring-red-200 dark:ring-red-900/30" },
@@ -46,7 +47,7 @@ export default function WarningLightIcon({ slug, size = 48, severity, className 
         <>
           <img
             ref={imgRef}
-            src={`/warning-lights/${slug}.jpg?v=2`}
+            src={`/warning-lights/${slug}.jpg?v=${IMAGE_CACHE_VERSION}`}
             alt=""
             width={iconSize}
             height={iconSize}

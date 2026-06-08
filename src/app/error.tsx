@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { logError } from "@/lib/error-logging";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function Error({
   error,
@@ -18,8 +20,7 @@ export default function Error({
 
   return (
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
-      {/* Navbar placeholder */}
-      <header className="h-14 border-b border-surface-border bg-surface-1/80 backdrop-blur-sm" />
+      <Navbar />
 
       <main className="flex-1 flex items-center justify-center px-5">
         <div className="max-w-md mx-auto text-center py-24">
@@ -82,8 +83,7 @@ export default function Error({
         </div>
       </main>
 
-      {/* Footer placeholder */}
-      <footer className="h-14 border-t border-surface-border" />
+      <Footer />
     </div>
   );
 }
