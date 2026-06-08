@@ -22,23 +22,23 @@ export const metadata: Metadata = {
 const SEVERITY_CONFIG: Record<WarningLightSeverity, { label: string; bg: string; text: string; border: string; order: number }> = {
   critical: {
     label: "Critical",
-    bg: "bg-red-50 dark:bg-red-950/30",
+    bg: "bg-surface-1 dark:bg-red-950/30",
     text: "text-red-700 dark:text-red-400",
-    border: "border-red-200 dark:border-red-800",
+    border: "border-red-300 dark:border-red-800",
     order: 0,
   },
   caution: {
     label: "Caution",
-    bg: "bg-amber-50 dark:bg-amber-950/30",
+    bg: "bg-surface-1 dark:bg-amber-950/30",
     text: "text-amber-700 dark:text-amber-400",
-    border: "border-amber-200 dark:border-amber-800",
+    border: "border-amber-300 dark:border-amber-800",
     order: 1,
   },
   informational: {
     label: "Informational",
-    bg: "bg-emerald-50 dark:bg-emerald-950/30",
+    bg: "bg-surface-1 dark:bg-emerald-950/30",
     text: "text-emerald-700 dark:text-emerald-400",
-    border: "border-emerald-200 dark:border-emerald-800",
+    border: "border-emerald-300 dark:border-emerald-800",
     order: 2,
   },
 };

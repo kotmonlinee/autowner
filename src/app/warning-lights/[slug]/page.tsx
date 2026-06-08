@@ -91,23 +91,23 @@ const SEVERITY_CONFIG: Record<
 > = {
   critical: {
     label: "Critical — Stop driving",
-    bg: "bg-red-50 dark:bg-red-950/30",
+    bg: "bg-surface-1 dark:bg-red-950/30",
     text: "text-red-700 dark:text-red-400",
-    border: "border-red-200 dark:border-red-800",
+    border: "border-red-300 dark:border-red-800",
     iconBg: "bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400",
   },
   caution: {
     label: "Caution — Service soon",
-    bg: "bg-amber-50 dark:bg-amber-950/30",
+    bg: "bg-surface-1 dark:bg-amber-950/30",
     text: "text-amber-700 dark:text-amber-400",
-    border: "border-amber-200 dark:border-amber-800",
+    border: "border-amber-300 dark:border-amber-800",
     iconBg: "bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400",
   },
   informational: {
     label: "Informational — For your awareness",
-    bg: "bg-emerald-50 dark:bg-emerald-950/30",
+    bg: "bg-surface-1 dark:bg-emerald-950/30",
     text: "text-emerald-700 dark:text-emerald-400",
-    border: "border-emerald-200 dark:border-emerald-800",
+    border: "border-emerald-300 dark:border-emerald-800",
     iconBg:
       "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400",
   },
