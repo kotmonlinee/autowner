@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { resolveRepairSlug } from "@/lib/internal-linking";
 import ShareButtons from "@/components/ShareButtons";
-import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight } from "lucide-react";
+import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Gauge } from "lucide-react";
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
   critical: { bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", label: "Critical — Stop Driving", icon: <AlertTriangle className="w-6 h-6" /> },
@@ -103,7 +103,12 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         {/* ── Possible Causes ── */}
         {d.causes?.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Possible Causes</h2>
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-4 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <Sparkles className="w-4 h-4" />
+              </span>
+              Possible Causes
+            </h2>
             <div className="space-y-3">
               {d.causes.map((c: any, i: number) => {
                 const lc = LIKELIHOOD_CONFIG[c.likelihood] ?? LIKELIHOOD_CONFIG["possible"];
@@ -121,7 +126,12 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         {/* ── Cost ── */}
         {d.costEstimate && (
           <div className="mb-6">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Estimated Repair Cost</h2>
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <DollarSign className="w-4 h-4" />
+              </span>
+              Estimated Repair Cost
+            </h2>
             <p className="text-sm text-text-secondary">{d.costEstimate}</p>
             {cost && <p className="text-xs text-text-muted mt-1">Typical range: ${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>}
           </div>
@@ -130,7 +140,12 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         {/* ── Related OBD Codes ── */}
         {d.possibleCodes && d.possibleCodes.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Related OBD-II Codes</h2>
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <Gauge className="w-4 h-4" />
+              </span>
+              Related OBD-II Codes
+            </h2>
             <div className="flex flex-wrap gap-1.5">
               {d.possibleCodes.map((c: string) => (
                 <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-1 border border-surface-border text-xs font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
@@ -142,7 +157,12 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         {/* ── Related Repairs ── */}
         {d.repairKeywords && d.repairKeywords.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Related Repairs</h2>
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <Wrench className="w-4 h-4" />
+              </span>
+              Related Repairs
+            </h2>
             <div className="flex flex-wrap gap-1.5">
               {d.repairKeywords.map((item: string) => {
                 const repairSlug = resolveRepairSlug(item);
