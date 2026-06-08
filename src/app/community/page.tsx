@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 import {
   getActiveDiscussions,
-  getTopContributors,
   getTrendingVehicles,
   getCategories,
 } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import ToolCTAs from "@/components/ToolCTAs";
 import Link from "next/link";
-import Avatar from "@/components/Avatar";
 import { timeAgo } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -23,10 +20,9 @@ export const metadata: Metadata = {
 };
 
 export default async function CommunityPage() {
-  const [activeDiscussions, topContributors, trendingVehicles, categories] =
+  const [activeDiscussions, trendingVehicles, categories] =
     await Promise.all([
       getActiveDiscussions(8),
-      getTopContributors(8),
       getTrendingVehicles(6),
       getCategories(),
     ]);
@@ -226,75 +222,8 @@ export default async function CommunityPage() {
             </section>
           </div>
 
-          {/* Right column: Tool CTAs + Top Contributors */}
+          {/* Right column */}
           <aside className="space-y-6">
-            {/* Tool CTAs */}
-            <ToolCTAs />
-
-            {/* Top Contributors */}
-            <div className="bg-surface-1 rounded-xl border border-surface-border p-5">
-              <h2 className="text-sm font-bold text-text-primary font-heading flex items-center gap-2 mb-4">
-                <svg
-                  className="w-4.5 h-4.5 text-primary"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-                Top Contributors
-                <span className="text-xs font-normal text-text-muted ml-auto">
-                  30 days
-                </span>
-              </h2>
-
-              {topContributors.length === 0 ? (
-                <p className="text-xs text-text-muted text-center py-4">
-                  No contributors yet. Be the first to join the conversation!
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {topContributors.map((user, i) => (
-                    <div
-                      key={user.id}
-                      className="flex items-center gap-3"
-                    >
-                      <span className="text-xs font-bold text-text-muted font-heading w-5 shrink-0 tabular-nums text-right">
-                        {(i + 1).toString().padStart(2, "0")}
-                      </span>
-                      <Link href={`/user/${user.username}`}>
-                        <Avatar
-                          username={user.username}
-                          avatarUrl={user.avatar_url}
-                          size="sm"
-                        />
-                      </Link>
-                      <div className="flex-1 min-w-0">
-                        <Link
-                          href={`/user/${user.username}`}
-                          className="text-sm font-semibold text-text-secondary hover:text-primary transition-colors font-heading truncate block"
-                        >
-                          {user.username}
-                        </Link>
-                        <span className="text-xs text-text-muted">
-                          {user.comment_count}{" "}
-                          {user.comment_count === 1
-                            ? "comment"
-                            : "comments"}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
             {/* Browse Categories */}
             <div className="bg-surface-1 rounded-xl border border-surface-border p-5">
               <h2 className="text-sm font-bold text-text-primary font-heading flex items-center gap-2 mb-4">
