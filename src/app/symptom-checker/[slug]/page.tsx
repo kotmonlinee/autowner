@@ -108,39 +108,43 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
-        {/* ── Cost + OBD Codes grid ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          {d.costEstimate && (
-            <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
-              <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-2">Estimated Repair Cost</p>
-              <p className="text-3xl font-heading font-bold text-text-primary mb-1">{d.costEstimate}</p>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold font-heading ${costTier.color} bg-surface-0 border border-surface-border`}>{costTier.label}</span>
-              {cost && (
-                <div className="mt-4 pt-4 border-t border-surface-border space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-text-muted">Low</span>
-                    <span className="text-text-muted">High</span>
-                  </div>
-                  <div className="relative h-2 bg-surface-2 rounded-full overflow-hidden">
-                    <div className="absolute inset-y-0 left-0 bg-primary/20 rounded-full w-full" />
-                    <div className="absolute inset-y-0 left-0 bg-primary rounded-full" style={{ width: `${Math.min((cost.min / 3000) * 100, 100)}%` }} />
-                  </div>
-                  <p className="text-[10px] text-text-muted">Typical range: ${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>
-                </div>
-              )}
-            </div>
-          )}
-          {d.possibleCodes && d.possibleCodes.length > 0 && (
-            <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
-              <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Related OBD-II Codes</p>
-              <div className="flex flex-wrap gap-2">
-                {d.possibleCodes.map((c: string) => (
-                  <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
-                ))}
+        {/* ── Cost estimate ── */}
+        {d.costEstimate && (
+          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-1">Estimated Repair Cost</p>
+                <p className="text-xl font-heading font-bold text-text-primary">{d.costEstimate}</p>
               </div>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold font-heading ${costTier.color} bg-surface-0 border border-surface-border`}>{costTier.label}</span>
             </div>
-          )}
-        </div>
+            {cost && (
+              <div className="mt-4 pt-4 border-t border-surface-border">
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-text-muted">Low</span>
+                  <span className="text-text-muted">High</span>
+                </div>
+                <div className="relative h-1.5 bg-surface-2 rounded-full overflow-hidden">
+                  <div className="absolute inset-y-0 left-0 bg-primary/20 rounded-full w-full" />
+                  <div className="absolute inset-y-0 left-0 bg-primary rounded-full" style={{ width: `${Math.min((cost.min / 3000) * 100, 100)}%` }} />
+                </div>
+                <p className="text-xs text-text-muted mt-1.5">Typical range: ${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Related OBD Codes ── */}
+        {d.possibleCodes && d.possibleCodes.length > 0 && (
+          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
+            <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Related OBD-II Codes</p>
+            <div className="flex flex-wrap gap-2">
+              {d.possibleCodes.map((c: string) => (
+                <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── Possible Causes ── */}
         {d.causes?.length > 0 && (
