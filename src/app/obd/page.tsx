@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTopObdCodes, getObdCodesPaginated, searchObdCodes } from "@/lib/data/server";
+import { createServiceSupabase } from "@/lib/supabase-server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Pagination from "@/components/Pagination";
@@ -63,14 +64,47 @@ export default async function ObdLandingPage({
   }
 
   const page = Math.max(1, parseInt(sp.page ?? "1", 10) || 1);
-  const topCodes = query || prefix ? [] : await getTopObdCodes(20);
-  const { codes: paginatedCodes, totalCount } = query
-    ? { codes: [] as Awaited<ReturnType<typeof getObdCodesPaginated>>["codes"], totalCount: 0 }
-    : await getObdCodesPaginated(page, 100);
+  const supabase = await createServiceSupabase();
 
-  const filteredCodes = prefix
-    ? paginatedCodes.filter((c) => c.code.startsWith(prefix))
-    : paginatedCodes;
+  // Top codes: pick 6 from each prefix for variety
+  let topCodes: Awaited<ReturnType<typeof getTopObdCodes>> = [];
+  if (!query && !prefix) {
+    const allTop = await getTopObdCodes(200);
+    const grouped: Record<string, typeof allTop> = { P: [], C: [], B: [], U: [] };
+    for (const c of allTop) {
+      const pfx = c.code[0].toUpperCase();
+      if (grouped[pfx] && grouped[pfx].length < 6) grouped[pfx].push(c);
+      if (Object.values(grouped).every((g) => g.length >= 6)) break;
+    }
+    topCodes = Object.values(grouped).flat();
+  }
+
+  // Fetch codes: direct query for prefix, paginated for all
+  let filteredCodes: Awaited<ReturnType<typeof getObdCodesPaginated>>["codes"] = [];
+  let totalCount = 0;
+  const PAGE_SIZE = 50;
+
+  if (!query) {
+    if (prefix) {
+      const offset = (page - 1) * PAGE_SIZE;
+      const [{ data }, { count }] = await Promise.all([
+        supabase.from("obd_codes")
+          .select("code, title, severity")
+          .ilike("code", `${prefix}%`)
+          .order("code", { ascending: true })
+          .range(offset, offset + PAGE_SIZE - 1),
+        supabase.from("obd_codes")
+          .select("id", { count: "exact", head: true })
+          .ilike("code", `${prefix}%`),
+      ]);
+      filteredCodes = (data ?? []) as unknown as typeof filteredCodes;
+      totalCount = count ?? 0;
+    } else {
+      const result = await getObdCodesPaginated(page, PAGE_SIZE);
+      filteredCodes = result.codes;
+      totalCount = result.totalCount;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -138,14 +172,14 @@ export default async function ObdLandingPage({
         {!query && !prefix && topCodes.length > 0 && (
           <section className="mb-10">
             <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Most Common Codes</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
               {topCodes.map((c) => (
                 <Link key={c.code} href={`/obd/${c.code.toLowerCase()}`}
-                  className="group flex items-start gap-3 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all overflow-hidden">
-                  <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${severityBar(c.severity)}`} />
+                  className="group flex items-center gap-2 p-3 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all overflow-hidden">
+                  <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${severityBar(c.severity)}`} />
                   <div className="min-w-0">
-                    <span className="text-base font-mono font-bold text-text-primary group-hover:text-primary transition-colors">{c.code}</span>
-                    <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">{c.title}</p>
+                    <span className="text-sm font-mono font-bold text-text-primary group-hover:text-primary transition-colors">{c.code}</span>
+                    <p className="text-[11px] text-text-muted truncate">{c.title}</p>
                   </div>
                 </Link>
               ))}
@@ -195,7 +229,7 @@ export default async function ObdLandingPage({
                 </div>
 
                 {!prefix && (
-                  <Pagination page={page} totalCount={totalCount} limit={100} basePath="/obd" />
+                  <Pagination page={page} totalCount={totalCount} limit={50} basePath={prefix ? `/obd?prefix=${prefix}` : "/obd"} />
                 )}
               </>
             )}
