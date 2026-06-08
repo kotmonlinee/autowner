@@ -52,8 +52,8 @@ function getDrivingAdvice(severity: number): { emoji: string; text: string; bgCl
     return {
       emoji: "⚠️",
       text: "Stop driving — this code indicates a critical issue that could cause severe engine damage or safety risk. Tow to a shop immediately.",
-      bgClass: "bg-severity-critical-bg",
-      borderClass: "border-severity-critical-border",
+      bgClass: "bg-red-50 dark:bg-red-950",
+      borderClass: "border-red-300 dark:border-red-800",
     };
   }
   if (severity === 4) {

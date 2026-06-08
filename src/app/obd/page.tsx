@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 };
 
 function severityBadgeClass(severity: number): string {
-  if (severity >= 5) return "bg-severity-critical-bg text-severity-critical border-severity-critical-border";
+  if (severity >= 5) return "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800";
   if (severity >= 4) return "bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800";
   if (severity >= 3) return "bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800";
   return "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800";
