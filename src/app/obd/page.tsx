@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTopObdCodes, getObdCodesPaginated, searchObdCodes } from "@/lib/data/server";
+import { getObdCodesPaginated, searchObdCodes } from "@/lib/data/server";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -65,19 +65,6 @@ export default async function ObdLandingPage({
 
   const page = Math.max(1, parseInt(sp.page ?? "1", 10) || 1);
   const supabase = await createServiceSupabase();
-
-  // Top codes: pick 6 from each prefix for variety
-  let topCodes: Awaited<ReturnType<typeof getTopObdCodes>> = [];
-  if (!query && !prefix) {
-    const allTop = await getTopObdCodes(200);
-    const grouped: Record<string, typeof allTop> = { P: [], C: [], B: [], U: [] };
-    for (const c of allTop) {
-      const pfx = c.code[0].toUpperCase();
-      if (grouped[pfx] && grouped[pfx].length < 6) grouped[pfx].push(c);
-      if (Object.values(grouped).every((g) => g.length >= 6)) break;
-    }
-    topCodes = Object.values(grouped).flat();
-  }
 
   // Fetch codes: direct query for prefix, paginated for all
   let filteredCodes: Awaited<ReturnType<typeof getObdCodesPaginated>>["codes"] = [];
@@ -168,25 +155,6 @@ export default async function ObdLandingPage({
           </section>
         )}
 
-        {/* Most Common Codes */}
-        {!query && !prefix && topCodes.length > 0 && (
-          <section className="mb-10">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Most Common Codes</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-              {topCodes.map((c) => (
-                <Link key={c.code} href={`/obd/${c.code.toLowerCase()}`}
-                  className="group flex items-center gap-2 p-3 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 transition-all overflow-hidden">
-                  <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${severityBar(c.severity)}`} />
-                  <div className="min-w-0">
-                    <span className="text-sm font-mono font-bold text-text-primary group-hover:text-primary transition-colors">{c.code}</span>
-                    <p className="text-[11px] text-text-muted truncate">{c.title}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
         {/* All Codes Browser */}
         {!query && (
           <section>
@@ -228,9 +196,7 @@ export default async function ObdLandingPage({
                   ))}
                 </div>
 
-                {!prefix && (
-                  <Pagination page={page} totalCount={totalCount} limit={50} basePath={prefix ? `/obd?prefix=${prefix}` : "/obd"} />
-                )}
+                <Pagination page={page} totalCount={totalCount} limit={50} basePath={prefix ? `/obd?prefix=${prefix}` : "/obd"} />
               </>
             )}
           </section>
