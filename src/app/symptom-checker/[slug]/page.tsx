@@ -6,13 +6,32 @@ import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { resolveRepairSlug } from "@/lib/internal-linking";
 import ShareButtons from "@/components/ShareButtons";
-import { TriangleAlert, Sparkles, CircleAlert, Gauge } from "lucide-react";
+import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight } from "lucide-react";
 
-const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string }> = {
-  critical: { bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", label: "Critical — Stop Driving" },
-  high: { bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-orange-700 dark:text-orange-400", border: "border-orange-200 dark:border-orange-800", label: "Serious — Inspect Soon" },
-  medium: { bg: "bg-severity-caution-bg", text: "text-severity-caution", border: "border-severity-caution-border", label: "Moderate — Schedule Repair" },
-  low: { bg: "bg-severity-info-bg", text: "text-severity-info", border: "border-severity-info-border", label: "Low Concern" },
+const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
+  critical: { bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", label: "Critical — Stop Driving", icon: <AlertTriangle className="w-6 h-6" /> },
+  high: { bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-orange-700 dark:text-orange-400", border: "border-orange-200 dark:border-orange-800", label: "Serious — Inspect Soon", icon: <AlertTriangle className="w-6 h-6" /> },
+  medium: { bg: "bg-severity-caution-bg", text: "text-severity-caution", border: "border-severity-caution-border", label: "Moderate — Schedule Repair", icon: <AlertTriangle className="w-6 h-6" /> },
+  low: { bg: "bg-severity-info-bg", text: "text-severity-info", border: "border-severity-info-border", label: "Low Concern", icon: <AlertTriangle className="w-6 h-6" /> },
+};
+
+const COST_TIERS: Record<string, { label: string; color: string }> = {
+  critical: { label: "High Cost", color: "text-severity-critical" },
+  high: { label: "Above Average", color: "text-orange-600 dark:text-orange-400" },
+  medium: { label: "Moderate", color: "text-severity-caution" },
+  low: { label: "Affordable", color: "text-severity-info" },
+};
+
+function parseCostRange(costStr: string): { min: number; max: number } | null {
+  const match = costStr.match(/\$?([\d,]+)\s*[–-]\s*\$?([\d,]+)/);
+  if (!match) return null;
+  return { min: parseInt(match[1].replace(/,/g, "")), max: parseInt(match[2].replace(/,/g, "")) };
+}
+
+const LIKELIHOOD_CONFIG: Record<string, { bg: string; text: string; border: string; bar: string; label: string }> = {
+  "most likely": { bg: "bg-red-50 dark:bg-red-950/20", text: "text-red-700 dark:text-red-400", border: "border-red-200 dark:border-red-800", bar: "border-l-red-500", label: "Most Likely" },
+  "possible": { bg: "bg-amber-50 dark:bg-amber-950/20", text: "text-amber-700 dark:text-amber-400", border: "border-amber-200 dark:border-amber-800", bar: "border-l-amber-400", label: "Possible" },
+  "less common": { bg: "bg-surface-0 dark:bg-surface-0", text: "text-text-muted", border: "border-surface-border", bar: "border-l-surface-border", label: "Less Common" },
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -34,91 +53,162 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   const d = diagnosis.diagnosis_json;
   const vehicle = diagnosis.vehicle_make ? `${diagnosis.vehicle_make} ${diagnosis.vehicle_model ?? ""} ${diagnosis.vehicle_year ?? ""}`.trim() : null;
   const sev = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.medium;
+  const costTier = COST_TIERS[d.severity] ?? COST_TIERS.medium;
+  const cost = parseCostRange(d.costEstimate ?? "");
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
-      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
+      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
         <nav className="mb-4 text-sm text-text-muted font-heading">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link> / <Link href="/symptom-checker" className="hover:text-primary transition-colors">AI Diagnosis</Link> / <span className="text-text-secondary">Result</span>
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link>{" "}/{" "}
+          <Link href="/symptom-checker" className="hover:text-primary transition-colors">AI Diagnosis</Link>{" "}/{" "}
+          <span className="text-text-secondary">Result</span>
         </nav>
 
         {vehicle && <p className="text-xs text-text-muted font-heading mb-2">{vehicle}</p>}
 
-        <div className={`${sev.bg} rounded-2xl border ${sev.border} p-5 mb-6`}>
-          <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-xl ${sev.bg} border ${sev.border} flex items-center justify-center shrink-0`}><TriangleAlert className={`w-6 h-6 ${sev.text}`} /></div>
+        {/* ── Hero: Severity-first header ── */}
+        <div className={`${sev.bg} rounded-2xl border-2 ${sev.border} p-6 mb-6`}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className={`w-14 h-14 rounded-2xl ${sev.bg} border-2 ${sev.border} flex items-center justify-center shrink-0 ${sev.text}`}>
+              {sev.icon}
+            </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2"><h1 className="text-xl font-heading font-bold text-text-primary">{d.title}</h1><Sparkles className="w-4 h-4 text-primary shrink-0"/></div>
-              <p className="text-sm text-text-secondary mt-1">{d.summary}</p>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${sev.border} ${sev.text} font-heading mt-2`}>{sev.label}</span>
+              <div className="flex items-center gap-2 mb-1">
+                <h1 className="text-2xl font-heading font-bold text-text-primary">{d.title}</h1>
+                <Sparkles className="w-5 h-5 text-primary shrink-0" />
+              </div>
+              <p className="text-sm text-text-secondary leading-relaxed">{d.summary}</p>
             </div>
           </div>
+          <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold border-2 ${sev.border} ${sev.text} font-heading`}>
+            <span className={`w-2 h-2 rounded-full ${sev.text} bg-current`} />
+            {sev.label}
+          </span>
         </div>
 
-        {d.causes?.length > 0 && (
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Possible Causes</h2>
-            <div className="space-y-3">
-              {d.causes.map((c: any, i: number) => {
-                const badge = c.likelihood === "most likely" ? "bg-red-50 text-red-700 border-red-200" : c.likelihood === "possible" ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-surface-0 text-text-muted border-surface-border";
-                return <div key={i} className="flex items-start gap-3 p-3 bg-surface-0 rounded-xl border border-surface-border"><span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 mt-0.5 ${badge} font-heading`}>{c.likelihood}</span><p className="text-sm text-text-secondary leading-relaxed">{c.description}</p></div>;
-              })}
+        {/* ── What To Do ── */}
+        {d.whatToDo && (
+          <div className="mb-6">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-4 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <Wrench className="w-4 h-4" />
+              </span>
+              What You Should Do
+            </h2>
+            <div className="space-y-1">
+              {d.whatToDo.split(". ").filter(Boolean).map((step, i) => (
+                <div key={i} className="flex gap-3 p-3 rounded-xl hover:bg-surface-1 transition-colors">
+                  <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 text-sm font-bold font-heading">{i + 1}</span>
+                  <p className="text-sm text-text-secondary leading-relaxed pt-0.5">{step.endsWith(".") ? step : step + "."}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {d.whatToDo && (
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">What You Should Do</h2>
-            <p className="text-sm text-text-secondary leading-relaxed">{d.whatToDo}</p>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        {/* ── Cost + OBD Codes grid ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           {d.costEstimate && (
             <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
-              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Estimated Repair Cost</h2>
-              <p className="text-2xl font-heading font-bold text-text-primary">{d.costEstimate}</p>
+              <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-2">Estimated Repair Cost</p>
+              <p className="text-3xl font-heading font-bold text-text-primary mb-1">{d.costEstimate}</p>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold font-heading ${costTier.color} bg-surface-0 border border-surface-border`}>{costTier.label}</span>
+              {cost && (
+                <div className="mt-4 pt-4 border-t border-surface-border space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-text-muted">Low</span>
+                    <span className="text-text-muted">High</span>
+                  </div>
+                  <div className="relative h-2 bg-surface-2 rounded-full overflow-hidden">
+                    <div className="absolute inset-y-0 left-0 bg-primary/20 rounded-full w-full" />
+                    <div className="absolute inset-y-0 left-0 bg-primary rounded-full" style={{ width: `${Math.min((cost.min / 3000) * 100, 100)}%` }} />
+                  </div>
+                  <p className="text-[10px] text-text-muted">Typical range: ${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>
+                </div>
+              )}
             </div>
           )}
           {d.possibleCodes && d.possibleCodes.length > 0 && (
             <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
-              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Related OBD-II Codes</h2>
+              <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Related OBD-II Codes</p>
               <div className="flex flex-wrap gap-2">
-                {d.possibleCodes.map((c: string) => <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>)}
+                {d.possibleCodes.map((c: string) => (
+                  <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
+                ))}
               </div>
             </div>
           )}
         </div>
 
-        {d.repairKeywords && d.repairKeywords.length > 0 && (
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h2>
-            <div className="space-y-2">
-              {d.repairKeywords.map((item: string) => {
-                  const slug = resolveRepairSlug(item);
-                  if (!slug) return null;
-                  return <Link key={item} href={`/repair-cost/${slug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group"><span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors">{item}</span><span className="text-xs text-text-muted font-heading">View estimate →</span></Link>;
-                })}
+        {/* ── Possible Causes ── */}
+        {d.causes?.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Possible Causes</h2>
+            <div className="space-y-3">
+              {d.causes.map((c: any, i: number) => {
+                const lc = LIKELIHOOD_CONFIG[c.likelihood] ?? LIKELIHOOD_CONFIG["possible"];
+                return (
+                  <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${lc.bg} ${lc.border} border-l-4 ${lc.bar}`}>
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border shrink-0 mt-0.5 ${lc.bg} ${lc.text} ${lc.border} font-heading`}>{lc.label}</span>
+                    <p className="text-sm text-text-secondary leading-relaxed">{c.description}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
-        <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-xl border border-severity-caution-border p-4 mb-6">
-          <div className="flex items-start gap-3"><TriangleAlert className="w-4 h-4 text-severity-caution shrink-0 mt-0.5" /><div><p className="text-xs font-heading font-bold text-severity-caution uppercase tracking-wider mb-1">Disclaimer</p><p className="text-xs text-text-secondary leading-relaxed">This AI-generated diagnosis is for informational reference only. Always consult a qualified mechanic for an in-person inspection. AutOwner is not responsible for decisions made based on this information.</p></div></div>
-        </div>
+        {/* ── Related Repairs ── */}
+        {d.repairKeywords && d.repairKeywords.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-4 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <DollarSign className="w-4 h-4" />
+              </span>
+              Related Repairs
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {d.repairKeywords.map((item: string) => {
+                const repairSlug = resolveRepairSlug(item);
+                if (!repairSlug) return null;
+                return (
+                  <Link key={item} href={`/repair-cost/${repairSlug}`} className="flex items-center justify-between p-3 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
+                    <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors truncate">{item}</span>
+                    <ChevronRight className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors shrink-0" />
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
-        <div className="mb-6 p-4 bg-surface-0 rounded-xl border border-surface-border">
-          <h3 className="text-sm font-semibold text-text-primary mb-3 font-heading">Share this diagnosis</h3>
+        {/* ── Share ── */}
+        <div className="mb-6 p-4 bg-surface-1 rounded-xl border border-surface-border flex items-center justify-between flex-wrap gap-3">
+          <h3 className="text-sm font-semibold text-text-primary font-heading">Share this diagnosis</h3>
           <ShareButtons url={`https://www.autowner.com/symptom-checker/${slug}`} title={d.title} />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Link href="/repair-cost" className="flex flex-col items-center gap-2 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group"><CircleAlert className="w-5 h-5 text-primary"/><span className="text-xs font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">Browse Repair Costs</span></Link>
-          <Link href="/recall-check" className="flex flex-col items-center gap-2 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group"><TriangleAlert className="w-5 h-5 text-primary"/><span className="text-xs font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">Check Safety Recalls</span></Link>
-          <Link href="/quote-checker" className="flex flex-col items-center gap-2 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group"><Gauge className="w-5 h-5 text-primary"/><span className="text-xs font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">Verify a Mechanic Quote</span></Link>
+        {/* ── Next Steps CTA ── */}
+        <div className="mb-6 p-5 bg-primary/5 rounded-2xl border border-primary/15 text-center">
+          <p className="text-sm font-heading font-bold text-text-primary mb-1">Ready to estimate repair costs?</p>
+          <p className="text-xs text-text-muted mb-4">Browse repair estimates for your vehicle or verify a mechanic's quote.</p>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <Link href="/repair-cost" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all font-heading shadow-sm shadow-primary/20">
+              Browse Repair Costs
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link href="/quote-checker" className="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-1 text-text-secondary text-sm font-bold rounded-xl border border-surface-border hover:border-primary/30 hover:text-text-primary transition-all font-heading">
+              Verify a Quote
+            </Link>
+          </div>
         </div>
+
+        {/* ── Disclaimer ── */}
+        <p className="text-xs text-text-muted text-center mb-6 max-w-md mx-auto leading-relaxed">
+          <span className="font-semibold">Disclaimer:</span> This AI-generated diagnosis is for informational reference only. Always consult a qualified mechanic for an in-person inspection.
+        </p>
       </main>
       <Footer />
     </div>
