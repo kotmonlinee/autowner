@@ -40,25 +40,28 @@ export default function RecallCheckPage() {
         <div className="mb-8 p-5 bg-surface-1 rounded-2xl border border-surface-border">
           <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Most Checked Vehicles</h2>
           <p className="text-xs text-text-muted mb-3">Click to quickly check recalls for these commonly searched vehicles:</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {[
-              { make: "Toyota", model: "Camry", year: "2020" },
-              { make: "Honda", model: "Civic", year: "2019" },
-              { make: "Ford", model: "F-150", year: "2020" },
-              { make: "Toyota", model: "RAV4", year: "2020" },
-              { make: "Honda", model: "Accord", year: "2019" },
-              { make: "Chevrolet", model: "Silverado 1500", year: "2020" },
-              { make: "Nissan", model: "Altima", year: "2019" },
-              { make: "Jeep", model: "Grand Cherokee", year: "2020" },
-              { make: "Ford", model: "Explorer", year: "2020" },
-              { make: "Hyundai", model: "Elantra", year: "2019" },
-              { make: "BMW", model: "3 Series", year: "2020" },
-              { make: "Subaru", model: "Outback", year: "2020" },
+              { make: "Toyota", makeSlug: "toyota", model: "Camry", modelSlug: "camry", year: "2020" },
+              { make: "Honda", makeSlug: "honda", model: "Civic", modelSlug: "civic", year: "2019" },
+              { make: "Ford", makeSlug: "ford", model: "F-150", modelSlug: "f-150", year: "2020" },
+              { make: "Toyota", makeSlug: "toyota", model: "RAV4", modelSlug: "rav4", year: "2020" },
+              { make: "Honda", makeSlug: "honda", model: "Accord", modelSlug: "accord", year: "2019" },
+              { make: "Chevrolet", makeSlug: "chevrolet", model: "Silverado 1500", modelSlug: "silverado-1500", year: "2020" },
+              { make: "Nissan", makeSlug: "nissan", model: "Altima", modelSlug: "altima", year: "2019" },
+              { make: "Jeep", makeSlug: "jeep", model: "Grand Cherokee", modelSlug: "grand-cherokee", year: "2020" },
+              { make: "Ford", makeSlug: "ford", model: "Explorer", modelSlug: "explorer", year: "2020" },
+              { make: "Hyundai", makeSlug: "hyundai", model: "Elantra", modelSlug: "elantra", year: "2019" },
+              { make: "BMW", makeSlug: "bmw", model: "3 Series", modelSlug: "3-series", year: "2020" },
+              { make: "Subaru", makeSlug: "subaru", model: "Outback", modelSlug: "outback", year: "2020" },
             ].map((v) => (
               <a key={`${v.make}-${v.model}-${v.year}`}
                 href={`/recall-check?make=${encodeURIComponent(v.make)}&model=${encodeURIComponent(v.model)}&year=${v.year}`}
-                className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/20 transition-colors font-heading">
-                {v.make} {v.model} ({v.year})
+                className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors overflow-hidden">
+                <div className="w-16 h-12 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                  <img src={`/vehicles/${v.makeSlug}-${v.modelSlug}.jpg`} alt={`${v.make} ${v.model}`} className="w-full h-full object-cover" />
+                </div>
+                <span className="text-xs font-medium text-text-secondary hover:text-primary transition-colors font-heading">{v.make} {v.model} ({v.year})</span>
               </a>
             ))}
           </div>
