@@ -73,13 +73,13 @@
   --color-amber-dark: #f59e0b;
 
   --severity-critical: #f87171;
-  --severity-critical-bg: rgba(127, 29, 29, 0.3);
+  --severity-critical-bg: #450a0a;
   --severity-critical-border: #991b1b;
   --severity-caution: #fbbf24;
-  --severity-caution-bg: rgba(120, 53, 15, 0.3);
+  --severity-caution-bg: #451a03;
   --severity-caution-border: #92400e;
   --severity-info: #34d399;
-  --severity-info-bg: rgba(6, 78, 59, 0.3);
+  --severity-info-bg: #022c22;
   --severity-info-border: #065f46;
 }
 
