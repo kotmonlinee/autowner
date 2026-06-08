@@ -3,24 +3,16 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "About AutOwner",
   description:
-    "Learn about AutOwner, a community built by and for car enthusiasts. Maintenance advice, repair guides, and modification inspiration from ASE-certified mechanics and dedicated DIYers.",
-  alternates: {
-    canonical: "https://www.autowner.com/about",
-  },
+    "AutOwner helps car owners diagnose problems, estimate repair costs, and make informed decisions — powered by AI and real-world data.",
+  alternates: { canonical: "https://www.autowner.com/about" },
   openGraph: {
     title: "About AutOwner",
     description:
-      "A community built by and for car enthusiasts. Maintenance advice, repair guides, and modification inspiration.",
+      "AI-powered car diagnosis, repair cost estimates, and OBD code lookup. Helping car owners make informed decisions.",
     type: "website",
     url: "https://www.autowner.com/about",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "About AutOwner",
-    description:
-      "A community built by and for car enthusiasts. Maintenance advice, repair guides, and modification inspiration.",
   },
 };
 
@@ -30,31 +22,21 @@ export default function AboutPage() {
       <Navbar />
       <main id="main-content" className="flex-1">
         <div className="max-w-4xl mx-auto px-5 py-16 sm:py-24">
-          {/* Header */}
           <div className="mb-12">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary font-heading mb-3">
-              Our Story
+              Our Mission
             </p>
             <h1 className="text-4xl sm:text-5xl font-bold text-text-primary font-heading tracking-tight">
               About AutOwner
             </h1>
           </div>
 
-          {/* Intro */}
           <div className="prose-dark space-y-6 text-text-secondary leading-relaxed">
             <p className="text-lg text-text-primary font-medium">
-              AutOwner was born in a garage — literally. What started as a group
-              chat of friends troubleshooting their weekend projects grew into
-              something much bigger: a community where anyone who turns a wrench
-              can find straight answers, honest advice, and people who get it.
-            </p>
-
-            <p>
-              We believe every car owner deserves access to reliable
-              information, whether you are diagnosing a check-engine light at
-              midnight, researching your first brake job, or planning a full
-              engine swap. The forums and video platforms out there are packed
-              with noise. AutOwner cuts through it.
+              Every car owner has been there: a warning light comes on, the
+              mechanic hands you a quote you don&apos;t understand, and you&apos;re
+              left wondering if you&apos;re being overcharged — or if it&apos;s even
+              safe to keep driving. AutOwner exists to answer those questions.
             </p>
 
             <h2 className="text-2xl font-bold text-text-primary font-heading mt-10 mb-4">
@@ -62,81 +44,92 @@ export default function AboutPage() {
             </h2>
 
             <p>
-              AutOwner is a focused forum for car maintenance, repair, and
-              modification advice. Our content is curated from experienced
-              enthusiasts and{" "}
-              <strong className="text-text-primary">ASE-certified mechanics</strong>{" "}
-              who contribute step-by-step guides, diagnostic walkthroughs, and
-              product recommendations backed by real-world experience.
+              AutOwner is an AI-powered platform that helps car owners understand
+              what&apos;s wrong with their vehicle, what it should cost to fix, and
+              what to do next. We combine diagnostic trouble code data, repair cost
+              estimates, and AI analysis into tools that are fast, free, and easy
+              to use.
             </p>
 
-            <p>
-              We also surface and attribute great discussions from communities
-              across the web — giving credit where it is due and bringing the
-              best automotive knowledge into one searchable, organized place.
-            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 not-prose">
+              {[
+                {
+                  title: "AI Symptom Checker",
+                  desc: "Describe what your car is doing and our AI analyzes the symptoms to identify possible causes, related OBD codes, and repair estimates.",
+                },
+                {
+                  title: "OBD-II Code Lookup",
+                  desc: "Search over 12,000 diagnostic trouble codes. Get plain-English explanations, common causes, symptoms, and cost estimates.",
+                },
+                {
+                  title: "Repair Cost Estimator",
+                  desc: "Browse cost estimates for 55+ common repairs across economy, mid-range, luxury, truck, and European vehicle tiers — with labor vs. parts breakdowns.",
+                },
+                {
+                  title: "Quote Checker",
+                  desc: "Paste a mechanic's quote and compare it against real-world cost data. Know if you're getting a fair price before you authorize the work.",
+                },
+                {
+                  title: "Warning Lights Guide",
+                  desc: "Identify 50 dashboard warning symbols. Learn what each light means, how urgent it is, and what repairs might cost.",
+                },
+                {
+                  title: "Recall Check",
+                  desc: "Search NHTSA safety recalls by make, model, and year. Find out if your vehicle has any open recalls — for free.",
+                },
+              ].map((tool) => (
+                <div
+                  key={tool.title}
+                  className="bg-surface-1 border border-surface-border rounded-xl p-5"
+                >
+                  <h3 className="text-base font-bold text-text-primary font-heading mb-1.5">
+                    {tool.title}
+                  </h3>
+                  <p className="text-sm text-text-secondary leading-relaxed">
+                    {tool.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
 
             <h2 className="text-2xl font-bold text-text-primary font-heading mt-10 mb-4">
-              Built for DIYers
+              Why We Built This
             </h2>
 
             <p>
-              You should not need a dealer service bay to understand your own
-              car. Whether you drive a daily commuter, a weekend project, or
-              something in between, AutOwner gives you the resources to tackle
-              jobs yourself — safely and confidently. We cover everything from
-              oil changes and OBD2 code diagnostics to suspension upgrades and
-              forced induction builds.
+              The auto repair industry is opaque by design. Most people
+              don&apos;t know what a repair should cost, whether a diagnostic code
+              is serious, or if they&apos;re being sold work they don&apos;t need.
+              We built AutOwner to level the playing field — giving every car
+              owner access to the same kind of information that shops and dealers
+              use, in a format that actually makes sense.
             </p>
 
             <p>
-              Every piece of content is tagged by make, model, and category so
-              you can find exactly what applies to your vehicle. No endless
-              scrolling. No clickbait. Just useful information.
+              Our AI diagnosis tool is trained to think like an experienced
+              mechanic: it considers your symptoms, vehicle details, and common
+              failure patterns to give you a starting point before you ever set
+              foot in a shop. Combined with our repair cost data, you walk in
+              informed — not guessing.
             </p>
 
             <h2 className="text-2xl font-bold text-text-primary font-heading mt-10 mb-4">
-              Join the Garage
+              Free, Always
             </h2>
 
             <p>
-              AutOwner is free to use and community-driven. Ask questions, share
-              your builds, and help fellow owners keep their cars on the road.
-              Sign up, create a profile, and become part of a community that
-              treats every garage like a classroom and every car like a project
-              worth finishing right.
+              All of our tools are free to use. No paywalls, no subscriptions, no
+              credit card required. We believe every car owner deserves access to
+              this information, and we&apos;re committed to keeping it that way.
             </p>
-          </div>
 
-          {/* Divider */}
-          <hr className="my-12 border-surface-border" />
-
-          {/* Stats/Values */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="bg-surface-1 border border-surface-border rounded-xl p-6 text-center">
-              <p className="text-3xl font-bold text-primary font-display mb-1">
-                Community
-              </p>
-              <p className="text-sm text-text-muted">
-                Built by enthusiasts, for enthusiasts
-              </p>
-            </div>
-            <div className="bg-surface-1 border border-surface-border rounded-xl p-6 text-center">
-              <p className="text-3xl font-bold text-primary font-display mb-1">
-                Expert
-              </p>
-              <p className="text-sm text-text-muted">
-                ASE-certified mechanic contributors
-              </p>
-            </div>
-            <div className="bg-surface-1 border border-surface-border rounded-xl p-6 text-center">
-              <p className="text-3xl font-bold text-primary font-display mb-1">
-                Free
-              </p>
-              <p className="text-sm text-text-muted">
-                Open access, always
-              </p>
-            </div>
+            <p>
+              Have feedback or ideas? We&apos;d love to hear from you —{" "}
+              <a href="/contact" className="text-primary hover:underline">
+                get in touch
+              </a>
+              .
+            </p>
           </div>
         </div>
       </main>
