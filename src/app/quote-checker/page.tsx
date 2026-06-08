@@ -536,11 +536,16 @@ function QuoteCheckerContent() {
                   setRepairType(r.repair);
                   setShowRepairDropdown(false);
                 }}
-                className="flex items-center gap-3 p-3 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer text-left">
-                <span className="text-[10px] font-bold text-text-muted font-heading uppercase shrink-0">{r.cost}</span>
-                <div className="min-w-0">
-                  <span className="text-xs font-medium text-text-primary font-heading block truncate">{r.make} {r.model} ({r.year})</span>
-                  <span className="text-[10px] text-text-muted font-heading">{r.repair}</span>
+                className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer text-left overflow-hidden">
+                <div className="w-16 h-12 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                  <img src={`/vehicles/${r.makeSlug}-${r.modelSlug}.jpg`} alt={`${r.make} ${r.model}`} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <span className="text-xs font-medium text-text-primary font-heading block truncate">{r.make} {r.model} ({r.year})</span>
+                    <span className="text-[10px] text-text-muted font-heading">{r.repair}</span>
+                  </div>
+                  <span className="text-[10px] font-bold text-text-muted font-heading shrink-0">{r.cost}</span>
                 </div>
               </button>
             ))}
