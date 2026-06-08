@@ -143,12 +143,15 @@ export async function getPosts(opts: {
   // "hot" sort (default): boost guide/review content.
   // Fetch more than the limit since we re-sort in JS — guide posts may
   // have low vote_score and be outside the first N results.
+  // Supabase caps single queries at 1,000 rows.
   query = query.order("vote_score", { ascending: false });
+
+  const fetchSize = Math.min(Math.max(limit * 2, 200), 1000);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, count } = await (query as any)
     .select(selectCols, { count: "estimated" })
-    .limit(200);
+    .range(0, fetchSize - 1);
 
   const results = (data as unknown as PostWithRelations[]) ?? [];
 
@@ -169,12 +172,12 @@ export async function getPosts(opts: {
   });
 
   // Paginate the already-fetched and sorted results.
-  // Hot sort caps at 200 fetched rows, so reflect that in totalCount.
+  // Total count may be higher than what we fetched due to Supabase row cap.
   const paginatedPosts = results.slice(offset, offset + limit);
 
   return {
     posts: paginatedPosts,
-    totalCount: Math.min(count ?? 0, 200),
+    totalCount: Math.min(count ?? 0, fetchSize),
   };
 }
 
@@ -1937,17 +1940,24 @@ export async function searchRepairCosts(query: string): Promise<Pick<RepairCostR
 
 export async function getAllRepairSlugs(): Promise<string[]> {
   const supabase = await createServerSupabase();
-  const { data } = await supabase
-    .from("repair_costs")
-    .select("repair_slug");
-
-  if (!data) return [];
-
   const slugs = new Set<string>();
-  for (const row of data as unknown as { repair_slug: string }[]) {
-    // Store with dashes for URL usage
-    slugs.add(row.repair_slug.replace(/_/g, "-"));
+  const BATCH = 1000;
+  let offset = 0;
+
+  while (true) {
+    const { data } = await supabase
+      .from("repair_costs")
+      .select("repair_slug")
+      .range(offset, offset + BATCH - 1);
+    if (!data || data.length === 0) break;
+
+    for (const row of data as unknown as { repair_slug: string }[]) {
+      slugs.add(row.repair_slug.replace(/_/g, "-"));
+    }
+    if (data.length < BATCH) break;
+    offset += BATCH;
   }
+
   return Array.from(slugs).sort();
 }
 

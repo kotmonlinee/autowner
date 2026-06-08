@@ -17,7 +17,7 @@ export async function GET() {
   const now = new Date().toISOString();
 
   const [{ posts }, categories, repairSlugs, topObdCodes, vehicleModels] = await Promise.all([
-    getPosts({ limit: 10000 }),
+    getPosts({ sort: "new", limit: 10000 }),
     getCategories(),
     getAllRepairSlugs(),
     getTopObdCodes(15000),
