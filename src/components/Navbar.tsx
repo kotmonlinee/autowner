@@ -186,6 +186,7 @@ export default function Navbar() {
               </>
             ) : (
               <>
+                <ThemeToggle />
                 <Link
                   href="/history"
                   className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
@@ -395,6 +396,7 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
+                  <ThemeToggle />
                   <Link
                     href="/history"
                     onClick={() => setMenuOpen(false)}
