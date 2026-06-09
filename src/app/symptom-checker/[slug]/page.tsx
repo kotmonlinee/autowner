@@ -8,7 +8,7 @@ import { resolveRepairSlug } from "@/lib/internal-linking";
 import ShareButtons from "@/components/ShareButtons";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import { getRepairImageUrl } from "@/lib/repair-images";
-import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash } from "lucide-react";
+import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash, ListChecks } from "lucide-react";
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
   critical: { bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", label: "Critical — Stop Driving", icon: <AlertTriangle className="w-6 h-6" /> },
@@ -174,7 +174,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               <div className="mb-4">
                 <h2 className="text-lg font-heading font-bold text-text-primary mb-4 flex items-center gap-2">
                   <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                    <Wrench className="w-4 h-4" />
+                    <ListChecks className="w-4 h-4" />
                   </span>
                   What You Should Do
                 </h2>
@@ -243,10 +243,6 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
             <span className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider">Share</span>
             <ShareButtons url={`https://www.autowner.com/symptom-checker/${slug}`} title={d.title} />
           </div>
-          <Link href={browseRepairUrl} className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
-            Browse Repair Costs
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
         </div>
 
         {/* ── Disclaimer ── */}
