@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getVehicleRepairCost } from "@/lib/data/server";
 import { getRelatedRepairs } from "@/lib/internal-linking";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
+import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VehicleImage from "@/components/VehicleImage";
@@ -284,7 +285,31 @@ export default async function VehicleRepairPage({
           </div>
         </div>
 
-        {/* 6. Related Tools */}
+        {/* 6. Related Warning Lights */}
+        {(() => {
+          const lights = getRelatedWarningLights(repair);
+          if (lights.length === 0) return null;
+          return (
+            <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-4">
+              <h2 className="text-lg font-heading font-bold text-text-primary mb-3">Related Dashboard Warning Lights</h2>
+              <p className="text-xs text-text-muted mb-4">If you're experiencing {repairName.toLowerCase()} issues, these warning lights may appear:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {lights.map((light) => (
+                  <Link key={light.slug} href={`/warning-lights/${light.slug}`} className="flex items-center gap-3 p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                    <div className="w-10 h-10 rounded-lg bg-amber/10 text-amber flex items-center justify-center shrink-0">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors">{light.title}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* 7. Related Tools */}
         <div className="bg-surface-1 rounded-2xl border border-surface-border p-6">
           <h2 className="text-lg font-heading font-bold text-text-primary mb-4">More Tools for {makeName} Owners</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
