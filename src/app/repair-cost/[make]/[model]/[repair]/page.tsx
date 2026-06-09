@@ -90,6 +90,34 @@ export default async function VehicleRepairPage({
     getVehicleGenerations(make, model),
   ]);
 
+  // FAQ
+  const faqItems: { question: string; answer: string }[] = [];
+  if (tierCost) {
+    faqItems.push({
+      question: `How much does ${repairName.toLowerCase()} cost for a ${makeName} ${modelName}?`,
+      answer: `${repairName} for a ${makeName} ${modelName} typically costs between ${formatMoney(tierCost.min)} and ${formatMoney(tierCost.max)}, with an average of ${formatMoney(tierCost.avg)}. Labor accounts for approximately ${formatMoney(tierCost.labor)} and parts approximately ${formatMoney(tierCost.parts)}.`,
+    });
+    faqItems.push({
+      question: `Can I save money on ${repairName.toLowerCase()} for my ${makeName} ${modelName}?`,
+      answer: `Yes. You can save by comparing quotes from multiple shops, using aftermarket parts instead of OEM (typically 30-50% less), or doing the repair yourself if you have the tools and experience. Always get at least 3 quotes before authorizing work.`,
+    });
+    faqItems.push({
+      question: `What affects the cost of ${repairName.toLowerCase()} on a ${makeName} ${modelName}?`,
+      answer: `The main factors are your location (labor rates vary significantly by region), whether you use OEM or aftermarket parts, the shop's hourly rate (dealership vs. independent mechanic), and the vehicle's condition. Independent shops typically charge 20-40% less than dealerships.`,
+    });
+  }
+  if (faqItems.length > 0) {
+    faqItems.push({
+      question: `How long does ${repairName.toLowerCase()} take on a ${makeName} ${modelName}?`,
+      answer: `${repairName} on a ${makeName} ${modelName} typically takes 1-4 hours depending on the mechanic's experience and whether any complications arise during the repair. Ask your shop for an estimated labor time before authorizing work.`,
+    });
+  }
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((item) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })),
+  };
+
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
@@ -278,6 +306,27 @@ export default async function VehicleRepairPage({
             </Link>
           </div>
         </div>
+
+        {/* FAQ */}
+        {faqItems.length > 0 && (
+          <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+            <section className="mt-10 pt-10 border-t border-surface-border" aria-labelledby="faq-heading">
+              <h2 id="faq-heading" className="text-xl font-heading font-bold text-text-primary mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-3">
+                {faqItems.map((item, i) => (
+                  <details key={i} className="group bg-surface-1 rounded-xl border border-surface-border">
+                    <summary className="flex items-center justify-between px-5 py-4 cursor-pointer text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors">
+                      {item.question}
+                      <svg className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
+                    </summary>
+                    <p className="px-5 pb-4 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
       </main>
       <Footer />
     </div>
