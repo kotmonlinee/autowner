@@ -46,6 +46,17 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   const diagnosis = data as unknown as import("@/lib/types").Diagnosis;
   const d = diagnosis.diagnosis_json;
   const vehicle = diagnosis.vehicle_make ? `${diagnosis.vehicle_make} ${diagnosis.vehicle_model ?? ""} ${diagnosis.vehicle_year ?? ""}`.trim() : null;
+  const obdCodeDetails: { code: string; title: string }[] = [];
+  if (d.possibleCodes?.length) {
+    const { data: obdData } = await supabase.from("obd_codes")
+      .select("code, title")
+      .in("code", d.possibleCodes)
+      .order("code");
+    if (obdData) {
+      const detailMap = new Map((obdData as unknown as { code: string; title: string }[]).map((r) => [r.code, r.title]));
+      for (const c of d.possibleCodes) obdCodeDetails.push({ code: c, title: detailMap.get(c) || "" });
+    }
+  }
   const vehicleImage = vehicle ? getVehicleImageUrl(
     (diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-"),
     (diagnosis.vehicle_model ?? "").toLowerCase().replace(/\s+/g, "-")
@@ -127,12 +138,12 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               </span>
               Related OBD-II Codes
             </h2>
-            <div className="pl-11 space-y-2">
-              {d.possibleCodes.map((c: string) => (
-                <Link key={c} href={`/obd/${c.toLowerCase()}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
-                  <span className="text-sm font-mono font-bold text-primary shrink-0">{c}</span>
+            <div className="space-y-2">
+              {obdCodeDetails.map((obd) => (
+                <Link key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
+                  <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code}</span>
                   <span className="h-4 w-px bg-surface-border shrink-0" />
-                  <span className="text-xs text-text-muted">View code details</span>
+                  <span className="text-xs text-text-secondary truncate">{obd.title}</span>
                   <ChevronRight className="w-3.5 h-3.5 text-text-muted ml-auto shrink-0" />
                 </Link>
               ))}
