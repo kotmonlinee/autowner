@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { resolveRepairSlug } from "@/lib/internal-linking";
 import ShareButtons from "@/components/ShareButtons";
+import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Gauge } from "lucide-react";
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
@@ -45,6 +46,10 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   const diagnosis = data as unknown as import("@/lib/types").Diagnosis;
   const d = diagnosis.diagnosis_json;
   const vehicle = diagnosis.vehicle_make ? `${diagnosis.vehicle_make} ${diagnosis.vehicle_model ?? ""} ${diagnosis.vehicle_year ?? ""}`.trim() : null;
+  const vehicleImage = vehicle ? getVehicleImageUrl(
+    (diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-"),
+    (diagnosis.vehicle_model ?? "").toLowerCase().replace(/\s+/g, "-")
+  ) : null;
   const sev = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.medium;
   const cost = parseCostRange(d.costEstimate ?? "");
 
@@ -58,7 +63,16 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           <span className="text-text-secondary">Result</span>
         </nav>
 
-        {vehicle && <p className="text-xs text-text-muted font-heading mb-2">{vehicle}</p>}
+        {vehicle && (
+          <div className="flex items-center gap-3 mb-4">
+            {vehicleImage && (
+              <div className="w-14 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2 border border-surface-border">
+                <img src={vehicleImage} alt={vehicle} className="w-full h-full object-cover" />
+              </div>
+            )}
+            <span className="text-xs text-text-muted font-heading">{vehicle}</span>
+          </div>
+        )}
 
         {/* ── Hero: Severity-first header ── */}
         <div className={`${sev.bg} rounded-2xl border-2 ${sev.border} p-6 mb-6`}>
@@ -103,6 +117,23 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
+        {/* ── Related OBD Codes ── */}
+        {d.possibleCodes && d.possibleCodes.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <Gauge className="w-4 h-4" />
+              </span>
+              Related OBD-II Codes
+            </h2>
+            <div className="pl-11 flex flex-wrap gap-1.5">
+              {d.possibleCodes.map((c: string) => (
+                <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-1 border border-surface-border text-xs font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ── What To Do ── */}
         {d.whatToDo && (
           <div className="mb-6">
@@ -118,23 +149,6 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                   <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 text-sm font-bold font-heading">{i + 1}</span>
                   <p className="text-sm text-text-secondary leading-relaxed pt-0.5">{step.endsWith(".") ? step : step + "."}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Related OBD Codes ── */}
-        {d.possibleCodes && d.possibleCodes.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Gauge className="w-4 h-4" />
-              </span>
-              Related OBD-II Codes
-            </h2>
-            <div className="flex flex-wrap gap-1.5">
-              {d.possibleCodes.map((c: string) => (
-                <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-1 border border-surface-border text-xs font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
               ))}
             </div>
           </div>
