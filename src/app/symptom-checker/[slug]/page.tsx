@@ -7,7 +7,7 @@ import { createServiceSupabase } from "@/lib/supabase-server";
 import { resolveRepairSlug } from "@/lib/internal-linking";
 import ShareButtons from "@/components/ShareButtons";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
-import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Gauge } from "lucide-react";
+import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash } from "lucide-react";
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
   critical: { bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", label: "Critical — Stop Driving", icon: <AlertTriangle className="w-6 h-6" /> },
@@ -123,13 +123,18 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           <div className="mb-6">
             <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
               <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Gauge className="w-4 h-4" />
+                <Hash className="w-4 h-4" />
               </span>
               Related OBD-II Codes
             </h2>
-            <div className="pl-11 flex flex-wrap gap-1.5">
+            <div className="pl-11 space-y-2">
               {d.possibleCodes.map((c: string) => (
-                <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-1 border border-surface-border text-xs font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>
+                <Link key={c} href={`/obd/${c.toLowerCase()}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
+                  <span className="text-sm font-mono font-bold text-primary shrink-0">{c}</span>
+                  <span className="h-4 w-px bg-surface-border shrink-0" />
+                  <span className="text-xs text-text-muted">View code details</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-text-muted ml-auto shrink-0" />
+                </Link>
               ))}
             </div>
           </div>
