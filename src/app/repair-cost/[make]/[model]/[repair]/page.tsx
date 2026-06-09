@@ -52,11 +52,13 @@ export async function generateMetadata({
   const data = await getVehicleRepairCost(make, model, repair);
   if (!data) return { title: "Not Found" };
 
-  const title = `${data.make.name} ${data.model.name} ${data.repair.name} Cost — ${data.tierLabel} Estimate`;
   const tierCost = data.repair.tiers[data.tier];
+  const title = tierCost
+    ? `${data.make.name} ${data.model.name} ${data.repair.name} Cost: ${formatMoney(tierCost.min)}–${formatMoney(tierCost.max)}`
+    : `${data.make.name} ${data.model.name} ${data.repair.name} Cost Guide (2026)`;
   const desc = tierCost
-    ? `${data.make.name} ${data.model.name} ${data.repair.name} typically costs ${formatMoney(tierCost.min)}–${formatMoney(tierCost.max)}. ${data.tierLabel} tier estimate with labor and parts breakdown.`
-    : `${data.make.name} ${data.model.name} ${data.repair.name} — estimated cost, labor, and parts breakdown for ${data.tierLabel} vehicles.`;
+    ? `Average ${data.make.name} ${data.model.name} ${data.repair.name.toLowerCase()} cost is ${formatMoney(tierCost.min)}–${formatMoney(tierCost.max)}. Compare labor costs, parts costs, and see whether it's safe to keep driving.`
+    : `${data.make.name} ${data.model.name} ${data.repair.name} — compare labor costs, parts costs, and estimated repair prices.`;
 
   return {
     title,

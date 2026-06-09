@@ -47,8 +47,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!repair) {
     return { title: "Repair Cost Not Found" };
   }
-  const title = `${repair.name} — Cost Estimate & Price Guide`;
-  const description = `${repair.name} typically costs ${formatRange(repair.overallMin, repair.overallMax)}. Compare prices across 5 vehicle tiers. Average cost: ${formatMoney(repair.overallAvg)}.`;
+  const title = `${repair.name} Cost: ${formatRange(repair.overallMin, repair.overallMax)} (2026)`;
+  const description = `${repair.name} typically costs ${formatRange(repair.overallMin, repair.overallMax)} across all vehicle types. Compare prices by vehicle tier, see labor vs. parts breakdown, and find related repairs.`;
   return {
     title,
     description,
