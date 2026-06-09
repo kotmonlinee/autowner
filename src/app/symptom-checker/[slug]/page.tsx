@@ -205,9 +205,10 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {validRepairs.map((item: string) => {
-                    const img = getRepairImageUrl(item.toLowerCase().replace(/\s+/g, "-"));
+                    const repairSlug = resolveRepairSlug(item);
+                    const img = repairSlug ? getRepairImageUrl(repairSlug) : null;
                     return (
-                      <Link key={item} href={`/repair-cost/${resolveRepairSlug(item)}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                      <Link key={item} href={`/repair-cost/${repairSlug}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                         <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                           {img && <img src={img} alt={item} className="w-full h-full object-cover" />}
                         </div>
