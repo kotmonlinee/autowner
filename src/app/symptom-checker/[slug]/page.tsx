@@ -134,6 +134,15 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
+        {/* ── Try another diagnosis ── */}
+        <div className="mb-6 pl-11">
+          <p className="text-xs text-text-muted mb-2">Not sure about this result? Describe your symptoms differently for a fresh diagnosis.</p>
+          <Link href="/symptom-checker" className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+            Try Another Diagnosis
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
         {/* ── What To Do ── */}
         {d.whatToDo && (
           <div className="mb-6">
