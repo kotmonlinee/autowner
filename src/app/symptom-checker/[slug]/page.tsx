@@ -65,6 +65,9 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   const sev = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.medium;
   const cost = parseCostRange(d.costEstimate ?? "");
   const validRepairs = (d.repairKeywords ?? []).filter((item) => resolveRepairSlug(item));
+  const browseRepairUrl = vehicle
+    ? `/vehicles/${(diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-")}/${(diagnosis.vehicle_model ?? "").toLowerCase().replace(/\s+/g, "-")}`
+    : "/repair-cost";
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -188,12 +191,18 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
 
             {validRepairs.length > 0 && (
               <div className="mb-4">
-                <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                    <Wrench className="w-4 h-4" />
-                  </span>
-                  Related Repairs
-                </h2>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-heading font-bold text-text-primary flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                      <Wrench className="w-4 h-4" />
+                    </span>
+                    Related Repairs
+                  </h2>
+                  <Link href={browseRepairUrl} className="inline-flex items-center gap-1 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors shrink-0">
+                    Browse All
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {validRepairs.map((item: string) => {
                     const img = getRepairImageUrl(item.toLowerCase().replace(/\s+/g, "-"));
@@ -234,7 +243,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
             <span className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider">Share</span>
             <ShareButtons url={`https://www.autowner.com/symptom-checker/${slug}`} title={d.title} />
           </div>
-          <Link href="/repair-cost" className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+          <Link href={browseRepairUrl} className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
             Browse Repair Costs
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
