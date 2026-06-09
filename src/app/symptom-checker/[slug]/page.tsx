@@ -237,18 +237,31 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
-        {/* ── Footer ── */}
-        <div className="flex items-center justify-between flex-wrap gap-3 pt-6 border-t border-surface-border mb-6">
+        {/* ── Share ── */}
+        <div className="mb-6 p-5 bg-surface-1 rounded-2xl border border-surface-border">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider">Share</span>
+            <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" />
+              </svg>
+            </span>
+            <div>
+              <p className="text-sm font-heading font-semibold text-text-primary">Share this diagnosis</p>
+              <p className="text-xs text-text-muted">Help others with similar symptoms</p>
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-surface-border">
             <ShareButtons url={`https://www.autowner.com/symptom-checker/${slug}`} title={d.title} />
           </div>
         </div>
 
         {/* ── Disclaimer ── */}
-        <p className="text-xs text-text-muted text-center mb-6 max-w-md mx-auto leading-relaxed">
-          <span className="font-semibold">Disclaimer:</span> This AI-generated diagnosis is for informational reference only. Always consult a qualified mechanic for an in-person inspection.
-        </p>
+        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
+          <TriangleAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+            <span className="font-semibold">Disclaimer:</span> This AI-generated diagnosis is for informational reference only. Always consult a qualified mechanic for an in-person inspection. AutOwner is not responsible for decisions made based on this information.
+          </p>
+        </div>
       </main>
       <Footer />
     </div>
