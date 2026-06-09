@@ -63,6 +63,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   ) : null;
   const sev = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.medium;
   const cost = parseCostRange(d.costEstimate ?? "");
+  const validRepairs = (d.repairKeywords ?? []).filter((item) => resolveRepairSlug(item));
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -161,7 +162,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         </div>
 
         {/* ── What To Do Next ── */}
-        {(d.whatToDo || d.costEstimate || (d.repairKeywords && d.repairKeywords.length > 0)) && (
+        {(d.whatToDo || d.costEstimate || validRepairs.length > 0) && (
           <div className="mb-6">
             <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-4">What To Do Next</p>
 
@@ -197,7 +198,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               </div>
             )}
 
-            {d.repairKeywords && d.repairKeywords.length > 0 && (
+            {validRepairs.length > 0 && (
               <div>
                 <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
                   <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
@@ -206,16 +207,12 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                   Related Repairs
                 </h2>
             <div className="flex flex-wrap gap-1.5">
-              {d.repairKeywords.map((item: string) => {
-                const repairSlug = resolveRepairSlug(item);
-                if (!repairSlug) return null;
-                return (
-                  <Link key={item} href={`/repair-cost/${repairSlug}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/30 transition-all font-heading font-medium">
-                    {item}
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
-                );
-              })}
+              {validRepairs.map((item: string) => (
+                <Link key={item} href={`/repair-cost/${resolveRepairSlug(item)}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/30 transition-all font-heading font-medium">
+                  {item}
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              ))}
             </div>
           </div>
         )}
