@@ -149,15 +149,6 @@ export default function Navbar() {
                     </svg>
                   </Link>
                   <Link
-                    href="/history"
-                    className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
-                    title="History"
-                  >
-                    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </Link>
-                  <Link
                     href="/drafts"
                     className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
                     title="Drafts"
@@ -201,15 +192,6 @@ export default function Navbar() {
             ) : (
               <>
                 <ThemeToggle />
-                <Link
-                  href="/history"
-                  className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
-                  title="History"
-                >
-                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </Link>
                 <Link
                   href="/auth/login"
                   className="px-4 py-2 text-sm font-semibold font-heading text-text-secondary hover:text-text-primary border border-surface-border rounded-lg hover:border-surface-4 transition-all"
@@ -356,16 +338,6 @@ export default function Navbar() {
                       </svg>
                     </Link>
                     <Link
-                      href="/history"
-                      onClick={() => setMenuOpen(false)}
-                      className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
-                      title="History"
-                    >
-                      <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </Link>
-                    <Link
                       href="/drafts"
                       onClick={() => setMenuOpen(false)}
                       className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
@@ -411,16 +383,6 @@ export default function Navbar() {
               ) : (
                 <>
                   <ThemeToggle />
-                  <Link
-                    href="/history"
-                    onClick={() => setMenuOpen(false)}
-                    className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
-                    title="History"
-                  >
-                    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </Link>
                   <Link
                     href="/auth/login"
                     onClick={() => setMenuOpen(false)}

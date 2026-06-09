@@ -1565,60 +1565,6 @@ export async function getPostVehicles(postId: string) {
   return (data as unknown as { engine_id: string; vehicle_engines: Record<string, unknown> | null }[]) ?? [];
 }
 
-// ── Reading History (Feature 2) ──────────────────────────────
-
-export interface ReadingHistoryItem {
-  postId: string;
-  title: string;
-  viewedAt: string;
-}
-
-export async function getReadingHistory(userId: string): Promise<ReadingHistoryItem[]> {
-  try {
-    const { createServiceSupabase } = await import("@/lib/supabase-server");
-    const supabase = await createServiceSupabase();
-
-    const { data: events, error } = await supabase
-      .from("user_events")
-      .select("target_id, created_at")
-      .eq("user_id", userId)
-      .eq("event_type", "view_post")
-      .order("created_at", { ascending: false })
-      .limit(200);
-
-    if (error || !events?.length) return [];
-
-    // Deduplicate by target_id, keeping the latest view
-    const seen = new Set<string>();
-    const uniqueEvents: { postId: string; viewedAt: string }[] = [];
-    for (const e of events) {
-      if (!e.target_id || seen.has(e.target_id)) continue;
-      seen.add(e.target_id);
-      uniqueEvents.push({ postId: e.target_id, viewedAt: e.created_at });
-    }
-
-    // Fetch post titles in batch
-    const postIds = uniqueEvents.map((e) => e.postId);
-    const { data: posts } = await supabase
-      .from("posts")
-      .select("id, title")
-      .in("id", postIds);
-
-    const titleMap = new Map((posts ?? []).map((p) => [p.id, p.title]));
-
-    return uniqueEvents
-      .filter((e) => titleMap.has(e.postId))
-      .map((e) => ({
-        postId: e.postId,
-        title: titleMap.get(e.postId) ?? "Untitled",
-        viewedAt: e.viewedAt,
-      }));
-  } catch {
-    // Table may not exist yet or DB unavailable — return empty gracefully
-    return [];
-  }
-}
-
 // ── OBD Codes ──────────────────────────────────────────────
 
 export async function getObdCode(code: string): Promise<ObdCode | null> {
