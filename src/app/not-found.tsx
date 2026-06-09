@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { resolveSearchRoute } from "@/lib/search-routing";
+import { logError } from "@/lib/error-logging";
 
 const popularLinks = [
   { name: "OBD-II Codes", href: "/obd" },
@@ -16,6 +17,11 @@ const popularLinks = [
 export default function NotFound() {
   const [query, setQuery] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    logError(`404: ${pathname}`, { url: pathname });
+  }, [pathname]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

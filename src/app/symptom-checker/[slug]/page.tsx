@@ -64,7 +64,25 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   ) : null;
   const sev = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.medium;
   const cost = parseCostRange(d.costEstimate ?? "");
-  const validRepairs = (d.repairKeywords ?? []).filter((item) => resolveRepairSlug(item));
+
+  // Resolve repair keywords and validate they exist in the DB
+  const repairSlugMap = new Map<string, string>();
+  for (const item of d.repairKeywords ?? []) {
+    const s = resolveRepairSlug(item);
+    if (s) repairSlugMap.set(item, s);
+  }
+  let validRepairs: string[] = [];
+  if (repairSlugMap.size > 0) {
+    const slugs = Array.from(new Set(repairSlugMap.values()));
+    const { data: validSlugs } = await supabase.from("repair_costs")
+      .select("repair_slug")
+      .in("repair_slug", slugs.map((s) => s.replace(/-/g, "_")));
+    const validSet = new Set((validSlugs ?? []).map((r: any) => r.repair_slug.replace(/_/g, "-")));
+    validRepairs = (d.repairKeywords ?? []).filter((item) => {
+      const slug = repairSlugMap.get(item);
+      return slug && validSet.has(slug);
+    });
+  }
   const browseRepairUrl = vehicle
     ? `/vehicles/${(diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-")}/${(diagnosis.vehicle_model ?? "").toLowerCase().replace(/\s+/g, "-")}`
     : "/repair-cost";
