@@ -7,6 +7,7 @@ import { createServiceSupabase } from "@/lib/supabase-server";
 import { resolveRepairSlug } from "@/lib/internal-linking";
 import ShareButtons from "@/components/ShareButtons";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
+import { getRepairImageUrl } from "@/lib/repair-images";
 import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash } from "lucide-react";
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
@@ -185,8 +186,33 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               </div>
             )}
 
-            {d.costEstimate && (
+            {validRepairs.length > 0 && (
               <div className="mb-4">
+                <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <Wrench className="w-4 h-4" />
+                  </span>
+                  Related Repairs
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {validRepairs.map((item: string) => {
+                    const img = getRepairImageUrl(item.toLowerCase().replace(/\s+/g, "-"));
+                    return (
+                      <Link key={item} href={`/repair-cost/${resolveRepairSlug(item)}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                        <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                          {img && <img src={img} alt={item} className="w-full h-full object-cover" />}
+                        </div>
+                        <span className="text-sm font-medium text-text-primary font-heading truncate">{item}</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-text-muted shrink-0 ml-auto" />
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {d.costEstimate && (
+              <div>
                 <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
                   <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                     <DollarSign className="w-4 h-4" />
@@ -197,24 +223,6 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                 {cost && <p className="text-xs text-text-muted mt-1">Typical range: ${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>}
               </div>
             )}
-
-            {validRepairs.length > 0 && (
-              <div>
-                <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                    <Wrench className="w-4 h-4" />
-                  </span>
-                  Related Repairs
-                </h2>
-            <div className="flex flex-wrap gap-1.5">
-              {validRepairs.map((item: string) => (
-                <Link key={item} href={`/repair-cost/${resolveRepairSlug(item)}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/30 transition-all font-heading font-medium">
-                  {item}
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-              ))}
-            </div>
-          </div>
         )}
 
           </div>
