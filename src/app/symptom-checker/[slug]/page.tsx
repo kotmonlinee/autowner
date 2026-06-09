@@ -232,7 +232,6 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                 {cost && <p className="text-xs text-text-muted mt-1">Typical range: ${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>}
               </div>
             )}
-        )}
 
           </div>
         )}
