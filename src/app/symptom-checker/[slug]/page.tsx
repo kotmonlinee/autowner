@@ -97,6 +97,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         {/* ── Possible Causes ── */}
         {d.causes?.length > 0 && (
           <div className="mb-6">
+            <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Diagnosis Details</p>
             <h2 className="text-lg font-heading font-bold text-text-primary mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                 <Sparkles className="w-4 h-4" />
@@ -134,18 +135,19 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
-        {/* ── Try another diagnosis ── */}
-        <div className="mb-6 pl-11">
-          <p className="text-xs text-text-muted mb-2">Not sure about this result? Describe your symptoms differently for a fresh diagnosis.</p>
-          <Link href="/symptom-checker" className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+        {/* ── Divider: Try another diagnosis ── */}
+        <div className="my-8 py-6 px-5 bg-surface-1 rounded-2xl border border-surface-border text-center">
+          <p className="text-sm text-text-secondary font-heading font-medium mb-3">Not satisfied with this diagnosis?</p>
+          <Link href="/symptom-checker" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all font-heading shadow-sm shadow-primary/20">
             Try Another Diagnosis
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
         {/* ── What To Do ── */}
         {d.whatToDo && (
           <div className="mb-6">
+            <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">What To Do Next</p>
             <h2 className="text-lg font-heading font-bold text-text-primary mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                 <Wrench className="w-4 h-4" />
