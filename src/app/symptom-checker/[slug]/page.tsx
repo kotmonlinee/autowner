@@ -160,50 +160,51 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </Link>
         </div>
 
-        {/* ── What To Do ── */}
-        {d.whatToDo && (
+        {/* ── What To Do Next ── */}
+        {(d.whatToDo || d.costEstimate || (d.repairKeywords && d.repairKeywords.length > 0)) && (
           <div className="mb-6">
-            <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">What To Do Next</p>
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4 flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Wrench className="w-4 h-4" />
-              </span>
-              What You Should Do
-            </h2>
-            <div className="space-y-1">
-              {d.whatToDo.split(". ").filter(Boolean).map((step, i) => (
-                <div key={i} className="flex gap-3 p-3 rounded-xl hover:bg-surface-1 transition-colors">
-                  <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 text-sm font-bold font-heading">{i + 1}</span>
-                  <p className="text-sm text-text-secondary leading-relaxed pt-0.5">{step.endsWith(".") ? step : step + "."}</p>
+            <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-4">What To Do Next</p>
+
+            {d.whatToDo && (
+              <div className="mb-4">
+                <h2 className="text-lg font-heading font-bold text-text-primary mb-4 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <Wrench className="w-4 h-4" />
+                  </span>
+                  What You Should Do
+                </h2>
+                <div className="space-y-1">
+                  {d.whatToDo.split(". ").filter(Boolean).map((step, i) => (
+                    <div key={i} className="flex gap-3 p-3 rounded-xl hover:bg-surface-1 transition-colors">
+                      <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 text-sm font-bold font-heading">{i + 1}</span>
+                      <p className="text-sm text-text-secondary leading-relaxed pt-0.5">{step.endsWith(".") ? step : step + "."}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              </div>
+            )}
 
-        {/* ── Cost ── */}
-        {d.costEstimate && (
-          <div className="mb-6">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <DollarSign className="w-4 h-4" />
-              </span>
-              Estimated Repair Cost
-            </h2>
-            <p className="text-sm text-text-secondary">{d.costEstimate}</p>
-            {cost && <p className="text-xs text-text-muted mt-1">Typical range: ${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>}
-          </div>
-        )}
+            {d.costEstimate && (
+              <div className="mb-4">
+                <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <DollarSign className="w-4 h-4" />
+                  </span>
+                  Estimated Repair Cost
+                </h2>
+                <p className="text-sm text-text-secondary">{d.costEstimate}</p>
+                {cost && <p className="text-xs text-text-muted mt-1">Typical range: ${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>}
+              </div>
+            )}
 
-        {/* ── Related Repairs ── */}
-        {d.repairKeywords && d.repairKeywords.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Wrench className="w-4 h-4" />
-              </span>
-              Related Repairs
-            </h2>
+            {d.repairKeywords && d.repairKeywords.length > 0 && (
+              <div>
+                <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <Wrench className="w-4 h-4" />
+                  </span>
+                  Related Repairs
+                </h2>
             <div className="flex flex-wrap gap-1.5">
               {d.repairKeywords.map((item: string) => {
                 const repairSlug = resolveRepairSlug(item);
@@ -216,6 +217,9 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                 );
               })}
             </div>
+          </div>
+        )}
+
           </div>
         )}
 
