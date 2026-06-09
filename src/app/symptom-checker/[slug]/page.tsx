@@ -167,11 +167,11 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
 
         {/* ── What To Do Next ── */}
         {(d.whatToDo || d.costEstimate || validRepairs.length > 0) && (
-          <div className="mb-6">
-            <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-4">What To Do Next</p>
+          <div className="mb-6 space-y-4">
+            <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider">What To Do Next</p>
 
             {d.whatToDo && (
-              <div className="mb-4">
+              <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
                 <h2 className="text-lg font-heading font-bold text-text-primary mb-4 flex items-center gap-2">
                   <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                     <ListChecks className="w-4 h-4" />
@@ -180,7 +180,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                 </h2>
                 <div className="space-y-1">
                   {d.whatToDo.split(". ").filter(Boolean).map((step, i) => (
-                    <div key={i} className="flex gap-3 p-3 rounded-xl hover:bg-surface-1 transition-colors">
+                    <div key={i} className="flex gap-3 p-3 rounded-xl hover:bg-surface-2 transition-colors">
                       <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 text-sm font-bold font-heading">{i + 1}</span>
                       <p className="text-sm text-text-secondary leading-relaxed pt-0.5">{step.endsWith(".") ? step : step + "."}</p>
                     </div>
@@ -190,7 +190,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
             )}
 
             {validRepairs.length > 0 && (
-              <div className="mb-4">
+              <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
                 <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
                   <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                     <Wrench className="w-4 h-4" />
@@ -216,7 +216,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
             )}
 
             {d.costEstimate && (
-              <div>
+              <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
                 <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
                   <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                     <DollarSign className="w-4 h-4" />
