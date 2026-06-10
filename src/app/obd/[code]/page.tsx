@@ -591,42 +591,10 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           </div>
         )}
 
-        {/* NEW: FAQ Section */}
-        {faqItems.length > 0 && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">
-              Frequently Asked Questions
-            </h2>
-            <div className="space-y-4">
-              {faqItems.map((item, i) => (
-                <details key={i} className="group" open={i === 0}>
-                  <summary className="flex items-center gap-2 cursor-pointer list-none font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors select-none">
-                    <svg
-                      className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                    {item.question}
-                  </summary>
-                  <p className="mt-2 ml-6 text-sm text-text-secondary leading-relaxed">
-                    {item.answer}
-                  </p>
-                </details>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Cross-links: Related Repair Costs */}
+        {/* Cross-links: Related Repairs */}
         {relatedRepairs.length > 0 && (
           <div className="mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related Repair Costs</h2>
+            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related Repairs</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {relatedRepairs.map((repair) => {
                 const img = getRepairImageUrl(repair.slug);
@@ -702,6 +670,26 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           </div>
         )}
 
+
+        {/* FAQ */}
+        {faqItems.length > 0 && (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-4">
+              {faqItems.map((item, i) => (
+                <details key={i} className="group" open={i === 0}>
+                  <summary className="flex items-center gap-2 cursor-pointer list-none font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors select-none">
+                    <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+                    {item.question}
+                  </summary>
+                  <p className="mt-2 ml-6 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        )}
 
       </main>
 
