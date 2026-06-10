@@ -256,18 +256,28 @@ export default async function VehicleHubPage({
           </div>
         </div>
 
-        {/* Quick Links */}
+        {/* Quick Actions */}
         <div className="bg-surface-1 rounded-2xl border border-surface-border p-6">
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-4">More for {makeName} Owners</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Link href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-sm font-heading font-semibold text-text-primary text-center">
-              Safety Recalls
+          <h2 className="text-lg font-heading font-bold text-text-primary mb-1">Protect Your {makeName} {modelName}</h2>
+          <p className="text-xs text-text-muted mb-4">Check for open safety recalls and verify repair quotes before you pay.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Link href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="flex items-start gap-3 p-4 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group">
+              <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+              </div>
+              <div>
+                <p className="text-sm font-heading font-bold text-text-primary group-hover:text-primary transition-colors">Safety Recalls</p>
+                <p className="text-xs text-text-muted mt-0.5">Check open NHTSA recalls for your {makeName} {modelName} — free.</p>
+              </div>
             </Link>
-            <Link href={`/warning-lights`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-sm font-heading font-semibold text-text-primary text-center">
-              Warning Lights Guide
-            </Link>
-            <Link href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-sm font-heading font-semibold text-text-primary text-center">
-              Check a Quote
+            <Link href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="flex items-start gap-3 p-4 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
+              </div>
+              <div>
+                <p className="text-sm font-heading font-bold text-text-primary group-hover:text-primary transition-colors">Verify a Quote</p>
+                <p className="text-xs text-text-muted mt-0.5">Check if your mechanic is overcharging for {makeName} repairs.</p>
+              </div>
             </Link>
           </div>
         </div>
