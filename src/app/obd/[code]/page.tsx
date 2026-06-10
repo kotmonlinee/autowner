@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getObdCode, getRelatedObdCodes } from "@/lib/data/server";
 import { getRelatedRepairs } from "@/lib/internal-linking";
+import { getRepairImageUrl } from "@/lib/repair-images";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -616,32 +617,21 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
         {/* Cross-links: Related Repair Costs */}
         {relatedRepairs.length > 0 && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
-              Related Repair Costs
-            </h2>
-            <div className="space-y-2">
-              {relatedRepairs.map((repair) => (
-                <Link
-                  key={repair.slug}
-                  href={`/repair-cost/${repair.slug}`}
-                  className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
-                >
-                  {repair.name} Replacement Cost
-                  <svg
-                    className="w-4 h-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </Link>
-              ))}
+          <div className="mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related Repair Costs</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {relatedRepairs.map((repair) => {
+                const img = getRepairImageUrl(repair.slug);
+                return (
+                  <Link key={repair.slug} href={`/repair-cost/${repair.slug}`}
+                    className="flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                    <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                      {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" />}
+                    </div>
+                    <span className="text-sm font-medium text-text-primary font-heading truncate">{repair.name}</span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
