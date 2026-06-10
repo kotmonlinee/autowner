@@ -466,13 +466,15 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
 
         {/* AI Diagnosis CTA */}
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl shrink-0">🔍</span>
-            <div>
-              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Not Sure This is the Right Repair?</h2>
-              <p className="text-xs text-text-secondary mb-2">Use our AI symptom checker to confirm your diagnosis before spending money on repairs.</p>
-              <Link href="/symptom-checker" className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">Diagnose Your Symptoms →</Link>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Not Sure This Is the Right Repair?</h2>
+              <p className="text-sm text-text-muted">Describe your symptoms to our AI — it identifies possible causes, OBD codes, and cost estimates in seconds.</p>
             </div>
+            <Link href="/symptom-checker" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
+              Diagnose with AI
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            </Link>
           </div>
         </div>
 
