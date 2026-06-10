@@ -594,7 +594,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
         {/* Cross-links: Related Repairs */}
         {relatedRepairs.length > 0 && (
           <div className="mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related Repairs</h2>
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {relatedRepairs.map((repair) => {
                 const img = getRepairImageUrl(repair.slug);
