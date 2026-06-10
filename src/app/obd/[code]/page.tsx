@@ -438,6 +438,10 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 : `$${obd.min_cost}+`}
             </p>
           )}
+          <Link href="/repair-cost" className="inline-flex items-center gap-1 mt-2 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+            See all repair cost estimates
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+          </Link>
         </div>
 
         {/* Severity Explanation */}
@@ -667,51 +671,6 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             </div>
           </div>
         )}
-
-        {/* General tool cross-links */}
-        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
-            Explore Repair Costs
-          </h2>
-          <div className="space-y-2">
-            <Link
-              href="/repair-cost"
-              className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
-            >
-              See all repair cost estimates
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </Link>
-            <Link
-              href="/quote-checker"
-              className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
-            >
-              Have a mechanic&apos;s quote? Verify it here
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </Link>
-          </div>
-        </div>
 
         {/* Related OBD-II Codes */}
         {relatedCodes.length > 0 && (
