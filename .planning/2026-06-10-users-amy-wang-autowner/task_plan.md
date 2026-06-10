@@ -36,13 +36,23 @@ Phase 5: Ongoing refinements
 - Search: /api/search endpoint + SmartSearchBar autocomplete dropdown
 - Reading history: removed entirely
 
-### Phase 5: Ongoing Refinements → in_progress
+### Phase 5: Ongoing Refinements → paused
 - [x] 404 error monitoring via error_logs
 - [x] Repair slug DB validation (prevent 404 links)
 - [x] Install planning-with-files skill
-- [ ] DIY module (user: "后续重点工作方向" — needs content data first)
-- [ ] Repair Decision module (ChatGPT #5 — needs urgency/risk data)
-- [ ] Quick Cost Summary above-the-fold (ChatGPT #3)
+- [x] Warning light detail page redesign
+- [x] Diagnosis detail page full redesign
+- [x] Repair cost Title/Meta/FAQ/Schema/Warning Lights
+- [x] Symptom checker pagination + images
+- [x] OBD detail page card cleanup + related repairs
+- [x] Community page card enrichment
+- [x] Aggregated search page (/search)
+- [x] Vehicle hub page enrichment + CTA redesign
+- [x] /vehicles browse page (73 vehicles)
+- [x] Homepage Popular Diagnoses (rejected — keep static)
+- [ ] DIY module (content data needed first)
+- [ ] Repair Decision module (data needed)
+- [ ] Quick Cost Summary above-the-fold (rejected — no CTR benefit)
 - [ ] repair-cost route conflict ([slug] vs [make]/[model]/[repair])
 - [ ] Newsletter/mail system redesign
 
