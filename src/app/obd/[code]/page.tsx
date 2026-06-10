@@ -591,24 +591,39 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           </div>
         )}
 
-        {/* Cross-links: Related Repairs */}
-        {relatedRepairs.length > 0 && (
-          <div className="mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {relatedRepairs.map((repair) => {
-                const img = getRepairImageUrl(repair.slug);
-                return (
-                  <Link key={repair.slug} href={`/repair-cost/${repair.slug}`}
-                    className="flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
-                    <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                      {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" />}
-                    </div>
-                    <span className="text-sm font-medium text-text-primary font-heading truncate">{repair.name}</span>
-                  </Link>
-                );
-              })}
-            </div>
+        {/* Related Repairs & OBD-II Codes */}
+        {(relatedRepairs.length > 0 || relatedCodes.length > 0) && (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs & Codes</h2>
+            {relatedRepairs.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                {relatedRepairs.map((repair) => {
+                  const img = getRepairImageUrl(repair.slug);
+                  return (
+                    <Link key={repair.slug} href={`/repair-cost/${repair.slug}`}
+                      className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                      <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                        {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" />}
+                      </div>
+                      <span className="text-sm font-medium text-text-primary font-heading truncate">{repair.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+            {relatedCodes.length > 0 && (
+              <div className={relatedRepairs.length > 0 ? "pt-3 border-t border-surface-border" : ""}>
+                <div className="flex flex-wrap gap-2">
+                  {relatedCodes.map((rel) => (
+                    <Link key={rel.code} href={`/obd/${rel.code.toLowerCase()}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors">
+                      {rel.code}
+                      <span className="text-xs text-text-muted font-normal font-heading">{rel.title}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -630,31 +645,6 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           </div>
         )}
 
-        {/* Related OBD-II Codes */}
-        {relatedCodes.length > 0 && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
-              Related OBD-II Codes
-            </h2>
-            <p className="text-text-muted text-sm mb-3">
-              These codes are in the same range as {obd.code} and often share similar causes and fixes.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {relatedCodes.map((rel) => (
-                <Link
-                  key={rel.code}
-                  href={`/obd/${rel.code.toLowerCase()}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors"
-                >
-                  {rel.code}
-                  <span className="text-text-muted font-sans font-normal text-xs">
-                    &mdash; {rel.title.length > 50 ? rel.title.substring(0, 47) + "..." : rel.title}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
 
 
         {/* FAQ */}
