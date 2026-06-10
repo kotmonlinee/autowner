@@ -119,11 +119,19 @@ export default async function VehicleHubPage({
   const makeName = make.name;
   const modelName = model.name;
 
+  const supabase = await createServerSupabase();
   const repairSlugs = await getAllRepairSlugs();
-  const [repairCosts, obdCodes] = await Promise.all([
+  const [repairCosts, obdCodes, diagnosisData] = await Promise.all([
     getRepairCostsForVehicle(makeSlug, repairSlugs),
     getCommonObdCodes(makeSlug, modelSlug),
+    supabase.from("diagnoses").select("slug, diagnosis_json, view_count").or(`vehicle_make.ilike.${makeSlug},vehicle_make.ilike.%${makeName}%`).order("view_count", { ascending: false }).limit(6),
   ]);
+  const relatedDiagnoses = ((diagnosisData.data ?? []) as unknown as any[]).map((d: any) => ({
+    slug: d.slug,
+    title: d.diagnosis_json?.title ?? "Car Diagnosis",
+    severity: d.diagnosis_json?.severity ?? "medium",
+    costEstimate: d.diagnosis_json?.costEstimate,
+  }));
 
   const imageUrl = getVehicleImageUrl(makeSlug, modelSlug);
 
@@ -214,6 +222,27 @@ export default async function VehicleHubPage({
             </div>
             <Link href="/obd" className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
               Browse all 12,000+ codes →
+            </Link>
+          </div>
+        )}
+
+        {/* Related Diagnoses */}
+        {relatedDiagnoses.length > 0 && (
+          <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-4">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
+              {makeName} {modelName} Diagnoses
+            </h2>
+            <p className="text-xs text-text-muted mb-3">AI-powered diagnoses from {makeName} {modelName} owners describing their symptoms:</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {relatedDiagnoses.map((d: any) => (
+                <Link key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
+                  <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors truncate">{d.title}</span>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ml-2 ${d.severity === "critical" ? "bg-red-50 text-red-700 border-red-200" : d.severity === "high" ? "bg-orange-50 text-orange-700 border-orange-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>{d.severity}</span>
+                </Link>
+              ))}
+            </div>
+            <Link href="/symptom-checker" className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
+              Diagnose your {makeName} →
             </Link>
           </div>
         )}

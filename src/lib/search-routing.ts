@@ -75,6 +75,6 @@ export function resolveSearchRoute(query: string): string {
     }
   }
 
-  // Fallback: community search
-  return `/community?q=${encodeURIComponent(trimmed)}`;
+  // Fallback: cross-content search
+  return `/search?q=${encodeURIComponent(trimmed)}`;
 }
