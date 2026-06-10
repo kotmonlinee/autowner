@@ -7,6 +7,8 @@ import Footer from "@/components/Footer";
 export const revalidate = 86400;
 import WarningLightIcon from "@/components/WarningLightIcon";
 import { getRelatedRepairs, TOP_REPAIRS } from "@/lib/internal-linking";
+import { getRepairImageUrl } from "@/lib/repair-images";
+import { createServiceSupabase } from "@/lib/supabase-server";
 import {
   warningLights,
   getWarningLightBySlug,
@@ -76,6 +78,19 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
 
   const sev = SEVERITY_CONFIG[light.severity];
   const driving = getDrivingVerdict(light.can_drive);
+
+  // Fetch OBD code titles
+  const supabase = await createServiceSupabase();
+  let obdDetails: { code: string; title: string }[] = [];
+  if (light.related_obd_codes.length > 0) {
+    const { data: obdData } = await supabase.from("obd_codes")
+      .select("code, title")
+      .in("code", light.related_obd_codes.map((c) => c.toUpperCase()));
+    if (obdData) {
+      const map = new Map((obdData as unknown as { code: string; title: string }[]).map((r) => [r.code, r.title]));
+      obdDetails = light.related_obd_codes.map((code) => ({ code, title: map.get(code.toUpperCase()) || "" }));
+    }
+  }
 
   const faqItems = [
     { question: `What does the ${light.title} mean?`, answer: light.meaning },
@@ -155,12 +170,16 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
         </div>
 
         {/* ── Related OBD Codes ── */}
-        {light.related_obd_codes.length > 0 && (
-          <div className="mb-4">
+        {obdDetails.length > 0 && (
+          <div className="mb-6">
             <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related OBD-II Codes</h2>
-            <div className="flex flex-wrap gap-2">
-              {light.related_obd_codes.map((code) => (
-                <Link key={code} href={`/obd/${code}`} className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{code}</Link>
+            <div className="space-y-2">
+              {obdDetails.map((obd) => (
+                <Link key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
+                  <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code.toUpperCase()}</span>
+                  <span className="h-4 w-px bg-surface-border shrink-0" />
+                  <span className="text-xs text-text-secondary truncate">{obd.title}</span>
+                </Link>
               ))}
             </div>
           </div>
@@ -169,10 +188,18 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
         {/* ── Related Repairs ── */}
         <div className="mb-6">
           <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related Repairs</h2>
-          <div className="flex flex-wrap gap-2">
-            {TOP_REPAIRS.slice(0, 5).map((repair) => (
-              <Link key={repair.slug} href={`/repair-cost/${repair.slug}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/30 transition-all font-heading font-medium">{repair.name}</Link>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {TOP_REPAIRS.slice(0, 6).map((repair) => {
+              const img = getRepairImageUrl(repair.slug);
+              return (
+                <Link key={repair.slug} href={`/repair-cost/${repair.slug}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                  <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                    {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" />}
+                  </div>
+                  <span className="text-sm font-medium text-text-primary font-heading truncate">{repair.name}</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
 
