@@ -154,6 +154,10 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
               {formatCurrency(light.min_cost)} – {formatCurrency(light.max_cost)}
             </p>
             <p className="text-xs text-text-muted">Estimate varies by vehicle make, model, year, and shop labor rates. Always get multiple quotes.</p>
+            <Link href="/repair-cost" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+              See all repair cost estimates
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            </Link>
           </div>
         </div>
 
