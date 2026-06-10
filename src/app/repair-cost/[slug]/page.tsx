@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { getRepairCosts, getVehicleRepairSlugs } from "@/lib/data/server";
-import { TOP_OBD_CODES } from "@/lib/internal-linking";
 import type { RepairCostFull, RepairCostTier } from "@/lib/types";
 import { getRepairImageUrl } from "@/lib/repair-images";
+import { createServiceSupabase } from "@/lib/supabase-server";
 import Navbar from "@/components/Navbar";
 
 export const revalidate = 86400; // ISR: revalidate every 24 hours (static reference data)
@@ -86,6 +86,20 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
   ]);
 
   if (!repair) notFound();
+
+  // Fetch related OBD codes by repair name keywords
+  const supabase = await createServiceSupabase();
+  const repairKeywords = repair.name.toLowerCase().split(" ").filter((w) => w.length > 3);
+  let obdCodes: { code: string; title: string }[] = [];
+  if (repairKeywords.length > 0) {
+    const conditions = repairKeywords.slice(0, 3).map((kw) => `title.ilike.%${kw}%`).join(",");
+    const { data } = await supabase.from("obd_codes")
+      .select("code, title")
+      .or(conditions)
+      .order("code")
+      .limit(10);
+    obdCodes = (data as unknown as { code: string; title: string }[]) ?? [];
+  }
 
   const tierKeys = TIER_ORDER.filter((t) => repair.tiers[t]);
   const tierCards = tierKeys.map((t) => repair.tiers[t]);
@@ -453,35 +467,30 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         </div>
 
         {/* Common OBD Codes */}
-        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
-            Common OBD-II Codes
-          </h2>
-          <p className="text-text-muted text-xs mb-3">
-            These diagnostic trouble codes are commonly related to this repair type:
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {TOP_OBD_CODES.slice(0, 8).map((obd) => (
-              <Link
-                key={obd.code}
-                href={`/obd/${obd.code.toLowerCase()}`}
-                className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-xs font-mono font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors"
-              >
-                {obd.code}
-              </Link>
-            ))}
+        {obdCodes.length > 0 && (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+              Related OBD-II Codes
+            </h2>
+            <p className="text-text-muted text-xs mb-3">
+              These diagnostic trouble codes are commonly related to {repair.name.toLowerCase()}:
+            </p>
+            <div className="space-y-2">
+              {obdCodes.map((obd) => (
+                <Link key={obd.code} href={`/obd/${obd.code.toLowerCase()}`}
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
+                  <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code}</span>
+                  <span className="h-4 w-px bg-surface-border shrink-0" />
+                  <span className="text-xs text-text-secondary truncate">{obd.title}</span>
+                </Link>
+              ))}
+            </div>
+            <Link href="/obd" className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-primary hover:text-primary-glow transition-colors">
+              Browse all OBD-II codes
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            </Link>
           </div>
-          <Link
-            href="/obd"
-            className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-primary hover:text-primary-glow transition-colors"
-          >
-            Browse all OBD-II codes
-            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </Link>
-        </div>
+        )}
 
         {/* AI Diagnosis CTA */}
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">
