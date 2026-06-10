@@ -241,9 +241,6 @@ export default async function VehicleHubPage({
                 </Link>
               ))}
             </div>
-            <Link href="/symptom-checker" className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
-              Diagnose your {makeName} →
-            </Link>
           </div>
         )}
 
