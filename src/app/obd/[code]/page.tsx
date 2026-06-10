@@ -430,18 +430,6 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             <span className="mr-1.5">{driving.emoji}</span>
             {driving.text}
           </p>
-          {obd.min_cost != null && obd.min_cost > 0 && (
-            <p className="text-sm font-semibold text-text-primary">
-              Typical repair cost:{" "}
-              {obd.max_cost != null && obd.max_cost !== obd.min_cost
-                ? `$${obd.min_cost} – $${obd.max_cost}`
-                : `$${obd.min_cost}+`}
-            </p>
-          )}
-          <Link href="/repair-cost" className="inline-flex items-center gap-1 mt-2 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
-            See all repair cost estimates
-            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-          </Link>
         </div>
 
         {/* Severity Explanation */}
@@ -584,6 +572,10 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
               These are estimated costs based on generic repair data. Actual costs may vary depending
               on your vehicle, location, and labor rates.
             </p>
+            <Link href="/repair-cost" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+              See all repair cost estimates
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            </Link>
           </div>
         )}
 
