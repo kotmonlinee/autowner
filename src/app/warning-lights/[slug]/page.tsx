@@ -52,23 +52,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-const SEVERITY_CONFIG: Record<WarningLightSeverity, { label: string; bg: string; text: string; border: string; iconBg: string; answerBg: string }> = {
-  critical: { label: "Critical — Stop driving", bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", iconBg: "bg-severity-critical-bg text-severity-critical", answerBg: "bg-severity-critical-bg border-severity-critical-border" },
-  caution: { label: "Caution — Service soon", bg: "bg-severity-caution-bg", text: "text-severity-caution", border: "border-severity-caution-border", iconBg: "bg-severity-caution-bg text-severity-caution", answerBg: "bg-severity-caution-bg border-severity-caution-border" },
-  informational: { label: "Informational — For your awareness", bg: "bg-severity-info-bg", text: "text-severity-info", border: "border-severity-info-border", iconBg: "bg-severity-info-bg text-severity-info", answerBg: "bg-severity-info-bg border-severity-info-border" },
+const SEVERITY_CONFIG: Record<WarningLightSeverity, { label: string; bg: string; text: string; border: string; iconBg: string }> = {
+  critical: { label: "Critical — Stop driving", bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", iconBg: "bg-severity-critical-bg text-severity-critical" },
+  caution: { label: "Caution — Service soon", bg: "bg-severity-caution-bg", text: "text-severity-caution", border: "border-severity-caution-border", iconBg: "bg-severity-caution-bg text-severity-caution" },
+  informational: { label: "Informational — For your awareness", bg: "bg-severity-info-bg", text: "text-severity-info", border: "border-severity-info-border", iconBg: "bg-severity-info-bg text-severity-info" },
 };
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
-}
-
-function getDrivingVerdict(canDrive: string): { verdict: string; color: string } {
-  const lower = canDrive.toLowerCase();
-  if (lower.includes("stop") || lower.includes("immediately") || lower.includes("do not drive")) return { verdict: "Stop. Do not drive.", color: "text-severity-critical" };
-  if (lower.includes("tow") || lower.includes("critical")) return { verdict: "Tow to a shop.", color: "text-severity-critical" };
-  if (lower.includes("limited") || lower.includes("short") || lower.includes("daylight") || lower.includes("caution")) return { verdict: "Limited driving only.", color: "text-severity-caution" };
-  if (lower.includes("yes") || lower.includes("safe")) return { verdict: "Yes — safe to drive.", color: "text-severity-info" };
-  return { verdict: "Use caution.", color: "text-severity-caution" };
 }
 
 export default async function WarningLightDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -77,7 +68,6 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
   if (!light) notFound();
 
   const sev = SEVERITY_CONFIG[light.severity];
-  const driving = getDrivingVerdict(light.can_drive);
 
   // Fetch OBD code titles
   const supabase = await createServiceSupabase();
@@ -140,10 +130,8 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
         </div>
 
         {/* ── Can I Still Drive? ── */}
-        <div className={`${sev.answerBg} rounded-2xl border p-5 mb-6`}>
-          <div className="flex items-center gap-3 mb-3">
-            <span className={`text-lg font-heading font-bold ${driving.color}`}>{driving.verdict}</span>
-          </div>
+        <div className={`${sev.bg} rounded-2xl border ${sev.border} p-5 mb-6`}>
+          <h2 className="text-lg font-heading font-bold text-text-primary mb-3">Can I Still Drive?</h2>
           <p className="text-sm text-text-secondary leading-relaxed">{light.can_drive}</p>
         </div>
 
