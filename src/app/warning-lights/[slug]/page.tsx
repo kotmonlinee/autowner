@@ -78,7 +78,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
       .in("code", light.related_obd_codes.map((c) => c.toUpperCase()));
     if (obdData) {
       const map = new Map((obdData as unknown as { code: string; title: string }[]).map((r) => [r.code, r.title]));
-      obdDetails = light.related_obd_codes.map((code) => ({ code, title: map.get(code.toUpperCase()) || "" }));
+      obdDetails = light.related_obd_codes.map((code) => ({ code, title: map.get(code.toUpperCase()) || "" })).filter((o) => o.title);
     }
   }
 
