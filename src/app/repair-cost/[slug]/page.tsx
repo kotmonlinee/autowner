@@ -302,31 +302,25 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           </div>
         </section>
 
-        {/* Cross-link: Quote Checker */}
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-6">
-          <Link
-            href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`}
-            className="flex items-center justify-between gap-4 text-sm"
-          >
-            <span className="text-text-secondary">
-              Got a quote from your mechanic? <strong className="text-text-primary">Check if it&apos;s fair</strong>
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-primary font-semibold font-heading shrink-0">
-              Verify your quote
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </span>
-          </Link>
+        {/* CTA: Quote Checker */}
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">
+                Got a quote from your mechanic?
+              </h3>
+              <p className="text-text-muted text-sm">
+                Compare it against our estimates to see if you&apos;re getting a fair deal.
+              </p>
+            </div>
+            <Link
+              href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
+            >
+              Check your quote
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            </Link>
+          </div>
         </div>
 
         {/* Labor vs Parts Breakdown */}
@@ -532,37 +526,6 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           </Link>
         </div>
 
-        {/* CTA */}
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1">
-              <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">
-                Got a quote from your mechanic?
-              </h3>
-              <p className="text-text-muted text-sm">
-                Compare it against our estimates to see if you&apos;re getting a fair deal.
-              </p>
-            </div>
-            <Link
-              href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
-            >
-              Check your quote
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </Link>
-          </div>
-        </div>
       </main>
 
       <Footer />
