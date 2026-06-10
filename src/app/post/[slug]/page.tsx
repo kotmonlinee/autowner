@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getPostBySlug, getPostByIdAny, getCurrentUser, getPostVehicles } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import BookmarkButton from "@/components/BookmarkButton";
 import VoteButtons from "@/components/VoteButtons";
 import CommentSection from "@/components/CommentSection";
 import RelatedPosts from "@/components/RelatedPosts";
@@ -316,7 +315,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                     <div className="ml-auto flex items-center gap-1">
                       {isAuthor && <PostEditDeleteButtons postId={id} postSlug={post.slug || id} />}
                       {user && !isAuthor && <ReportButton targetType="post" targetId={id} userId={user.id} />}
-                      <BookmarkButton postId={id} userId={user?.id} />
                     </div>
                   </div>
 
