@@ -166,7 +166,7 @@ export default async function VehicleHubPage({
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <Link href="/repair-cost" className="hover:text-primary transition-colors">Repair Costs</Link>
+          <Link href="/vehicles" className="hover:text-primary transition-colors">Vehicles</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary">{makeName} {modelName}</span>
         </nav>
