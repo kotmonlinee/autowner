@@ -499,10 +499,10 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             ))}
           </div>
           <Link
-            href="/repair-cost"
+            href="/vehicles"
             className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading"
           >
-            Compare all vehicles →
+            Browse all vehicles →
           </Link>
         </div>
 

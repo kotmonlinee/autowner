@@ -258,6 +258,11 @@ export default async function RepairCostLandingPage() {
                 </Link>
               </div>
             )}
+            <div className="text-center mt-3">
+              <Link href="/vehicles" className="text-xs font-medium text-text-muted hover:text-primary transition-colors">
+                Browse repair costs by vehicle →
+              </Link>
+            </div>
           </section>
         )}
 
