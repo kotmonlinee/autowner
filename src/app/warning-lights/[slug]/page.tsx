@@ -20,32 +20,14 @@ export function generateStaticParams() {
 
 function generateWarningLightTitle(light: WarningLight): string {
   const t = light.title;
-
-  if (t.includes("Check Engine")) {
-    return "Check Engine Light On? Can You Still Drive?";
-  }
-  if (t.includes("Oil Pressure")) {
-    return "Oil Pressure Warning: Stop Driving Immediately";
-  }
-  if (t.includes("Battery")) {
-    return "Battery Warning Light: What It Means & Repair Cost";
-  }
-  if (t.includes("Brake")) {
-    return "Brake Warning Light On? Causes & Repair Costs";
-  }
-  if (t.includes("ABS")) {
-    return "ABS Light On? Causes & Repair Costs";
-  }
-  if (t.includes("Airbag")) {
-    return "Airbag Light On? Causes & Repair Cost";
-  }
-  if (t.includes("Tire Pressure")) {
-    return "TPMS Light: What It Means & Safe Tire Pressure";
-  }
-  if (t.includes("Coolant")) {
-    return "Coolant Temperature Warning: Stop Driving?";
-  }
-
+  if (t.includes("Check Engine")) return "Check Engine Light On? Can You Still Drive?";
+  if (t.includes("Oil Pressure")) return "Oil Pressure Warning: Stop Driving Immediately";
+  if (t.includes("Battery")) return "Battery Warning Light: What It Means & Repair Cost";
+  if (t.includes("Brake")) return "Brake Warning Light On? Causes & Repair Costs";
+  if (t.includes("ABS")) return "ABS Light On? Causes & Repair Costs";
+  if (t.includes("Airbag")) return "Airbag Light On? Causes & Repair Cost";
+  if (t.includes("Tire Pressure")) return "TPMS Light: What It Means & Safe Tire Pressure";
+  if (t.includes("Coolant")) return "Coolant Temperature Warning: Stop Driving?";
   return `${t}: Symptoms, Causes & Repair Cost`;
 }
 
@@ -54,446 +36,167 @@ function generateWarningLightDescription(light: WarningLight): string {
   return desc.length <= 160 ? desc : desc.substring(0, 160);
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const light = getWarningLightBySlug(slug);
-  if (!light) {
-    return { title: "Warning Light Not Found" };
-  }
-
+  if (!light) return { title: "Warning Light Not Found" };
   const seoTitle = generateWarningLightTitle(light);
   const seoDescription = generateWarningLightDescription(light);
-
   return {
-    title: seoTitle,
-    description: seoDescription,
-    alternates: {
-      canonical: `https://www.autowner.com/warning-lights/${light.slug}`,
-    },
-    openGraph: {
-      title: seoTitle,
-      description: seoDescription,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: seoTitle,
-      description: seoDescription,
-      images: ["https://www.autowner.com/og-default.jpg"],
-    },
+    title: seoTitle, description: seoDescription,
+    alternates: { canonical: `https://www.autowner.com/warning-lights/${light.slug}` },
+    openGraph: { title: seoTitle, description: seoDescription },
+    twitter: { card: "summary_large_image", title: seoTitle, description: seoDescription, images: ["https://www.autowner.com/og-default.jpg"] },
   };
 }
 
-const SEVERITY_CONFIG: Record<
-  WarningLightSeverity,
-  { label: string; bg: string; text: string; border: string; iconBg: string }
-> = {
-  critical: {
-    label: "Critical — Stop driving",
-    bg: "bg-severity-critical-bg",
-    text: "text-severity-critical",
-    border: "border-severity-critical-border",
-    iconBg: "bg-severity-critical-bg text-severity-critical",
-  },
-  caution: {
-    label: "Caution — Service soon",
-    bg: "bg-severity-caution-bg",
-    text: "text-severity-caution",
-    border: "border-severity-caution-border",
-    iconBg: "bg-severity-caution-bg text-severity-caution",
-  },
-  informational: {
-    label: "Informational — For your awareness",
-    bg: "bg-severity-info-bg",
-    text: "text-severity-info",
-    border: "border-severity-info-border",
-    iconBg: "bg-severity-info-bg text-severity-info",
-  },
-};
-
-const URGENCY_DOT: Record<WarningLightSeverity, string> = {
-  critical: "bg-red-500",
-  caution: "bg-amber-500",
-  informational: "bg-emerald-500",
+const SEVERITY_CONFIG: Record<WarningLightSeverity, { label: string; bg: string; text: string; border: string; iconBg: string; answerBg: string }> = {
+  critical: { label: "Critical — Stop driving", bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", iconBg: "bg-severity-critical-bg text-severity-critical", answerBg: "bg-severity-critical-bg border-severity-critical-border" },
+  caution: { label: "Caution — Service soon", bg: "bg-severity-caution-bg", text: "text-severity-caution", border: "border-severity-caution-border", iconBg: "bg-severity-caution-bg text-severity-caution", answerBg: "bg-severity-caution-bg border-severity-caution-border" },
+  informational: { label: "Informational — For your awareness", bg: "bg-severity-info-bg", text: "text-severity-info", border: "border-severity-info-border", iconBg: "bg-severity-info-bg text-severity-info", answerBg: "bg-severity-info-bg border-severity-info-border" },
 };
 
 function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
 }
 
-export default async function WarningLightDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+function getDrivingVerdict(canDrive: string): { verdict: string; color: string } {
+  const lower = canDrive.toLowerCase();
+  if (lower.includes("stop") || lower.includes("immediately") || lower.includes("do not drive")) return { verdict: "Stop. Do not drive.", color: "text-severity-critical" };
+  if (lower.includes("tow") || lower.includes("critical")) return { verdict: "Tow to a shop.", color: "text-severity-critical" };
+  if (lower.includes("limited") || lower.includes("short") || lower.includes("daylight") || lower.includes("caution")) return { verdict: "Limited driving only.", color: "text-severity-caution" };
+  if (lower.includes("yes") || lower.includes("safe")) return { verdict: "Yes — safe to drive.", color: "text-severity-info" };
+  return { verdict: "Use caution.", color: "text-severity-caution" };
+}
+
+export default async function WarningLightDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const light = getWarningLightBySlug(slug);
-
-  if (!light) {
-    notFound();
-  }
+  if (!light) notFound();
 
   const sev = SEVERITY_CONFIG[light.severity];
-
-  // ── Structured Data ──────────────────────────────────
+  const driving = getDrivingVerdict(light.can_drive);
 
   const faqItems = [
-    {
-      question: `What does the ${light.title} mean?`,
-      answer: light.meaning,
-    },
-    {
-      question: `Can I still drive with the ${light.title} on?`,
-      answer: light.can_drive,
-    },
-    {
-      question: `How much does it cost to fix the ${light.title}?`,
-      answer: `Repair costs typically range from ${formatCurrency(light.min_cost)} to ${formatCurrency(light.max_cost)}, depending on the underlying cause, your vehicle make and model, and local labor rates. Always get multiple quotes for an accurate price.`,
-    },
-    {
-      question: `What causes the ${light.title} to come on?`,
-      answer: light.causes.join(". ") + ".",
-    },
+    { question: `What does the ${light.title} mean?`, answer: light.meaning },
+    { question: `Can I still drive with the ${light.title} on?`, answer: light.can_drive },
+    { question: `How much does it cost to fix the ${light.title}?`, answer: `Repair costs typically range from ${formatCurrency(light.min_cost)} to ${formatCurrency(light.max_cost)}, depending on the underlying cause, your vehicle make and model, and local labor rates. Always get multiple quotes for an accurate price.` },
+    { question: `What causes the ${light.title} to come on?`, answer: light.causes.join(". ") + "." },
   ];
 
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqItems.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer,
-      },
-    })),
-  };
-
-  const articleJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: light.title,
-    description: light.meaning.substring(0, 160),
-    datePublished: new Date().toISOString(),
-    publisher: {
-      "@type": "Organization",
-      name: "AutOwner",
-    },
-  };
-
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: "https://www.autowner.com/",
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "Warning Lights",
-        item: "https://www.autowner.com/warning-lights",
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: light.title,
-      },
-    ],
-  };
+  const faqJsonLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqItems.map((item) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })) };
+  const articleJsonLd = { "@context": "https://schema.org", "@type": "Article", headline: light.title, description: light.meaning.substring(0, 160), datePublished: new Date().toISOString(), publisher: { "@type": "Organization", name: "AutOwner" } };
+  const breadcrumbJsonLd = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: "https://www.autowner.com/" }, { "@type": "ListItem", position: 2, name: "Warning Lights", item: "https://www.autowner.com/warning-lights" }, { "@type": "ListItem", position: 3, name: light.title }] };
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="max-w-4xl mx-auto px-5 py-10 w-full flex-1">
-        {/* Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-        />
+      <main id="main-content" className="max-w-3xl mx-auto px-5 py-8 w-full flex-1">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+
         {/* Breadcrumb */}
-        <nav className="mb-6" aria-label="Breadcrumb">
-          <ol className="flex items-center gap-2 text-sm text-text-muted">
-            <li>
-              <Link href="/" className="hover:text-text-primary transition-colors">
-                Home
-              </Link>
-            </li>
-            <li>
-              <svg
-                className="w-3 h-3"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </li>
-            <li>
-              <Link
-                href="/warning-lights"
-                className="hover:text-text-primary transition-colors"
-              >
-                Warning Lights
-              </Link>
-            </li>
-            <li>
-              <svg
-                className="w-3 h-3"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </li>
-            <li className="text-text-primary font-medium truncate">
-              {light.title}
-            </li>
-          </ol>
+        <nav className="mb-6 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <span className="mx-2">/</span>
+          <Link href="/warning-lights" className="hover:text-primary transition-colors">Warning Lights</Link>
+          <span className="mx-2">/</span>
+          <span className="text-text-secondary">{light.title}</span>
         </nav>
 
-        {/* Header section */}
-        <div className="mb-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${sev.iconBg}`}>
-              <WarningLightIcon slug={light.slug} size={32} severity={light.severity} />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary font-heading mb-2">
-                {light.title}
-              </h1>
-              <div
-                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-semibold font-heading ${sev.bg} ${sev.text} ${sev.border}`}
-              >
-                <span
-                  className={`w-2 h-2 rounded-full ${URGENCY_DOT[light.severity]}`}
-                />
-                {sev.label}
-              </div>
-            </div>
+        {/* ── Hero ── */}
+        <div className={`${sev.bg} rounded-3xl border-2 ${sev.border} p-8 mb-8 text-center`}>
+          <div className={`inline-flex items-center justify-center w-24 h-24 rounded-3xl ${sev.iconBg} border-2 ${sev.border} mb-5`}>
+            <WarningLightIcon slug={light.slug} size={56} severity={light.severity} />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-3">{light.title}</h1>
+          <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold border-2 ${sev.border} ${sev.text} font-heading`}>
+            <span className={`w-2.5 h-2.5 rounded-full ${sev.text} bg-current animate-pulse`} />
+            {sev.label}
+          </span>
+        </div>
+
+        {/* ── What It Means ── */}
+        <div className="mb-4">
+          <h2 className="text-lg font-heading font-bold text-text-primary mb-3">What It Means</h2>
+          <p className="text-text-secondary leading-relaxed text-sm">{light.meaning}</p>
+        </div>
+
+        {/* ── Can I Still Drive? ── */}
+        <div className={`${sev.answerBg} rounded-2xl border p-5 mb-6`}>
+          <div className="flex items-center gap-3 mb-3">
+            <span className={`text-lg font-heading font-bold ${driving.color}`}>{driving.verdict}</span>
+          </div>
+          <p className="text-sm text-text-secondary leading-relaxed">{light.can_drive}</p>
+        </div>
+
+        {/* ── Common Causes + Cost side by side ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
+            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Common Causes</h2>
+            <ul className="space-y-2">
+              {light.causes.map((cause, i) => (
+                <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
+                  <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${sev.text} bg-current`} />
+                  <span>{cause}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
+            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Estimated Repair Cost</h2>
+            <p className="text-2xl font-heading font-bold text-text-primary mb-3">
+              {formatCurrency(light.min_cost)} – {formatCurrency(light.max_cost)}
+            </p>
+            <p className="text-xs text-text-muted">Estimate varies by vehicle make, model, year, and shop labor rates. Always get multiple quotes.</p>
           </div>
         </div>
 
-        {/* Meaning */}
-        <section
-          className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-4"
-          aria-labelledby="meaning-heading"
-        >
-          <h2
-            id="meaning-heading"
-            className="text-lg font-bold text-text-primary font-heading mb-3"
-          >
-            What It Means
-          </h2>
-          <p className="text-text-secondary leading-relaxed">{light.meaning}</p>
-        </section>
-
-        {/* Common Causes */}
-        <section
-          className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-4"
-          aria-labelledby="causes-heading"
-        >
-          <h2
-            id="causes-heading"
-            className="text-lg font-bold text-text-primary font-heading mb-3"
-          >
-            Common Causes
-          </h2>
-          <ul className="space-y-2">
-            {light.causes.map((cause, i) => (
-              <li key={i} className="flex items-start gap-3 text-text-secondary">
-                <svg
-                  className="w-4 h-4 mt-0.5 text-primary shrink-0"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <span className="text-sm leading-relaxed">{cause}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* Can I still drive? */}
-        <section
-          className={`rounded-2xl p-6 mb-4 border ${sev.bg} ${sev.border}`}
-          aria-labelledby="can-drive-heading"
-        >
-          <h2
-            id="can-drive-heading"
-            className="text-lg font-bold text-text-primary font-heading mb-3"
-          >
-            Can I Still Drive?
-          </h2>
-          <p className="text-text-secondary leading-relaxed">{light.can_drive}</p>
-        </section>
-
-        {/* Repair cost estimate */}
-        <section
-          className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-4"
-          aria-labelledby="cost-heading"
-        >
-          <h2
-            id="cost-heading"
-            className="text-lg font-bold text-text-primary font-heading mb-3"
-          >
-            Estimated Repair Cost
-          </h2>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-text-primary font-heading">
-              {formatCurrency(light.min_cost)} &ndash; {formatCurrency(light.max_cost)}
-            </span>
-          </div>
-          <p className="text-xs text-text-muted mt-2">
-            This is an estimate only. Actual costs vary by vehicle make, model, year,
-            location, and shop labor rates. Always get multiple quotes for major repairs.
-          </p>
-        </section>
-
-        {/* Related OBD Codes */}
+        {/* ── Related OBD Codes ── */}
         {light.related_obd_codes.length > 0 && (
-          <section
-            className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-4"
-            aria-labelledby="obd-heading"
-          >
-            <h2
-              id="obd-heading"
-              className="text-lg font-bold text-text-primary font-heading mb-3"
-            >
-              Related OBD-II Trouble Codes
-            </h2>
+          <div className="mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related OBD-II Codes</h2>
             <div className="flex flex-wrap gap-2">
               {light.related_obd_codes.map((code) => (
-                <Link
-                  key={code}
-                  href={`/obd/${code}`}
-                  className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors"
-                >
-                  {code}
-                </Link>
+                <Link key={code} href={`/obd/${code}`} className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{code}</Link>
               ))}
             </div>
-            <p className="text-xs text-text-muted mt-3">
-              These OBD codes are commonly associated with this warning light. Scan your
-              vehicle with an OBD-II scanner to get the exact code before diagnosing.
-            </p>
-          </section>
+          </div>
         )}
 
-        {/* Related Repair Costs */}
-        <section
-          className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-4"
-          aria-labelledby="repair-heading"
-        >
-          <h2
-            id="repair-heading"
-            className="text-lg font-bold text-text-primary font-heading mb-3"
-          >
-            Related Repair Costs
-          </h2>
-          <p className="text-text-muted text-sm mb-3">
-            Common repairs associated with this warning light:
-          </p>
-          <div className="space-y-2">
+        {/* ── Related Repairs ── */}
+        <div className="mb-6">
+          <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related Repairs</h2>
+          <div className="flex flex-wrap gap-2">
             {TOP_REPAIRS.slice(0, 5).map((repair) => (
-              <Link
-                key={repair.slug}
-                href={`/repair-cost/${repair.slug}`}
-                className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
-              >
-                {repair.name}
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </Link>
+              <Link key={repair.slug} href={`/repair-cost/${repair.slug}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/30 transition-all font-heading font-medium">{repair.name}</Link>
             ))}
           </div>
-          <Link
-            href="/repair-cost"
-            className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-primary hover:text-primary-glow transition-colors"
-          >
-            Browse all repair costs
-            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </Link>
-        </section>
-
-        {/* FAQ Section */}
-        <section
-          className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-4"
-          aria-labelledby="faq-heading"
-        >
-          <h2
-            id="faq-heading"
-            className="text-lg font-bold text-text-primary font-heading mb-4"
-          >
-            Frequently Asked Questions
-          </h2>
-          <div className="space-y-4">
-            {faqItems.map((item, i) => (
-              <div key={i}>
-                <h3 className="text-sm font-heading font-semibold text-text-secondary mb-1">
-                  {item.question}
-                </h3>
-                <p className="text-sm text-text-muted leading-relaxed">
-                  {item.answer}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Back link */}
-        <div className="mt-8 text-center">
-          <Link
-            href="/warning-lights"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-primary font-heading hover:text-primary-glow transition-colors"
-          >
-            <svg
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
-            Back to all warning lights
-          </Link>
         </div>
+
+        {/* ── FAQ ── */}
+        <section className="mb-6 pt-6 border-t border-surface-border" aria-labelledby="faq-heading">
+          <h2 id="faq-heading" className="text-lg font-heading font-bold text-text-primary mb-4">Frequently Asked Questions</h2>
+          <div className="space-y-2">
+            {faqItems.map((item, i) => (
+              <details key={i} className="group bg-surface-1 rounded-xl border border-surface-border">
+                <summary className="flex items-center justify-between px-5 py-3.5 cursor-pointer text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors">
+                  {item.question}
+                  <svg className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
+                </summary>
+                <p className="px-5 pb-4 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Back ── */}
+        <Link href="/warning-lights" className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+          Back to all warning lights
+        </Link>
       </main>
 
       <Footer />
