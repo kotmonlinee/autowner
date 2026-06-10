@@ -413,52 +413,6 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           </ul>
         </div>
 
-        {/* FAQ section */}
-        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-6">
-          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">
-            Frequently Asked Questions
-          </h2>
-          <div className="space-y-4">
-            {faqItems.map((item, i) => (
-              <div key={i}>
-                <h3 className="text-sm font-heading font-semibold text-text-secondary mb-1">
-                  {item.question}
-                </h3>
-                <p className="text-sm text-text-muted leading-relaxed">
-                  {item.answer}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Disclaimer */}
-        <div className="bg-amber/5 dark:bg-yellow-950/20 border border-amber/20 dark:border-yellow-800/20 rounded-xl p-4 mb-6">
-          <div className="flex items-start gap-2.5">
-            <svg
-              className="w-5 h-5 text-amber dark:text-amber-dark mt-0.5 shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            <p className="text-xs text-text-muted leading-relaxed">
-              <strong className="text-text-secondary">Disclaimer:</strong> Prices are estimates only
-              and may vary by location, vehicle condition, shop rates, and parts availability. Always
-              get multiple quotes before authorizing repairs. Use our{" "}
-              <Link href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`} className="text-primary hover:text-primary-glow underline">
-                Quote Checker
-              </Link>{" "}
-              to verify your mechanic&apos;s estimate.
-            </p>
-          </div>
-        </div>
 
         {/* Common OBD Codes */}
         {obdCodes.length > 0 && (
@@ -524,6 +478,38 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           >
             Compare all vehicles →
           </Link>
+        </div>
+
+        {/* FAQ */}
+        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-2">
+            {faqItems.map((item, i) => (
+              <details key={i} className="group">
+                <summary className="flex items-center justify-between px-4 py-3 cursor-pointer text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors bg-surface-0 rounded-lg border border-surface-border">
+                  {item.question}
+                  <svg className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
+                </summary>
+                <p className="px-4 pb-4 pt-2 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+
+        {/* Disclaimer */}
+        <div className="bg-amber/5 dark:bg-yellow-950/20 border border-amber/20 dark:border-yellow-800/20 rounded-xl p-4">
+          <div className="flex items-start gap-2.5">
+            <svg className="w-5 h-5 text-amber dark:text-amber-dark mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+            <p className="text-xs text-text-muted leading-relaxed">
+              <strong className="text-text-secondary">Disclaimer:</strong> Prices are estimates only
+              and may vary by location, vehicle condition, shop rates, and parts availability. Always
+              get multiple quotes before authorizing repairs. Use our{" "}
+              <Link href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`} className="text-primary hover:text-primary-glow underline">Quote Checker</Link>{" "}
+              to verify your mechanic&apos;s estimate.
+            </p>
+          </div>
         </div>
 
       </main>
