@@ -3,6 +3,7 @@
 
 const IMAGES: Record<string, string> = {
   "ac-compressor": "/repairs/ac-compressor.jpeg",
+  "airbag-srs": "/repairs/airbag-srs.jpeg",
   "alternator": "/repairs/alternator.jpeg",
   "ball-joints": "/repairs/ball-joints.jpeg",
   "battery": "/repairs/battery.jpeg",
