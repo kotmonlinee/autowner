@@ -44,7 +44,7 @@ export default function WarningLightIcon({ slug, size = 48, severity, className 
           <LucideIcon size={iconSize} strokeWidth={2} />
         </span>
       ) : (
-        <>
+        <span className="relative" style={{ width: iconSize, height: iconSize }}>
           <img
             ref={imgRef}
             src={`/warning-lights/${slug}.jpg?v=${IMAGE_CACHE_VERSION}`}
@@ -54,6 +54,9 @@ export default function WarningLightIcon({ slug, size = 48, severity, className 
             className="rounded-lg"
             style={{ display: failed ? "none" : "block" }}
           />
+          {!failed && (
+            <span className={`absolute bottom-0 right-0 w-[18px] h-[14px] rounded-bl-lg ${colors.bg}`} aria-hidden="true" />
+          )}
           {failed && (
             <span className={colors.stroke}>
               <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" width={iconSize} height={iconSize}>
@@ -63,7 +66,7 @@ export default function WarningLightIcon({ slug, size = 48, severity, className 
               </svg>
             </span>
           )}
-        </>
+        </span>
       )}
     </span>
   );
