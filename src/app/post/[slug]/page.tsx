@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getPostBySlug, getPostByIdAny, getCurrentUser, getPostVehicles } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Avatar from "@/components/Avatar";
 import BookmarkButton from "@/components/BookmarkButton";
 import VoteButtons from "@/components/VoteButtons";
 import CommentSection from "@/components/CommentSection";
@@ -21,7 +20,6 @@ import ReadingProgress from "@/components/ReadingProgress";
 import { FollowVehicleButton } from "@/app/vehicle/[engineId]/FollowVehicleButton";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { timeAgo } from "@/lib/utils";
 
 // ── UUID detection ─────────────────────────────────────────
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -81,12 +79,6 @@ function extractFaqItems(
   return items.slice(0, 10); // Google recommends up to 10 FAQ items
 }
 
-function readingTime(body: string): string {
-  const words = body.trim().split(/\s+/).length;
-  const minutes = Math.ceil(words / 200);
-  return `${Math.max(1, minutes)} min read`;
-}
-
 function extractDescription(body: string, maxLength = 160): string {
   const text = body
     .replace(/^#{1,6}\s+/gm, "")
@@ -106,12 +98,6 @@ function extractDescription(body: string, maxLength = 160): string {
     return truncated.slice(0, lastPeriod + 1);
   }
   return `${truncated}…`;
-}
-
-function formatCount(n: number): string {
-  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return String(n);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -324,33 +310,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                     )}
                   </div>
 
-                  <h1 className="text-2xl font-bold text-text-primary mb-4 font-heading leading-tight">{post.title}</h1>
+                  <h1 className="text-2xl font-bold text-text-primary mb-6 pb-4 border-b border-surface-border font-heading leading-tight">{post.title}</h1>
 
-                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-surface-border">
-                    <Avatar
-                      username={post.profiles?.username}
-                      avatarUrl={post.profiles?.avatar_url}
-                      size="md"
-                    />
-                    <div>
-                      {post.profiles?.username ? (
-                        <Link href={`/user/${post.profiles.username}`} className="text-sm font-semibold text-text-secondary font-heading hover:text-primary transition-colors">
-                          {post.profiles.username}
-                        </Link>
-                      ) : (
-                        <p className="text-sm font-semibold text-text-secondary font-heading">unknown</p>
-                      )}
-                      <p className="text-xs text-text-muted">
-                        {timeAgo(post.created_at)}
-                        {" · "}
-                        {formatCount(post.view_count ?? 0)} views
-                        {" · "}
-                        {post.comment_count} {post.comment_count === 1 ? "reply" : "replies"}
-                        {(post.content_type === "guide" || post.content_type === "review") && (
-                          <> · {readingTime(post.body)}</>
-                        )}
-                      </p>
-                    </div>
+                  <div className="flex items-center gap-2 mb-6">
                     <div className="ml-auto flex items-center gap-1">
                       {isAuthor && <PostEditDeleteButtons postId={id} postSlug={post.slug || id} />}
                       {user && !isAuthor && <ReportButton targetType="post" targetId={id} userId={user.id} />}
