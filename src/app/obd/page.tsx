@@ -196,7 +196,7 @@ export default async function ObdLandingPage({
                   ))}
                 </div>
 
-                <Pagination page={page} totalCount={totalCount} limit={50} basePath={prefix ? `/obd?prefix=${prefix}` : "/obd"} />
+                <Pagination page={page} totalCount={totalCount} limit={50} basePath="/obd" />
               </>
             )}
           </section>
