@@ -5,7 +5,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import Link from "next/link";
-import { timeAgo } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Community",
@@ -102,30 +101,37 @@ export default async function CommunityPage({
           ) : (
             <>
               <div className="space-y-2">
-                {postsResult.posts.map((post) => (
+                {postsResult.posts.map((post) => {
+                  const preview = (post.body ?? "").replace(/[#*`>\-\n]/g, " ").substring(0, 120).trim();
+                  const wordCount = (post.body ?? "").split(/\s+/).length;
+                  const readMin = Math.max(1, Math.round(wordCount / 200));
+                  const typeLabel = post.content_type === "guide" ? "Guide" : post.content_type === "review" ? "Review" : "Article";
+                  return (
                   <Link
                     key={post.id}
                     href={`/post/${post.slug || post.id}`}
-                    className="block bg-surface-1 rounded-xl border border-surface-border p-4 hover:border-primary/20 hover:bg-surface-2 transition-all duration-150 group"
+                    className="block bg-surface-1 rounded-xl border border-surface-border p-5 hover:border-primary/20 hover:bg-surface-2 transition-all duration-150 group"
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start justify-between gap-4 mb-2">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors line-clamp-2 leading-snug font-heading">
                           {post.title}
                         </p>
-                        <p className="text-xs text-text-muted mt-1">
-                          {timeAgo(post.created_at)}
-                        </p>
                       </div>
-                      <div className="flex items-center gap-1 text-xs font-semibold text-text-muted shrink-0 bg-surface-3 px-2.5 py-1 rounded-full">
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        {post.comment_count}
-                      </div>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-heading border border-surface-border bg-surface-0 text-text-muted shrink-0">
+                        {typeLabel}
+                      </span>
+                    </div>
+                    {preview && (
+                      <p className="text-xs text-text-secondary leading-relaxed line-clamp-2 mb-2">{preview}</p>
+                    )}
+                    <div className="flex items-center gap-3 text-xs text-text-muted">
+                      <span>{readMin} min read</span>
+                      {(post.view_count ?? 0) > 0 && <span>{post.view_count.toLocaleString()} views</span>}
                     </div>
                   </Link>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Pagination */}
