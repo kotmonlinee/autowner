@@ -1,4 +1,4 @@
-import { getPosts, getCategories, getAllRepairSlugs, getTopObdCodes, getVehicleRepairSlugs } from "@/lib/data/server";
+import { getPosts, getAllRepairSlugs, getTopObdCodes, getVehicleRepairSlugs } from "@/lib/data/server";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { warningLights } from "@/lib/warning-lights-data";
 
@@ -16,9 +16,8 @@ export async function GET() {
   const baseUrl = "https://www.autowner.com";
   const now = new Date().toISOString();
 
-  const [{ posts }, categories, repairSlugs, topObdCodes, vehicleModels] = await Promise.all([
+  const [{ posts }, repairSlugs, topObdCodes, vehicleModels] = await Promise.all([
     getPosts({ sort: "new", limit: 10000 }),
-    getCategories(),
     getAllRepairSlugs(),
     getTopObdCodes(15000),
     getVehicleRepairSlugs(100),
@@ -42,11 +41,6 @@ export async function GET() {
   urls.push(urlEntry(`${baseUrl}/warning-lights`, now, "weekly", 0.9));
   urls.push(urlEntry(`${baseUrl}/symptom-checker`, now, "weekly", 0.9));
   urls.push(urlEntry(`${baseUrl}/recall-check`, now, "weekly", 0.8));
-
-  // Category pages
-  for (const cat of categories) {
-    urls.push(urlEntry(`${baseUrl}/?category=${cat.slug}`, now, "daily", 0.7));
-  }
 
   // Repair cost detail pages
   for (const slug of repairSlugs) {
