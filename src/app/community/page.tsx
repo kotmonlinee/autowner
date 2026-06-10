@@ -105,7 +105,7 @@ export default async function CommunityPage({
                   const preview = (post.body ?? "").replace(/[#*`>\-\n]/g, " ").substring(0, 120).trim();
                   const wordCount = (post.body ?? "").split(/\s+/).length;
                   const readMin = Math.max(1, Math.round(wordCount / 200));
-                  const typeLabel = post.content_type === "guide" ? "Guide" : post.content_type === "review" ? "Review" : "Article";
+                  const typeLabel = post.categories?.name ?? "Article";
                   return (
                   <Link
                     key={post.id}
