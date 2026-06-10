@@ -44,7 +44,7 @@ const REPAIR_KEYWORDS: { keywords: string[]; slug: string; name: string }[] = [
   { keywords: ["exhaust", "muffler"], slug: "muffler", name: "Exhaust / Muffler" },
   { keywords: ["turbo", "boost", "supercharger"], slug: "turbocharger", name: "Turbocharger" },
   { keywords: ["dpf", "diesel particulate", "def", "scr", "nox"], slug: "catalytic-converter", name: "DPF / Emissions" },
-  { keywords: ["airbag", "srs", "seat belt", "occupant"], slug: "clutch", name: "Airbag / SRS" },
+  { keywords: ["airbag", "srs", "seat belt", "occupant"], slug: "airbag-srs", name: "Airbag / SRS" },
   { keywords: ["abs module", "abs pump"], slug: "abs-module", name: "ABS Module" },
   { keywords: ["tire pressure", "tpms", "tire"], slug: "tpms-sensor", name: "TPMS Sensor" },
   { keywords: ["window", "power window", "window regulator"], slug: "window-regulator", name: "Window Regulator" },
