@@ -576,6 +576,18 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
               See all repair cost estimates
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
+            <div className="mt-4 pt-4 border-t border-surface-border">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1">
+                  <p className="text-sm font-heading font-semibold text-text-primary">Worried about repair costs?</p>
+                  <p className="text-xs text-text-muted">Get transparent estimates and verify your mechanic&apos;s quote before authorizing repairs.</p>
+                </div>
+                <Link href="/quote-checker" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold font-heading rounded-lg hover:bg-primary-glow transition-all shrink-0">
+                  Check your quote
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                </Link>
+              </div>
+            </div>
           </div>
         )}
 
@@ -690,65 +702,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           </div>
         )}
 
-        {/* CTA */}
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1">
-              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">
-                Worried about repair costs?
-              </h2>
-              <p className="text-text-muted text-sm">
-                Get transparent estimates and verify your mechanic&apos;s quote before authorizing repairs.
-              </p>
-            </div>
-            <Link
-              href="/quote-checker"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
-            >
-              Check your quote
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </Link>
-          </div>
-        </div>
 
-        {/* Related Forum Posts */}
-        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
-            Related Discussions
-          </h2>
-          <p className="text-text-muted text-sm mb-3">
-            See what other car owners are saying about this code and related repairs.
-          </p>
-          <Link
-            href={`/community?search=${encodeURIComponent(obd.code)}`}
-            className="inline-flex items-center gap-2 text-sm font-semibold font-heading text-primary hover:text-primary-glow transition-colors"
-          >
-            View {obd.code} discussions in the community
-            <svg
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </Link>
-        </div>
       </main>
 
       <Footer />
