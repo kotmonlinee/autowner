@@ -453,10 +453,8 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
                 {lights.map((light) => (
                   <Link key={light.slug} href={`/warning-lights/${light.slug}`}
                     className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
-                    <div className="w-10 h-10 rounded-lg bg-amber/10 text-amber flex items-center justify-center shrink-0">
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
-                      </svg>
+                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                      <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" />
                     </div>
                     <span className="text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors">{light.title}</span>
                   </Link>
