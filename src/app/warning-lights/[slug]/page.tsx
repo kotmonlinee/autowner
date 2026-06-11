@@ -186,7 +186,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
               return (
                 <Link key={repair.slug} href={`/repair-cost/${repair.slug}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                   <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                    {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" / loading="lazy">}
+                    {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />}
                   </div>
                   <span className="text-sm font-medium text-text-primary font-heading truncate">{repair.name}</span>
                 </Link>

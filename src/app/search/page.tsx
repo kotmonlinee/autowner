@@ -124,7 +124,7 @@ export default async function SearchPage({
                 const img = getRepairImageUrl(r.slug);
                 return (
                   <Link key={r.slug} href={`/repair-cost/${r.slug}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">{img && <img src={img} alt={r.name} className="w-full h-full object-cover" / loading="lazy">}</div>
+                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">{img && <img src={img} alt={r.name} className="w-full h-full object-cover" loading="lazy" />}</div>
                     <span className="text-sm font-medium text-text-primary font-heading truncate flex-1">{r.name}</span>
                     <span className="text-xs font-bold text-text-muted shrink-0">${r.min}–${r.max}</span>
                   </Link>

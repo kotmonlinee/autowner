@@ -538,7 +538,7 @@ function QuoteCheckerContent() {
                 }}
                 className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer text-left overflow-hidden">
                 <div className="w-16 h-12 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                  <img src={`/vehicles/${r.makeSlug}-${r.modelSlug}.jpg`} alt={`${r.make} ${r.model}`} className="w-full h-full object-cover" / loading="lazy">
+                  <img src={`/vehicles/${r.makeSlug}-${r.modelSlug}.jpg`} alt={`${r.make} ${r.model}`} className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
                   <div className="min-w-0">

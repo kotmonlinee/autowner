@@ -101,7 +101,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           <div className="flex items-center gap-3 mb-4">
             {vehicleImage && (
               <div className="w-14 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2 border border-surface-border">
-                <img src={vehicleImage} alt={vehicle} className="w-full h-full object-cover" / loading="lazy">
+                <img src={vehicleImage} alt={vehicle} className="w-full h-full object-cover" loading="lazy" />
               </div>
             )}
             <span className="text-xs text-text-muted font-heading">{vehicle}</span>
@@ -222,7 +222,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                     return (
                       <Link key={item} href={`/repair-cost/${repairSlug}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                         <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                          {img && <img src={img} alt={item} className="w-full h-full object-cover" / loading="lazy">}
+                          {img && <img src={img} alt={item} className="w-full h-full object-cover" loading="lazy" />}
                         </div>
                         <span className="text-sm font-medium text-text-primary font-heading truncate">{item}</span>
                         <ChevronRight className="w-3.5 h-3.5 text-text-muted shrink-0 ml-auto" />

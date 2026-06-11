@@ -297,7 +297,7 @@ export default async function VehicleRepairPage({
                 {lights.map((light) => (
                   <Link key={light.slug} href={`/warning-lights/${light.slug}`} className="flex items-center gap-3 p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                     <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                      <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" / loading="lazy">
+                      <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" loading="lazy" />
                     </div>
                     <span className="text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors">{light.title}</span>
                   </Link>

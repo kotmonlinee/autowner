@@ -99,7 +99,7 @@ export default async function DiagnosisPage({
                     className="flex flex-col bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group overflow-hidden">
                     {img && (
                       <div className="w-full h-36 bg-surface-2 overflow-hidden">
-                        <img src={img} alt={diag.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" / loading="lazy">
+                        <img src={img} alt={diag.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                       </div>
                     )}
                     <div className="flex flex-col gap-2 p-4 flex-1">
