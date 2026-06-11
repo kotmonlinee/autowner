@@ -50,17 +50,28 @@ Phase 5: Ongoing refinements
 - [x] Vehicle hub page enrichment + CTA redesign
 - [x] /vehicles browse page (73 vehicles)
 - [x] Homepage Popular Diagnoses (rejected — keep static)
+- [x] Image lazy loading + touch target optimization
 - [ ] DIY module (content data needed first)
 - [ ] Repair Decision module (data needed)
 - [ ] Quick Cost Summary above-the-fold (rejected — no CTR benefit)
 - [ ] repair-cost route conflict ([slug] vs [make]/[model]/[repair])
 - [ ] Newsletter/mail system redesign
 
+### Phase 6: Diagnosis-Driven Site Architecture → planned
+Goal: Center the site around AI diagnosis as the growth engine.
+Key insight: Symptom search has 10x+ the market ceiling of OBD codes.
+
+Strategy:
+1. Homepage Hero → emphasize AI diagnosis entry point
+2. Every detail page → "What's Next" context-driven decision cards at bottom
+3. OBD/Warning/Repair pages → guide users toward diagnosis confirmation
+4. Diagnosis result page → already redesigned, keep as conversion hub
+5. "Explore More" unified footer across all detail pages
+
 ## Upcoming Work (user-confirmed priorities)
-1. **DIY module** — High SEO potential ("how to replace X", "DIY X cost"). Blocked on content data. User evaluating AI-generated vs manual approach.
-2. **Repair Decision** — Urgency, risk, can-I-drive per repair. Blocked on data.
-3. **Quick Cost Summary** — Above-fold hero card. Data exists (tier cost), needs design.
-4. **Route conflict fix** — repair-cost [slug] vs [make] param naming conflict.
+1. **Phase 6** — Diagnosis-driven architecture redesign
+2. **DIY module** — High SEO potential. Blocked on content data.
+3. **Repair Decision** — Urgency, risk per repair. Blocked on data.
 
 ## Decisions Made
 | Decision | Rationale |
