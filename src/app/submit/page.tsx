@@ -291,7 +291,7 @@ function SubmitForm() {
                 <button
                   type="button"
                   onClick={() => setPreviewMode("write")}
-                  className={`px-3 py-1 text-xs font-semibold font-heading transition-colors ${
+                  className={`px-3 py-2 text-xs font-semibold font-heading transition-colors ${
                     previewMode === "write"
                       ? "bg-primary text-white"
                       : "text-text-muted hover:text-text-secondary"
@@ -302,7 +302,7 @@ function SubmitForm() {
                 <button
                   type="button"
                   onClick={() => setPreviewMode("preview")}
-                  className={`px-3 py-1 text-xs font-semibold font-heading transition-colors ${
+                  className={`px-3 py-2 text-xs font-semibold font-heading transition-colors ${
                     previewMode === "preview"
                       ? "bg-primary text-white"
                       : "text-text-muted hover:text-text-secondary"
@@ -454,12 +454,12 @@ function SubmitForm() {
                       type="text"
                       value={url}
                       readOnly
-                      className="flex-1 px-3 py-1.5 bg-surface-2 text-text-secondary text-xs rounded-lg border border-surface-border font-mono truncate"
+                      className="flex-1 px-3 py-2 bg-surface-2 text-text-secondary text-xs rounded-lg border border-surface-border font-mono truncate"
                     />
                     <button
                       type="button"
                       onClick={() => copyUrl(url, idx)}
-                      className="shrink-0 px-2.5 py-1 text-xs font-semibold rounded-lg transition-all font-heading border border-surface-border text-text-secondary hover:text-text-primary hover:border-surface-4"
+                      className="shrink-0 px-2.5 py-2 text-xs font-semibold rounded-lg transition-all font-heading border border-surface-border text-text-secondary hover:text-text-primary hover:border-surface-4"
                     >
                       {copiedIdx === idx ? "Copied!" : "Copy"}
                     </button>

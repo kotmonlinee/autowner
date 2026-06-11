@@ -99,7 +99,7 @@ export default async function DiagnosisPage({
                     className="flex flex-col bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group overflow-hidden">
                     {img && (
                       <div className="w-full h-36 bg-surface-2 overflow-hidden">
-                        <img src={img} alt={diag.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <img src={img} alt={diag.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" / loading="lazy">
                       </div>
                     )}
                     <div className="flex flex-col gap-2 p-4 flex-1">
@@ -123,7 +123,7 @@ export default async function DiagnosisPage({
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-8">
                 {page > 1 && (
-                  <Link href={`/symptom-checker?page=${page - 1}`} className="flex items-center gap-1 px-3 py-1.5 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors">
+                  <Link href={`/symptom-checker?page=${page - 1}`} className="flex items-center gap-1 px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors">
                     <ChevronLeft className="w-4 h-4" />Previous
                   </Link>
                 )}
@@ -132,13 +132,13 @@ export default async function DiagnosisPage({
                   if (p > totalPages) return null;
                   return (
                     <Link key={p} href={`/symptom-checker?page=${p}`}
-                      className={`px-3 py-1.5 text-sm font-heading font-medium rounded-lg transition-colors ${p === page ? "bg-primary text-white" : "text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border hover:bg-surface-2"}`}>
+                      className={`px-3 py-2 text-sm font-heading font-medium rounded-lg transition-colors ${p === page ? "bg-primary text-white" : "text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border hover:bg-surface-2"}`}>
                       {p}
                     </Link>
                   );
                 })}
                 {page < totalPages && (
-                  <Link href={`/symptom-checker?page=${page + 1}`} className="flex items-center gap-1 px-3 py-1.5 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors">
+                  <Link href={`/symptom-checker?page=${page + 1}`} className="flex items-center gap-1 px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors">
                     Next<ChevronRight className="w-4 h-4" />
                   </Link>
                 )}

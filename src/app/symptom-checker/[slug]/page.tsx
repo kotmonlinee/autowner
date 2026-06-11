@@ -101,7 +101,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           <div className="flex items-center gap-3 mb-4">
             {vehicleImage && (
               <div className="w-14 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2 border border-surface-border">
-                <img src={vehicleImage} alt={vehicle} className="w-full h-full object-cover" />
+                <img src={vehicleImage} alt={vehicle} className="w-full h-full object-cover" / loading="lazy">
               </div>
             )}
             <span className="text-xs text-text-muted font-heading">{vehicle}</span>
@@ -122,7 +122,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               <p className="text-sm text-text-secondary leading-relaxed">{d.summary}</p>
             </div>
           </div>
-          <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold border-2 ${sev.border} ${sev.text} font-heading`}>
+          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border-2 ${sev.border} ${sev.text} font-heading`}>
             <span className={`w-2 h-2 rounded-full ${sev.text} bg-current`} />
             {sev.label}
           </span>
@@ -143,7 +143,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                 const lc = LIKELIHOOD_CONFIG[c.likelihood] ?? LIKELIHOOD_CONFIG["possible"];
                 return (
                   <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${lc.bg} ${lc.border} border-l-4 ${lc.bar}`}>
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border shrink-0 mt-0.5 ${lc.bg} ${lc.text} ${lc.border} font-heading`}>{lc.label}</span>
+                    <span className={`inline-flex items-center px-2.5 py-2 rounded-full text-[11px] font-bold border shrink-0 mt-0.5 ${lc.bg} ${lc.text} ${lc.border} font-heading`}>{lc.label}</span>
                     <p className="text-sm text-text-secondary leading-relaxed">{c.description}</p>
                   </div>
                 );
@@ -222,7 +222,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                     return (
                       <Link key={item} href={`/repair-cost/${repairSlug}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                         <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                          {img && <img src={img} alt={item} className="w-full h-full object-cover" />}
+                          {img && <img src={img} alt={item} className="w-full h-full object-cover" / loading="lazy">}
                         </div>
                         <span className="text-sm font-medium text-text-primary font-heading truncate">{item}</span>
                         <ChevronRight className="w-3.5 h-3.5 text-text-muted shrink-0 ml-auto" />

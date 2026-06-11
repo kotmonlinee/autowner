@@ -171,7 +171,7 @@ export default async function HomePage() {
               <h3 className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Top OBD-II Codes</h3>
               <div className="flex flex-wrap gap-2">
                 {TOP_OBD_CODES.map((c) => (
-                  <Link key={c.code} href={`/obd/${c.code.toLowerCase()}`} className="px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-xs font-mono font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c.code}</Link>
+                  <Link key={c.code} href={`/obd/${c.code.toLowerCase()}`} className="px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-xs font-mono font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c.code}</Link>
                 ))}
               </div>
             </div>
@@ -179,7 +179,7 @@ export default async function HomePage() {
               <h3 className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Top Repair Costs</h3>
               <div className="flex flex-wrap gap-2">
                 {TOP_REPAIRS.map((r) => (
-                  <Link key={r.slug} href={`/repair-cost/${r.slug}`} className="px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-xs font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors font-heading">{r.name}</Link>
+                  <Link key={r.slug} href={`/repair-cost/${r.slug}`} className="px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-xs font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors font-heading">{r.name}</Link>
                 ))}
               </div>
             </div>
@@ -207,7 +207,7 @@ export default async function HomePage() {
                 <Link
                   key={slug}
                   href={`/vehicles/${make}/${model}`}
-                  className="px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/20 hover:bg-primary/5 transition-colors font-heading"
+                  className="px-3 py-2 rounded-lg bg-surface-1 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/20 hover:bg-primary/5 transition-colors font-heading"
                 >
                   {make.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} {model.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
                 </Link>

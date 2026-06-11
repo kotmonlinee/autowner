@@ -33,14 +33,14 @@ export default function DeleteDraftButton({ draftId }: { draftId: string }) {
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="px-2.5 py-1 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition-colors font-heading disabled:opacity-50"
+          className="px-2.5 py-2 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition-colors font-heading disabled:opacity-50"
         >
           {deleting ? "Deleting..." : "Yes"}
         </button>
         <button
           onClick={() => setShowConfirm(false)}
           disabled={deleting}
-          className="px-2.5 py-1 bg-surface-3 text-text-secondary text-xs font-bold rounded-lg hover:bg-surface-4 transition-colors font-heading disabled:opacity-50"
+          className="px-2.5 py-2 bg-surface-3 text-text-secondary text-xs font-bold rounded-lg hover:bg-surface-4 transition-colors font-heading disabled:opacity-50"
         >
           Cancel
         </button>

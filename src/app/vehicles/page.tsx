@@ -106,7 +106,7 @@ export default function VehiclesPage() {
                 className="group bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm hover:-translate-y-0.5 transition-all overflow-hidden"
               >
                 <div className="aspect-[4/3] bg-surface-2 overflow-hidden">
-                  {img && <img src={img} alt={`${v.make} ${v.model}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />}
+                  {img && <img src={img} alt={`${v.make} ${v.model}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" / loading="lazy">}
                 </div>
                 <div className="p-3">
                   <p className="text-xs font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate">{v.make} {v.model}</p>

@@ -225,7 +225,7 @@ export default async function RepairCostLandingPage() {
                 >
                   {img && (
                     <div className="w-full h-32 rounded-lg overflow-hidden mb-3 bg-surface-2">
-                      <img src={img} alt={repair.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <img src={img} alt={repair.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" / loading="lazy">
                     </div>
                   )}
                   <h3 className="text-sm font-semibold text-text-primary font-heading group-hover:text-primary transition-colors mb-2 line-clamp-2">

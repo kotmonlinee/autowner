@@ -117,7 +117,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
             <WarningLightIcon slug={light.slug} size={56} severity={light.severity} />
           </div>
           <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-3">{light.title}</h1>
-          <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold border-2 ${sev.border} ${sev.text} font-heading`}>
+          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border-2 ${sev.border} ${sev.text} font-heading`}>
             <span className={`w-2.5 h-2.5 rounded-full ${sev.text} bg-current animate-pulse`} />
             {sev.label}
           </span>
@@ -186,7 +186,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
               return (
                 <Link key={repair.slug} href={`/repair-cost/${repair.slug}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                   <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                    {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" />}
+                    {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" / loading="lazy">}
                   </div>
                   <span className="text-sm font-medium text-text-primary font-heading truncate">{repair.name}</span>
                 </Link>

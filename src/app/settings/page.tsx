@@ -360,13 +360,13 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3">
                 <Link
                   href="/auth/login"
-                  className="px-4 py-1.5 bg-amber-400 text-black text-xs font-bold rounded-lg hover:bg-amber-300 transition-colors font-heading"
+                  className="px-4 py-2 bg-amber-400 text-black text-xs font-bold rounded-lg hover:bg-amber-300 transition-colors font-heading"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="px-4 py-1.5 text-xs font-semibold text-severity-caution border border-amber-700/20 dark:border-amber-400/20 rounded-lg hover:bg-amber-700/10 dark:hover:bg-amber-400/10 transition-colors font-heading"
+                  className="px-4 py-2 text-xs font-semibold text-severity-caution border border-amber-700/20 dark:border-amber-400/20 rounded-lg hover:bg-amber-700/10 dark:hover:bg-amber-400/10 transition-colors font-heading"
                 >
                   Create Account
                 </Link>
@@ -384,7 +384,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => setAnonSelectorOpen(true)}
-                  className="px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-glow transition-colors font-heading shadow-sm shadow-primary/20"
+                  className="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-glow transition-colors font-heading shadow-sm shadow-primary/20"
                 >
                   Change
                 </button>
@@ -436,7 +436,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={handleRemoveAnonVehicle}
-                  className="px-2 py-1 text-xs font-semibold rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/5 transition-colors font-heading shrink-0"
+                  className="px-2 py-2 text-xs font-semibold rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/5 transition-colors font-heading shrink-0"
                 >
                   Remove
                 </button>
@@ -773,7 +773,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={() => setShowVehicleSelector(!showVehicleSelector)}
-              className="px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-glow transition-colors font-heading shadow-sm shadow-primary/20"
+              className="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-glow transition-colors font-heading shadow-sm shadow-primary/20"
             >
               {showVehicleSelector ? "Cancel" : "Add Vehicle"}
             </button>
@@ -884,7 +884,7 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={() => handleSetPrimary(v.id)}
-                        className="px-2 py-1 text-xs font-semibold rounded-md text-text-muted hover:text-primary hover:bg-primary/5 transition-colors font-heading"
+                        className="px-2 py-2 text-xs font-semibold rounded-md text-text-muted hover:text-primary hover:bg-primary/5 transition-colors font-heading"
                         title="Set as primary vehicle"
                       >
                         Primary
@@ -893,7 +893,7 @@ export default function SettingsPage() {
                     <button
                       type="button"
                       onClick={() => handleRemoveVehicle(v.id)}
-                      className="px-2 py-1 text-xs font-semibold rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/5 transition-colors font-heading"
+                      className="px-2 py-2 text-xs font-semibold rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/5 transition-colors font-heading"
                       title="Remove vehicle"
                     >
                       Remove

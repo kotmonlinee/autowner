@@ -99,7 +99,7 @@ export default async function ObdVehiclePage({
         <div className="flex flex-col md:flex-row gap-6 mb-6">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-3">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border font-heading ${sev.color}`}>{sev.label} — S{obd.severity}</span>
+              <span className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-bold border font-heading ${sev.color}`}>{sev.label} — S{obd.severity}</span>
               <span className="text-sm text-text-muted font-heading">{makeName} {modelName} · {tier} tier</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-2">{obd.code} on {makeName} {modelName}</h1>
@@ -180,7 +180,7 @@ export default async function ObdVehiclePage({
             <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related OBD-II Codes</h2>
             <div className="flex flex-wrap gap-2">
               {relatedCodes.map((c) => (
-                <Link key={c.code} href={`/obd/${c.code.toLowerCase()}/${makeSlug}/${modelSlug}`} className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-xs font-mono font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">
+                <Link key={c.code} href={`/obd/${c.code.toLowerCase()}/${makeSlug}/${modelSlug}`} className="inline-flex items-center px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-xs font-mono font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">
                   {c.code}
                 </Link>
               ))}

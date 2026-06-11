@@ -167,7 +167,7 @@ export default async function ObdLandingPage({
             <div className="flex flex-wrap gap-2 mb-4">
               {PREFIXES.map((p) => (
                 <Link key={p.key || "all"} href={p.key ? `/obd?prefix=${p.key}` : "/obd"}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-heading font-semibold transition-colors ${
+                  className={`px-3 py-2 rounded-lg text-xs font-heading font-semibold transition-colors ${
                     prefix === p.key || (!prefix && !p.key)
                       ? "bg-primary text-white"
                       : "bg-surface-1 text-text-secondary border border-surface-border hover:border-primary/30 hover:text-text-primary"

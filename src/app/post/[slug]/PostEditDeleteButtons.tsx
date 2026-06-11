@@ -33,14 +33,14 @@ export default function PostEditDeleteButtons({ postId, postSlug }: { postId: st
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded hover:bg-red-600 transition-colors font-heading disabled:opacity-50"
+          className="px-2 py-2 bg-red-500 text-white text-xs font-bold rounded hover:bg-red-600 transition-colors font-heading disabled:opacity-50"
         >
           {deleting ? "..." : "Yes"}
         </button>
         <button
           onClick={() => { setShowDeleteConfirm(false); setError(""); }}
           disabled={deleting}
-          className="px-2 py-1 bg-surface-3 text-text-secondary text-xs font-bold rounded hover:bg-surface-4 transition-colors font-heading"
+          className="px-2 py-2 bg-surface-3 text-text-secondary text-xs font-bold rounded hover:bg-surface-4 transition-colors font-heading"
         >
           No
         </button>

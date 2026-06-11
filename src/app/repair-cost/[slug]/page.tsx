@@ -248,7 +248,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             if (!img) return null;
             return (
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 bg-surface-2 border border-surface-border">
-                <img src={img} alt={repair.name} className="w-full h-full object-cover" />
+                <img src={img} alt={repair.name} className="w-full h-full object-cover" / loading="lazy">
               </div>
             );
           })()}
@@ -454,7 +454,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
                   <Link key={light.slug} href={`/warning-lights/${light.slug}`}
                     className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                     <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                      <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" />
+                      <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" / loading="lazy">
                     </div>
                     <span className="text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors">{light.title}</span>
                   </Link>

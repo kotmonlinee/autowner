@@ -118,7 +118,7 @@ export default function WarningLightsPage() {
             {Object.entries(SEVERITY_CONFIG).map(([key, config]) => (
               <div
                 key={key}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-1 border border-surface-border"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-surface-1 border border-surface-border"
               >
                 <span className={`w-2.5 h-2.5 rounded-full ${URGENCY_DOT[key as WarningLightSeverity]}`} />
                 <span className="text-xs font-medium text-text-secondary font-heading">

@@ -162,7 +162,7 @@ export default function DiagnosisWizard() {
               {[s1, s2, s3].map((item, i) => (
                 <span key={i} className="flex items-center gap-1">
                   {i > 0 && <ChevronRight className="w-3 h-3 text-text-muted" />}
-                  <span className={`px-3 py-1.5 rounded-lg text-sm font-heading font-semibold ${i === 0 ? "bg-primary/10 text-primary" : i === 1 ? "bg-primary/5 text-primary" : "bg-surface-0 border border-surface-border text-text-primary"}`}>{item!.label}</span>
+                  <span className={`px-3 py-2 rounded-lg text-sm font-heading font-semibold ${i === 0 ? "bg-primary/10 text-primary" : i === 1 ? "bg-primary/5 text-primary" : "bg-surface-0 border border-surface-border text-text-primary"}`}>{item!.label}</span>
                 </span>
               ))}
             </div>
@@ -262,7 +262,7 @@ export default function DiagnosisWizard() {
               <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
                 <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Related OBD-II Codes</h3>
                 <div className="flex flex-wrap gap-2">
-                  {result.possibleCodes.map(c => <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>)}
+                  {result.possibleCodes.map(c => <Link key={c} href={`/obd/${c.toLowerCase()}`} className="inline-flex items-center px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">{c}</Link>)}
                 </div>
               </div>
             )}

@@ -122,12 +122,12 @@ export default function TagActions({
                 setEditName(tag.name);
               }
             }}
-            className="w-28 px-2 py-1 bg-surface-0 border border-surface-border rounded text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-colors"
+            className="w-28 px-2 py-2 bg-surface-0 border border-surface-border rounded text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-colors"
           />
           <button
             onClick={handleRename}
             disabled={loading || !editName.trim() || editName.trim() === tag.name}
-            className="px-2 py-1 bg-primary text-white rounded text-xs font-bold hover:bg-primary-glow transition-colors font-heading disabled:opacity-50"
+            className="px-2 py-2 bg-primary text-white rounded text-xs font-bold hover:bg-primary-glow transition-colors font-heading disabled:opacity-50"
           >
             Save
           </button>
@@ -137,7 +137,7 @@ export default function TagActions({
               setEditName(tag.name);
             }}
             disabled={loading}
-            className="px-2 py-1 bg-surface-3 text-text-muted rounded text-xs font-bold hover:bg-surface-4 transition-colors font-heading"
+            className="px-2 py-2 bg-surface-3 text-text-muted rounded text-xs font-bold hover:bg-surface-4 transition-colors font-heading"
           >
             Cancel
           </button>
@@ -147,7 +147,7 @@ export default function TagActions({
           <button
             onClick={() => setEditing(true)}
             disabled={loading}
-            className="px-3 py-1.5 bg-surface-3 text-text-secondary rounded-lg text-xs font-bold hover:bg-surface-4 hover:text-text-primary transition-colors font-heading border border-surface-border disabled:opacity-50"
+            className="px-3 py-2 bg-surface-3 text-text-secondary rounded-lg text-xs font-bold hover:bg-surface-4 hover:text-text-primary transition-colors font-heading border border-surface-border disabled:opacity-50"
           >
             Rename
           </button>
@@ -157,7 +157,7 @@ export default function TagActions({
               <select
                 value={mergeTarget}
                 onChange={(e) => setMergeTarget(e.target.value)}
-                className="w-32 px-2 py-1 bg-surface-0 border border-surface-border rounded text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-colors"
+                className="w-32 px-2 py-2 bg-surface-0 border border-surface-border rounded text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-colors"
               >
                 <option value="">Select tag...</option>
                 {otherTags.map((t) => (
@@ -169,7 +169,7 @@ export default function TagActions({
               <button
                 onClick={handleMerge}
                 disabled={!mergeTarget || loading}
-                className="px-2 py-1 bg-amber-400/80 text-white rounded text-xs font-bold hover:bg-amber-400 transition-colors font-heading disabled:opacity-50"
+                className="px-2 py-2 bg-amber-400/80 text-white rounded text-xs font-bold hover:bg-amber-400 transition-colors font-heading disabled:opacity-50"
               >
                 Merge
               </button>
@@ -179,7 +179,7 @@ export default function TagActions({
                   setMergeTarget("");
                 }}
                 disabled={loading}
-                className="px-2 py-1 bg-surface-3 text-text-muted rounded text-xs font-bold hover:bg-surface-4 transition-colors font-heading"
+                className="px-2 py-2 bg-surface-3 text-text-muted rounded text-xs font-bold hover:bg-surface-4 transition-colors font-heading"
               >
                 Cancel
               </button>
@@ -188,7 +188,7 @@ export default function TagActions({
             <button
               onClick={() => setMergeOpen(true)}
               disabled={loading}
-              className="px-3 py-1.5 bg-amber-700/10 dark:bg-amber-400/10 text-severity-caution rounded-lg text-xs font-bold hover:bg-amber-700/20 dark:hover:bg-amber-400/20 transition-colors font-heading border border-amber-700/20 dark:border-amber-400/20 disabled:opacity-50"
+              className="px-3 py-2 bg-amber-700/10 dark:bg-amber-400/10 text-severity-caution rounded-lg text-xs font-bold hover:bg-amber-700/20 dark:hover:bg-amber-400/20 transition-colors font-heading border border-amber-700/20 dark:border-amber-400/20 disabled:opacity-50"
             >
               Merge
             </button>
@@ -197,7 +197,7 @@ export default function TagActions({
           <button
             onClick={handleDelete}
             disabled={loading}
-            className="px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg text-xs font-bold hover:bg-red-500/20 transition-colors font-heading border border-red-500/20 disabled:opacity-50"
+            className="px-3 py-2 bg-red-500/10 text-red-400 rounded-lg text-xs font-bold hover:bg-red-500/20 transition-colors font-heading border border-red-500/20 disabled:opacity-50"
           >
             Delete
           </button>

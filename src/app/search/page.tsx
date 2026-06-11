@@ -124,7 +124,7 @@ export default async function SearchPage({
                 const img = getRepairImageUrl(r.slug);
                 return (
                   <Link key={r.slug} href={`/repair-cost/${r.slug}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">{img && <img src={img} alt={r.name} className="w-full h-full object-cover" />}</div>
+                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">{img && <img src={img} alt={r.name} className="w-full h-full object-cover" / loading="lazy">}</div>
                     <span className="text-sm font-medium text-text-primary font-heading truncate flex-1">{r.name}</span>
                     <span className="text-xs font-bold text-text-muted shrink-0">${r.min}–${r.max}</span>
                   </Link>
@@ -153,7 +153,7 @@ export default async function SearchPage({
             <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Warning Lights</h2>
             <div className="flex flex-wrap gap-2">
               {warningLights.map((w) => (
-                <Link key={w.slug} href={`/warning-lights/${w.slug}`} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/30 transition-all font-heading font-medium">{w.title}</Link>
+                <Link key={w.slug} href={`/warning-lights/${w.slug}`} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/30 transition-all font-heading font-medium">{w.title}</Link>
               ))}
             </div>
           </section>

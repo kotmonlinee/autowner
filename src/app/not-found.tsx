@@ -63,7 +63,7 @@ export default function NotFound() {
 
         <div className="flex flex-wrap justify-center gap-2 mb-10">
           {popularLinks.map((l) => (
-            <Link key={l.href} href={l.href} className="px-3 py-1.5 rounded-lg bg-surface-1 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/20 transition-colors font-heading">
+            <Link key={l.href} href={l.href} className="px-3 py-2 rounded-lg bg-surface-1 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/20 transition-colors font-heading">
               {l.name}
             </Link>
           ))}

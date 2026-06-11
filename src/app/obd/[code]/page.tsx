@@ -398,7 +398,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
               {obd.code}
             </h1>
             <span
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold font-heading border"
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-bold font-heading border"
               style={{
                 background: sev.bg,
                 color: sev.text,
@@ -602,7 +602,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                   <Link key={repair.slug} href={`/repair-cost/${repair.slug}`}
                     className="flex items-center gap-3 p-2 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                     <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                      {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" />}
+                      {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />}
                     </div>
                     <span className="text-sm font-medium text-text-primary font-heading truncate">{repair.name}</span>
                   </Link>
@@ -624,7 +624,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             <div className="flex flex-wrap gap-2">
               {relatedCodes.map((rel) => (
                 <Link key={rel.code} href={`/obd/${rel.code.toLowerCase()}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors">
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors">
                   {rel.code}
                   <span className="text-xs text-text-muted font-normal font-heading">&mdash; {rel.title.length > 50 ? rel.title.substring(0, 47) + "..." : rel.title}</span>
                 </Link>

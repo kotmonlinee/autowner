@@ -140,7 +140,7 @@ export default async function CommunityPage({
                   {page > 1 && (
                     <Link
                       href={`/community?${query ? `q=${encodeURIComponent(query)}&` : ""}page=${page - 1}`}
-                      className="px-3 py-1.5 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors"
+                      className="px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors"
                     >
                       Previous
                     </Link>
@@ -149,7 +149,7 @@ export default async function CommunityPage({
                     <Link
                       key={p}
                       href={`/community?${query ? `q=${encodeURIComponent(query)}&` : ""}page=${p}`}
-                      className={`px-3 py-1.5 text-sm font-heading font-medium rounded-lg transition-colors ${
+                      className={`px-3 py-2 text-sm font-heading font-medium rounded-lg transition-colors ${
                         p === page
                           ? "bg-primary text-white"
                           : "text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border hover:bg-surface-2"
@@ -161,7 +161,7 @@ export default async function CommunityPage({
                   {page < totalPages && (
                     <Link
                       href={`/community?${query ? `q=${encodeURIComponent(query)}&` : ""}page=${page + 1}`}
-                      className="px-3 py-1.5 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors"
+                      className="px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors"
                     >
                       Next
                     </Link>

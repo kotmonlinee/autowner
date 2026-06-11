@@ -211,7 +211,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
                 Source
               </label>
               <div className="pt-2">
-                <span className={`px-2 py-1 rounded text-xs font-bold uppercase font-heading ${
+                <span className={`px-2 py-2 rounded text-xs font-bold uppercase font-heading ${
                   post.source === "scraped"
                     ? "bg-amber-700/10 dark:bg-amber-400/10 text-severity-caution border border-amber-700/20 dark:border-amber-400/20"
                     : "bg-primary/10 text-primary border border-primary/20"

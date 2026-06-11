@@ -85,7 +85,7 @@ export default async function UserProfilePage({
                 {isOwnProfile && (
                   <Link
                     href="/settings"
-                    className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-text-muted hover:text-primary bg-surface-3 hover:bg-surface-4 rounded-lg border border-surface-border transition-colors"
+                    className="inline-flex items-center gap-1 px-3 py-2 text-xs font-medium text-text-muted hover:text-primary bg-surface-3 hover:bg-surface-4 rounded-lg border border-surface-border transition-colors"
                   >
                     <svg
                       className="w-3.5 h-3.5"

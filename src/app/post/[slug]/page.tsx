@@ -299,13 +299,13 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 <>
                   <div className="flex items-center gap-2 mb-3">
                     {post.categories && (
-                      <Link href={`/?category=${post.categories.slug}`} className="inline-flex items-center gap-1 px-2.5 py-1 bg-surface-3 text-text-secondary rounded-full text-xs font-bold uppercase tracking-wider hover:bg-surface-4 hover:text-primary transition-colors font-heading">
+                      <Link href={`/?category=${post.categories.slug}`} className="inline-flex items-center gap-1 px-2.5 py-2 bg-surface-3 text-text-secondary rounded-full text-xs font-bold uppercase tracking-wider hover:bg-surface-4 hover:text-primary transition-colors font-heading">
                         <span className="w-1 h-1 rounded-full bg-primary" />
                         {post.categories.name}
                       </Link>
                     )}
                     {post.source === "scraped" && (
-                      <span className="px-2 py-1 bg-amber-700/10 dark:bg-amber-400/10 text-severity-caution rounded text-xs font-bold font-heading tracking-wide border border-amber-700/20 dark:border-amber-400/20">AUTO</span>
+                      <span className="px-2 py-2 bg-amber-700/10 dark:bg-amber-400/10 text-severity-caution rounded text-xs font-bold font-heading tracking-wide border border-amber-700/20 dark:border-amber-400/20">AUTO</span>
                     )}
                   </div>
 
@@ -332,7 +332,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                   {post.post_tags && post.post_tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-6 pt-4 border-t border-surface-border">
                       {post.post_tags.map(pt => (
-                        <Link key={pt.car_tags.slug} href={`/?tag=${pt.car_tags.slug}`} className="px-2.5 py-1 bg-surface-3 text-text-muted rounded-lg text-xs font-medium hover:bg-surface-4 hover:text-text-secondary transition-colors">{pt.car_tags.name}</Link>
+                        <Link key={pt.car_tags.slug} href={`/?tag=${pt.car_tags.slug}`} className="px-2.5 py-2 bg-surface-3 text-text-muted rounded-lg text-xs font-medium hover:bg-surface-4 hover:text-text-secondary transition-colors">{pt.car_tags.name}</Link>
                       ))}
                     </div>
                   )}
