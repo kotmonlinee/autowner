@@ -83,14 +83,15 @@ export default function RepairSearchFilter({
 
       {/* Results */}
       {filtered.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
+        <div className="space-y-1.5 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-2 sm:space-y-0">
           {filtered.map((slug) => (
             <Link
               key={slug}
               href={`/repair-cost/${slug}`}
-              className="px-3 py-1.5 bg-surface-1 border border-surface-border rounded-lg text-sm text-text-secondary hover:border-primary/20 hover:text-primary hover:shadow-sm transition-all duration-150 font-medium"
+              className="group flex items-center justify-between px-4 py-2.5 bg-surface-1 border border-surface-border rounded-lg text-sm text-text-secondary hover:border-primary/20 hover:text-primary hover:shadow-sm transition-all duration-150 font-medium min-h-[44px]"
             >
-              {formatSlug(slug)}
+              <span className="truncate">{formatSlug(slug)}</span>
+              <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           ))}
         </div>

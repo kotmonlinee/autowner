@@ -191,7 +191,7 @@ export default async function VehicleHubPage({
               {repairs.map((r) => (
                 <Link
                   key={r.slug}
-                  href={`/repair-cost/${makeSlug}/${modelSlug}/${r.slug}`}
+                  href={`/repair-cost/${r.slug}-${makeSlug}-${modelSlug}`}
                   className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group"
                 >
                   <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors">{r.name}</span>

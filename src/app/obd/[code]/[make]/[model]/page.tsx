@@ -142,7 +142,7 @@ export default async function ObdVehiclePage({
             <p className="text-sm text-text-secondary mb-4">These repairs are commonly needed to resolve the {obd.code} code on a {makeName} {modelName}:</p>
             <div className="space-y-2">
               {repairCosts.map((r) => (
-                <Link key={r.slug} href={`/repair-cost/${makeSlug}/${modelSlug}/${r.slug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
+                <Link key={r.slug} href={`/repair-cost/${r.slug}-${makeSlug}-${modelSlug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
                   <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors">{r.name}</span>
                   <span className="text-sm font-bold text-primary font-heading">{formatMoney(r.min)}–{formatMoney(r.max)}</span>
                 </Link>

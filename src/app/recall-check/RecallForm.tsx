@@ -70,6 +70,20 @@ export default function RecallForm() {
     }
   };
 
+  // Sync URL params to state and auto-search when all three are present
+  useEffect(() => {
+    setMake(initialMake);
+    setModel(initialModel);
+    setYear(initialYear);
+  }, [initialMake, initialModel, initialYear]);
+
+  useEffect(() => {
+    if (initialMake && initialModel && initialYear) {
+      doSearch(initialMake, initialModel, initialYear);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialMake, initialModel, initialYear]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!make || !model || !year) return;

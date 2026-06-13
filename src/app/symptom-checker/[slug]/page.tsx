@@ -91,10 +91,12 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
       <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
-        <nav className="mb-4 text-sm text-text-muted font-heading">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>{" "}/{" "}
-          <Link href="/symptom-checker" className="hover:text-primary transition-colors">AI Diagnosis</Link>{" "}/{" "}
-          <span className="text-text-secondary">Result</span>
+        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <Link href="/symptom-checker" className="hover:text-primary transition-colors">AI Diagnosis</Link>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <span className="text-text-secondary truncate">{d.title}</span>
         </nav>
 
         {vehicle && (

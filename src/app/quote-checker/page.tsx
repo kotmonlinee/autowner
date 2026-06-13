@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { fetchVehicleMakes, fetchVehicleModels, fetchVehicleGenerations } from "@/lib/data/browser";
@@ -171,6 +172,7 @@ function QuoteCheckerContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [formHighlight, setFormHighlight] = useState(false);
 
   const repairInputRef = useRef<HTMLInputElement>(null);
   const repairDropdownRef = useRef<HTMLDivElement>(null);
@@ -186,7 +188,7 @@ function QuoteCheckerContent() {
         if (match) setSelectedMakeSlug(match.slug);
       }
     });
-  }, []);
+  }, [initialMake]);
 
   // Cascade: when make changes, load models from our DB
   useEffect(() => {
@@ -205,6 +207,16 @@ function QuoteCheckerContent() {
     });
   }, [selectedMakeSlug]);
 
+
+  // Sync URL params to state when navigating with share links
+  useEffect(() => {
+    setMake(initialMake);
+    setModel(initialModel);
+    setYear(initialYear);
+    setRepairType(initialRepair);
+    setQuoteAmount(initialQuote);
+    setState(initialState);
+  }, [initialMake, initialModel, initialYear, initialRepair, initialQuote, initialState]);
 
   // Cascade: when model changes, load generations for year range
   useEffect(() => {
@@ -466,108 +478,62 @@ function QuoteCheckerContent() {
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="max-w-4xl mx-auto px-5 py-10 w-full flex-1">
-        {/* Page header */}
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
+        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <span className="text-text-secondary">Quote Checker</span>
+        </nav>
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-5 h-5"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-              </svg>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary font-heading">
-              Quote Checker
-            </h1>
-          </div>
-          <p className="text-text-muted text-base leading-relaxed">
+          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary font-heading mb-3">
+            Quote Checker
+          </h1>
+          <p className="text-text-muted text-sm sm:text-base leading-relaxed">
             Enter a mechanic&apos;s quote and compare it against typical repair costs
             for your vehicle. No login required.
           </p>
         </div>
 
         {/* How It Works */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
           {[
-            { step: "1", title: "Enter vehicle", desc: "Select your make, model, and year." },
-            { step: "2", title: "Add repair & price", desc: "Choose the repair type and the quote amount." },
-            { step: "3", title: "Get assessment", desc: "See if your quote is fair, high, or a ripoff." },
+            { step: "1", title: "Enter vehicle", desc: "Select your make, model, and year.", target: "field-make" },
+            { step: "2", title: "Add repair & price", desc: "Choose the repair type and the quote amount.", target: "field-repair" },
+            { step: "3", title: "Get assessment", desc: "See if your quote is fair, high, or a ripoff.", target: "field-quote" },
           ].map((s) => (
-            <div key={s.step} className="flex gap-3 p-4 bg-surface-1 rounded-xl border border-surface-border">
+            <button key={s.step} type="button"
+              onClick={() => {
+                const el = document.getElementById(s.target);
+                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                el?.focus();
+              }}
+              className="flex gap-3 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer text-left w-full">
               <span className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-bold font-heading shrink-0">{s.step}</span>
               <div>
                 <h3 className="text-sm font-heading font-semibold text-text-primary">{s.title}</h3>
                 <p className="text-xs text-text-muted mt-0.5">{s.desc}</p>
               </div>
-            </div>
+            </button>
           ))}
-        </div>
-
-        {/* Most Checked Repairs */}
-        <div className="mb-8 p-5 bg-surface-1 rounded-2xl border border-surface-border">
-          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Most Checked Repairs</h2>
-          <p className="text-xs text-text-muted mb-3">Click to pre-fill the form with vehicle + repair. Just enter your quoted price.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {[
-              { make: "Toyota", makeSlug: "toyota", model: "Camry", modelSlug: "camry", year: "2020", repair: "Brake Pad Replacement", cost: "$200–500" },
-              { make: "Honda", makeSlug: "honda", model: "Civic", modelSlug: "civic", year: "2019", repair: "Alternator Replacement", cost: "$400–800" },
-              { make: "Ford", makeSlug: "ford", model: "F-150", modelSlug: "f-150", year: "2020", repair: "Water Pump Replacement", cost: "$350–700" },
-              { make: "Toyota", makeSlug: "toyota", model: "RAV4", modelSlug: "rav4", year: "2021", repair: "Starter Replacement", cost: "$300–600" },
-              { make: "Honda", makeSlug: "honda", model: "Accord", modelSlug: "accord", year: "2019", repair: "Spark Plug Replacement", cost: "$150–350" },
-              { make: "Chevrolet", makeSlug: "chevrolet", model: "Silverado 1500", modelSlug: "silverado-1500", year: "2020", repair: "Fuel Pump Replacement", cost: "$400–900" },
-            ].map((r) => (
-              <button key={`${r.make}-${r.model}-${r.repair}`} type="button"
-                onClick={() => {
-                  setSelectedMakeSlug(r.makeSlug);
-                  setMake(r.make);
-                  setSelectedModelSlug(r.modelSlug);
-                  setModel(r.model);
-                  setYear(r.year);
-                  setRepairType(r.repair);
-                  setShowRepairDropdown(false);
-                }}
-                className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer text-left overflow-hidden">
-                <div className="w-16 h-12 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                  <img src={`/vehicles/${r.makeSlug}-${r.modelSlug}.jpg`} alt={`${r.make} ${r.model}`} className="w-full h-full object-cover" loading="lazy" />
-                </div>
-                <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    <span className="text-xs font-medium text-text-primary font-heading block truncate">{r.make} {r.model} ({r.year})</span>
-                    <span className="text-[10px] text-text-muted font-heading">{r.repair}</span>
-                  </div>
-                  <span className="text-[10px] font-bold text-text-muted font-heading shrink-0">{r.cost}</span>
-                </div>
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Form */}
         <form
+          id="quote-form"
           onSubmit={handleSubmit}
-          className="bg-surface-1 border border-surface-border rounded-2xl p-6 sm:p-8 space-y-5"
+          className={`bg-surface-1 border rounded-2xl p-6 sm:p-8 space-y-5 transition-shadow duration-700 ${formHighlight ? "border-primary shadow-lg shadow-primary/20" : "border-surface-border"}`}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Make — dropdown from vehicle database */}
             <div>
               <label
-                htmlFor="make"
+                htmlFor="field-make"
                 className="block text-sm font-semibold text-text-primary mb-1.5 font-heading"
               >
                 Vehicle Make <span className="text-red-500">*</span>
               </label>
               <select
-                id="make"
+                id="field-make"
                 value={selectedMakeSlug}
                 onChange={(e) => {
                   const slug = e.target.value;
@@ -661,14 +627,14 @@ function QuoteCheckerContent() {
           {/* Repair type — with suggestions */}
           <div className="relative">
             <label
-              htmlFor="repairType"
+              htmlFor="field-repair"
               className="block text-sm font-semibold text-text-primary mb-1.5 font-heading"
             >
               Repair Type <span className="text-red-500">*</span>
             </label>
             <input
               ref={repairInputRef}
-              id="repairType"
+              id="field-repair"
               type="text"
               value={repairType}
               onChange={(e) => {
@@ -744,7 +710,7 @@ function QuoteCheckerContent() {
                 $
               </span>
               <input
-                id="quoteAmount"
+                id="field-quote"
                 type="number"
                 value={quoteAmount}
                 onChange={(e) => setQuoteAmount(e.target.value)}
@@ -1026,7 +992,7 @@ function QuoteCheckerContent() {
                 </h3>
                 <div className="space-y-2">
                   {result.relatedObdCodes.map((obd) => (
-                    <a
+                    <Link
                       key={obd.code}
                       href={`/obd/${obd.code.toLowerCase()}`}
                       className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-surface-1 transition-colors group"
@@ -1037,19 +1003,8 @@ function QuoteCheckerContent() {
                       <span className="text-sm text-text-secondary flex-1 min-w-0 truncate">
                         {obd.title}
                       </span>
-                      <svg
-                        className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                      </svg>
-                    </a>
+                      <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                    </Link>
                   ))}
                 </div>
                 <p className="text-xs text-text-muted mt-2">
@@ -1064,6 +1019,51 @@ function QuoteCheckerContent() {
             </p>
           </section>
         )}
+
+        {/* Most Checked Repairs */}
+        <div className="mt-8 p-5 sm:p-6 bg-surface-1 rounded-2xl border border-surface-border">
+          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Most Checked Repairs</h2>
+          <p className="text-xs text-text-muted mb-4">Click to pre-fill the form with vehicle + repair. Just enter your quoted price.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {[
+              { make: "Toyota", makeSlug: "toyota", model: "Camry", modelSlug: "camry", year: "2020", repair: "Brake Pad Replacement", cost: "$200–500" },
+              { make: "Honda", makeSlug: "honda", model: "Civic", modelSlug: "civic", year: "2019", repair: "Alternator Replacement", cost: "$400–800" },
+              { make: "Ford", makeSlug: "ford", model: "F-150", modelSlug: "f-150", year: "2020", repair: "Water Pump Replacement", cost: "$350–700" },
+              { make: "Toyota", makeSlug: "toyota", model: "RAV4", modelSlug: "rav4", year: "2021", repair: "Starter Replacement", cost: "$300–600" },
+              { make: "Honda", makeSlug: "honda", model: "Accord", modelSlug: "accord", year: "2019", repair: "Spark Plug Replacement", cost: "$150–350" },
+              { make: "Chevrolet", makeSlug: "chevrolet", model: "Silverado 1500", modelSlug: "silverado-1500", year: "2020", repair: "Fuel Pump Replacement", cost: "$400–900" },
+            ].map((r) => (
+              <button key={`${r.make}-${r.model}-${r.repair}`} type="button"
+                onClick={() => {
+                  setResult(null);
+                  setError("");
+                  setSelectedMakeSlug(r.makeSlug);
+                  setMake(r.make);
+                  setSelectedModelSlug(r.modelSlug);
+                  setModel(r.model);
+                  setYear(r.year);
+                  setRepairType(r.repair);
+                  setShowRepairDropdown(false);
+                  setFormHighlight(true);
+                  setTimeout(() => setFormHighlight(false), 2000);
+                  // Scroll to form
+                  document.getElementById("quote-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="group flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer text-left overflow-hidden">
+                <div className="w-14 h-11 sm:w-16 sm:h-12 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                  <img src={`/vehicles/${r.makeSlug}-${r.modelSlug}.jpg`} alt={`${r.make} ${r.model}`} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+                <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium text-text-primary font-heading block truncate">{r.make} {r.model} ({r.year})</span>
+                    <span className="text-xs text-text-muted font-heading">{r.repair}</span>
+                  </div>
+                  <span className="text-xs font-bold text-text-muted font-heading shrink-0">{r.cost}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Empty state when no results */}
         {!result && !loading && (
@@ -1107,7 +1107,7 @@ function QuoteCheckerContent() {
               { q: "Can I use this for insurance estimates?", a: "Yes, our repair cost data can help you validate insurance repair estimates. However, insurance adjusters use their own labor rate guides and may include additional factors like rental car coverage and diminished value." },
             ].map((faq, i) => (
               <details key={i} className="group bg-surface-1 rounded-xl border border-surface-border">
-                <summary className="flex items-center gap-2 cursor-pointer list-none p-4 font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
+                <summary className="flex items-center gap-2 cursor-pointer list-none px-4 py-3 min-h-[44px] font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
                   <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
                   {faq.q}
                 </summary>
@@ -1129,12 +1129,10 @@ function QuoteCheckerFallback() {
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
-      <main className="max-w-4xl mx-auto px-5 py-10 w-full flex-1">
+      <main className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
         <div className="animate-pulse">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-surface-1" />
-            <div className="h-8 bg-surface-1 rounded w-48" />
-          </div>
+          <div className="h-4 bg-surface-1 rounded w-32 mb-4" />
+          <div className="h-8 bg-surface-1 rounded w-48 mb-3" />
           <div className="h-4 bg-surface-1 rounded w-96 mb-8" />
           <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 sm:p-8 space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

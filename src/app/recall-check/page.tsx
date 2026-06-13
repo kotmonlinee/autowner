@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RecallForm from "./RecallForm";
@@ -25,26 +26,33 @@ export default function RecallCheckPage() {
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
-      <main id="main-content" className="max-w-4xl mx-auto px-5 py-10 w-full flex-1">
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
+        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <span className="text-text-secondary">Recall Check</span>
+        </nav>
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary font-heading">
+          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary font-heading mb-3">
             Safety Recall Check
           </h1>
-          <p className="mt-2 text-text-muted text-base leading-relaxed">
+          <p className="text-text-muted text-sm sm:text-base leading-relaxed">
             Check if your vehicle has open safety recalls. Data sourced directly from the
             NHTSA (National Highway Traffic Safety Administration).
           </p>
         </div>
 
+        <RecallForm />
+
         {/* Most Checked Vehicles */}
-        <div className="mb-8 p-5 bg-surface-1 rounded-2xl border border-surface-border">
+        <div className="mt-8 p-5 sm:p-6 bg-surface-1 rounded-2xl border border-surface-border">
           <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Most Checked Vehicles</h2>
-          <p className="text-xs text-text-muted mb-3">Click to quickly check recalls for these commonly searched vehicles:</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <p className="text-xs text-text-muted mb-4">Click to quickly check recalls for these commonly searched vehicles:</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {[
               { make: "Toyota", makeSlug: "toyota", model: "Camry", modelSlug: "camry", year: "2020" },
               { make: "Honda", makeSlug: "honda", model: "Civic", modelSlug: "civic", year: "2019" },
-              { make: "Ford", makeSlug: "ford", model: "F-150", modelSlug: "f-150", year: "2020" },
+              { make: "Ford", makeSlug: "ford", model: "F-150 XL", modelSlug: "f-150", year: "2020" },
               { make: "Toyota", makeSlug: "toyota", model: "RAV4", modelSlug: "rav4", year: "2020" },
               { make: "Honda", makeSlug: "honda", model: "Accord", modelSlug: "accord", year: "2019" },
               { make: "Chevrolet", makeSlug: "chevrolet", model: "Silverado 1500", modelSlug: "silverado-1500", year: "2020" },
@@ -52,22 +60,21 @@ export default function RecallCheckPage() {
               { make: "Jeep", makeSlug: "jeep", model: "Grand Cherokee", modelSlug: "grand-cherokee", year: "2020" },
               { make: "Ford", makeSlug: "ford", model: "Explorer", modelSlug: "explorer", year: "2020" },
               { make: "Hyundai", makeSlug: "hyundai", model: "Elantra", modelSlug: "elantra", year: "2019" },
-              { make: "BMW", makeSlug: "bmw", model: "3 Series", modelSlug: "3-series", year: "2020" },
+              { make: "BMW", makeSlug: "bmw", model: "3 Series", modelSlug: "3-series", year: "2023" },
               { make: "Subaru", makeSlug: "subaru", model: "Outback", modelSlug: "outback", year: "2020" },
             ].map((v) => (
-              <a key={`${v.make}-${v.model}-${v.year}`}
+              <Link key={`${v.make}-${v.model}-${v.year}`}
                 href={`/recall-check?make=${encodeURIComponent(v.make)}&model=${encodeURIComponent(v.model)}&year=${v.year}`}
-                className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors overflow-hidden">
-                <div className="w-16 h-12 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                className="group flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors overflow-hidden">
+                <div className="w-14 h-11 sm:w-16 sm:h-12 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                   <img src={`/vehicles/${v.makeSlug}-${v.modelSlug}.jpg`} alt={`${v.make} ${v.model}`} className="w-full h-full object-cover" loading="lazy" />
                 </div>
-                <span className="text-xs font-medium text-text-secondary hover:text-primary transition-colors font-heading">{v.make} {v.model} ({v.year})</span>
-              </a>
+                <span className="text-sm font-medium text-text-secondary group-hover:text-primary transition-colors font-heading truncate">{v.make} {v.model} ({v.year})</span>
+                <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              </Link>
             ))}
           </div>
         </div>
-
-        <RecallForm />
 
         {/* FAQ */}
         <section className="mt-12 pt-10 border-t border-surface-border" aria-labelledby="faq-heading">

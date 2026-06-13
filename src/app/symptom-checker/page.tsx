@@ -74,9 +74,16 @@ export default async function DiagnosisPage({
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
-      <main id="main-content" className="max-w-4xl mx-auto px-5 py-10 w-full flex-1">
-        <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-2">AI Car Diagnosis</h1>
-        <p className="text-text-muted text-base mb-8">Tell us what's happening with your car. Our AI analyzes symptoms and provides possible causes, OBD-II codes, and repair estimates.</p>
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
+        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <span className="text-text-secondary">AI Diagnosis</span>
+        </nav>
+        <div className="mb-8">
+          <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-3">AI Car Diagnosis</h1>
+          <p className="text-text-muted text-sm sm:text-base leading-relaxed max-w-2xl">Tell us what's happening with your car. Our AI analyzes symptoms and provides possible causes, OBD-II codes, and repair estimates.</p>
+        </div>
         <DiagnosisWizard />
 
         {popular.length > 0 && (

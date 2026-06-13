@@ -51,7 +51,7 @@ export async function GET() {
   // Vehicle-specific repair cost pages (model × repair cross-reference)
   for (const vm of vehicleModels) {
     for (const slug of repairSlugs) {
-      urls.push(urlEntry(`${baseUrl}/repair-cost/${vm.makeSlug}/${vm.modelSlug}/${slug}`, now, "monthly", 0.65));
+      urls.push(urlEntry(`${baseUrl}/repair-cost/${slug}-${vm.makeSlug}-${vm.modelSlug}`, now, "monthly", 0.65));
     }
   }
 

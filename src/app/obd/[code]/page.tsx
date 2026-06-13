@@ -366,12 +366,13 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
         {/* Code Header Card */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-6 mb-4">
-          <div className="flex items-center gap-3 mb-4">
-            <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-wider">
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <h1 className="text-3xl sm:text-4xl font-mono font-bold text-text-primary tracking-wider">
               {obd.code}
             </h1>
-            <span
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-bold font-heading border"
+            <Link
+              href={`/obd/severity-levels?level=${obd.severity}`}
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-bold font-heading border hover:ring-2 hover:ring-offset-1 hover:ring-offset-surface-0 transition-all"
               style={{
                 background: sev.bg,
                 color: sev.text,
@@ -383,21 +384,15 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 style={{ background: sev.text }}
               />
               {sev.label} Severity (Level {obd.severity})
-            </span>
+            </Link>
           </div>
 
-          <p className="text-xl font-heading font-semibold text-text-primary mb-3">
+          <p className="text-xl sm:text-2xl font-heading font-bold text-text-primary mb-3">
             {obd.title}
           </p>
-          <p className="text-text-muted text-sm leading-relaxed">
+          <p className="text-text-secondary text-sm leading-relaxed">
             {naturalIntro}
           </p>
-          <details className="mt-3 text-xs text-text-muted">
-            <summary className="cursor-pointer font-heading font-semibold text-text-secondary hover:text-primary transition-colors">What does Severity {obd.severity} mean?</summary>
-            <p className="mt-2 pl-1 leading-relaxed">
-              {obd.severity <= 2 ? "Minor issue — unlikely to cause immediate driveability problems. Inspect at your convenience." : obd.severity === 3 ? "Moderate issue — may affect vehicle performance and fuel economy. Diagnose and repair promptly to prevent further damage." : obd.severity === 4 ? "Serious issue — can cause noticeable driveability problems and potential engine damage. Take to a mechanic as soon as possible." : "Critical fault — may cause severe engine damage or complete engine failure. Stop driving immediately and have the vehicle towed to a repair shop."}
-            </p>
-          </details>
         </div>
 
         {/* NEW: Above-the-Fold "Can you still drive?" Answer Block */}
@@ -503,18 +498,14 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
               Estimated Repair Cost
             </h2>
-            <div className="flex items-baseline gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-3">
               <span className="text-2xl font-bold text-text-primary font-heading">
                 ${obd.min_cost} &ndash; ${obd.max_cost}
               </span>
               <span className="text-xs text-text-muted">
-                (typical range; varies by vehicle make and model)
+                Typical range; varies by vehicle make, model, and local labor rates.
               </span>
             </div>
-            <p className="mt-2 text-xs text-text-muted">
-              These are estimated costs based on generic repair data. Actual costs may vary depending
-              on your vehicle, location, and labor rates.
-            </p>
             <Link href="/repair-cost" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
               See all repair cost estimates
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
@@ -525,9 +516,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                   <p className="text-sm font-heading font-semibold text-text-primary">Worried about repair costs?</p>
                   <p className="text-xs text-text-muted">Get transparent estimates and verify your mechanic&apos;s quote before authorizing repairs.</p>
                 </div>
-                <Link href="/quote-checker" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold font-heading rounded-lg hover:bg-primary-glow transition-all shrink-0">
+                <Link href="/quote-checker" className="flex items-center justify-between sm:inline-flex gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold font-heading rounded-lg hover:bg-primary-glow transition-all sm:shrink-0">
                   Check your quote
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               </div>
             </div>
@@ -543,11 +534,12 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 const img = getRepairImageUrl(repair.slug);
                 return (
                   <Link key={repair.slug} href={`/repair-cost/${repair.slug}`}
-                    className="flex items-center gap-3 p-2 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                    className="flex items-center gap-3 p-2 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
                     <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                       {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />}
                     </div>
-                    <span className="text-sm font-medium text-text-primary font-heading truncate">{repair.name}</span>
+                    <span className="text-sm font-medium text-text-primary font-heading truncate flex-1 min-w-0">{repair.name}</span>
+                    <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                   </Link>
                 );
               })}
@@ -564,12 +556,13 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             <p className="text-text-muted text-sm mb-3">
               These codes are in the same range as {obd.code} and often share similar causes and fixes.
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="space-y-1.5">
               {relatedCodes.map((rel) => (
                 <Link key={rel.code} href={`/obd/${rel.code.toLowerCase()}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors">
-                  {rel.code}
-                  <span className="text-xs text-text-muted font-normal font-heading">&mdash; {rel.title.length > 50 ? rel.title.substring(0, 47) + "..." : rel.title}</span>
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
+                  <span className="w-14 sm:w-16 text-sm font-mono font-bold text-primary shrink-0 text-right">{rel.code}</span>
+                  <span className="flex-1 min-w-0 text-xs text-text-secondary font-heading truncate">{rel.title}</span>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -609,7 +602,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             <div className="space-y-4">
               {faqItems.map((item, i) => (
                 <details key={i} className="group" open={i === 0}>
-                  <summary className="flex items-center gap-2 cursor-pointer list-none font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors select-none">
+                  <summary className="flex items-center gap-2 cursor-pointer list-none font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors select-none py-2.5 min-h-[44px]">
                     <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
                     {item.question}
                   </summary>

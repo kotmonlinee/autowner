@@ -3,7 +3,6 @@ import { getPosts, getTrendingVehicles } from "@/lib/data/server";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -50,14 +49,18 @@ export default async function CommunityPage({
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
-      <main id="main-content" className="flex-1 max-w-3xl mx-auto px-5 py-8 w-full">
-        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Community" }]} />
+      <main id="main-content" className="flex-1 max-w-3xl mx-auto px-5 py-6 w-full">
+        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <span className="text-text-secondary">Community</span>
+        </nav>
 
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-text-primary font-heading mb-3">
+        <div className="mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary font-heading mb-3">
             AutOwner Community
           </h1>
-          <p className="text-text-muted text-sm max-w-xl mx-auto leading-relaxed">
+          <p className="text-text-muted text-sm sm:text-base max-w-2xl leading-relaxed">
             Where car enthusiasts connect, share knowledge, and build their garage.
           </p>
         </div>

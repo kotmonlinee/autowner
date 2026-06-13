@@ -90,10 +90,15 @@ export default function VehiclesPage() {
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
-      <main id="main-content" className="max-w-6xl mx-auto px-5 py-8 flex-1 w-full">
+      <main id="main-content" className="max-w-6xl mx-auto px-5 py-6 flex-1 w-full">
+        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <span className="text-text-secondary">Vehicles</span>
+        </nav>
         <div className="mb-8">
-          <h1 className="text-3xl font-heading font-bold text-text-primary mb-3">Browse Vehicles</h1>
-          <p className="text-text-muted text-sm max-w-xl">Find repair costs, OBD codes, and diagnostics for your specific make and model.</p>
+          <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-3">Browse Vehicles</h1>
+          <p className="text-text-muted text-sm sm:text-base max-w-xl">Find repair costs, OBD codes, and diagnostics for your specific make and model.</p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">

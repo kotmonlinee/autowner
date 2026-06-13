@@ -167,10 +167,11 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
             <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related OBD-II Codes</h2>
             <div className="space-y-2">
               {obdDetails.map((obd) => (
-                <Link key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
+                <Link key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
                   <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code.toUpperCase()}</span>
                   <span className="h-4 w-px bg-surface-border shrink-0" />
-                  <span className="text-xs text-text-secondary truncate">{obd.title}</span>
+                  <span className="text-xs text-text-secondary truncate flex-1 min-w-0">{obd.title}</span>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -184,11 +185,12 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
             {TOP_REPAIRS.slice(0, 6).map((repair) => {
               const img = getRepairImageUrl(repair.slug);
               return (
-                <Link key={repair.slug} href={`/repair-cost/${repair.slug}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                <Link key={repair.slug} href={`/repair-cost/${repair.slug}`} className="group flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                   <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                     {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />}
                   </div>
-                  <span className="text-sm font-medium text-text-primary font-heading truncate">{repair.name}</span>
+                  <span className="text-sm font-medium text-text-primary font-heading truncate flex-1 min-w-0">{repair.name}</span>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               );
             })}
