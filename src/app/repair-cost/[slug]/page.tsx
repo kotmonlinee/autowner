@@ -151,12 +151,13 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
 
   // Determine which tier this vehicle falls into (for vehicle-specific pages)
   let vehicleTier: string | null = null;
+  let vehicleTierCard: RepairCostTier | null = null;
   if (parsed) {
     for (const t of tierCards) {
       const hasVehicle = t.vehicles.some(
         (v) => v.make.toLowerCase() === parsed.makeSlug || v.model.toLowerCase() === parsed.modelSlug
       );
-      if (hasVehicle) { vehicleTier = t.tier; break; }
+      if (hasVehicle) { vehicleTier = t.tier; vehicleTierCard = t; break; }
     }
   }
 
@@ -289,13 +290,20 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 mb-6">
           <div className="text-center">
             <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-2">
-              {parsed ? `Estimated Cost for ${makeName} ${modelName}` : "Estimated Cost Range"}
+              {parsed && vehicleTierCard ? `Estimated Cost for ${makeName} ${modelName}` : "Estimated Cost Range"}
             </p>
             <p className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-1">
-              {formatRange(repair.overallMin, repair.overallMax)}
+              {parsed && vehicleTierCard
+                ? formatRange(vehicleTierCard.min, vehicleTierCard.max)
+                : formatRange(repair.overallMin, repair.overallMax)}
             </p>
             <p className="text-sm text-text-muted">
-              Average: <strong className="text-text-secondary">{formatMoney(repair.overallAvg)}</strong>
+              Average: <strong className="text-text-secondary">{formatMoney(parsed && vehicleTierCard ? vehicleTierCard.avg : repair.overallAvg)}</strong>
+              {parsed && vehicleTierCard && (
+                <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-heading font-bold">
+                  {vehicleTierCard.tierLabel}
+                </span>
+              )}
               {" · "}
               <span className="inline-flex items-center gap-1">
                 <span className={`w-1.5 h-1.5 rounded-full ${repair.confidence === "high" ? "bg-green-500" : repair.confidence === "medium" ? "bg-yellow-500" : "bg-red-500"}`} />
@@ -346,31 +354,38 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             Cost by Vehicle Tier
           </h2>
           <div className="space-y-3">
-            {tierCards.map((tier) => (
+            {tierCards.map((tier) => {
+              const isActive = vehicleTier === tier.tier;
+              return (
               <div
                 key={tier.tier}
-                className={`bg-surface-1 rounded-xl border p-4 hover:border-primary/20 hover:shadow-sm transition-all duration-150 ${vehicleTier === tier.tier ? "border-primary/30 bg-primary/5" : "border-surface-border"}`}
+                className={`rounded-xl border-2 p-4 transition-all duration-150 ${
+                  isActive
+                    ? "border-primary/40 bg-primary/5 shadow-sm"
+                    : "bg-surface-1 border-surface-border hover:border-primary/20 hover:shadow-sm"
+                }`}
               >
+                {isActive && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    <span className="text-xs font-heading font-bold text-primary uppercase tracking-wider">Your Vehicle Tier</span>
+                  </div>
+                )}
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <h3 className="text-sm font-heading font-bold text-text-primary mb-0.5">
+                    <h3 className={`text-sm font-heading font-bold mb-0.5 ${isActive ? "text-primary" : "text-text-primary"}`}>
                       {TIER_LABELS[tier.tier] ?? tier.tierLabel}
-                      {vehicleTier === tier.tier && (
-                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-heading font-bold bg-primary/10 text-primary">
-                          Your vehicle
-                        </span>
-                      )}
                     </h3>
                     <p className="text-xs text-text-muted">{tier.vehicles.map((v) => `${v.make} ${v.model}`).join(" / ")}</p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-lg font-heading font-bold text-text-primary">
+                    <p className={`text-lg font-heading font-bold ${isActive ? "text-primary" : "text-text-primary"}`}>
                       {formatRange(tier.min, tier.max)}
                     </p>
                     <p className="text-xs text-text-muted">Avg: {formatMoney(tier.avg)}</p>
                   </div>
                 </div>
-                <div className="mt-3 pt-3 border-t border-surface-border flex items-center gap-4">
+                <div className={`mt-3 pt-3 flex items-center gap-4 ${isActive ? "border-t border-primary/20" : "border-t border-surface-border"}`}>
                   <div className="flex items-center gap-1.5">
                     <svg className="w-3.5 h-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>
                     <span className="text-xs text-text-muted">Labor: {formatMoney(tier.labor)}</span>
@@ -384,7 +399,8 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
                   </span>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
