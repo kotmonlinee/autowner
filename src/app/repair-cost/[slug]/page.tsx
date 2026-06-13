@@ -428,6 +428,9 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           </ul>
         </div>
 
+        {/* DIY Assessment */}
+        <DiySection repairName={repair.name} tierCards={tierCards} parsed={parsed} makeName={makeName} modelName={modelName} />
+
         {/* Common OBD Codes */}
         {obdCodes.length > 0 && (
           <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
@@ -549,6 +552,142 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
       </main>
 
       <Footer />
+    </div>
+  );
+}
+
+// ── DIY Assessment Component ──────────────────────────────
+
+const DIY_CONFIG: Record<string, { difficulty: string; level: "easy" | "moderate" | "hard"; tools: string[]; safety: string; timeHours: number }> = {
+  brakes: {
+    difficulty: "Moderate", level: "moderate",
+    tools: ["Socket set", "Jack + jack stands", "Lug wrench", "C-clamp or brake caliper tool", "Brake grease", "Torque wrench"],
+    safety: "Always use jack stands — never work under a car supported only by a jack. Wear gloves and eye protection.",
+    timeHours: 1.5,
+  },
+  engine: {
+    difficulty: "Hard", level: "hard",
+    tools: ["Socket set", "Torque wrench", "Jack + jack stands", "Multimeter", "OBD-II scanner", "Gasket scraper"],
+    safety: "Let engine cool completely before starting. Disconnect battery negative terminal. Have a fire extinguisher nearby.",
+    timeHours: 3,
+  },
+  transmission: {
+    difficulty: "Hard", level: "hard",
+    tools: ["Socket set", "Drain pan", "Transmission jack", "Torque wrench", "Fluid pump", "Safety glasses"],
+    safety: "Fluid may be hot — let cool first. Use proper support for the transmission. Dispose of old fluid at a recycling center.",
+    timeHours: 3.5,
+  },
+  suspension: {
+    difficulty: "Hard", level: "hard",
+    tools: ["Socket set", "Breaker bar", "Jack + jack stands", "Spring compressor", "Torque wrench", "Ball joint separator"],
+    safety: "Spring compressors can be lethal — follow instructions exactly. Have wheel aligned after suspension work.",
+    timeHours: 2.5,
+  },
+  electrical: {
+    difficulty: "Moderate", level: "moderate",
+    tools: ["Socket set", "Multimeter", "OBD-II scanner", "Wire stripper + connectors", "Dielectric grease", "Zip ties"],
+    safety: "Disconnect battery negative terminal before working on electrical components. Never bypass fuses.",
+    timeHours: 1.5,
+  },
+  ac_heating: {
+    difficulty: "Hard", level: "hard",
+    tools: ["A/C manifold gauge set", "Vacuum pump", "Refrigerant", "Socket set", "UV leak detection kit"],
+    safety: "Refrigerant requires EPA certification to handle legally. Consider hiring a pro for A/C repairs.",
+    timeHours: 3,
+  },
+  exhaust: {
+    difficulty: "Moderate", level: "moderate",
+    tools: ["Socket set", "Penetrating oil", "Jack + jack stands", "Exhaust hanger tool", "Gloves", "Safety glasses"],
+    safety: "Exhaust components get very hot. Let cool completely. Use penetrating oil on rusty bolts overnight.",
+    timeHours: 2,
+  },
+  maintenance: {
+    difficulty: "Easy", level: "easy",
+    tools: ["Socket set", "Drain pan", "Funnel", "Filter wrench", "Gloves", "Shop towels"],
+    safety: "Let fluids cool before draining. Dispose of used oil and filters at a recycling center. Never pour down drains.",
+    timeHours: 0.75,
+  },
+  glass_body: {
+    difficulty: "Moderate", level: "moderate",
+    tools: ["Trim removal tool", "Socket set", "Screwdrivers", "Panel clip pliers", "Torx bit set"],
+    safety: "Wear gloves when handling glass. Use proper support when removing heavy panels.",
+    timeHours: 1.5,
+  },
+};
+
+function categorizeRepair(name: string): string {
+  const n = name.toLowerCase();
+  if (n.includes("brake") || n.includes("rotor") || n.includes("caliper") || n.includes("pad")) return "brakes";
+  if (n.includes("engine") || n.includes("timing") || n.includes("head gasket") || n.includes("valve") || n.includes("spark") || n.includes("ignition") || n.includes("fuel") || n.includes("injector") || n.includes("belt") || n.includes("mount") || n.includes("pcv") || n.includes("throttle") || n.includes("turbo")) return "engine";
+  if (n.includes("transmission") || n.includes("clutch") || n.includes("differential") || n.includes("transfer case") || n.includes("cv axle")) return "transmission";
+  if (n.includes("strut") || n.includes("shock") || n.includes("ball joint") || n.includes("tie rod") || n.includes("control arm") || n.includes("wheel bearing") || n.includes("power steering")) return "suspension";
+  if (n.includes("alternator") || n.includes("starter") || n.includes("battery") || n.includes("sensor") || n.includes("window") || n.includes("door lock") || n.includes("wiring")) return "electrical";
+  if (n.includes("ac") || n.includes("air condition") || n.includes("compressor") || n.includes("heater") || n.includes("blower") || n.includes("evaporator") || n.includes("cabin")) return "ac_heating";
+  if (n.includes("catalytic") || n.includes("muffler") || n.includes("egr") || n.includes("exhaust") || n.includes("o2 sensor") || n.includes("oxygen sensor")) return "exhaust";
+  if (n.includes("oil change") || n.includes("fluid") || n.includes("filter") || n.includes("flush") || n.includes("windshield") || n.includes("serpentine") || n.includes("coolant")) return "maintenance";
+  return "glass_body";
+}
+
+function DiySection({ repairName, tierCards, parsed, makeName, modelName }: {
+  repairName: string;
+  tierCards: any[];
+  parsed: any;
+  makeName: string;
+  modelName: string;
+}) {
+  const category = categorizeRepair(repairName);
+  const config = DIY_CONFIG[category] ?? DIY_CONFIG.glass_body;
+
+  // Use the active tier's labor cost if vehicle-specific, otherwise first tier
+  const tierCard = tierCards[0];
+  if (!tierCard) return null;
+  const laborCost = tierCard.labor;
+  const partsCost = tierCard.parts;
+
+  const difficultyColors = {
+    easy: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+    moderate: "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+    hard: "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
+  };
+
+  return (
+    <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-4">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+          <svg className="w-4 h-4 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
+        </span>
+        <h2 className="text-lg font-heading font-bold text-text-primary">Can You DIY This?</h2>
+      </div>
+
+      <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border mb-6 ${difficultyColors[config.level]}`}>
+        <span className={`w-3 h-3 rounded-full shrink-0 ${config.level === "easy" ? "bg-emerald-500" : config.level === "moderate" ? "bg-amber-500" : "bg-red-500"}`} />
+        <span className="text-sm font-heading font-bold">Difficulty: {config.difficulty}</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="bg-surface-0 rounded-xl border border-surface-border p-4 text-center">
+          <p className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-1">{config.timeHours}h</p>
+          <p className="text-xs text-text-muted font-heading">Estimated Time</p>
+        </div>
+        <div className="bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800 p-4 text-center">
+          <p className="text-2xl sm:text-3xl font-heading font-bold text-emerald-600 dark:text-emerald-400 mb-1">{formatMoney(laborCost)}</p>
+          <p className="text-xs text-text-muted font-heading">You Save in Labor</p>
+        </div>
+      </div>
+
+      <div className="bg-surface-0 rounded-xl border border-surface-border p-4 mb-3">
+        <p className="text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Common Tools Needed</p>
+        <div className="flex flex-wrap gap-1.5">
+          {config.tools.map((tool) => (
+            <span key={tool} className="px-2.5 py-1 rounded-lg bg-surface-1 border border-surface-border text-xs text-text-secondary font-heading">{tool}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-start gap-2 bg-red-50/50 dark:bg-red-950/10 rounded-xl border border-red-200/50 dark:border-red-800/50 p-3">
+        <svg className="w-4 h-4 text-red-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+        <p className="text-xs text-text-secondary leading-relaxed"><strong className="text-text-primary">Safety:</strong> {config.safety}</p>
+      </div>
     </div>
   );
 }
