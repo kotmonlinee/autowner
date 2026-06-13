@@ -348,6 +348,31 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           </div>
         )}
 
+        {/* Safety Recalls (vehicle-specific only) */}
+        {parsed && makeName && (
+          <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-2xl border border-severity-caution-border p-6 mb-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-severity-caution-bg flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-severity-caution" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-heading font-bold text-text-primary mb-1">Check for Open Safety Recalls</h2>
+                <p className="text-sm text-text-secondary mb-3">
+                  Your {makeName} {modelName} may have open safety recalls. Repairs covered by a recall are <strong>free</strong> at dealerships.
+                </p>
+                <Link
+                  href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors font-heading"
+                >
+                  Check Recalls Now →
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Price Breakdown by Vehicle Tier */}
         <section className="mb-6">
           <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
@@ -573,31 +598,6 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             Browse all vehicles →
           </Link>
         </div>
-
-        {/* Safety Recalls (vehicle-specific only) */}
-        {parsed && makeName && (
-          <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-2xl border border-severity-caution-border p-6 mb-6">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-severity-caution-bg flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5 text-severity-caution" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-lg font-heading font-bold text-text-primary mb-1">Check for Open Safety Recalls</h2>
-                <p className="text-sm text-text-secondary mb-3">
-                  Your {makeName} {modelName} may have open safety recalls. Repairs covered by a recall are <strong>free</strong> at dealerships.
-                </p>
-                <Link
-                  href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors font-heading"
-                >
-                  Check Recalls Now →
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* FAQ */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
