@@ -365,7 +365,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
 
         {/* Code Header Card */}
-        <div className="bg-surface-1 rounded-xl border border-surface-border p-6 mb-4">
+        <div className="bg-surface-1 rounded-xl border border-surface-border p-6 mb-4 border-l-4" style={{ borderLeftColor: sev.text }}>
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <h1 className="text-3xl sm:text-4xl font-mono font-bold text-text-primary tracking-wider">
               {obd.code}
@@ -387,12 +387,14 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             </Link>
           </div>
 
-          <p className="text-xl sm:text-2xl font-heading font-bold text-text-primary mb-3">
-            {obd.title}
-          </p>
-          <p className="text-text-secondary text-sm leading-relaxed">
-            {naturalIntro}
-          </p>
+          <div className="border-t border-surface-border pt-3">
+            <p className="text-xl sm:text-2xl font-heading font-bold text-text-primary mb-3">
+              {obd.title}
+            </p>
+            <p className="text-text-secondary text-sm leading-relaxed">
+              {naturalIntro}
+            </p>
+          </div>
         </div>
 
         {/* NEW: Above-the-Fold "Can you still drive?" Answer Block */}
