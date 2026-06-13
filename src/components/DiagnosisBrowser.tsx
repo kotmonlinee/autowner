@@ -41,7 +41,6 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
 }) {
   const [query, setQuery] = useState("");
   const [diagnoses, setDiagnoses] = useState<any[]>(initialDiagnoses);
-  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(initialPage);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -49,7 +48,6 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       if (query.trim().length >= 2) {
-        setLoading(true);
         try {
           const res = await fetch(`/api/diagnosis-search?q=${encodeURIComponent(query.trim())}&limit=48`);
           if (res.ok) {
@@ -57,7 +55,6 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
             setDiagnoses(data.diagnoses ?? []);
           }
         } catch { /* fallback */ }
-        finally { setLoading(false); }
       } else {
         setDiagnoses(initialDiagnoses);
         setPage(initialPage);
@@ -68,7 +65,6 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
 
   // Fetch paginated results via API
   const loadPage = async (p: number) => {
-    setLoading(true);
     try {
       const q = query.trim().length >= 2 ? `&q=${encodeURIComponent(query.trim())}` : "";
       const res = await fetch(`/api/diagnosis-search?limit=24&page=${p}${q}`);
@@ -79,7 +75,6 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
         document.getElementById("diagnosis-results")?.scrollIntoView({ behavior: "smooth" });
       }
     } catch { /* fallback */ }
-    finally { setLoading(false); }
   };
 
   return (
@@ -109,12 +104,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
         </div>
       </div>
 
-      {loading ? (
-        <div className="text-center py-12">
-          <div className="w-8 h-8 mx-auto mb-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-          <p className="text-sm text-text-muted">Searching...</p>
-        </div>
-      ) : diagnoses.length === 0 ? (
+      {diagnoses.length === 0 ? (
         <div className="text-center py-12 bg-surface-1 rounded-xl border border-surface-border">
           <p className="text-text-muted text-sm">No diagnoses found{query ? ` for "${query}"` : ""}.</p>
         </div>

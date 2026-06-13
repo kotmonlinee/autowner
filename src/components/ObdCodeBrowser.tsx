@@ -37,11 +37,9 @@ export default function ObdCodeBrowser({ initialCodes, initialPrefix }: { initia
   const [query, setQuery] = useState("");
   const [prefix, setPrefix] = useState(initialPrefix);
   const [codes, setCodes] = useState<ObdCode[]>(initialCodes);
-  const [loading, setLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchCodes = useCallback(async (q: string, p: string) => {
-    setLoading(true);
     try {
       const params = new URLSearchParams();
       if (q.trim().length >= 2) params.set("q", q.trim());
@@ -53,9 +51,7 @@ export default function ObdCodeBrowser({ initialCodes, initialPrefix }: { initia
         setCodes(data.codes ?? []);
       }
     } catch {
-      // fallback to current codes
-    } finally {
-      setLoading(false);
+      // keep current codes on error
     }
   }, []);
 
@@ -119,12 +115,7 @@ export default function ObdCodeBrowser({ initialCodes, initialPrefix }: { initia
       </div>
 
       {/* Results */}
-      {loading ? (
-        <div className="text-center py-12">
-          <div className="w-8 h-8 mx-auto mb-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-          <p className="text-sm text-text-muted">Searching...</p>
-        </div>
-      ) : codes.length === 0 ? (
+      {codes.length === 0 ? (
         <div className="text-center py-12 bg-surface-1 rounded-xl border border-surface-border">
           <p className="text-text-muted text-sm">No codes found{query ? ` for "${query}"` : ""}.</p>
         </div>
