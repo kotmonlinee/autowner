@@ -567,9 +567,15 @@ const DIY_CONFIG: Record<string, { difficulty: string; level: "easy" | "moderate
   },
   engine: {
     difficulty: "Hard", level: "hard",
-    tools: ["Socket set", "Torque wrench", "Jack + jack stands", "Multimeter", "OBD-II scanner", "Gasket scraper"],
-    safety: "Let engine cool completely before starting. Disconnect battery negative terminal. Have a fire extinguisher nearby.",
+    tools: ["Socket set", "Torque wrench", "Jack + jack stands", "Gasket scraper", "Breaker bar", "OBD-II scanner"],
+    safety: "Let engine cool completely. Disconnect battery. Work on level ground with proper jack stands.",
     timeHours: 3,
+  },
+  engine_moderate: {
+    difficulty: "Moderate", level: "moderate",
+    tools: ["Socket set", "Torque wrench", "Multimeter", "OBD-II scanner", "Screwdrivers"],
+    safety: "Let engine cool before starting. Disconnect battery negative terminal.",
+    timeHours: 1.5,
   },
   transmission: {
     difficulty: "Hard", level: "hard",
@@ -577,17 +583,35 @@ const DIY_CONFIG: Record<string, { difficulty: string; level: "easy" | "moderate
     safety: "Fluid may be hot — let cool first. Use proper support for the transmission. Dispose of old fluid at a recycling center.",
     timeHours: 3.5,
   },
+  transmission_moderate: {
+    difficulty: "Moderate", level: "moderate",
+    tools: ["Socket set", "Drain pan", "Funnel", "Torque wrench", "Fluid pump", "Safety glasses"],
+    safety: "Let fluids cool before draining. Dispose of old fluid at a recycling center.",
+    timeHours: 1,
+  },
   suspension: {
     difficulty: "Hard", level: "hard",
     tools: ["Socket set", "Breaker bar", "Jack + jack stands", "Spring compressor", "Torque wrench", "Ball joint separator"],
     safety: "Spring compressors can be lethal — follow instructions exactly. Have wheel aligned after suspension work.",
     timeHours: 2.5,
   },
-  electrical: {
+  suspension_moderate: {
     difficulty: "Moderate", level: "moderate",
-    tools: ["Socket set", "Multimeter", "OBD-II scanner", "Wire stripper + connectors", "Dielectric grease", "Zip ties"],
-    safety: "Disconnect battery negative terminal before working on electrical components. Never bypass fuses.",
+    tools: ["Socket set", "Jack + jack stands", "Torque wrench", "Pry bar", "Penetrating oil"],
+    safety: "Use jack stands. Have wheel alignment checked after suspension work.",
     timeHours: 1.5,
+  },
+  electrical: {
+    difficulty: "Hard", level: "hard",
+    tools: ["Socket set", "Multimeter", "Torque wrench", "OBD-II scanner", "Breaker bar"],
+    safety: "Disconnect battery negative terminal before working on electrical components. Never bypass fuses.",
+    timeHours: 2,
+  },
+  electrical_moderate: {
+    difficulty: "Moderate", level: "moderate",
+    tools: ["Socket set", "Multimeter", "Screwdrivers", "Dielectric grease"],
+    safety: "Disconnect battery negative terminal before working on electrical components.",
+    timeHours: 1,
   },
   ac_heating: {
     difficulty: "Hard", level: "hard",
@@ -596,10 +620,16 @@ const DIY_CONFIG: Record<string, { difficulty: string; level: "easy" | "moderate
     timeHours: 3,
   },
   exhaust: {
-    difficulty: "Moderate", level: "moderate",
-    tools: ["Socket set", "Penetrating oil", "Jack + jack stands", "Exhaust hanger tool", "Gloves", "Safety glasses"],
+    difficulty: "Hard", level: "hard",
+    tools: ["Socket set", "Penetrating oil", "Jack + jack stands", "Exhaust hanger tool", "Sawzall", "Safety glasses"],
     safety: "Exhaust components get very hot. Let cool completely. Use penetrating oil on rusty bolts overnight.",
-    timeHours: 2,
+    timeHours: 2.5,
+  },
+  exhaust_moderate: {
+    difficulty: "Moderate", level: "moderate",
+    tools: ["Socket set", "O2 sensor socket", "Penetrating oil", "Jack + jack stands", "Gloves"],
+    safety: "Exhaust components get very hot. Let cool completely before working.",
+    timeHours: 1,
   },
   maintenance: {
     difficulty: "Easy", level: "easy",
@@ -617,16 +647,32 @@ const DIY_CONFIG: Record<string, { difficulty: string; level: "easy" | "moderate
 
 function categorizeRepair(name: string): string {
   const n = name.toLowerCase();
+  // Simple maintenance (catch first to avoid being eaten by broader categories)
+  if (n.includes("air filter") || n.includes("fluid flush") || n.includes("fluid change") || n.includes("oil change") || n.includes("coolant flush") || n.includes("fuel filter") || n.includes("windshield") || n.includes("serpentine belt") || n.includes("drive belt") || n.includes("cabin")) return "maintenance";
+  // Spark plugs are moderate, not hard
+  if (n.includes("spark plug") || n.includes("ignition coil")) return "electrical_moderate";
+  // Brakes
   if (n.includes("brake") || n.includes("rotor") || n.includes("caliper") || n.includes("pad")) return "brakes";
-  // Simple filters/easy maintenance before broader categories
-  if (n.includes("air filter") || n.includes("cabin") || n.includes("oil change") || n.includes("fluid flush") || n.includes("fluid change") || n.includes("windshield")) return "maintenance";
-  if (n.includes("engine") || n.includes("timing") || n.includes("head gasket") || n.includes("valve") || n.includes("spark") || n.includes("ignition") || n.includes("fuel") || n.includes("injector") || n.includes("belt") || n.includes("mount") || n.includes("pcv") || n.includes("throttle") || n.includes("turbo")) return "engine";
-  if (n.includes("transmission") || n.includes("clutch") || n.includes("differential") || n.includes("transfer case") || n.includes("cv axle")) return "transmission";
-  if (n.includes("strut") || n.includes("shock") || n.includes("ball joint") || n.includes("tie rod") || n.includes("control arm") || n.includes("wheel bearing") || n.includes("power steering")) return "suspension";
-  if (n.includes("alternator") || n.includes("starter") || n.includes("battery") || n.includes("sensor") || n.includes("window") || n.includes("door lock") || n.includes("wiring")) return "electrical";
-  if (n.includes("ac") || n.includes("air condition") || n.includes("compressor") || n.includes("heater") || n.includes("blower") || n.includes("evaporator")) return "ac_heating";
-  if (n.includes("catalytic") || n.includes("muffler") || n.includes("egr") || n.includes("exhaust") || n.includes("o2 sensor") || n.includes("oxygen sensor")) return "exhaust";
-  if (n.includes("fluid") || n.includes("filter") || n.includes("flush") || n.includes("serpentine") || n.includes("coolant")) return "maintenance";
+  // True engine work (hard)
+  if (n.includes("head gasket") || n.includes("timing belt") || n.includes("timing chain") || n.includes("engine mount") || n.includes("turbo") || n.includes("valve cover")) return "engine";
+  // Moderate engine-related
+  if (n.includes("engine") || n.includes("fuel pump") || n.includes("fuel injector") || n.includes("throttle") || n.includes("pcv") || n.includes("egr") || n.includes("mass air")) return "engine_moderate";
+  // Drivetrain
+  if (n.includes("clutch") || n.includes("transmission mount")) return "transmission";
+  if (n.includes("transmission") || n.includes("differential") || n.includes("transfer case") || n.includes("cv axle")) return "transmission_moderate";
+  // Exhaust (before electrical and ac — "sensor" and "ac" would catch these)
+  if (n.includes("catalytic") || n.includes("muffler") || n.includes("exhaust")) return "exhaust";
+  if (n.includes("o2 sensor") || n.includes("oxygen sensor")) return "exhaust_moderate";
+  // Suspension
+  if (n.includes("strut") || n.includes("shock") || n.includes("ball joint") || n.includes("control arm") || n.includes("spring")) return "suspension";
+  if (n.includes("tie rod") || n.includes("wheel bearing") || n.includes("power steering pump") || n.includes("power steering")) return "suspension_moderate";
+  // AC / Heating (before electrical — "ac" would match)
+  if (n.includes("ac compressor") || n.includes("air condition") || n.includes("heater core") || n.includes("evaporator") || n.includes("heater") || n.includes("blower motor")) return "ac_heating";
+  // Electrical
+  if (n.includes("starter") || n.includes("alternator") || n.includes("compressor")) return "electrical";
+  if (n.includes("battery") || n.includes("sensor") || n.includes("window") || n.includes("door lock") || n.includes("wiring") || n.includes("blower")) return "electrical_moderate";
+  // Catch-all maintenance
+  if (n.includes("fluid") || n.includes("filter") || n.includes("flush") || n.includes("serpentine") || n.includes("coolant") || n.includes("belt")) return "maintenance";
   return "glass_body";
 }
 
