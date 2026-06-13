@@ -588,7 +588,6 @@ async function DiySection({ repairSlug, tierCards }: { repairSlug: string; tierC
   };
 
   const tools = config.tools.split(", ");
-  const laborCost = tierCard.labor;
 
   return (
     <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-4">
@@ -623,17 +622,19 @@ async function DiySection({ repairSlug, tierCards }: { repairSlug: string; tierC
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-surface-0 rounded-xl border border-surface-border p-3 sm:p-4 text-center">
-          <p className="text-xl sm:text-2xl font-heading font-bold text-text-primary mb-1">{config.est_time}</p>
-          <p className="text-[10px] sm:text-xs text-text-muted font-heading">Estimated DIY Time</p>
-          {config.has_variability && (
-            <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-1">Time varies significantly by vehicle model</p>
-          )}
+          <p className="text-xl sm:text-2xl font-heading font-bold text-text-primary mb-1">{formatMoney(tierCard.parts)}</p>
+          <p className="text-[10px] sm:text-xs text-text-muted font-heading">Parts Cost</p>
+          <p className="text-[10px] text-text-muted mt-0.5">you still pay for parts</p>
         </div>
         <div className="bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800 p-3 sm:p-4 text-center">
-          <p className="text-xl sm:text-2xl font-heading font-bold text-emerald-600 dark:text-emerald-400 mb-1">{formatMoney(laborCost)}</p>
-          <p className="text-[10px] sm:text-xs text-text-muted font-heading">You Save in Labor</p>
+          <p className="text-xl sm:text-2xl font-heading font-bold text-emerald-600 dark:text-emerald-400 mb-1">{formatMoney(tierCard.labor)}</p>
+          <p className="text-[10px] sm:text-xs text-text-muted font-heading">Labor Savings</p>
+          <p className="text-[10px] text-emerald-600/70 dark:text-emerald-400/70 mt-0.5">shop charges you this</p>
         </div>
       </div>
+      {config.has_variability && (
+        <p className="text-[10px] text-amber-600 dark:text-amber-400 mb-4 -mt-2 text-center">Time and difficulty vary significantly by vehicle model</p>
+      )}
 
       <div className="bg-surface-0 rounded-xl border border-surface-border p-4 mb-3">
         <p className="text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Tools You'll Need</p>
