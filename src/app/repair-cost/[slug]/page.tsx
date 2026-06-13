@@ -87,22 +87,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-// ── Vehicle data helpers ─────────────────────────────────
-
-async function getVehicleGenerations(makeSlug: string, modelSlug: string) {
-  const supabase = await createServiceSupabase();
-  const { data: make } = await supabase.from("vehicle_makes").select("id").eq("slug", makeSlug).single();
-  if (!make) return [];
-  const { data: model } = await supabase.from("vehicle_models").select("id").eq("slug", modelSlug).eq("make_id", (make as { id: string }).id).single();
-  if (!model) return [];
-  const { data: gens } = await supabase
-    .from("vehicle_generations")
-    .select("name, year_start, year_end, vehicle_engines(code, name, displacement, fuel_type, horsepower)")
-    .eq("model_id", (model as { id: string }).id)
-    .order("year_start", { ascending: false });
-  return (gens as unknown as any[]) ?? [];
-}
-
 // ── Page ─────────────────────────────────────────────────
 
 export default async function RepairCostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -120,17 +104,14 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
   // Vehicle-specific data
   let makeName = "";
   let modelName = "";
-  let generations: Awaited<ReturnType<typeof getVehicleGenerations>> = [];
   if (parsed) {
     const supabase = await createServiceSupabase();
-    const [makeRes, modelRes, gens] = await Promise.all([
+    const [makeRes, modelRes] = await Promise.all([
       supabase.from("vehicle_makes").select("name").eq("slug", parsed.makeSlug).single(),
       supabase.from("vehicle_models").select("name").eq("slug", parsed.modelSlug).single(),
-      getVehicleGenerations(parsed.makeSlug, parsed.modelSlug),
     ]);
     makeName = (makeRes.data as { name: string } | null)?.name ?? parsed.makeSlug;
     modelName = (modelRes.data as { name: string } | null)?.name ?? parsed.modelSlug;
-    generations = gens;
   }
 
   const vehicleImageUrl = parsed ? getVehicleImageUrl(parsed.makeSlug, parsed.modelSlug) : null;
@@ -259,22 +240,24 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         </nav>
 
         {/* Title + Image */}
-        <div className="flex items-start gap-5 mb-6">
-          {(() => {
-            const img = getRepairImageUrl(repair.slug.replace(/_/g, "-"));
-            if (!img) return null;
-            return (
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 bg-surface-2 border border-surface-border">
-                <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />
+        <div className="flex items-start gap-4 sm:gap-5 mb-6">
+          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+            {parsed && vehicleImageUrl && (
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-surface-2 border border-surface-border">
+                <img src={vehicleImageUrl} alt={`${makeName} ${modelName}`} className="w-full h-full object-cover" loading="lazy" />
               </div>
-            );
-          })()}
-          {parsed && vehicleImageUrl && (
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 bg-surface-2 border border-surface-border">
-              <img src={vehicleImageUrl} alt={`${makeName} ${modelName}`} className="w-full h-full object-cover" loading="lazy" />
-            </div>
-          )}
-          <div>
+            )}
+            {(() => {
+              const img = getRepairImageUrl(repair.slug.replace(/_/g, "-"));
+              if (!img) return null;
+              return (
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-surface-2 border border-surface-border">
+                  <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              );
+            })()}
+          </div>
+          <div className="min-w-0 flex-1">
             <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-2">
               {parsed ? `${makeName} ${modelName} ${repair.name} Cost` : repair.name}
             </h1>
@@ -312,41 +295,6 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             </p>
           </div>
         </div>
-
-        {/* Vehicle Generations (vehicle-specific only) */}
-        {parsed && generations.length > 0 && (
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-6">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-3">
-              {modelName} Generations & Year Differences
-            </h2>
-            <p className="text-sm text-text-secondary mb-4">
-              Different generations of the {makeName} {modelName} may have different {repair.name.toLowerCase()} costs due to design changes, parts availability, and labor complexity.
-            </p>
-            <div className="space-y-3">
-              {generations.slice(0, 5).map((gen) => (
-                <div key={gen.name} className="p-4 bg-surface-0 rounded-xl border border-surface-border">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-heading font-semibold text-text-primary">
-                        {gen.name} ({gen.year_start}–{gen.year_end ?? "Present"})
-                      </p>
-                      <div className="flex flex-wrap gap-1.5 mt-1.5">
-                        {(gen.vehicle_engines ?? []).slice(0, 3).map((eng: any) => (
-                          <span key={eng.code} className="inline-flex items-center px-2 py-0.5 rounded bg-surface-1 border border-surface-border text-xs text-text-muted font-mono">
-                            {eng.code}: {eng.displacement} {eng.fuel_type}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <span className="text-xs text-text-muted whitespace-nowrap font-heading">
-                      {gen.year_start >= 2020 ? "Newer — similar cost" : gen.year_start < 2015 ? "Older — may vary" : "Similar cost range"}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Safety Recalls (vehicle-specific only) */}
         {parsed && makeName && (
