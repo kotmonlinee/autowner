@@ -599,26 +599,6 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           </div>
         )}
 
-        {/* More Tools (vehicle-specific only) */}
-        {parsed && makeName && (
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-4">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">More Tools for {makeName} Owners</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[
-                { label: "OBD-II Code Lookup", desc: `Decode check engine lights for your ${makeName}`, href: "/obd" },
-                { label: "Recall Check", desc: `All NHTSA safety recalls for ${makeName} vehicles`, href: `/recall-check?make=${encodeURIComponent(makeName)}` },
-                { label: "Quote Checker", desc: `Got a ${repair.name.toLowerCase()} quote? Verify if it's fair`, href: "/quote-checker" },
-                { label: "All Vehicle Tiers", desc: `${repair.name} costs across all vehicle types`, href: `/repair-cost/${repairSlug}` },
-              ].map((tool) => (
-                <Link key={tool.label} href={tool.href} className="p-4 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors">
-                  <span className="text-sm font-heading font-semibold text-text-primary">{tool.label}</span>
-                  <p className="text-xs text-text-muted mt-1">{tool.desc}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* FAQ */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
           <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">Frequently Asked Questions</h2>
