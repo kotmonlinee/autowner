@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -42,7 +43,9 @@ export default function RecallCheckPage() {
           </p>
         </div>
 
-        <RecallForm />
+        <Suspense fallback={<div className="text-center py-12"><div className="w-8 h-8 mx-auto mb-3 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>}>
+          <RecallForm />
+        </Suspense>
 
         {/* Most Checked Vehicles */}
         <div className="mt-8 p-5 sm:p-6 bg-surface-1 rounded-2xl border border-surface-border">
@@ -64,7 +67,7 @@ export default function RecallCheckPage() {
               { make: "Subaru", makeSlug: "subaru", model: "Outback", modelSlug: "outback", year: "2020" },
             ].map((v) => (
               <Link key={`${v.make}-${v.model}-${v.year}`}
-                href={`/recall-check?make=${encodeURIComponent(v.make)}&year=${v.year}`}
+                href={`/recall-check?make=${encodeURIComponent(v.make)}&model=${encodeURIComponent(v.model)}&year=${v.year}`}
                 className="group flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors overflow-hidden">
                 <div className="w-14 h-11 sm:w-16 sm:h-12 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                   <img src={`/vehicles/${v.makeSlug}-${v.modelSlug}.jpg`} alt={`${v.make} ${v.model}`} className="w-full h-full object-cover" loading="lazy" />
