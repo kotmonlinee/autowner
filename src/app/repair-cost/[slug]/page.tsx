@@ -400,7 +400,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               </p>
             </div>
             <Link
-              href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`}
+              href={`/quote-checker?repair=${encodeURIComponent(repair.name)}${parsed ? `&make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}` : ""}`}
               className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
             >
               Check your quote
@@ -522,7 +522,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Not Sure This Is the Right Repair?</h2>
               <p className="text-sm text-text-muted">Describe your symptoms to our AI — it identifies possible causes, OBD codes, and cost estimates in seconds.</p>
             </div>
-            <Link href="/symptom-checker" className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
+            <Link href={`/symptom-checker${parsed ? `?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}` : ""}`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
               Diagnose with AI
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
