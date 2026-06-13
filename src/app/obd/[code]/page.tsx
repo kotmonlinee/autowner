@@ -382,7 +382,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 className="w-1.5 h-1.5 rounded-full"
                 style={{ background: sev.text }}
               />
-              {sev.label} Severity (Level {obd.severity})<span className="ml-1 text-[10px] opacity-60 cursor-help" title={obd.severity <= 2 ? "Minor issue—unlikely to cause immediate problems. Inspect at your convenience." : obd.severity === 3 ? "Moderate issue—may affect performance and fuel economy. Diagnose promptly." : obd.severity === 4 ? "Serious issue—can cause noticeable problems and potential engine damage. Take to a mechanic soon." : "Critical fault—severe engine damage may occur. Stop driving and tow to a repair shop immediately."}>ⓘ</span>
+              {sev.label} Severity (Level {obd.severity})
             </span>
           </div>
 
@@ -392,6 +392,12 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           <p className="text-text-muted text-sm leading-relaxed">
             {naturalIntro}
           </p>
+          <details className="mt-3 text-xs text-text-muted">
+            <summary className="cursor-pointer font-heading font-semibold text-text-secondary hover:text-primary transition-colors">What does Severity {obd.severity} mean?</summary>
+            <p className="mt-2 pl-1 leading-relaxed">
+              {obd.severity <= 2 ? "Minor issue — unlikely to cause immediate driveability problems. Inspect at your convenience." : obd.severity === 3 ? "Moderate issue — may affect vehicle performance and fuel economy. Diagnose and repair promptly to prevent further damage." : obd.severity === 4 ? "Serious issue — can cause noticeable driveability problems and potential engine damage. Take to a mechanic as soon as possible." : "Critical fault — may cause severe engine damage or complete engine failure. Stop driving immediately and have the vehicle towed to a repair shop."}
+            </p>
+          </details>
         </div>
 
         {/* NEW: Above-the-Fold "Can you still drive?" Answer Block */}
