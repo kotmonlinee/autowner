@@ -396,42 +396,43 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
                     <span className="text-xs font-heading font-bold text-primary uppercase tracking-wider">Your Vehicle Tier</span>
                   </div>
                 )}
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <h3 className={`text-sm font-heading font-bold mb-0.5 ${isActive ? "text-primary" : "text-text-primary"}`}>
-                      {TIER_LABELS[tier.tier] ?? tier.tierLabel}
-                    </h3>
-                    <p className="text-xs text-text-muted">{tier.vehicles.map((v) => `${v.make} ${v.model}`).join(" / ")}</p>
-                  </div>
-                  <div className="text-right shrink-0">
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <h3 className={`text-sm font-heading font-bold ${isActive ? "text-primary" : "text-text-primary"}`}>
+                    {TIER_LABELS[tier.tier] ?? tier.tierLabel}
+                  </h3>
+                  <div className="flex items-center gap-3 shrink-0">
                     <p className={`text-lg font-heading font-bold ${isActive ? "text-primary" : "text-text-primary"}`}>
                       {formatRange(tier.min, tier.max)}
                     </p>
-                    <p className="text-xs text-text-muted">Avg: {formatMoney(tier.avg)}</p>
+                    <span className="text-xs font-heading text-text-muted">
+                      {tier.confidence === "high" ? "High confidence" : tier.confidence === "medium" ? "Medium confidence" : "Estimate"}
+                    </span>
                   </div>
                 </div>
-                <div className={`mt-3 pt-3 space-y-2 ${isActive ? "border-t border-primary/20" : "border-t border-surface-border"}`}>
-                  <div>
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-text-muted">Labor</span>
-                      <span className="text-text-secondary font-medium">{formatMoney(tier.labor)} ({Math.round((tier.labor / (tier.labor + tier.parts)) * 100)}%)</span>
-                    </div>
-                    <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden">
-                      <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.round((tier.labor / (tier.labor + tier.parts)) * 100)}%` }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-text-muted">Parts</span>
-                      <span className="text-text-secondary font-medium">{formatMoney(tier.parts)} ({Math.round((tier.parts / (tier.labor + tier.parts)) * 100)}%)</span>
-                    </div>
-                    <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden">
-                      <div className="h-full bg-amber dark:bg-amber-dark rounded-full transition-all" style={{ width: `${Math.round((tier.parts / (tier.labor + tier.parts)) * 100)}%` }} />
-                    </div>
-                  </div>
-                  <p className="text-xs font-heading text-text-muted text-right">
-                    {tier.confidence === "high" ? "High confidence" : tier.confidence === "medium" ? "Medium confidence" : "Estimate"}
+                <div className="bg-surface-0 rounded-xl border border-surface-border p-3">
+                  <p className="text-xs font-heading font-bold text-text-primary mb-2">
+                    Average cost: <span className="text-base">{formatMoney(tier.avg)}</span>
                   </p>
+                  <div className="space-y-2">
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-text-muted">Labor</span>
+                        <span className="text-text-secondary font-medium">{formatMoney(tier.labor)} ({Math.round((tier.labor / (tier.labor + tier.parts)) * 100)}%)</span>
+                      </div>
+                      <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.round((tier.labor / (tier.labor + tier.parts)) * 100)}%` }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-text-muted">Parts</span>
+                        <span className="text-text-secondary font-medium">{formatMoney(tier.parts)} ({Math.round((tier.parts / (tier.labor + tier.parts)) * 100)}%)</span>
+                      </div>
+                      <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden">
+                        <div className="h-full bg-amber dark:bg-amber-dark rounded-full transition-all" style={{ width: `${Math.round((tier.parts / (tier.labor + tier.parts)) * 100)}%` }} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               );
