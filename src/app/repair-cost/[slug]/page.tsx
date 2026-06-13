@@ -647,6 +647,8 @@ const DIY_CONFIG: Record<string, { difficulty: string; level: "easy" | "moderate
 
 function categorizeRepair(name: string): string {
   const n = name.toLowerCase();
+  // Transmission/differential fluid changes — moderate, not easy
+  if (n.includes("transmission fluid") || n.includes("differential fluid") || n.includes("transfer case fluid")) return "transmission_moderate";
   // Simple maintenance (catch first to avoid being eaten by broader categories)
   if (n.includes("air filter") || n.includes("fluid flush") || n.includes("fluid change") || n.includes("oil change") || n.includes("coolant flush") || n.includes("fuel filter") || n.includes("windshield") || n.includes("serpentine belt") || n.includes("drive belt") || n.includes("cabin")) return "maintenance";
   // Spark plugs are moderate, not hard
