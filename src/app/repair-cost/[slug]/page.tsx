@@ -429,7 +429,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         </div>
 
         {/* DIY Assessment */}
-        <DiySection repairName={repair.name} tierCards={tierCards} parsed={parsed} makeName={makeName} modelName={modelName} />
+        <DiySection repairSlug={repairSlug} tierCards={tierCards} />
 
         {/* Common OBD Codes */}
         {obdCodes.length > 0 && (
@@ -557,151 +557,41 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
 }
 
 // ── DIY Assessment Component ──────────────────────────────
+// Fetches from diy_difficulty table (AutOwner DIY Knowledge Graph v1.0)
 
-const DIY_CONFIG: Record<string, { difficulty: string; level: "easy" | "moderate" | "hard"; tools: string[]; safety: string; timeHours: number }> = {
-  brakes: {
-    difficulty: "Moderate", level: "moderate",
-    tools: ["Socket set", "Jack + jack stands", "Lug wrench", "C-clamp or brake caliper tool", "Brake grease", "Torque wrench"],
-    safety: "Always use jack stands — never work under a car supported only by a jack. Wear gloves and eye protection.",
-    timeHours: 1.5,
-  },
-  engine: {
-    difficulty: "Hard", level: "hard",
-    tools: ["Socket set", "Torque wrench", "Jack + jack stands", "Gasket scraper", "Breaker bar", "OBD-II scanner"],
-    safety: "Let engine cool completely. Disconnect battery. Work on level ground with proper jack stands.",
-    timeHours: 3,
-  },
-  engine_moderate: {
-    difficulty: "Moderate", level: "moderate",
-    tools: ["Socket set", "Torque wrench", "Multimeter", "OBD-II scanner", "Screwdrivers"],
-    safety: "Let engine cool before starting. Disconnect battery negative terminal.",
-    timeHours: 1.5,
-  },
-  transmission: {
-    difficulty: "Hard", level: "hard",
-    tools: ["Socket set", "Drain pan", "Transmission jack", "Torque wrench", "Fluid pump", "Safety glasses"],
-    safety: "Fluid may be hot — let cool first. Use proper support for the transmission. Dispose of old fluid at a recycling center.",
-    timeHours: 3.5,
-  },
-  transmission_moderate: {
-    difficulty: "Moderate", level: "moderate",
-    tools: ["Socket set", "Drain pan", "Funnel", "Torque wrench", "Fluid pump", "Safety glasses"],
-    safety: "Let fluids cool before draining. Dispose of old fluid at a recycling center.",
-    timeHours: 1,
-  },
-  suspension: {
-    difficulty: "Hard", level: "hard",
-    tools: ["Socket set", "Breaker bar", "Jack + jack stands", "Spring compressor", "Torque wrench", "Ball joint separator"],
-    safety: "Spring compressors can be lethal — follow instructions exactly. Have wheel aligned after suspension work.",
-    timeHours: 2.5,
-  },
-  suspension_moderate: {
-    difficulty: "Moderate", level: "moderate",
-    tools: ["Socket set", "Jack + jack stands", "Torque wrench", "Pry bar", "Penetrating oil"],
-    safety: "Use jack stands. Have wheel alignment checked after suspension work.",
-    timeHours: 1.5,
-  },
-  electrical: {
-    difficulty: "Hard", level: "hard",
-    tools: ["Socket set", "Multimeter", "Torque wrench", "OBD-II scanner", "Breaker bar"],
-    safety: "Disconnect battery negative terminal before working on electrical components. Never bypass fuses.",
-    timeHours: 2,
-  },
-  electrical_moderate: {
-    difficulty: "Moderate", level: "moderate",
-    tools: ["Socket set", "Multimeter", "Screwdrivers", "Dielectric grease"],
-    safety: "Disconnect battery negative terminal before working on electrical components.",
-    timeHours: 1,
-  },
-  ac_heating: {
-    difficulty: "Hard", level: "hard",
-    tools: ["A/C manifold gauge set", "Vacuum pump", "Refrigerant", "Socket set", "UV leak detection kit"],
-    safety: "Refrigerant requires EPA certification to handle legally. Consider hiring a pro for A/C repairs.",
-    timeHours: 3,
-  },
-  exhaust: {
-    difficulty: "Hard", level: "hard",
-    tools: ["Socket set", "Penetrating oil", "Jack + jack stands", "Exhaust hanger tool", "Sawzall", "Safety glasses"],
-    safety: "Exhaust components get very hot. Let cool completely. Use penetrating oil on rusty bolts overnight.",
-    timeHours: 2.5,
-  },
-  exhaust_moderate: {
-    difficulty: "Moderate", level: "moderate",
-    tools: ["Socket set", "O2 sensor socket", "Penetrating oil", "Jack + jack stands", "Gloves"],
-    safety: "Exhaust components get very hot. Let cool completely before working.",
-    timeHours: 1,
-  },
-  maintenance: {
-    difficulty: "Easy", level: "easy",
-    tools: ["Socket set", "Drain pan", "Funnel", "Filter wrench", "Gloves", "Shop towels"],
-    safety: "Let fluids cool before draining. Dispose of used oil and filters at a recycling center. Never pour down drains.",
-    timeHours: 0.75,
-  },
-  glass_body: {
-    difficulty: "Moderate", level: "moderate",
-    tools: ["Trim removal tool", "Socket set", "Screwdrivers", "Panel clip pliers", "Torx bit set"],
-    safety: "Wear gloves when handling glass. Use proper support when removing heavy panels.",
-    timeHours: 1.5,
-  },
-};
+async function DiySection({ repairSlug, tierCards }: { repairSlug: string; tierCards: any[] }) {
+  const supabase = await createServiceSupabase();
+  const dbSlug = repairSlug.replace(/-/g, "_");
+  const { data } = await supabase.from("diy_difficulty").select("*").eq("repair_slug", dbSlug).maybeSingle();
+  if (!data) return null;
 
-function categorizeRepair(name: string): string {
-  const n = name.toLowerCase();
-  // Transmission/differential fluid changes — moderate, not easy
-  if (n.includes("transmission fluid") || n.includes("differential fluid") || n.includes("transfer case fluid")) return "transmission_moderate";
-  // Simple maintenance (catch first to avoid being eaten by broader categories)
-  if (n.includes("air filter") || n.includes("fluid flush") || n.includes("fluid change") || n.includes("oil change") || n.includes("coolant flush") || n.includes("fuel filter") || n.includes("windshield") || n.includes("serpentine belt") || n.includes("drive belt") || n.includes("cabin")) return "maintenance";
-  // Spark plugs are moderate, not hard
-  if (n.includes("spark plug") || n.includes("ignition coil")) return "electrical_moderate";
-  // Brakes
-  if (n.includes("brake") || n.includes("rotor") || n.includes("caliper") || n.includes("pad")) return "brakes";
-  // True engine work (hard)
-  if (n.includes("head gasket") || n.includes("timing belt") || n.includes("timing chain") || n.includes("engine mount") || n.includes("turbo") || n.includes("valve cover")) return "engine";
-  // Moderate engine-related
-  if (n.includes("engine") || n.includes("fuel pump") || n.includes("fuel injector") || n.includes("throttle") || n.includes("pcv") || n.includes("egr") || n.includes("mass air")) return "engine_moderate";
-  // Drivetrain
-  if (n.includes("clutch") || n.includes("transmission mount")) return "transmission";
-  if (n.includes("transmission") || n.includes("differential") || n.includes("transfer case") || n.includes("cv axle")) return "transmission_moderate";
-  // Exhaust (before electrical and ac — "sensor" and "ac" would catch these)
-  if (n.includes("catalytic") || n.includes("muffler") || n.includes("exhaust")) return "exhaust";
-  if (n.includes("o2 sensor") || n.includes("oxygen sensor")) return "exhaust_moderate";
-  // Suspension
-  if (n.includes("strut") || n.includes("shock") || n.includes("ball joint") || n.includes("control arm") || n.includes("spring")) return "suspension";
-  if (n.includes("tie rod") || n.includes("wheel bearing") || n.includes("power steering pump") || n.includes("power steering")) return "suspension_moderate";
-  // AC / Heating (before electrical — "ac" would match)
-  if (n.includes("ac compressor") || n.includes("air condition") || n.includes("heater core") || n.includes("evaporator") || n.includes("heater") || n.includes("blower motor")) return "ac_heating";
-  // Electrical
-  if (n.includes("starter") || n.includes("alternator") || n.includes("compressor")) return "electrical";
-  if (n.includes("battery") || n.includes("sensor") || n.includes("window") || n.includes("door lock") || n.includes("wiring") || n.includes("blower")) return "electrical_moderate";
-  // Catch-all maintenance
-  if (n.includes("fluid") || n.includes("filter") || n.includes("flush") || n.includes("serpentine") || n.includes("coolant") || n.includes("belt")) return "maintenance";
-  return "glass_body";
-}
-
-function DiySection({ repairName, tierCards, parsed, makeName, modelName }: {
-  repairName: string;
-  tierCards: any[];
-  parsed: any;
-  makeName: string;
-  modelName: string;
-}) {
-  const category = categorizeRepair(repairName);
-  const config = DIY_CONFIG[category] ?? DIY_CONFIG.glass_body;
-
-  // Use the active tier's labor cost if vehicle-specific, otherwise first tier
+  const config = data as any;
   const tierCard = tierCards[0];
   if (!tierCard) return null;
-  const laborCost = tierCard.labor;
-  const partsCost = tierCard.parts;
 
-  const difficultyColors = {
-    easy: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
-    moderate: "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",
-    hard: "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
+  const levelColors: Record<number, string> = {
+    1: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+    2: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+    3: "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+    4: "bg-orange-50 dark:bg-orange-950/20 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800",
+    5: "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
   };
 
+  const riskColors: Record<string, string> = {
+    "Low": "bg-emerald-500", "Medium": "bg-amber-500", "High": "bg-orange-500", "Very High": "bg-red-500",
+  };
+
+  const diyColors: Record<string, string> = {
+    "Yes": "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800",
+    "Maybe": "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800",
+    "No": "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800",
+  };
+
+  const tools = config.tools.split(", ");
+  const laborCost = tierCard.labor;
+
   return (
-    <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-4">
+    <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-4">
       <div className="flex items-center gap-2 mb-4">
         <span className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
           <svg className="w-4 h-4 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
@@ -709,26 +599,46 @@ function DiySection({ repairName, tierCards, parsed, makeName, modelName }: {
         <h2 className="text-lg font-heading font-bold text-text-primary">Can You DIY This?</h2>
       </div>
 
-      <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border mb-6 ${difficultyColors[config.level]}`}>
-        <span className={`w-3 h-3 rounded-full shrink-0 ${config.level === "easy" ? "bg-emerald-500" : config.level === "moderate" ? "bg-amber-500" : "bg-red-500"}`} />
-        <span className="text-sm font-heading font-bold">Difficulty: {config.difficulty}</span>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div className={`flex flex-col items-center gap-1 px-3 py-3 rounded-xl border ${levelColors[config.difficulty_level]}`}>
+          <span className="text-2xl sm:text-3xl font-heading font-bold">L{config.difficulty_level}</span>
+          <span className="text-[10px] sm:text-xs font-heading text-center">{config.difficulty_label}</span>
+        </div>
+        <div className={`flex flex-col items-center gap-1 px-3 py-3 rounded-xl border ${diyColors[config.diy_friendly]}`}>
+          <span className="text-sm sm:text-base font-heading font-bold">{config.diy_friendly}</span>
+          <span className="text-[10px] sm:text-xs font-heading text-center">DIY Friendly</span>
+        </div>
+        <div className="flex flex-col items-center gap-1 px-3 py-3 rounded-xl bg-surface-0 border border-surface-border">
+          <span className="text-base sm:text-lg font-heading font-bold text-text-primary">{config.est_time.split(" ")[0]}</span>
+          <span className="text-[10px] sm:text-xs text-text-muted font-heading text-center">Est. Time</span>
+        </div>
+        <div className="flex flex-col items-center gap-1 px-3 py-3 rounded-xl bg-surface-0 border border-surface-border">
+          <div className="flex items-center gap-1.5">
+            <span className={`w-2 h-2 rounded-full ${riskColors[config.risk_level]}`} />
+            <span className="text-sm sm:text-base font-heading font-bold text-text-primary">{config.risk_level}</span>
+          </div>
+          <span className="text-[10px] sm:text-xs text-text-muted font-heading text-center">Risk Level</span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-surface-0 rounded-xl border border-surface-border p-4 text-center">
-          <p className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-1">{config.timeHours}h</p>
-          <p className="text-xs text-text-muted font-heading">Estimated Time</p>
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-surface-0 rounded-xl border border-surface-border p-3 sm:p-4 text-center">
+          <p className="text-xl sm:text-2xl font-heading font-bold text-text-primary mb-1">{config.est_time}</p>
+          <p className="text-[10px] sm:text-xs text-text-muted font-heading">Estimated DIY Time</p>
+          {config.has_variability && (
+            <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-1">Time varies significantly by vehicle model</p>
+          )}
         </div>
-        <div className="bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800 p-4 text-center">
-          <p className="text-2xl sm:text-3xl font-heading font-bold text-emerald-600 dark:text-emerald-400 mb-1">{formatMoney(laborCost)}</p>
-          <p className="text-xs text-text-muted font-heading">You Save in Labor</p>
+        <div className="bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800 p-3 sm:p-4 text-center">
+          <p className="text-xl sm:text-2xl font-heading font-bold text-emerald-600 dark:text-emerald-400 mb-1">{formatMoney(laborCost)}</p>
+          <p className="text-[10px] sm:text-xs text-text-muted font-heading">You Save in Labor</p>
         </div>
       </div>
 
       <div className="bg-surface-0 rounded-xl border border-surface-border p-4 mb-3">
-        <p className="text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Common Tools Needed</p>
+        <p className="text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-2">Tools You'll Need</p>
         <div className="flex flex-wrap gap-1.5">
-          {config.tools.map((tool) => (
+          {tools.map((tool: string) => (
             <span key={tool} className="px-2.5 py-1 rounded-lg bg-surface-1 border border-surface-border text-xs text-text-secondary font-heading">{tool}</span>
           ))}
         </div>
