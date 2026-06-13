@@ -35,6 +35,84 @@ async function getVehicleData(makeSlug: string, modelSlug: string) {
   return { make: { name: m.name, slug: m.slug }, model: model as { name: string; slug: string } };
 }
 
+async function getVehicleStats(makeName: string, modelName: string, makeSlug: string, modelSlug: string) {
+  const supabase = await createServerSupabase();
+  const tier = MAKE_TIER[makeSlug] ?? "mid_range";
+
+  // Get make/model IDs for generations query
+  const { data: makeData } = await supabase.from("vehicle_makes").select("id").eq("slug", makeSlug).single();
+  const { data: modelData } = await supabase.from("vehicle_models").select("id").eq("slug", modelSlug).eq("make_id", (makeData as any)?.id).single();
+  const modelId = (modelData as any)?.id;
+
+  const [genRes, repairRes, obdRes, diagRes] = await Promise.all([
+    modelId
+      ? supabase.from("vehicle_generations").select("name, year_start, year_end").eq("model_id", modelId).order("year_start")
+      : Promise.resolve({ data: [] }),
+    supabase.from("repair_costs").select("repair_name, min_cost, max_cost").eq("tier", tier),
+    supabase.from("obd_codes").select("code, title, severity").or(`title.ilike.%${makeName.toLowerCase()}%,title.ilike.%${modelName.toLowerCase()}%`).order("severity", { ascending: false }).limit(12),
+    supabase.from("diagnoses").select("id", { count: "exact", head: true }).or(`vehicle_make.ilike.%${makeName.toLowerCase()}%`),
+  ]);
+
+  const generations = (genRes.data ?? []) as unknown as any[];
+  const repairs = (repairRes.data ?? []) as unknown as any[];
+  const obdCodes = (obdRes.data ?? []) as unknown as any[];
+  const diagCount = diagRes.count ?? 0;
+
+  // Deduplicate cheapest repairs by name
+  const seen = new Set<string>();
+  const uniqueRepairs: any[] = [];
+  for (const r of repairs) {
+    if (!seen.has(r.repair_name)) { seen.add(r.repair_name); uniqueRepairs.push(r); }
+  }
+  const sortedByMin = uniqueRepairs.filter((r: any) => r.min_cost > 0).sort((a: any, b: any) => a.min_cost - b.min_cost);
+  const cheapest = sortedByMin.slice(0, 3).map((r: any) => r.repair_name);
+  const costMin = sortedByMin.length > 0 ? sortedByMin[0].min_cost : null;
+  const costMax = sortedByMin.length > 0 ? Math.max(...sortedByMin.map((r: any) => r.max_cost)) : null;
+  const costRange = costMin != null && costMax != null ? { min: costMin, max: costMax } : null;
+
+  const tierLabels: Record<string, string> = {
+    economy: "economy vehicles like Honda Civic / Toyota Corolla",
+    mid_range: "mid-range vehicles like Ford F-150 / Honda Accord",
+    luxury: "luxury vehicles like BMW 3 Series / Mercedes C-Class",
+    truck_suv: "trucks and SUVs like Chevy Tahoe / Ram 1500",
+    european: "European vehicles like Audi A4 / Volvo S60",
+  };
+
+  return {
+    genCount: generations.length,
+    genYears: generations.length > 0
+      ? `${generations[0]?.year_start ?? "?"}–${generations[generations.length - 1]?.year_end ?? "Present"}`
+      : null,
+    repairCount: uniqueRepairs.length,
+    cheapest,
+    costRange,
+    obdCount: obdCodes.length,
+    diagCount,
+    tierLabel: tierLabels[tier] ?? tier,
+  };
+}
+
+function generateVehicleDescription(makeName: string, modelName: string, stats: Awaited<ReturnType<typeof getVehicleStats>>) {
+  const parts: string[] = [];
+
+  // Data coverage
+  const coverage = [];
+  if (stats.repairCount > 0) coverage.push(`${stats.repairCount} repair cost estimates`);
+  if (stats.obdCount > 0) coverage.push(`${stats.obdCount} common OBD-II codes`);
+  if (stats.diagCount > 0) coverage.push(`${stats.diagCount} AI-powered diagnoses`);
+  if (coverage.length > 0) {
+    parts.push(`Our database tracks ${coverage.join(", ")} for this model.`);
+  }
+
+  // Cost profile
+  if (stats.costRange && stats.cheapest.length > 0) {
+    const cheapestList = stats.cheapest.map((c) => c.toLowerCase()).join(", ");
+    parts.push(`Repair costs range from $${stats.costRange.min.toLocaleString()} (${stats.cheapest[0].toLowerCase()}) to $${stats.costRange.max.toLocaleString()}, typical for ${stats.tierLabel}. Common repairs include ${cheapestList}.`);
+  }
+
+  return parts.join(" ");
+}
+
 async function getRepairCostsForVehicle(makeSlug: string, repairSlugs: string[]) {
   const supabase = await createServerSupabase();
   const tier = MAKE_TIER[makeSlug] ?? "mid_range";
@@ -134,6 +212,8 @@ export default async function VehicleHubPage({
   }));
 
   const imageUrl = getVehicleImageUrl(makeSlug, modelSlug);
+  const stats = await getVehicleStats(makeName, modelName, makeSlug, modelSlug);
+  const vehicleDescription = generateVehicleDescription(makeName, modelName, stats);
 
   // Group repairs by category
   const categories: Record<string, typeof repairCosts> = {
@@ -173,14 +253,30 @@ export default async function VehicleHubPage({
 
         <div className="flex flex-col md:flex-row gap-6 mb-8">
           <div className="flex-1">
-            <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-2">
+            <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-3">
               {makeName} {modelName}
             </h1>
-            <p className="text-text-muted text-base">
-              Complete guide to repair costs, common OBD-II codes, and maintenance for the {makeName} {modelName}.
+            <p className="text-text-muted text-sm sm:text-base leading-relaxed max-w-2xl">
+              {vehicleDescription}
             </p>
           </div>
           {imageUrl && <VehicleImage src={imageUrl} alt={`${makeName} ${modelName}`} />}
+        </div>
+
+        {/* Safety Recalls — check first before looking at costs */}
+        <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-2xl border border-amber-200 dark:border-amber-800 p-5 mb-6">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-sm font-heading font-bold text-text-primary mb-1">Check for Safety Recalls First</h2>
+              <p className="text-xs text-text-secondary mb-3">Your {makeName} {modelName} may have open recalls — repairs covered by a recall are <strong>free</strong> at dealerships.</p>
+              <Link href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors font-heading">
+                Check Recalls Now →
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* Repair Costs by Category */}
@@ -192,10 +288,11 @@ export default async function VehicleHubPage({
                 <Link
                   key={r.slug}
                   href={`/repair-cost/${r.slug}-${makeSlug}-${modelSlug}`}
-                  className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group"
+                  className="flex items-center justify-between p-3 min-h-[44px] bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group"
                 >
-                  <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors">{r.name}</span>
-                  <span className="text-sm font-bold text-primary font-heading">{formatMoney(r.min)}–{formatMoney(r.max)}</span>
+                  <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors truncate flex-1 min-w-0">{r.name}</span>
+                  <span className="text-sm font-bold text-primary font-heading shrink-0 mx-2">{formatMoney(r.min)}–{formatMoney(r.max)}</span>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -213,10 +310,11 @@ export default async function VehicleHubPage({
                 <Link
                   key={c.code}
                   href={`/obd/${c.code.toLowerCase()}`}
-                  className="flex items-center gap-3 p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors"
+                  className="group flex items-center gap-3 p-3 min-h-[44px] bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors"
                 >
                   <span className="text-sm font-mono font-bold text-primary shrink-0">{c.code}</span>
-                  <span className="text-xs text-text-secondary line-clamp-1">{c.title}</span>
+                  <span className="text-xs text-text-secondary line-clamp-1 flex-1 min-w-0">{c.title}</span>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -235,9 +333,10 @@ export default async function VehicleHubPage({
             <p className="text-xs text-text-muted mb-3">AI-powered diagnoses from {makeName} {modelName} owners describing their symptoms:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {relatedDiagnoses.map((d: any) => (
-                <Link key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
-                  <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors truncate">{d.title}</span>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ml-2 ${d.severity === "critical" ? "bg-red-50 text-red-700 border-red-200" : d.severity === "high" ? "bg-orange-50 text-orange-700 border-orange-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>{d.severity}</span>
+                <Link key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center justify-between p-3 min-h-[44px] bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
+                  <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors truncate flex-1 min-w-0">{d.title}</span>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 mx-2 ${d.severity === "critical" ? "bg-red-50 text-red-700 border-red-200" : d.severity === "high" ? "bg-orange-50 text-orange-700 border-orange-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>{d.severity}</span>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -246,38 +345,28 @@ export default async function VehicleHubPage({
 
         {/* AI Diagnosis CTA */}
         <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 mb-4">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl shrink-0">🔍</span>
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
               <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Having a Problem with Your {makeName} {modelName}?</h2>
-              <p className="text-xs text-text-secondary mb-2">Not sure what repair you need? Use our AI symptom checker to diagnose the issue based on your car's symptoms.</p>
-              <Link href={`/symptom-checker`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">Diagnose Your {makeName} →</Link>
+              <p className="text-xs text-text-secondary">Not sure what repair you need? Describe your symptoms and our AI will diagnose the issue.</p>
             </div>
+            <Link href={`/symptom-checker`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
+              Diagnose Your {makeName}
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            </Link>
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-surface-1 rounded-2xl border border-surface-border p-6">
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-1">Protect Your {makeName} {modelName}</h2>
-          <p className="text-xs text-text-muted mb-4">Check for open safety recalls and verify repair quotes before you pay.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Link href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="flex items-start gap-3 p-4 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group">
-              <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-              </div>
-              <div>
-                <p className="text-sm font-heading font-bold text-text-primary group-hover:text-primary transition-colors">Safety Recalls</p>
-                <p className="text-xs text-text-muted mt-0.5">Check open NHTSA recalls for your {makeName} {modelName} — free.</p>
-              </div>
-            </Link>
-            <Link href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="flex items-start gap-3 p-4 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
-              </div>
-              <div>
-                <p className="text-sm font-heading font-bold text-text-primary group-hover:text-primary transition-colors">Verify a Quote</p>
-                <p className="text-xs text-text-muted mt-0.5">Check if your mechanic is overcharging for {makeName} repairs.</p>
-              </div>
+        {/* Quote Checker */}
+        <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Got a Quote from Your Mechanic?</h2>
+              <p className="text-xs text-text-secondary">Verify if the quoted price for your {makeName} {modelName} repair is fair.</p>
+            </div>
+            <Link href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
+              Verify Quote
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           </div>
         </div>
