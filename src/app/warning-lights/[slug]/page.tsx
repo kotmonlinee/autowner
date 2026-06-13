@@ -124,9 +124,9 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
         </div>
 
         {/* ── What It Means ── */}
-        <div className="mb-4">
+        <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-6 border-l-4" style={{ borderLeftColor: `var(--severity-${light.severity === 'informational' ? 'info' : light.severity})` }}>
           <h2 className="text-lg font-heading font-bold text-text-primary mb-3">What It Means</h2>
-          <p className="text-text-secondary leading-relaxed text-sm">{light.meaning}</p>
+          <p className="text-text-primary leading-relaxed text-sm">{light.meaning}</p>
         </div>
 
         {/* ── Can I Still Drive? ── */}
