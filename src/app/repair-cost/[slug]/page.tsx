@@ -618,13 +618,15 @@ const DIY_CONFIG: Record<string, { difficulty: string; level: "easy" | "moderate
 function categorizeRepair(name: string): string {
   const n = name.toLowerCase();
   if (n.includes("brake") || n.includes("rotor") || n.includes("caliper") || n.includes("pad")) return "brakes";
+  // Simple filters/easy maintenance before broader categories
+  if (n.includes("air filter") || n.includes("cabin") || n.includes("oil change") || n.includes("fluid flush") || n.includes("fluid change") || n.includes("windshield")) return "maintenance";
   if (n.includes("engine") || n.includes("timing") || n.includes("head gasket") || n.includes("valve") || n.includes("spark") || n.includes("ignition") || n.includes("fuel") || n.includes("injector") || n.includes("belt") || n.includes("mount") || n.includes("pcv") || n.includes("throttle") || n.includes("turbo")) return "engine";
   if (n.includes("transmission") || n.includes("clutch") || n.includes("differential") || n.includes("transfer case") || n.includes("cv axle")) return "transmission";
   if (n.includes("strut") || n.includes("shock") || n.includes("ball joint") || n.includes("tie rod") || n.includes("control arm") || n.includes("wheel bearing") || n.includes("power steering")) return "suspension";
   if (n.includes("alternator") || n.includes("starter") || n.includes("battery") || n.includes("sensor") || n.includes("window") || n.includes("door lock") || n.includes("wiring")) return "electrical";
-  if (n.includes("ac") || n.includes("air condition") || n.includes("compressor") || n.includes("heater") || n.includes("blower") || n.includes("evaporator") || n.includes("cabin")) return "ac_heating";
+  if (n.includes("ac") || n.includes("air condition") || n.includes("compressor") || n.includes("heater") || n.includes("blower") || n.includes("evaporator")) return "ac_heating";
   if (n.includes("catalytic") || n.includes("muffler") || n.includes("egr") || n.includes("exhaust") || n.includes("o2 sensor") || n.includes("oxygen sensor")) return "exhaust";
-  if (n.includes("oil change") || n.includes("fluid") || n.includes("filter") || n.includes("flush") || n.includes("windshield") || n.includes("serpentine") || n.includes("coolant")) return "maintenance";
+  if (n.includes("fluid") || n.includes("filter") || n.includes("flush") || n.includes("serpentine") || n.includes("coolant")) return "maintenance";
   return "glass_body";
 }
 
