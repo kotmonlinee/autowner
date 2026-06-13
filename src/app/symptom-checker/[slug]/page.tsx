@@ -8,6 +8,7 @@ import { resolveRepairSlug } from "@/lib/internal-linking";
 import ShareButtons from "@/components/ShareButtons";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import { getRepairImageUrl } from "@/lib/repair-images";
+import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash, ListChecks } from "lucide-react";
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
@@ -86,6 +87,21 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   const browseRepairUrl = vehicle
     ? `/vehicles/${(diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-")}/${(diagnosis.vehicle_model ?? "").toLowerCase().replace(/\s+/g, "-")}`
     : "/repair-cost";
+
+  // Collect related warning lights from repair keywords
+  const relatedWarningLights: { slug: string; title: string }[] = [];
+  if (validRepairs.length > 0) {
+    const seen = new Set<string>();
+    for (const item of validRepairs) {
+      const repairSlug = repairSlugMap.get(item);
+      if (repairSlug) {
+        const lights = getRelatedWarningLights(repairSlug);
+        for (const l of lights) {
+          if (!seen.has(l.slug)) { seen.add(l.slug); relatedWarningLights.push(l); }
+        }
+      }
+    }
+  }
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -170,6 +186,25 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                   <span className="h-4 w-px bg-surface-border shrink-0" />
                   <span className="text-xs text-text-secondary truncate">{obd.title}</span>
                   <ChevronRight className="w-3.5 h-3.5 text-text-muted ml-auto shrink-0" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Related Warning Lights ── */}
+        {relatedWarningLights.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related Dashboard Warning Lights</h2>
+            <div className="space-y-2">
+              {relatedWarningLights.slice(0, 6).map((light) => (
+                <Link key={light.slug} href={`/warning-lights/${light.slug}`}
+                  className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                  <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                    <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                  <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1 min-w-0">{light.title}</span>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>

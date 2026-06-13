@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getAllRepairSlugs } from "@/lib/data/server";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
+import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import VehicleImage from "@/components/VehicleImage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -323,6 +324,39 @@ export default async function VehicleHubPage({
             </Link>
           </div>
         )}
+
+        {/* Related Warning Lights */}
+        {(() => {
+          const seen = new Set<string>();
+          const warningLights: { slug: string; title: string }[] = [];
+          for (const r of repairCosts) {
+            const lights = getRelatedWarningLights(r.slug);
+            for (const l of lights) {
+              if (!seen.has(l.slug)) { seen.add(l.slug); warningLights.push(l); }
+            }
+          }
+          if (warningLights.length === 0) return null;
+          return (
+            <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-4">
+              <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
+                Common Warning Lights for {makeName} {modelName}
+              </h2>
+              <p className="text-xs text-text-muted mb-3">Dashboard warning lights that may appear with {makeName} {modelName} repairs:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {warningLights.slice(0, 8).map((light) => (
+                  <Link key={light.slug} href={`/warning-lights/${light.slug}`}
+                    className="group flex items-center gap-3 p-3 min-h-[44px] bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                      <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" loading="lazy" />
+                    </div>
+                    <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1 min-w-0">{light.title}</span>
+                    <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Related Diagnoses */}
         {relatedDiagnoses.length > 0 && (
