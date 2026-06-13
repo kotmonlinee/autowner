@@ -622,9 +622,9 @@ async function DiySection({ repairSlug, tierCards }: { repairSlug: string; tierC
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-surface-0 rounded-xl border border-surface-border p-3 sm:p-4 text-center">
-          <p className="text-xl sm:text-2xl font-heading font-bold text-text-primary mb-1">{formatMoney(tierCard.parts)}</p>
-          <p className="text-[10px] sm:text-xs text-text-muted font-heading">Parts Cost</p>
-          <p className="text-[10px] text-text-muted mt-0.5">you still pay for parts</p>
+          <p className="text-xl sm:text-2xl font-heading font-bold text-text-primary mb-1">~20–50%</p>
+          <p className="text-[10px] sm:text-xs text-text-muted font-heading">Save on Parts</p>
+          <p className="text-[10px] text-text-muted mt-0.5">buying parts yourself vs shop markup</p>
         </div>
         <div className="bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800 p-3 sm:p-4 text-center">
           <p className="text-xl sm:text-2xl font-heading font-bold text-emerald-600 dark:text-emerald-400 mb-1">{formatMoney(tierCard.labor)}</p>
