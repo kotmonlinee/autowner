@@ -363,33 +363,6 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           <span className="text-text-secondary truncate">{obd.code}</span>
         </nav>
 
-        {/* Search Box */}
-        <form
-          action="/obd"
-          method="GET"
-          className="mb-6"
-        >
-          <div className="relative">
-            <svg
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input
-              name="q"
-              type="search"
-              placeholder="Enter OBD code (e.g. P0420, P0300)..."
-              className="w-full h-12 pl-12 pr-5 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-            />
-          </div>
-        </form>
 
         {/* Code Header Card */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-6 mb-4">
@@ -409,7 +382,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 className="w-1.5 h-1.5 rounded-full"
                 style={{ background: sev.text }}
               />
-              {sev.label} Severity (Level {obd.severity})
+              {sev.label} Severity (Level {obd.severity})<span className="ml-1 text-[10px] opacity-60">ⓘ</span>
             </span>
           </div>
 
@@ -432,42 +405,6 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           </p>
         </div>
 
-        {/* Severity Explanation */}
-        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
-            Severity Level {obd.severity} &mdash; {sev.label}
-          </h2>
-          <p className="text-text-muted text-sm leading-relaxed">
-            {obd.severity <= 2 && (
-              <>
-                This code indicates a minor issue that is unlikely to cause immediate driveability
-                problems. You can typically continue driving but should have the vehicle inspected
-                at your earliest convenience.
-              </>
-            )}
-            {obd.severity === 3 && (
-              <>
-                This code indicates a moderate issue that may affect vehicle performance and fuel
-                economy. Continued driving is possible in most cases, but prompt diagnosis and
-                repair are recommended to prevent further damage.
-              </>
-            )}
-            {obd.severity === 4 && (
-              <>
-                This code indicates a serious issue that can cause noticeable driveability problems
-                and potential engine damage if not addressed. The vehicle should be taken to a
-                mechanic as soon as possible. Extended driving is not recommended.
-              </>
-            )}
-            {obd.severity === 5 && (
-              <>
-                This code indicates a critical issue that may cause severe engine damage or complete
-                engine failure. Stop driving immediately and have the vehicle towed to a repair shop.
-                Continuing to drive could result in catastrophic engine damage and costly repairs.
-              </>
-            )}
-          </p>
-        </div>
 
         {/* Symptoms */}
         {obd.symptoms.length > 0 && (
@@ -630,6 +567,10 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 </Link>
               ))}
             </div>
+            <Link href="/obd" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+              Browse all 12,000+ codes
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            </Link>
           </div>
         )}
 
