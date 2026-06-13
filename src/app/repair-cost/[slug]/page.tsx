@@ -410,18 +410,28 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
                     <p className="text-xs text-text-muted">Avg: {formatMoney(tier.avg)}</p>
                   </div>
                 </div>
-                <div className={`mt-3 pt-3 flex items-center gap-4 ${isActive ? "border-t border-primary/20" : "border-t border-surface-border"}`}>
-                  <div className="flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>
-                    <span className="text-xs text-text-muted">Labor: {formatMoney(tier.labor)}</span>
+                <div className={`mt-3 pt-3 space-y-2 ${isActive ? "border-t border-primary/20" : "border-t border-surface-border"}`}>
+                  <div>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-text-muted">Labor</span>
+                      <span className="text-text-secondary font-medium">{formatMoney(tier.labor)} ({Math.round((tier.labor / (tier.labor + tier.parts)) * 100)}%)</span>
+                    </div>
+                    <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden">
+                      <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.round((tier.labor / (tier.labor + tier.parts)) * 100)}%` }} />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5 text-amber dark:text-amber-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
-                    <span className="text-xs text-text-muted">Parts: {formatMoney(tier.parts)}</span>
+                  <div>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-text-muted">Parts</span>
+                      <span className="text-text-secondary font-medium">{formatMoney(tier.parts)} ({Math.round((tier.parts / (tier.labor + tier.parts)) * 100)}%)</span>
+                    </div>
+                    <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden">
+                      <div className="h-full bg-amber dark:bg-amber-dark rounded-full transition-all" style={{ width: `${Math.round((tier.parts / (tier.labor + tier.parts)) * 100)}%` }} />
+                    </div>
                   </div>
-                  <span className="ml-auto text-xs font-heading text-text-muted">
+                  <p className="text-xs font-heading text-text-muted text-right">
                     {tier.confidence === "high" ? "High confidence" : tier.confidence === "medium" ? "Medium confidence" : "Estimate"}
-                  </span>
+                  </p>
                 </div>
               </div>
               );
@@ -449,46 +459,6 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             </Link>
           </div>
         </div>
-
-        {/* Labor vs Parts Breakdown */}
-        <section className="mb-6">
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Labor vs Parts Breakdown</h2>
-          <div className="space-y-3">
-            {tierCards.map((tier) => {
-              const total = tier.labor + tier.parts;
-              const laborPct = total > 0 ? Math.round((tier.labor / total) * 100) : 0;
-              const partsPct = 100 - laborPct;
-              return (
-                <div key={tier.tier} className="bg-surface-1 rounded-xl border border-surface-border p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-heading font-semibold text-text-secondary">{TIER_LABELS[tier.tier] ?? tier.tierLabel}</span>
-                    <span className="text-xs text-text-muted">Total: {formatMoney(tier.avg)}</span>
-                  </div>
-                  <div className="space-y-2">
-                    <div>
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-text-muted">Labor</span>
-                        <span className="text-text-secondary font-medium">{formatMoney(tier.labor)} ({laborPct}%)</span>
-                      </div>
-                      <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${laborPct}%` }} />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-text-muted">Parts</span>
-                        <span className="text-text-secondary font-medium">{formatMoney(tier.parts)} ({partsPct}%)</span>
-                      </div>
-                      <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden">
-                        <div className="h-full bg-amber dark:bg-amber-dark rounded-full transition-all" style={{ width: `${partsPct}%` }} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
 
         {/* Factors Affecting Price */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-6">
