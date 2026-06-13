@@ -382,7 +382,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 className="w-1.5 h-1.5 rounded-full"
                 style={{ background: sev.text }}
               />
-              {sev.label} Severity (Level {obd.severity})<span className="ml-1 text-[10px] opacity-60">ⓘ</span>
+              {sev.label} Severity (Level {obd.severity})<span className="ml-1 text-[10px] opacity-60 cursor-help" title={obd.severity <= 2 ? "Minor issue—unlikely to cause immediate problems. Inspect at your convenience." : obd.severity === 3 ? "Moderate issue—may affect performance and fuel economy. Diagnose promptly." : obd.severity === 4 ? "Serious issue—can cause noticeable problems and potential engine damage. Take to a mechanic soon." : "Critical fault—severe engine damage may occur. Stop driving and tow to a repair shop immediately."}>ⓘ</span>
             </span>
           </div>
 
