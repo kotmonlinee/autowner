@@ -4,6 +4,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
+import { formatMoney } from "@/lib/constants";
 export const revalidate = 86400;
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -22,8 +23,6 @@ const DRIVING_COLORS: Record<string, string> = {
   limited: "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",
   unsafe: "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
 };
-
-function formatMoney(n: number): string { return `$${n.toLocaleString()}`; }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -215,10 +214,33 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
     mainEntity: faqItems.map((item) => ({ "@type": "Question", name: item.q, acceptedAnswer: { "@type": "Answer", text: item.a } })),
   };
 
+  const pageTitle = vs ? vs.title : `${s.name}: Causes, Repair Cost & Is It Safe To Drive?`;
+  const pageDesc = vs ? vs.meta_description : `Learn the most common causes of ${s.name.toLowerCase()}, expected repair costs, diagnosis steps, and whether it is safe to continue driving.`;
+  const articleJsonLd = {
+    "@context": "https://schema.org", "@type": "Article",
+    headline: pageTitle,
+    description: pageDesc.substring(0, 160),
+    publisher: { "@type": "Organization", name: "AutOwner" },
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org", "@type": "BreadcrumbList",
+    itemListElement: vs ? [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.autowner.com" },
+      { "@type": "ListItem", position: 2, name: "Symptoms", item: "https://www.autowner.com/symptoms" },
+      { "@type": "ListItem", position: 3, name: `${vs.vehicle_make} ${vs.vehicle_model}`, item: `https://www.autowner.com/symptoms/${vs.slug}` },
+    ] : [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.autowner.com" },
+      { "@type": "ListItem", position: 2, name: "Symptoms", item: "https://www.autowner.com/symptoms" },
+      { "@type": "ListItem", position: 3, name: s.name, item: `https://www.autowner.com/symptoms/${slug}` },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       <main className="flex-1 max-w-3xl mx-auto px-5 py-8 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">

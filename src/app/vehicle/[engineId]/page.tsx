@@ -13,6 +13,8 @@ import PostCard from "@/components/PostCard";
 import Link from "next/link";
 import { FollowVehicleButton } from "./FollowVehicleButton";
 
+export const revalidate = 86400;
+
 // ── Helpers ────────────────────────────────────────────────
 
 function formatYearRange(start: number, end: number | null): string {

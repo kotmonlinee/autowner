@@ -8,6 +8,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServiceSupabase } from "@/lib/supabase-server";
 
+export const revalidate = 86400;
+
 // ── Helpers ──────────────────────────────────────────────
 
 function severityColor(severity: number): { bg: string; text: string; border: string; label: string } {
@@ -202,9 +204,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
     }));
   }
 
-  if (!obd) {
-    return <ObdNotFound code={code} />;
-  }
+  if (!obd) notFound();
 
   const sev = severityColor(obd.severity);
   const sevDark = severityStylesDark(obd.severity);
@@ -653,75 +653,6 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
       </main>
 
-      <Footer />
-    </div>
-  );
-}
-
-// ── Not Found View ──────────────────────────────────────
-
-function ObdNotFound({ code }: { code: string }) {
-  return (
-    <div className="min-h-screen bg-surface-0 flex flex-col">
-      <Navbar />
-      <main className="max-w-4xl mx-auto px-5 py-16 flex-1 w-full text-center">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-surface-1 border border-surface-border flex items-center justify-center">
-          <svg
-            className="w-8 h-8 text-text-muted"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-        </div>
-        <h1 className="text-2xl font-heading font-bold text-text-primary mb-2">
-          Code Not Found
-        </h1>
-        <p className="text-text-muted text-sm mb-6 max-w-md mx-auto">
-          OBD code &ldquo;<strong className="text-text-secondary">{code.toUpperCase()}</strong>&rdquo; was not found
-          in our database. This may be a manufacturer-specific code or an invalid code format.
-        </p>
-
-        <form action="/obd" method="GET" className="max-w-md mx-auto">
-          <label className="block text-sm font-heading font-semibold text-text-secondary mb-2">
-            Try searching for a different code:
-          </label>
-          <div className="relative">
-            <svg
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input
-              name="q"
-              type="search"
-              placeholder="Enter OBD code (e.g. P0420, P0300)..."
-              className="w-full h-12 pl-12 pr-5 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-            />
-          </div>
-          <div className="mt-4">
-            <Link
-              href="/obd"
-              className="text-sm font-semibold font-heading text-primary hover:text-primary-glow transition-colors"
-            >
-              Browse all OBD codes
-            </Link>
-          </div>
-        </form>
-      </main>
       <Footer />
     </div>
   );

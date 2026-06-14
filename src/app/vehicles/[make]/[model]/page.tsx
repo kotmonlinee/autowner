@@ -8,19 +8,9 @@ import VehicleImage from "@/components/VehicleImage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createServerSupabase } from "@/lib/supabase-server";
+import { MAKE_TIER } from "@/lib/constants";
 
-const MAKE_TIER: Record<string, string> = {
-  toyota: "economy", honda: "economy", nissan: "economy", hyundai: "economy",
-  kia: "economy", subaru: "economy", mazda: "economy", volkswagen: "mid_range",
-  ford: "mid_range", chevrolet: "mid_range", gmc: "truck_suv", dodge: "mid_range",
-  jeep: "truck_suv", ram: "truck_suv", chrysler: "mid_range", buick: "mid_range",
-  bmw: "european", "mercedes-benz": "european", audi: "european",
-  porsche: "european", volvo: "european", "land-rover": "european",
-  mini: "european", jaguar: "european",
-  cadillac: "luxury", lexus: "luxury", acura: "luxury", infiniti: "luxury",
-  lincoln: "luxury", genesis: "luxury",
-  tesla: "luxury", rivian: "truck_suv", lucid: "luxury",
-};
+export const revalidate = 86400;
 
 function formatMoney(n: number): string {
   return n >= 1000 ? `$${(n / 1000).toFixed(1)}k` : `$${n}`;

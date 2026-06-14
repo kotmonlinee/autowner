@@ -2,6 +2,7 @@
 // All Supabase calls live here so migrating to a different DB only changes this file.
 import { createServerSupabase } from "@/lib/supabase-server";
 import type { PostWithRelations, Category, CommentWithAuthor, CommentWithPost, Notification, ObdCode, RepairCostRow, RepairCostTier, RepairCostFull } from "@/lib/types";
+import { MAKE_TIER, TIER_LABELS } from "@/lib/constants";
 
 // ── Slug helpers ─────────────────────────────────────────
 
@@ -1724,13 +1725,6 @@ export async function getObdCodesPaginated(page: number, pageSize = 50): Promise
 
 // ── Repair Costs ───────────────────────────────────────────
 
-const TIER_LABELS: Record<string, string> = {
-  economy: "Economy",
-  mid_range: "Mid-Range",
-  luxury: "Luxury",
-  truck_suv: "Truck/SUV",
-  european: "European",
-};
 
 const TIER_VEHICLES: Record<string, { make: string; model: string }[]> = {
   economy: [
@@ -1756,19 +1750,6 @@ const TIER_VEHICLES: Record<string, { make: string; model: string }[]> = {
 };
 
 // ── Vehicle-specific repair cost ─────────────────────────
-
-const MAKE_TIER: Record<string, string> = {
-  toyota: "economy", honda: "economy", nissan: "economy", hyundai: "economy",
-  kia: "economy", subaru: "economy", mazda: "economy", volkswagen: "mid_range",
-  ford: "mid_range", chevrolet: "mid_range", gmc: "truck_suv", dodge: "mid_range",
-  jeep: "truck_suv", ram: "truck_suv", chrysler: "mid_range", buick: "mid_range",
-  bmw: "european", "mercedes-benz": "european", audi: "european",
-  porsche: "european", volvo: "european", "land-rover": "european",
-  mini: "european", jaguar: "european",
-  cadillac: "luxury", lexus: "luxury", acura: "luxury", infiniti: "luxury",
-  lincoln: "luxury", genesis: "luxury",
-  tesla: "luxury", rivian: "truck_suv", lucid: "luxury",
-};
 
 export async function getVehicleRepairCost(
   makeSlug: string, modelSlug: string, repairSlug: string,

@@ -16,6 +16,8 @@ import ArticleTOC from "@/components/ArticleTOC";
 import ProductCard from "@/components/ProductCard";
 import AuthorBio from "@/components/AuthorBio";
 import ReadingProgress from "@/components/ReadingProgress";
+
+export const revalidate = 3600;
 import { FollowVehicleButton } from "@/app/vehicle/[engineId]/FollowVehicleButton";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";

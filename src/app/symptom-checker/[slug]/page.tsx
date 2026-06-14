@@ -11,6 +11,8 @@ import { getRepairImageUrl } from "@/lib/repair-images";
 import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash, ListChecks } from "lucide-react";
 
+export const revalidate = 3600;
+
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
   critical: { bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", label: "Critical — Stop Driving", icon: <AlertTriangle className="w-6 h-6" /> },
   high: { bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-orange-700 dark:text-orange-400", border: "border-orange-200 dark:border-orange-800", label: "Serious — Inspect Soon", icon: <AlertTriangle className="w-6 h-6" /> },
