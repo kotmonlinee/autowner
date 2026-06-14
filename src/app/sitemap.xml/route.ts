@@ -91,6 +91,39 @@ export async function GET() {
     urls.push(urlEntry(`${baseUrl}/post/${slug}`, lastmod, "weekly", priority));
   }
 
+  // Symptom detail pages
+  try {
+    const supabase = await createServiceSupabase();
+    const { data: symptoms } = await supabase.from("symptoms").select("slug").order("slug");
+    if (symptoms) {
+      for (const s of (symptoms as any[])) {
+        urls.push(urlEntry(`${baseUrl}/symptoms/${s.slug}`, now, "monthly", 0.75));
+      }
+    }
+  } catch { /* skip */ }
+
+  // Symptoms browse page
+  urls.push(urlEntry(`${baseUrl}/symptoms`, now, "weekly", 0.8));
+
+  // Vehicle-specific symptom pages — paginate
+  try {
+    const supabase = await createServiceSupabase();
+    const BATCH = 1000;
+    let offset = 0;
+    while (true) {
+      const { data } = await supabase.from("vehicle_symptoms")
+        .select("slug")
+        .order("slug")
+        .range(offset, offset + BATCH - 1);
+      if (!data || data.length === 0) break;
+      for (const vs of (data as any[])) {
+        urls.push(urlEntry(`${baseUrl}/symptoms/${vs.slug}`, now, "monthly", 0.7));
+      }
+      if (data.length < BATCH) break;
+      offset += BATCH;
+    }
+  } catch { /* skip */ }
+
   // AI Diagnosis pages — paginate to bypass Supabase 1,000-row limit
   try {
     const supabase = await createServiceSupabase();
