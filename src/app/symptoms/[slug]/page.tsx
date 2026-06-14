@@ -28,6 +28,17 @@ function formatMoney(n: number): string { return `$${n.toLocaleString()}`; }
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createServiceSupabase();
+  // Check vehicle_symptoms first
+  const { data: vsData } = await supabase.from("vehicle_symptoms").select("title, meta_description, symptom_name").eq("slug", slug).maybeSingle();
+  if (vsData) {
+    const vs = vsData as any;
+    return {
+      title: vs.title,
+      description: vs.meta_description,
+      alternates: { canonical: `https://www.autowner.com/symptoms/${slug}` },
+      openGraph: { title: vs.title, description: vs.meta_description, type: "article" },
+    };
+  }
   const { data } = await supabase.from("symptoms").select("name").eq("slug", slug).maybeSingle();
   if (!data) return { title: "Symptom Not Found" };
   const s = data as any;
@@ -43,7 +54,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function SymptomPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createServiceSupabase();
-  const { data: symptom } = await supabase.from("symptoms").select("*").eq("slug", slug).maybeSingle();
+
+  // Check if this is a vehicle-specific symptom article
+  const { data: vehicleSymptom } = await supabase.from("vehicle_symptoms").select("*").eq("slug", slug).maybeSingle();
+  const vs = vehicleSymptom as any;
+
+  const { data: symptom } = await supabase.from("symptoms").select("*").eq("slug", vs ? vs.symptom_slug : slug).maybeSingle();
   if (!symptom) notFound();
 
   const s = symptom as any;
@@ -123,15 +139,28 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
   const diyMin = diyLevels.length > 0 ? Math.min(...diyLevels) : null;
   const diyMax = diyLevels.length > 0 ? Math.max(...diyLevels) : null;
 
-  // Related diagnoses — match via shared repair slugs in knowledge graph
+  // Related vehicle-specific symptom pages
+  let relatedVehicles: { slug: string; vehicle_make: string; vehicle_model: string }[] = [];
+  if (!vs) {
+    const { data: vData } = await supabase.from("vehicle_symptoms")
+      .select("slug, vehicle_make, vehicle_model")
+      .eq("symptom_slug", slug)
+      .order("vehicle_make").order("vehicle_model")
+      .limit(24);
+    relatedVehicles = (vData ?? []) as any[];
+  }
+
+  // Related diagnoses — match via shared repair slugs, filter by vehicle if applicable
   let relatedDiagnoses: { slug: string; title: string; severity: string }[] = [];
   try {
     const causeSlugs = uniqueCauses.filter((c: any) => c.repair_slug).map((c: any) => c.repair_slug);
     if (causeSlugs.length > 0) {
-      const { data: diagData } = await supabase.from("diagnoses")
-        .select("slug, diagnosis_json, view_count")
+      let query = supabase.from("diagnoses")
+        .select("slug, diagnosis_json, vehicle_make, vehicle_model, view_count")
         .order("view_count", { ascending: false })
         .limit(200);
+      if (vs) query = query.eq("vehicle_make", vs.vehicle_make).eq("vehicle_model", vs.vehicle_model);
+      const { data: diagData } = await query;
       const slugSet = new Set(causeSlugs);
       relatedDiagnoses = ((diagData ?? []) as any[])
         .filter((d: any) => {
@@ -171,7 +200,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
     try { faqFromDb = JSON.parse(s.faq_items); } catch { /* keep null */ }
   }
   const faqItems = faqFromDb ?? [
-    { q: `What causes ${s.name.toLowerCase()}?`, a: `The most common causes include ${causesWithPrices.slice(0, 3).map((c: any, i: number) => `${c.cause_name.toLowerCase()} (${c.probability}% probability${c.repair_cost_min ? `, repair cost ${formatMoney(c.repair_cost_min)}–${formatMoney(c.repair_cost_max)}` : ""})`).join("; ")}. A proper diagnosis is highly recommended before replacing any parts, as fixing the wrong cause wastes time and money.` },
+    { q: `What causes ${vs ? `${s.name.toLowerCase()} on a ${vs.vehicle_make} ${vs.vehicle_model}` : s.name.toLowerCase()}?`, a: vs?.causes?.length ? `The most common causes for ${vs.vehicle_make} ${vs.vehicle_model} include ${vs.causes.slice(0, 3).map((c: any) => `${c.cause.toLowerCase()} (${c.probability}% probability, ${c.cost})`).join("; ")}. A proper diagnosis is highly recommended before replacing any parts, as fixing the wrong cause wastes time and money.` : `The most common causes include ${causesWithPrices.slice(0, 3).map((c: any, i: number) => `${c.cause_name.toLowerCase()} (${c.probability}% probability${c.repair_cost_min ? `, repair cost ${formatMoney(c.repair_cost_min)}–${formatMoney(c.repair_cost_max)}` : ""})`).join("; ")}. A proper diagnosis is highly recommended before replacing any parts, as fixing the wrong cause wastes time and money.` },
     { q: `How much does it cost to fix ${s.name.toLowerCase()}?`, a: costMin != null && costMax != null ? `Repair costs typically range from ${formatMoney(costMin)} to ${formatMoney(costMax)}, depending on the underlying cause and your vehicle.` : `Costs vary widely depending on the cause. Get a professional diagnosis first.` },
     { q: `Is it safe to drive with ${s.name.toLowerCase()}?`, a: s.driving_risk === "unsafe" ? "No. Have the vehicle towed to a repair shop immediately." : s.driving_risk === "limited" ? "Limited driving only. Short distances to a repair shop at low speeds are generally OK." : "Yes, you can typically continue driving, but schedule a diagnosis soon." },
     { q: `Can I fix ${s.name.toLowerCase()} myself?`, a: diyMin != null && diyMax != null ? `It depends on the cause. DIY difficulty ranges from L${diyMin} to L${diyMax} for this symptom. ${diyMax! <= 2 ? "All common causes are beginner-friendly." : diyMin! <= 2 ? "Some causes are easy DIY, but others require professional help. Check the causes table above." : "Most causes require significant mechanical experience or professional equipment."}` : "It depends on the cause. Check each cause above for its DIY difficulty level. Simple fixes may be DIY-friendly; complex repairs require a professional." },
@@ -196,33 +225,33 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <Link href="/symptoms" className="hover:text-primary transition-colors">Symptoms</Link>
+          {vs && (
+            <>
+              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <span className="text-text-secondary">{vs.vehicle_make} {vs.vehicle_model}</span>
+            </>
+          )}
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary">{s.name}</span>
+          <span className="text-text-secondary truncate">{vs ? vs.symptom_name : s.name}</span>
         </nav>
 
         {/* 1. Hero */}
         <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-8 mb-6">
-          <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-3">{s.name}</h1>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border ${SEVERITY_COLORS[s.severity]}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${s.severity === "critical" ? "bg-red-500" : s.severity === "high" ? "bg-orange-500" : s.severity === "medium" ? "bg-amber-500" : "bg-emerald-500"}`} />
-                  {s.severity === "critical" ? "Critical" : s.severity === "high" ? "Serious" : s.severity === "medium" ? "Moderate" : "Low"}
-                </span>
-                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border ${DRIVING_COLORS[s.driving_risk]}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${s.driving_risk === "unsafe" ? "bg-red-500" : s.driving_risk === "limited" ? "bg-amber-500" : "bg-emerald-500"}`} />
-                  {DRIVING_LABELS[s.driving_risk]}
-                </span>
-              </div>
-            </div>
-            {costMin != null && costMax != null && (
-              <div className="text-right">
-                <p className="text-xs text-text-muted font-heading uppercase tracking-wider">Typical Repair Cost</p>
-                <p className="text-2xl font-heading font-bold text-text-primary">{formatMoney(costMin!)} – {formatMoney(costMax!)}</p>
-                <a href="#causes" className="text-[10px] text-primary hover:text-primary-glow transition-colors">varies by cause — see breakdown ↓</a>
-              </div>
+          <div className="mb-5">
+            {vs && (
+              <p className="text-xs text-text-muted font-heading mb-2">{vs.vehicle_make} {vs.vehicle_model}</p>
             )}
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-3">{vs ? vs.h1 : s.name}</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border ${SEVERITY_COLORS[s.severity]}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${s.severity === "critical" ? "bg-red-500" : s.severity === "high" ? "bg-orange-500" : s.severity === "medium" ? "bg-amber-500" : "bg-emerald-500"}`} />
+                {s.severity === "critical" ? "Critical" : s.severity === "high" ? "Serious" : s.severity === "medium" ? "Moderate" : "Low"}
+              </span>
+              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border ${DRIVING_COLORS[s.driving_risk]}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${s.driving_risk === "unsafe" ? "bg-red-500" : s.driving_risk === "limited" ? "bg-amber-500" : "bg-emerald-500"}`} />
+                {DRIVING_LABELS[s.driving_risk]}
+              </span>
+            </div>
           </div>
           <Link href="/symptom-checker" className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl hover:bg-primary/10 hover:border-primary/40 transition-all group">
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
@@ -257,7 +286,9 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
         {/* 2. What This Means */}
         <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6 border-l-4 border-l-primary/40">
           <h2 className="text-lg font-heading font-bold text-text-primary mb-3">What This Means</h2>
-          {s.overview ? (
+          {vs?.overview ? (
+            <p className="text-sm text-text-secondary leading-relaxed">{vs.overview}</p>
+          ) : s.overview ? (
             <p className="text-sm text-text-secondary leading-relaxed">{s.overview}</p>
           ) : (
             (() => {
@@ -321,6 +352,19 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
         {/* 4. Most Common Fixes */}
         <div id="causes" className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6 scroll-mt-20">
           <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Most Common Fixes</h2>
+          {vs?.causes ? (
+            <div className="space-y-2 mb-4">
+              {vs.causes.map((c: any, i: number) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-surface-0 border border-surface-border">
+                  <span className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 text-sm font-bold font-heading">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-heading font-semibold text-text-primary block">{c.cause}</span>
+                    <span className="text-xs text-text-muted">{c.probability}% probability · {c.cost}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -435,6 +479,21 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
                   <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2"><img src={`/warning-lights/${l.slug}.jpg`} alt={l.title} className="w-full h-full object-cover" loading="lazy" /></div>
                   <span className="text-sm font-heading font-semibold text-text-primary truncate flex-1">{l.title}</span>
                   <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Related Vehicles */}
+        {!vs && relatedVehicles.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-3">See This Symptom on Specific Vehicles</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {relatedVehicles.map((rv) => (
+                <Link key={rv.slug} href={`/symptoms/${rv.slug}`} className="flex items-center gap-2 p-2.5 rounded-lg bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
+                  <span className="text-sm font-heading font-medium text-text-primary group-hover:text-primary transition-colors truncate">{rv.vehicle_make} {rv.vehicle_model}</span>
+                  <svg className="w-3.5 h-3.5 text-text-muted shrink-0 group-hover:text-primary group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
