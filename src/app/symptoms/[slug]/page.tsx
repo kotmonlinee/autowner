@@ -123,6 +123,30 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
   const diyMin = diyLevels.length > 0 ? Math.min(...diyLevels) : null;
   const diyMax = diyLevels.length > 0 ? Math.max(...diyLevels) : null;
 
+  // Related diagnoses — match via shared repair slugs in knowledge graph
+  let relatedDiagnoses: { slug: string; title: string; severity: string }[] = [];
+  try {
+    const causeSlugs = uniqueCauses.filter((c: any) => c.repair_slug).map((c: any) => c.repair_slug);
+    if (causeSlugs.length > 0) {
+      const { data: diagData } = await supabase.from("diagnoses")
+        .select("slug, diagnosis_json, view_count")
+        .order("view_count", { ascending: false })
+        .limit(200);
+      const slugSet = new Set(causeSlugs);
+      relatedDiagnoses = ((diagData ?? []) as any[])
+        .filter((d: any) => {
+          const matched = d.diagnosis_json?.matchedRepairSlugs ?? [];
+          return matched.some((rs: string) => slugSet.has(rs));
+        })
+        .slice(0, 3)
+        .map((d: any) => ({
+          slug: d.slug,
+          title: d.diagnosis_json?.title ?? "Car Diagnosis",
+          severity: d.diagnosis_json?.severity ?? "medium",
+        }));
+    }
+  } catch { /* keep empty */ }
+
   // Category descriptions
   const catDesc: Record<string, string> = {
     vibration: "engine, drivetrain, or suspension systems",
@@ -213,6 +237,22 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
             <svg className="w-5 h-5 text-primary shrink-0 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
           </Link>
         </div>
+
+        {/* Related Diagnoses */}
+        {relatedDiagnoses.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Related AI Diagnoses</h2>
+            <div className="space-y-2">
+              {relatedDiagnoses.map((d) => (
+                <Link key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center gap-3 p-3 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${d.severity === "critical" ? "bg-red-500" : d.severity === "high" ? "bg-orange-500" : d.severity === "medium" ? "bg-amber-500" : "bg-emerald-500"}`} />
+                  <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1">{d.title}</span>
+                  <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 2. What This Means */}
         <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6 border-l-4 border-l-primary/40">

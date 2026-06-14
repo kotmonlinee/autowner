@@ -153,6 +153,20 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
     }
   }
 
+  // Related symptoms — from matched repairs via symptom_causes
+  let relatedSymptoms: { slug: string; name: string; category: string }[] = [];
+  if (resolvedRepairs.length > 0) {
+    const repSlugs = resolvedRepairs.map(r => r.slug);
+    const { data: causeData } = await supabase.from("symptom_causes")
+      .select("symptom_id").in("repair_slug", repSlugs);
+    const sids = [...new Set((causeData ?? []).map((r: any) => r.symptom_id))];
+    if (sids.length > 0) {
+      const { data: symptomData } = await supabase.from("symptoms")
+        .select("slug, name, category").in("id", sids).limit(5);
+      relatedSymptoms = (symptomData ?? []) as any[];
+    }
+  }
+
   // Collect related warning lights from resolved repairs
   const relatedWarningLights: { slug: string; title: string }[] = [];
   if (resolvedRepairs.length > 0) {
@@ -353,6 +367,26 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                   </div>
                   <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1 min-w-0">{light.title}</span>
                   <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Related Symptoms ── */}
+        {relatedSymptoms.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+              </span>
+              Related Symptoms
+            </h2>
+            <div className="space-y-2">
+              {relatedSymptoms.map((s) => (
+                <Link key={s.slug} href={`/symptoms/${s.slug}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
+                  <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1">{s.name}</span>
+                  <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
