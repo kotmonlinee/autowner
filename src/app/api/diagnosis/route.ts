@@ -16,7 +16,9 @@ The user may also provide diagnostic context — use it to refine your diagnosis
 - Odometer reading: Use to determine if the issue aligns with known service intervals (e.g., timing belt at 90k).
 - Recent repair work: A symptom that started right after a repair often points to an installation error or disturbed component.
 
-CRITICAL — Repair matching: You will be given a catalog of available repairs. For "matchedRepairSlugs", select ONLY from the provided list. Choose 2-4 most relevant repairs. Do NOT invent repairs not in the catalog. If nothing matches, return an empty array.
+CRITICAL — Repair matching: You will be given a catalog of available repairs. For "matchedRepairSlugs", select ONLY from the provided list. Choose 2-4 most relevant repairs.
+
+CRITICAL — Consistency: "possibleCodes" and "matchedRepairSlugs" MUST be consistent. Every OBD code you list should have at least one repair in matchedRepairSlugs that addresses its typical root cause. If you list P0300 (misfire), you MUST include spark_plugs or ignition_coil. If you list P0420 (catalyst), you MUST include catalytic_converter or oxygen_sensor. Do not list codes without corresponding repairs.
 
 Return ONLY valid JSON with this structure:
 {

@@ -37,8 +37,8 @@ export default function SearchBar() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search codes, repairs, quotes..."
-          aria-label="Search"
+          placeholder="Search symptoms, repairs, codes..."
+          aria-label="Search symptoms, repairs, or OBD codes"
           className="w-full pl-10 pr-16 py-2 bg-surface-2 text-text-primary text-sm rounded-lg border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted"
         />
         <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-surface-3 border border-surface-border text-[10px] font-mono text-text-muted">

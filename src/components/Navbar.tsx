@@ -84,8 +84,14 @@ export default function Navbar() {
           {/* Desktop nav links */}
           <div className="hidden lg:flex items-center gap-0.5 shrink-0">
             <Link
-              href="/symptom-checker"
+              href="/symptoms"
               className="px-2.5 py-2 text-sm font-medium text-text-primary hover:text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
+            >
+              Symptoms
+            </Link>
+            <Link
+              href="/symptom-checker"
+              className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
               AI Diagnosis
             </Link>
@@ -118,12 +124,6 @@ export default function Navbar() {
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
               Recall Check
-            </Link>
-            <Link
-              href="/community"
-              className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
-            >
-              Community
             </Link>
           </div>
 
@@ -190,15 +190,7 @@ export default function Navbar() {
                 </div>
               </>
             ) : (
-              <>
-                <ThemeToggle />
-                <Link
-                  href="/auth/login"
-                  className="px-4 py-2 text-sm font-semibold font-heading text-text-secondary hover:text-text-primary border border-surface-border rounded-lg hover:border-surface-4 transition-all"
-                >
-                  Sign In
-                </Link>
-              </>
+              <ThemeToggle />
             )}
           </div>
 
@@ -243,9 +235,19 @@ export default function Navbar() {
             {/* Mobile nav links — same order as desktop */}
             <div className="pt-1 space-y-1">
               <Link
-                href="/symptom-checker"
+                href="/symptoms"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-text-primary hover:bg-surface-2 transition-colors font-heading"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                Symptoms
+              </Link>
+              <Link
+                href="/symptom-checker"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors font-heading"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" /><path d="M18.259 12.715L18 13.5l-.259-.785a3 3 0 0 0-2.456-2.456L13.5 10l1.785-.259a3 3 0 0 0 2.456-2.456L18 5.5l.259 1.785a3 3 0 0 0 2.456 2.456L22.5 10l-1.785.259a3 3 0 0 0-2.456 2.456Z" />
@@ -301,16 +303,6 @@ export default function Navbar() {
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
                 Recall Check
-              </Link>
-              <Link
-                href="/community"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors font-heading"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-                Community
               </Link>
             </div>
 
@@ -381,16 +373,7 @@ export default function Navbar() {
                   </div>
                 </>
               ) : (
-                <>
-                  <ThemeToggle />
-                  <Link
-                    href="/auth/login"
-                    onClick={() => setMenuOpen(false)}
-                    className="px-4 py-2 text-sm font-semibold font-heading text-text-secondary hover:text-text-primary border border-surface-border rounded-lg hover:border-surface-4 transition-all"
-                  >
-                    Sign In
-                  </Link>
-                </>
+                <ThemeToggle />
               )}
             </div>
           </div>

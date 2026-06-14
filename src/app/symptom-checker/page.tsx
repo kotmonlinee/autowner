@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: "Describe your car's symptoms and get possible OBD-II codes, repair suggestions, and cost estimates.",
 };
 
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 6;
 
 export default async function DiagnosisPage({
   searchParams,
@@ -39,8 +39,6 @@ export default async function DiagnosisPage({
     totalCount = count ?? 0;
   } catch { /* diagnoses fetch failed, skip */ }
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
@@ -60,7 +58,6 @@ export default async function DiagnosisPage({
           initialDiagnoses={popular}
           initialTotalCount={totalCount}
           initialPage={page}
-          totalPages={totalPages}
         />
       </main>
       <Footer />

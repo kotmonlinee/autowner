@@ -116,15 +116,31 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
 
   const vehicleImageUrl = parsed ? getVehicleImageUrl(parsed.makeSlug, parsed.modelSlug) : null;
 
-  // Related OBD codes
+  // Related OBD codes via knowledge graph: repair → symptom_causes → symptom_obd_codes → obd_codes
   const supabase = await createServiceSupabase();
-  const repairKeywords = repair.name.toLowerCase().split(" ").filter((w) => w.length > 3);
   let obdCodes: { code: string; title: string }[] = [];
-  if (repairKeywords.length > 0) {
-    const conditions = repairKeywords.slice(0, 3).map((kw) => `title.ilike.%${kw}%`).join(",");
-    const { data } = await supabase.from("obd_codes")
-      .select("code, title").or(conditions).order("code").limit(10);
-    obdCodes = (data as unknown as { code: string; title: string }[]) ?? [];
+  const { data: causeSymptomIds } = await supabase.from("symptom_causes")
+    .select("symptom_id").eq("repair_slug", repairSlug.replace(/-/g, "_"));
+  const symptomIds = [...new Set((causeSymptomIds ?? []).map((r: any) => r.symptom_id))];
+  if (symptomIds.length > 0) {
+    const { data: obdJunction } = await supabase.from("symptom_obd_codes")
+      .select("obd_code").in("symptom_id", symptomIds);
+    const obdCodeList = [...new Set((obdJunction ?? []).map((r: any) => r.obd_code))];
+    if (obdCodeList.length > 0) {
+      const { data: obdData } = await supabase.from("obd_codes")
+        .select("code, title").in("code", obdCodeList).order("code").limit(10);
+      obdCodes = (obdData as unknown as { code: string; title: string }[]) ?? [];
+    }
+  }
+  // Fallback: keyword search on OBD titles
+  if (obdCodes.length === 0) {
+    const repairKeywords = repair.name.toLowerCase().split(" ").filter((w: string) => w.length > 3);
+    if (repairKeywords.length > 0) {
+      const conditions = repairKeywords.slice(0, 3).map((kw: string) => `title.ilike.%${kw}%`).join(",");
+      const { data } = await supabase.from("obd_codes")
+        .select("code, title").or(conditions).order("code").limit(10);
+      obdCodes = (data as unknown as { code: string; title: string }[]) ?? [];
+    }
   }
 
   const tierKeys = TIER_ORDER.filter((t) => repair.tiers[t]);

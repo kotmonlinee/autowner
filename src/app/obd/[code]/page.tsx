@@ -170,7 +170,37 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
     }));
   } catch { /* diagnoses fetch failed, skip */ }
 
-  const relatedRepairs = getRelatedRepairs(obd?.title ?? "", 3);
+  // Related repairs via knowledge graph: OBD code → symptoms → causes → repairs
+  interface OdbRepair { slug: string; name: string; diyLabel: string | null; estTime: string | null; }
+  let relatedRepairs: OdbRepair[] = [];
+  try {
+    const kgSupabase = await createServiceSupabase();
+    const { data: obdSymptoms } = await kgSupabase.from("symptom_obd_codes")
+      .select("symptom_id").eq("obd_code", obd?.code ?? code.toUpperCase());
+    const symptomIds = [...new Set((obdSymptoms ?? []).map((r: any) => r.symptom_id))];
+    if (symptomIds.length > 0) {
+      const { data: obdCauses } = await kgSupabase.from("symptom_causes")
+        .select("repair_slug").in("symptom_id", symptomIds);
+      const repairSlugs = [...new Set((obdCauses ?? []).map((r: any) => r.repair_slug).filter(Boolean))];
+      if (repairSlugs.length > 0) {
+        const { data: diyData } = await kgSupabase.from("diy_difficulty")
+          .select("repair_slug, repair_name, difficulty_label, est_time")
+          .in("repair_slug", repairSlugs);
+        relatedRepairs = ((diyData ?? []) as any[]).map((r) => ({
+          slug: r.repair_slug.replace(/_/g, "-"),
+          name: r.repair_name,
+          diyLabel: r.difficulty_label,
+          estTime: r.est_time,
+        }));
+      }
+    }
+  } catch { /* fallback to keyword matching below */ }
+  // Fallback: keyword matching for OBD codes not in knowledge graph
+  if (relatedRepairs.length === 0) {
+    relatedRepairs = getRelatedRepairs(obd?.title ?? "", 3).map((r) => ({
+      slug: r.slug, name: r.name, diyLabel: null, estTime: null,
+    }));
+  }
 
   if (!obd) {
     return <ObdNotFound code={code} />;
@@ -536,11 +566,17 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 const img = getRepairImageUrl(repair.slug);
                 return (
                   <Link key={repair.slug} href={`/repair-cost/${repair.slug}`}
-                    className="flex items-center gap-3 p-2 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
+                    className="flex items-center gap-3 p-3 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
                     <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                       {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />}
                     </div>
-                    <span className="text-sm font-medium text-text-primary font-heading truncate flex-1 min-w-0">{repair.name}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-medium text-text-primary font-heading truncate block group-hover:text-primary transition-colors">{repair.name}</span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {repair.diyLabel && <span className="text-[10px] font-heading font-semibold text-text-muted">{repair.diyLabel}</span>}
+                        {repair.estTime && <span className="text-[10px] text-text-muted font-heading">{repair.estTime}</span>}
+                      </div>
+                    </div>
                     <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                   </Link>
                 );

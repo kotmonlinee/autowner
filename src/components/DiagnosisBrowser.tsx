@@ -33,16 +33,19 @@ function getDiagnosisImage(diag: any, d: any): string | null {
   return null;
 }
 
-export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, initialPage, totalPages }: {
+export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, initialPage }: {
   initialDiagnoses: any[];
   initialTotalCount: number;
   initialPage: number;
-  totalPages: number;
 }) {
   const [query, setQuery] = useState("");
   const [diagnoses, setDiagnoses] = useState<any[]>(initialDiagnoses);
   const [page, setPage] = useState(initialPage);
+  const [totalCount, setTotalCount] = useState(initialTotalCount);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const LIMIT = 6;
+  const computedPages = Math.max(1, Math.ceil(totalCount / LIMIT));
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -53,6 +56,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
           if (res.ok) {
             const data = await res.json();
             setDiagnoses(data.diagnoses ?? []);
+            setTotalCount(data.total ?? 0);
           }
         } catch { /* fallback */ }
       } else {
@@ -67,10 +71,11 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
   const loadPage = async (p: number) => {
     try {
       const q = query.trim().length >= 2 ? `&q=${encodeURIComponent(query.trim())}` : "";
-      const res = await fetch(`/api/diagnosis-search?limit=24&page=${p}${q}`);
+      const res = await fetch(`/api/diagnosis-search?limit=${LIMIT}&page=${p}${q}`);
       if (res.ok) {
         const data = await res.json();
         setDiagnoses(data.diagnoses ?? []);
+        setTotalCount(data.total ?? 0);
         setPage(p);
         document.getElementById("diagnosis-results")?.scrollIntoView({ behavior: "smooth" });
       }
@@ -142,16 +147,16 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
           </div>
 
           {/* Pagination */}
-          {query.trim().length < 2 && totalPages > 1 && (
+          {query.trim().length < 2 && computedPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-8">
               {page > 1 && (
                 <button onClick={() => loadPage(page - 1)} className="flex items-center gap-1 px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>Previous
                 </button>
               )}
-              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              {Array.from({ length: Math.min(computedPages, 7) }, (_, i) => {
                 const p = page <= 4 ? i + 1 : i + page - 3;
-                if (p > totalPages) return null;
+                if (p > computedPages) return null;
                 return (
                   <button key={p} onClick={() => loadPage(p)}
                     className={`px-3 py-2 text-sm font-heading font-medium rounded-lg transition-colors ${p === page ? "bg-primary text-white" : "text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border hover:bg-surface-2"}`}>
@@ -159,7 +164,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
                   </button>
                 );
               })}
-              {page < totalPages && (
+              {page < computedPages && (
                 <button onClick={() => loadPage(page + 1)} className="flex items-center gap-1 px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors">
                   Next<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </button>

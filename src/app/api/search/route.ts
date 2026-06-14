@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   const supabase = await createServiceSupabase();
   const lower = q.toLowerCase();
 
-  const [obdRes, repairRes, lightRes, diagRes] = await Promise.all([
+  const [obdRes, repairRes, lightRes, symptomRes, diagRes] = await Promise.all([
     supabase.from("obd_codes").select("code, title").or(`code.ilike.${lower}%,title.ilike.%${lower}%`).order("code").limit(5),
     supabase.from("repair_costs").select("repair_slug, repair_name").or(`repair_name.ilike.%${lower}%`).order("repair_name").limit(5),
     Promise.resolve(
@@ -35,6 +35,7 @@ export async function GET(req: Request) {
         { slug: "low-fuel", title: "Low Fuel Level" },
       ].filter((w) => w.title.toLowerCase().includes(lower)).slice(0, 5)
     ),
+    supabase.from("symptoms").select("slug, name").ilike("name", `%${lower}%`).order("name").limit(5),
     supabase.from("diagnoses").select("slug, diagnosis_json, view_count").ilike("symptom_path", `%${lower}%`).order("view_count", { ascending: false }).limit(5),
   ]);
 
@@ -59,6 +60,12 @@ export async function GET(req: Request) {
   if (Array.isArray(lightRes)) {
     for (const w of lightRes) {
       results.push({ type: "Warning Light", label: w.title, href: `/warning-lights/${w.slug}` });
+    }
+  }
+
+  if (symptomRes.data) {
+    for (const row of symptomRes.data as unknown as { slug: string; name: string }[]) {
+      results.push({ type: "Symptom", label: row.name, href: `/symptoms/${row.slug}` });
     }
   }
 

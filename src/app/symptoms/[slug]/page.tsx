@@ -238,9 +238,9 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
           )}
         </div>
 
-        {/* 3. Most Common Causes */}
+        {/* 3. Most Common Fixes */}
         <div id="causes" className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6 scroll-mt-20">
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Most Common Causes</h2>
+          <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Most Common Fixes</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -345,23 +345,35 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
         )}
 
         {/* 8. Can I Continue Driving */}
-        <div className={`rounded-2xl border p-5 sm:p-6 mb-6 ${s.driving_risk === "unsafe" ? "bg-red-50/50 dark:bg-red-950/10 border-red-200 dark:border-red-800" : s.driving_risk === "limited" ? "bg-orange-50/50 dark:bg-orange-950/10 border-orange-200 dark:border-orange-800" : "bg-emerald-50/50 dark:bg-emerald-950/10 border-emerald-200 dark:border-emerald-800"}`}>
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-3">Can I Continue Driving?</h2>
+        <div className={`rounded-2xl border-2 p-5 sm:p-6 mb-6 border-l-[6px] ${s.driving_risk === "unsafe" ? "bg-red-50/40 dark:bg-red-950/15 border-red-400 dark:border-red-600" : s.driving_risk === "limited" ? "bg-orange-50/40 dark:bg-orange-950/15 border-orange-400 dark:border-orange-600" : "bg-emerald-50/40 dark:bg-emerald-950/15 border-emerald-400 dark:border-emerald-600"}`}>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-3xl">{s.driving_risk === "unsafe" ? "🚨" : s.driving_risk === "limited" ? "⚠️" : "✅"}</span>
+            <div>
+              <h2 className="text-lg font-heading font-bold text-text-primary">Can I Continue Driving?</h2>
+              <span className={`text-sm font-heading font-bold ${s.driving_risk === "unsafe" ? "text-red-700 dark:text-red-400" : s.driving_risk === "limited" ? "text-orange-700 dark:text-orange-400" : "text-emerald-700 dark:text-emerald-400"}`}>
+                {s.driving_risk === "unsafe" ? "Do Not Drive — Tow Required" : s.driving_risk === "limited" ? "Limited Driving Only" : "Safe to Drive"}
+              </span>
+            </div>
+          </div>
           {s.driving_advice ? (
-            <p className="text-sm text-text-secondary leading-relaxed">{s.driving_advice}</p>
+            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
+              {s.driving_advice.split(/\n\n|\n/).filter(Boolean).map((para: string, i: number) => (
+                <p key={i}>{para.trim()}</p>
+              ))}
+            </div>
           ) : s.driving_risk === "unsafe" ? (
             <div className="text-sm text-text-secondary leading-relaxed space-y-2">
-              <p><strong className="text-red-700 dark:text-red-400">Do not drive.</strong> This symptom indicates a serious safety risk or the potential for catastrophic engine or drivetrain damage. Continuing to operate the vehicle could cause further damage to critical components and create a dangerous situation for you and other drivers.</p>
+              <p>This symptom indicates a serious safety risk or the potential for catastrophic engine or drivetrain damage. Continuing to operate the vehicle could cause further damage to critical components and create a dangerous situation for you and other drivers.</p>
               <p>Have the vehicle towed to a qualified repair shop immediately. The cost of a tow is far less than the cost of an engine rebuild or transmission replacement. If you must move the vehicle a short distance, do so only at very low speed and for emergency purposes only.</p>
             </div>
           ) : s.driving_risk === "limited" ? (
             <div className="text-sm text-text-secondary leading-relaxed space-y-2">
-              <p><strong className="text-orange-700 dark:text-orange-400">Limited driving only.</strong> You can drive short distances to a repair shop at low speeds, but avoid highway driving, hard acceleration, and heavy loads. Schedule a diagnosis as soon as possible — ideally within the next few days.</p>
+              <p>You can drive short distances to a repair shop at low speeds, but avoid highway driving, hard acceleration, and heavy loads. Schedule a diagnosis as soon as possible — ideally within the next few days.</p>
               <p>Continuing to drive with this symptom may worsen the underlying condition. What starts as an affordable fix can escalate into a significantly more expensive repair if components fail completely while driving. Monitor for any change in severity and stop driving immediately if the symptom worsens.</p>
             </div>
           ) : (
             <div className="text-sm text-text-secondary leading-relaxed space-y-2">
-              <p><strong className="text-emerald-700 dark:text-emerald-400">Safe to drive.</strong> You can continue normal driving, but the symptom should be diagnosed at your earliest convenience. Use the causes table above to understand what might be happening and schedule a professional inspection if needed.</p>
+              <p>You can continue normal driving, but the symptom should be diagnosed at your earliest convenience. Use the causes table above to understand what might be happening and schedule a professional inspection if needed.</p>
               <p>Even minor symptoms can indicate developing problems. What starts as a subtle vibration or intermittent noise can progress to component failure if left unaddressed for weeks or months. Early diagnosis typically costs far less than emergency repairs.</p>
             </div>
           )}

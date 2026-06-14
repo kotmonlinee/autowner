@@ -16,6 +16,7 @@ const TYPE_COLORS: Record<string, string> = {
   "Repair Cost": "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800",
   "Warning Light": "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
   "Diagnosis": "bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-800",
+  "Symptom": "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
 };
 
 export default function SmartSearchBar() {
@@ -83,7 +84,7 @@ export default function SmartSearchBar() {
 
   return (
     <div ref={containerRef} className="relative mt-6 sm:mt-10 max-w-2xl mx-auto">
-      <form onSubmit={handleSubmit} className="flex gap-3" role="search">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3" role="search">
         <div className="relative flex-1">
           <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -96,12 +97,12 @@ export default function SmartSearchBar() {
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => { if (suggestions.length > 0) setOpen(true); }}
             onKeyDown={handleKeyDown}
-            placeholder="Search OBD codes, repairs, warning lights, diagnoses..."
-            aria-label="Search OBD codes, repairs, warning lights, or diagnoses"
+            placeholder="Search symptoms, repairs, codes..."
+            aria-label="Search symptoms, repairs, or OBD codes"
             className="w-full h-14 pl-12 pr-5 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
           />
         </div>
-        <button type="submit" className="h-14 px-8 bg-primary text-white font-semibold font-heading rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/25 text-base shrink-0">
+        <button type="submit" className="h-14 px-8 bg-primary text-white font-semibold font-heading rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/25 text-base sm:shrink-0">
           Check Now
         </button>
       </form>

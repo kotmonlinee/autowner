@@ -124,6 +124,35 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
     ? `/vehicles/${(diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-")}/${(diagnosis.vehicle_model ?? "").toLowerCase().replace(/\s+/g, "-")}`
     : "/repair-cost";
 
+  // Cross-validate: ensure OBD codes have matching repairs via knowledge graph
+  if (d.possibleCodes?.length && obdCodeDetails.length > 0) {
+    const existingSlugs = new Set(resolvedRepairs.map((r) => r.slug));
+    // OBD codes → symptom_obd_codes → symptom_causes → repair_slugs
+    const { data: obdSymptoms } = await supabase.from("symptom_obd_codes")
+      .select("symptom_id").in("obd_code", d.possibleCodes);
+    const symptomIds = [...new Set((obdSymptoms ?? []).map((r: any) => r.symptom_id))];
+    if (symptomIds.length > 0) {
+      const { data: obdCauses } = await supabase.from("symptom_causes")
+        .select("repair_slug").in("symptom_id", symptomIds);
+      const missingSlugs = [...new Set((obdCauses ?? []).map((r: any) => r.repair_slug).filter(Boolean))]
+        .filter((s) => !existingSlugs.has(s));
+      if (missingSlugs.length > 0) {
+        const { data: missingDiy } = await supabase.from("diy_difficulty")
+          .select("*").in("repair_slug", missingSlugs);
+        for (const diy of (missingDiy ?? []) as any[]) {
+          const urlSlug = diy.repair_slug.replace(/_/g, "-");
+          resolvedRepairs.push({
+            slug: diy.repair_slug, name: diy.repair_name, repairSlug: urlSlug,
+            image: getRepairImageUrl(urlSlug),
+            diyLevel: diy.difficulty_level, diyLabel: diy.difficulty_label,
+            diyFriendly: diy.diy_friendly, estTime: diy.est_time, riskLevel: diy.risk_level,
+            avgCost: null,
+          });
+        }
+      }
+    }
+  }
+
   // Collect related warning lights from resolved repairs
   const relatedWarningLights: { slug: string; title: string }[] = [];
   if (resolvedRepairs.length > 0) {
@@ -203,56 +232,6 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </div>
         )}
 
-        {/* ── Related OBD Codes ── */}
-        {d.possibleCodes && d.possibleCodes.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Hash className="w-4 h-4" />
-              </span>
-              Related OBD-II Codes
-            </h2>
-            <div className="space-y-2">
-              {obdCodeDetails.map((obd) => (
-                <Link key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
-                  <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code}</span>
-                  <span className="h-4 w-px bg-surface-border shrink-0" />
-                  <span className="text-xs text-text-secondary truncate">{obd.title}</span>
-                  <ChevronRight className="w-3.5 h-3.5 text-text-muted ml-auto shrink-0" />
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Related Warning Lights ── */}
-        {relatedWarningLights.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related Dashboard Warning Lights</h2>
-            <div className="space-y-2">
-              {relatedWarningLights.slice(0, 6).map((light) => (
-                <Link key={light.slug} href={`/warning-lights/${light.slug}`}
-                  className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
-                  <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                    <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" loading="lazy" />
-                  </div>
-                  <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1 min-w-0">{light.title}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Divider: Try another diagnosis ── */}
-        <div className="my-8 py-6 px-5 bg-surface-1 rounded-2xl border border-surface-border text-center">
-          <p className="text-sm text-text-secondary font-heading font-medium mb-3">Not satisfied with this diagnosis?</p>
-          <Link href="/symptom-checker" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all font-heading shadow-sm shadow-primary/20">
-            Try Another Diagnosis
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-
         {/* ── What To Do Next ── */}
         {(d.whatToDo || d.costEstimate || resolvedRepairs.length > 0) && (
           <div className="mb-6 space-y-4">
@@ -288,8 +267,12 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {resolvedRepairs.map((r) => (
                     <Link key={r.slug} href={`/repair-cost/${r.repairSlug}`} className="flex items-center gap-3 p-3 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
-                      <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                        {r.image && <img src={r.image} alt={r.name} className="w-full h-full object-cover" loading="lazy" />}
+                      <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2 flex items-center justify-center">
+                        {r.image ? (
+                          <img src={r.image} alt={r.name} className="w-full h-full object-cover" loading="lazy" />
+                        ) : (
+                          <Wrench className="w-5 h-5 text-text-muted" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <span className="text-sm font-medium text-text-primary font-heading truncate block group-hover:text-primary transition-colors">{r.name}</span>
@@ -324,15 +307,55 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                 </h2>
                 <p className="text-sm text-text-secondary">{d.costEstimate}</p>
                 {cost && <p className="text-xs text-text-muted mt-1">Typical range: ${cost.min.toLocaleString()} – ${cost.max.toLocaleString()}</p>}
-                <div className="mt-4 pt-4 border-t border-surface-border">
-                  <Link href={browseRepairUrl} className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
-                    Browse All Repair Costs
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
               </div>
             )}
 
+          </div>
+        )}
+
+        {/* ── Related OBD Codes ── */}
+        {d.possibleCodes && d.possibleCodes.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <Hash className="w-4 h-4" />
+              </span>
+              Related OBD-II Codes
+            </h2>
+            <div className="space-y-2">
+              {obdCodeDetails.map((obd) => (
+                <Link key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
+                  <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code}</span>
+                  <span className="h-4 w-px bg-surface-border shrink-0" />
+                  <span className="text-xs text-text-secondary truncate">{obd.title}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-text-muted ml-auto shrink-0" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Related Warning Lights ── */}
+        {relatedWarningLights.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4" />
+              </span>
+              Related Dashboard Warning Lights
+            </h2>
+            <div className="space-y-2">
+              {relatedWarningLights.slice(0, 6).map((light) => (
+                <Link key={light.slug} href={`/warning-lights/${light.slug}`}
+                  className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                  <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                    <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                  <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1 min-w-0">{light.title}</span>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 
@@ -352,6 +375,15 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           <div className="mt-4 pt-4 border-t border-surface-border">
             <ShareButtons url={`https://www.autowner.com/symptom-checker/${slug}`} title={d.title} />
           </div>
+        </div>
+
+        {/* ── Try another diagnosis ── */}
+        <div className="mb-6 py-6 px-5 bg-surface-1 rounded-2xl border border-surface-border text-center">
+          <p className="text-sm text-text-secondary font-heading font-medium mb-3">Not satisfied with this diagnosis?</p>
+          <Link href="/symptom-checker" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all font-heading shadow-sm shadow-primary/20">
+            Try Another Diagnosis
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
         {/* ── Disclaimer ── */}
