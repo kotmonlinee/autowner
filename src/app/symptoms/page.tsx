@@ -89,7 +89,7 @@ export default async function SymptomsPage() {
                       <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors flex-1 min-w-0 truncate">{s.name}</span>
                       {s.severity && (
                         <span className={`inline-block text-[10px] font-heading font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${SEV_COLORS[s.severity] ?? "bg-surface-0 text-text-muted"}`}>
-                          {s.severity === "critical" ? "Critical" : s.severity === "high" ? "Serious" : s.severity === "medium" ? "Moderate" : ""}
+                          {s.severity === "critical" ? "Critical" : s.severity === "high" ? "Serious" : s.severity === "medium" ? "Moderate" : "Low"}
                         </span>
                       )}
                     </Link>

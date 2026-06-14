@@ -171,29 +171,25 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <Link href="/symptoms" className="hover:text-primary transition-colors">Symptoms</Link>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary">{s.name}</span>
         </nav>
 
         {/* 1. Hero */}
         <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-8 mb-6">
-          <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+          <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
             <div>
               <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-3">{s.name}</h1>
               <div className="flex flex-wrap items-center gap-2">
                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border ${SEVERITY_COLORS[s.severity]}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${s.severity === "critical" ? "bg-red-500" : s.severity === "high" ? "bg-orange-500" : s.severity === "medium" ? "bg-amber-500" : "bg-emerald-500"}`} />
-                  {s.severity.charAt(0).toUpperCase() + s.severity.slice(1)} Severity
+                  {s.severity === "critical" ? "Critical" : s.severity === "high" ? "Serious" : s.severity === "medium" ? "Moderate" : "Low"}
                 </span>
                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border ${DRIVING_COLORS[s.driving_risk]}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${s.driving_risk === "unsafe" ? "bg-red-500" : s.driving_risk === "limited" ? "bg-amber-500" : "bg-emerald-500"}`} />
                   {DRIVING_LABELS[s.driving_risk]}
                 </span>
-                {diyMin != null && diyMax != null && (
-                  <Link href="/repair-cost/diy-levels" className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border ${diyMax! <= 2 ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" : diyMax! <= 3 ? "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800" : diyMax! <= 4 ? "bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800" : "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800"}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${diyMax! <= 2 ? "bg-emerald-500" : diyMax! <= 3 ? "bg-amber-500" : diyMax! <= 4 ? "bg-orange-500" : "bg-red-500"}`} />
-                    DIY L{diyMin}{diyMin !== diyMax ? `–L${diyMax}` : ""}
-                  </Link>
-                )}
               </div>
             </div>
             {costMin != null && costMax != null && (
@@ -204,8 +200,17 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
               </div>
             )}
           </div>
-          <Link href={`/symptom-checker`} className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
-            Describe YOUR exact symptoms for a personalized diagnosis →
+          <Link href="/symptom-checker" className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl hover:bg-primary/10 hover:border-primary/40 transition-all group">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="text-sm font-heading font-bold text-primary block group-hover:text-primary-glow transition-colors">Get a Personalized AI Diagnosis</span>
+              <span className="text-xs text-text-muted">Describe your specific symptoms for an AI-powered diagnosis with repair costs and OBD codes</span>
+            </div>
+            <svg className="w-5 h-5 text-primary shrink-0 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
           </Link>
         </div>
 
@@ -238,7 +243,42 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
           )}
         </div>
 
-        {/* 3. Most Common Fixes */}
+        {/* 3. Can I Continue Driving */}
+        <div className={`rounded-2xl border-2 p-5 sm:p-6 mb-6 border-l-[6px] ${s.driving_risk === "unsafe" ? "bg-red-50/40 dark:bg-red-950/15 border-red-400 dark:border-red-600" : s.driving_risk === "limited" ? "bg-orange-50/40 dark:bg-orange-950/15 border-orange-400 dark:border-orange-600" : "bg-emerald-50/40 dark:bg-emerald-950/15 border-emerald-400 dark:border-emerald-600"}`}>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-3xl">{s.driving_risk === "unsafe" ? "🚨" : s.driving_risk === "limited" ? "⚠️" : "✅"}</span>
+            <div>
+              <h2 className="text-lg font-heading font-bold text-text-primary">Can I Continue Driving?</h2>
+              <span className={`text-sm font-heading font-bold ${s.driving_risk === "unsafe" ? "text-red-700 dark:text-red-400" : s.driving_risk === "limited" ? "text-orange-700 dark:text-orange-400" : "text-emerald-700 dark:text-emerald-400"}`}>
+                {s.driving_risk === "unsafe" ? "Do Not Drive — Tow Required" : s.driving_risk === "limited" ? "Limited Driving Only" : "Safe to Drive"}
+              </span>
+            </div>
+          </div>
+          {s.driving_advice ? (
+            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
+              {s.driving_advice.split(/\n\n|\n/).filter(Boolean).map((para: string, i: number) => (
+                <p key={i}>{para.trim()}</p>
+              ))}
+            </div>
+          ) : s.driving_risk === "unsafe" ? (
+            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
+              <p>This symptom indicates a serious safety risk or the potential for catastrophic engine or drivetrain damage. Continuing to operate the vehicle could cause further damage to critical components and create a dangerous situation for you and other drivers.</p>
+              <p>Have the vehicle towed to a qualified repair shop immediately. The cost of a tow is far less than the cost of an engine rebuild or transmission replacement. If you must move the vehicle a short distance, do so only at very low speed and for emergency purposes only.</p>
+            </div>
+          ) : s.driving_risk === "limited" ? (
+            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
+              <p>You can drive short distances to a repair shop at low speeds, but avoid highway driving, hard acceleration, and heavy loads. Schedule a diagnosis as soon as possible — ideally within the next few days.</p>
+              <p>Continuing to drive with this symptom may worsen the underlying condition. What starts as an affordable fix can escalate into a significantly more expensive repair if components fail completely while driving. Monitor for any change in severity and stop driving immediately if the symptom worsens.</p>
+            </div>
+          ) : (
+            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
+              <p>You can continue normal driving, but the symptom should be diagnosed at your earliest convenience. Use the causes table above to understand what might be happening and schedule a professional inspection if needed.</p>
+              <p>Even minor symptoms can indicate developing problems. What starts as a subtle vibration or intermittent noise can progress to component failure if left unaddressed for weeks or months. Early diagnosis typically costs far less than emergency repairs.</p>
+            </div>
+          )}
+        </div>
+
+        {/* 4. Most Common Fixes */}
         <div id="causes" className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6 scroll-mt-20">
           <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Most Common Fixes</h2>
           <div className="overflow-x-auto">
@@ -282,7 +322,24 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
 
-        {/* 5. How To Diagnose */}
+        {/* 5. DIY Difficulty */}
+        {diyMin != null && diyMax != null && (
+          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6 border-l-4 border-l-primary/40">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-3">DIY Difficulty</h2>
+            <p className="text-sm text-text-secondary mb-4">
+              The repairs associated with {s.name.toLowerCase()} range from{" "}
+              <strong className="text-primary">{diyMax! <= 2 ? "Easy" : diyMin! >= 4 ? "Hard" : "Moderate"}</strong>{" "}
+              difficulty (L{diyMin}{diyMin !== diyMax ? `–L${diyMax}` : ""} on our 5-level scale).
+              {diyMax! <= 2 ? " All common causes can be tackled with basic hand tools and minimal experience." :
+               diyMin! >= 4 ? " These repairs require specialized tools, significant mechanical experience, and in some cases professional certification." :
+               " The difficulty varies by cause — some repairs are DIY-friendly, while others require professional equipment and experience."}
+              {" "}Check the causes table above and click through to each repair for specific time estimates, required tools, safety notes, and step-by-step guidance.
+            </p>
+            <Link href="/repair-cost/diy-levels" className="inline-flex items-center gap-1.5 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">Understand our 5-level DIY system →</Link>
+          </div>
+        )}
+
+        {/* 6. How To Diagnose */}
         <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6">
           <h2 className="text-lg font-heading font-bold text-text-primary mb-4">How To Diagnose</h2>
           {s.diagnosis_steps ? (
@@ -310,7 +367,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
           )}
         </div>
 
-        {/* 6. Related OBD Codes */}
+        {/* 7. Related OBD Codes */}
         {obdCodes.length > 0 && (
           <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6">
             <h2 className="text-lg font-heading font-bold text-text-primary mb-3">Related OBD-II Codes</h2>
@@ -328,7 +385,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
           </div>
         )}
 
-        {/* 7. Related Warning Lights */}
+        {/* 8. Related Warning Lights */}
         {warningLights.length > 0 && (
           <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6">
             <h2 className="text-lg font-heading font-bold text-text-primary mb-3">Related Warning Lights</h2>
@@ -341,58 +398,6 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
                 </Link>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* 8. Can I Continue Driving */}
-        <div className={`rounded-2xl border-2 p-5 sm:p-6 mb-6 border-l-[6px] ${s.driving_risk === "unsafe" ? "bg-red-50/40 dark:bg-red-950/15 border-red-400 dark:border-red-600" : s.driving_risk === "limited" ? "bg-orange-50/40 dark:bg-orange-950/15 border-orange-400 dark:border-orange-600" : "bg-emerald-50/40 dark:bg-emerald-950/15 border-emerald-400 dark:border-emerald-600"}`}>
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-3xl">{s.driving_risk === "unsafe" ? "🚨" : s.driving_risk === "limited" ? "⚠️" : "✅"}</span>
-            <div>
-              <h2 className="text-lg font-heading font-bold text-text-primary">Can I Continue Driving?</h2>
-              <span className={`text-sm font-heading font-bold ${s.driving_risk === "unsafe" ? "text-red-700 dark:text-red-400" : s.driving_risk === "limited" ? "text-orange-700 dark:text-orange-400" : "text-emerald-700 dark:text-emerald-400"}`}>
-                {s.driving_risk === "unsafe" ? "Do Not Drive — Tow Required" : s.driving_risk === "limited" ? "Limited Driving Only" : "Safe to Drive"}
-              </span>
-            </div>
-          </div>
-          {s.driving_advice ? (
-            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
-              {s.driving_advice.split(/\n\n|\n/).filter(Boolean).map((para: string, i: number) => (
-                <p key={i}>{para.trim()}</p>
-              ))}
-            </div>
-          ) : s.driving_risk === "unsafe" ? (
-            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
-              <p>This symptom indicates a serious safety risk or the potential for catastrophic engine or drivetrain damage. Continuing to operate the vehicle could cause further damage to critical components and create a dangerous situation for you and other drivers.</p>
-              <p>Have the vehicle towed to a qualified repair shop immediately. The cost of a tow is far less than the cost of an engine rebuild or transmission replacement. If you must move the vehicle a short distance, do so only at very low speed and for emergency purposes only.</p>
-            </div>
-          ) : s.driving_risk === "limited" ? (
-            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
-              <p>You can drive short distances to a repair shop at low speeds, but avoid highway driving, hard acceleration, and heavy loads. Schedule a diagnosis as soon as possible — ideally within the next few days.</p>
-              <p>Continuing to drive with this symptom may worsen the underlying condition. What starts as an affordable fix can escalate into a significantly more expensive repair if components fail completely while driving. Monitor for any change in severity and stop driving immediately if the symptom worsens.</p>
-            </div>
-          ) : (
-            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
-              <p>You can continue normal driving, but the symptom should be diagnosed at your earliest convenience. Use the causes table above to understand what might be happening and schedule a professional inspection if needed.</p>
-              <p>Even minor symptoms can indicate developing problems. What starts as a subtle vibration or intermittent noise can progress to component failure if left unaddressed for weeks or months. Early diagnosis typically costs far less than emergency repairs.</p>
-            </div>
-          )}
-        </div>
-
-        {/* 9. DIY Difficulty */}
-        {diyMin != null && diyMax != null && (
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6 border-l-4 border-l-primary/40">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-3">DIY Difficulty</h2>
-            <p className="text-sm text-text-secondary mb-4">
-              The repairs associated with {s.name.toLowerCase()} range from{" "}
-              <strong className="text-primary">{diyMax! <= 2 ? "Easy" : diyMin! >= 4 ? "Hard" : "Moderate"}</strong>{" "}
-              difficulty (L{diyMin}{diyMin !== diyMax ? `–L${diyMax}` : ""} on our 5-level scale).
-              {diyMax! <= 2 ? " All common causes can be tackled with basic hand tools and minimal experience." :
-               diyMin! >= 4 ? " These repairs require specialized tools, significant mechanical experience, and in some cases professional certification." :
-               " The difficulty varies by cause — some repairs are DIY-friendly, while others require professional equipment and experience."}
-              {" "}Check the causes table above and click through to each repair for specific time estimates, required tools, safety notes, and step-by-step guidance.
-            </p>
-            <Link href="/repair-cost/diy-levels" className="inline-flex items-center gap-1.5 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">Understand our 5-level DIY system →</Link>
           </div>
         )}
 
