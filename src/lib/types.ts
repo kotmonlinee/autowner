@@ -281,6 +281,7 @@ export type DiagnosisJson = {
   costEstimate: string;
   possibleCodes?: string[];
   repairKeywords?: string[];
+  matchedRepairSlugs?: string[];
 };
 
 export type Diagnosis = {

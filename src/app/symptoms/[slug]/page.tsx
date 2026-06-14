@@ -109,12 +109,15 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
     warningLights.push({ slug: wSlug, title });
   }
 
-  // DIY difficulty — collect levels from all linked causes
+  // DIY difficulty — batch query all linked repairs
+  const repSlugs = uniqueCauses.filter((c: any) => c.repair_slug).map((c: any) => c.repair_slug);
   const diyLevels: number[] = [];
-  for (const c of uniqueCauses) {
-    if (c.repair_slug) {
-      const { data: diy } = await supabase.from("diy_difficulty").select("difficulty_level, est_time").eq("repair_slug", c.repair_slug).maybeSingle();
-      if (diy) diyLevels.push((diy as any).difficulty_level);
+  if (repSlugs.length > 0) {
+    const { data: diyData } = await supabase.from("diy_difficulty").select("repair_slug, difficulty_level").in("repair_slug", repSlugs);
+    const diyMap = new Map((diyData ?? []).map((r: any) => [r.repair_slug, r.difficulty_level]));
+    for (const slug of repSlugs) {
+      const lvl = diyMap.get(slug);
+      if (lvl != null) diyLevels.push(lvl);
     }
   }
   const diyMin = diyLevels.length > 0 ? Math.min(...diyLevels) : null;

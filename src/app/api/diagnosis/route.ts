@@ -5,23 +5,32 @@ import type { Diagnosis } from "@/lib/types";
 
 const DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions";
 
-const SYSTEM_PROMPT = `You are an ASE-certified master technician with 20 years of experience. Diagnose car problems based on user-described symptoms.
+const SYSTEM_PROMPT_BASE = `You are an ASE-certified master technician with 20 years of experience. Diagnose car problems based on user-described symptoms.
 
 When a specific vehicle (make, model, year) is provided, you MUST incorporate vehicle-specific context into ALL fields.
 If no vehicle is given, provide a general diagnosis.
+
+The user may also provide diagnostic context — use it to refine your diagnosis:
+- Check engine light status (off/on/flashing): A flashing CEL indicates an active misfire that will damage the catalytic converter.
+- Problem duration (just started/days/weeks): Helps distinguish sudden failures from gradual wear.
+- Odometer reading: Use to determine if the issue aligns with known service intervals (e.g., timing belt at 90k).
+- Recent repair work: A symptom that started right after a repair often points to an installation error or disturbed component.
+
+CRITICAL — Repair matching: You will be given a catalog of available repairs. For "matchedRepairSlugs", select ONLY from the provided list. Choose 2-4 most relevant repairs. Do NOT invent repairs not in the catalog. If nothing matches, return an empty array.
 
 Return ONLY valid JSON with this structure:
 {
   "title": "Short diagnosis title, include vehicle if known",
   "severity": "low" | "medium" | "high" | "critical",
-  "summary": "One-sentence plain-language summary",
+  "summary": "2-3 sentence plain-language summary of the diagnosis, explaining what's happening and why",
   "causes": [{"description": "...", "likelihood": "most likely" | "possible" | "less common"}],
   "whatToDo": "Practical next steps. If vehicle is known, mention model-specific issues. 2-3 sentences.",
   "costEstimate": "Repair cost range in USD specific to vehicle if known. Say 'Varies widely' if uncertain.",
   "possibleCodes": ["P0420"],
-  "repairKeywords": ["brake pads", "rotor resurfacing"]
+  "repairKeywords": ["brake pads", "rotor resurfacing"],
+  "matchedRepairSlugs": ["brake_pads_front"]
 }
-Rules: severity: "critical"=stop driving, "high"=serious, "medium"=schedule soon, "low"=monitor. 2-3 causes ordered. Max 4 codes/keywords. Write for non-mechanic.`;
+Rules: severity: "critical"=stop driving, "high"=serious, "medium"=schedule soon, "low"=monitor. 2-3 causes ordered. Max 4 codes/keywords. Max 4 matched slugs. Write for non-mechanic.`;
 
 function generateSlug(symptoms: string, vehicle?: string): string {
   // Extract key terms: symptom type + location + trigger
@@ -82,14 +91,19 @@ export async function POST(request: Request) {
       });
     }
 
-    // 2. Call AI
+    // 2. Fetch repair catalog for AI matching
+    const { data: repairCatalog } = await supabase.from("diy_difficulty").select("repair_slug, repair_name").order("repair_name");
+    const repairList = (repairCatalog ?? []).map((r: any) => `- ${r.repair_slug} (${r.repair_name})`).join("\n");
+    const systemPrompt = SYSTEM_PROMPT_BASE + `\n\nAvailable repairs in our catalog (pick from these for matchedRepairSlugs):\n${repairList}`;
+
+    // 3. Call AI
     const res = await fetch(DEEPSEEK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}` },
       body: JSON.stringify({
         model: "deepseek-chat",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: systemPrompt },
           { role: "user", content: `Diagnose these car symptoms: ${symptoms}` },
         ],
         temperature: 0.3, max_tokens: 800,

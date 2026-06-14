@@ -66,39 +66,72 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   const sev = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.medium;
   const cost = parseCostRange(d.costEstimate ?? "");
 
-  // Resolve repair keywords and validate they exist in the DB
-  const repairSlugMap = new Map<string, string>();
-  for (const item of d.repairKeywords ?? []) {
-    const s = resolveRepairSlug(item);
-    if (s) repairSlugMap.set(item, s);
+  // Resolve repairs: AI-matched slugs (precise) → fallback to keyword matching
+  interface ResolvedRepair {
+    slug: string; name: string; repairSlug: string; image: string | null;
+    diyLevel: number | null; diyLabel: string | null; diyFriendly: string | null;
+    estTime: string | null; riskLevel: string | null; avgCost: number | null;
   }
-  let validRepairs: string[] = [];
-  if (repairSlugMap.size > 0) {
-    const slugs = Array.from(new Set(repairSlugMap.values()));
-    const { data: validSlugs } = await supabase.from("repair_costs")
-      .select("repair_slug")
-      .in("repair_slug", slugs.map((s) => s.replace(/-/g, "_")));
-    const validSet = new Set((validSlugs ?? []).map((r: any) => r.repair_slug.replace(/_/g, "-")));
-    validRepairs = (d.repairKeywords ?? []).filter((item) => {
-      const slug = repairSlugMap.get(item);
-      return slug && validSet.has(slug);
-    });
+  let resolvedRepairs: ResolvedRepair[] = [];
+  if (d.matchedRepairSlugs?.length) {
+    const [{ data: diyData }, { data: costData }] = await Promise.all([
+      supabase.from("diy_difficulty").select("*").in("repair_slug", d.matchedRepairSlugs),
+      supabase.from("repair_costs").select("repair_slug, avg_cost").in("repair_slug", d.matchedRepairSlugs),
+    ]);
+    const costMap = new Map((costData ?? []).map((r: any) => [r.repair_slug, r.avg_cost]));
+    for (const dbSlug of d.matchedRepairSlugs) {
+      const diy = (diyData ?? []).find((r: any) => r.repair_slug === dbSlug) as any;
+      if (!diy) continue;
+      const urlSlug = dbSlug.replace(/_/g, "-");
+      resolvedRepairs.push({
+        slug: dbSlug, name: diy.repair_name, repairSlug: urlSlug,
+        image: getRepairImageUrl(urlSlug),
+        diyLevel: diy.difficulty_level, diyLabel: diy.difficulty_label,
+        diyFriendly: diy.diy_friendly, estTime: diy.est_time, riskLevel: diy.risk_level,
+        avgCost: costMap.get(dbSlug) ?? null,
+      });
+    }
+  } else {
+    // Fallback: keyword → slug mapping for legacy diagnoses
+    // Try diy_difficulty.repair_name match first, then resolveRepairSlug
+    const { data: allDiy } = await supabase.from("diy_difficulty").select("*");
+    const allDiyList = (allDiy ?? []) as any[];
+    const keywords = d.repairKeywords ?? [];
+    for (const item of keywords) {
+      const itemLower = item.toLowerCase();
+      // Direct name match against diy_difficulty
+      let match = allDiyList.find((r: any) => r.repair_name.toLowerCase().includes(itemLower) || itemLower.includes(r.repair_name.toLowerCase()));
+      // Try resolveRepairSlug and convert to underscore format
+      if (!match) {
+        const slug = resolveRepairSlug(item);
+        if (slug) {
+          const dbSlug = slug.replace(/-/g, "_");
+          match = allDiyList.find((r: any) => r.repair_slug === dbSlug);
+        }
+      }
+      if (!match) continue;
+      const urlSlug = match.repair_slug.replace(/_/g, "-");
+      resolvedRepairs.push({
+        slug: match.repair_slug, name: match.repair_name, repairSlug: urlSlug,
+        image: getRepairImageUrl(urlSlug),
+        diyLevel: match.difficulty_level, diyLabel: match.difficulty_label,
+        diyFriendly: match.diy_friendly, estTime: match.est_time, riskLevel: match.risk_level,
+        avgCost: null,
+      });
+    }
   }
   const browseRepairUrl = vehicle
     ? `/vehicles/${(diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-")}/${(diagnosis.vehicle_model ?? "").toLowerCase().replace(/\s+/g, "-")}`
     : "/repair-cost";
 
-  // Collect related warning lights from repair keywords
+  // Collect related warning lights from resolved repairs
   const relatedWarningLights: { slug: string; title: string }[] = [];
-  if (validRepairs.length > 0) {
+  if (resolvedRepairs.length > 0) {
     const seen = new Set<string>();
-    for (const item of validRepairs) {
-      const repairSlug = repairSlugMap.get(item);
-      if (repairSlug) {
-        const lights = getRelatedWarningLights(repairSlug);
-        for (const l of lights) {
-          if (!seen.has(l.slug)) { seen.add(l.slug); relatedWarningLights.push(l); }
-        }
+    for (const r of resolvedRepairs) {
+      const lights = getRelatedWarningLights(r.repairSlug);
+      for (const l of lights) {
+        if (!seen.has(l.slug)) { seen.add(l.slug); relatedWarningLights.push(l); }
       }
     }
   }
@@ -221,7 +254,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         </div>
 
         {/* ── What To Do Next ── */}
-        {(d.whatToDo || d.costEstimate || validRepairs.length > 0) && (
+        {(d.whatToDo || d.costEstimate || resolvedRepairs.length > 0) && (
           <div className="mb-6 space-y-4">
             <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider">What To Do Next</p>
 
@@ -244,7 +277,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               </div>
             )}
 
-            {validRepairs.length > 0 && (
+            {resolvedRepairs.length > 0 && (
               <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
                 <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
                   <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
@@ -253,19 +286,30 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                   Related Repairs
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {validRepairs.map((item: string) => {
-                    const repairSlug = resolveRepairSlug(item);
-                    const img = repairSlug ? getRepairImageUrl(repairSlug) : null;
-                    return (
-                      <Link key={item} href={`/repair-cost/${repairSlug}`} className="flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
-                        <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                          {img && <img src={img} alt={item} className="w-full h-full object-cover" loading="lazy" />}
+                  {resolvedRepairs.map((r) => (
+                    <Link key={r.slug} href={`/repair-cost/${r.repairSlug}`} className="flex items-center gap-3 p-3 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
+                      <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                        {r.image && <img src={r.image} alt={r.name} className="w-full h-full object-cover" loading="lazy" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm font-medium text-text-primary font-heading truncate block group-hover:text-primary transition-colors">{r.name}</span>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {r.diyLabel && (
+                            <span className={`text-[10px] font-heading font-semibold px-1.5 py-0.5 rounded ${r.diyLevel && r.diyLevel <= 2 ? "bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400" : r.diyLevel === 3 ? "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" : "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400"}`}>{r.diyLabel}</span>
+                          )}
+                          {r.estTime && <span className="text-[10px] text-text-muted font-heading">{r.estTime}</span>}
+                          {r.avgCost && <span className="text-[10px] text-text-muted font-heading">~${Math.round(r.avgCost).toLocaleString()}</span>}
                         </div>
-                        <span className="text-sm font-medium text-text-primary font-heading truncate">{item}</span>
-                        <ChevronRight className="w-3.5 h-3.5 text-text-muted shrink-0 ml-auto" />
-                      </Link>
-                    );
-                  })}
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-text-muted shrink-0 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                    </Link>
+                  ))}
+                </div>
+                <div className="mt-3 pt-3 border-t border-surface-border">
+                  <Link href={browseRepairUrl} className="inline-flex items-center gap-1.5 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+                    Browse all repair costs
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
                 </div>
               </div>
             )}
