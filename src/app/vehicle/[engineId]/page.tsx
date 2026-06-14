@@ -45,9 +45,9 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: {
-      canonical: `https://www.autowner.com/vehicle/${(await params).engineId}`,
-    },
+    alternates: { canonical: `https://www.autowner.com/vehicle/${(await params).engineId}` },
+    openGraph: { title, description, type: "article" },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

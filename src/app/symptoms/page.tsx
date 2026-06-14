@@ -9,6 +9,9 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: "Common Car Symptoms — Causes, Repair Costs & Safety",
   description: "Browse 58 common car symptoms organized by category. Learn causes, repair costs, diagnosis steps, and whether it's safe to drive.",
+  alternates: { canonical: "https://www.autowner.com/symptoms" },
+  openGraph: { title: "Common Car Symptoms — Causes, Repair Costs & Safety", description: "Browse 58 common car symptoms by category. Learn causes, repair costs, and whether it's safe to drive.", type: "website" },
+  twitter: { card: "summary_large_image", title: "Car Symptoms: Causes, Repair Costs & Safety", description: "Browse 58 common car symptoms by category." },
 };
 
 const CATEGORIES: Record<string, { label: string; emoji: string }> = {

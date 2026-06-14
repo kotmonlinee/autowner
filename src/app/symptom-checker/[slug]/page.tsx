@@ -38,7 +38,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { data } = await supabase.from("diagnoses").select("diagnosis_json").eq("slug", slug).maybeSingle();
   if (!data) return { title: "Diagnosis Not Found" };
   const d = (data as unknown as import("@/lib/types").Diagnosis).diagnosis_json;
-  return { title: `${d.title} | AutOwner AI Diagnosis`, description: d.summary };
+  return {
+    title: `${d.title} | AutOwner AI Diagnosis`,
+    description: d.summary,
+    alternates: { canonical: `https://www.autowner.com/symptom-checker/${slug}` },
+    openGraph: { title: d.title, description: d.summary, type: "article" },
+    twitter: { card: "summary_large_image", title: d.title, description: d.summary },
+  };
 }
 
 export default async function DiagnosisResultPage({ params }: { params: Promise<{ slug: string }> }) {

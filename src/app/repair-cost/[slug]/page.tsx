@@ -548,7 +548,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           <div className="space-y-2">
             {faqItems.map((item, i) => (
               <details key={i} className="group">
-                <summary className="flex items-center justify-between px-4 py-3 cursor-pointer text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors bg-surface-0 rounded-lg border border-surface-border">
+                <summary className="flex items-center justify-between px-4 py-3 min-h-[44px] cursor-pointer text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors bg-surface-0 rounded-lg border border-surface-border">
                   {item.question}
                   <svg className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
                 </summary>

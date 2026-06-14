@@ -11,6 +11,9 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "AI Car Diagnosis — Symptom Checker",
   description: "Describe your car's symptoms and get possible OBD-II codes, repair suggestions, and cost estimates.",
+  alternates: { canonical: "https://www.autowner.com/symptom-checker" },
+  openGraph: { title: "AI Car Diagnosis — Describe Your Symptoms", description: "Describe your car's symptoms and get an AI-powered diagnosis with OBD-II codes, repair suggestions, and cost estimates.", type: "website" },
+  twitter: { card: "summary_large_image", title: "AI Car Diagnosis — Symptom Checker | AutOwner", description: "Describe your car's symptoms and get an AI diagnosis with repair costs and OBD codes." },
 };
 
 const PAGE_SIZE = 6;
