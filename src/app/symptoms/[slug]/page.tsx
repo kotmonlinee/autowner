@@ -54,27 +54,47 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
 
   const s = symptom as any;
 
-  // Fetch causes with repair cost data
+  // Fetch causes
   const { data: causes } = await supabase.from("symptom_causes")
-    .select("*, repair_costs!left(min_cost, max_cost, avg_cost)")
+    .select("*")
     .eq("symptom_id", s.id)
     .order("probability", { ascending: false });
 
   const causeList = (causes ?? []) as any[];
 
-  // Deduplicate causes by name (keep highest probability)
+  // Deduplicate causes by name
   const seen = new Set<string>();
-  const uniqueCauses: any[] = [];
+  const causesWithCosts: any[] = [];
   for (const c of causeList) {
-    if (!seen.has(c.cause_name)) { seen.add(c.cause_name); uniqueCauses.push(c); }
+    if (!seen.has(c.cause_name)) { seen.add(c.cause_name); causesWithCosts.push(c); }
   }
 
-  // Compute cost range from causes that have repair cost data
-  const costsWithData = uniqueCauses.filter((c) => c.repair_costs && c.repair_costs.length > 0);
-  const allMins = costsWithData.flatMap((c) => c.repair_costs.map((rc: any) => rc.min_cost));
-  const allMaxs = costsWithData.flatMap((c) => c.repair_costs.map((rc: any) => rc.max_cost));
-  const costMin = allMins.length > 0 ? Math.min(...allMins) : null;
-  const costMax = allMaxs.length > 0 ? Math.max(...allMaxs) : null;
+  // Fetch repair costs for causes that link to a repair
+  const linkedSlugs = [...new Set(causesWithCosts.filter((c) => c.repair_slug).map((c: any) => c.repair_slug))];
+  const costMap = new Map<string, { min: number; max: number }>();
+  if (linkedSlugs.length > 0) {
+    const dbSlugs = linkedSlugs.map((s) => s.replace(/-/g, "_"));
+    const { data: costs } = await supabase.from("repair_costs")
+      .select("repair_slug, min_cost, max_cost")
+      .in("repair_slug", [...linkedSlugs, ...dbSlugs]);
+    for (const rc of (costs ?? []) as any[]) {
+      const key = rc.repair_slug;
+      if (!costMap.has(key) || rc.min_cost < costMap.get(key)!.min) {
+        costMap.set(key, { min: rc.min_cost, max: rc.max_cost });
+      }
+    }
+  }
+
+  // Attach costs to causes
+  const causesWithPrices = causesWithCosts.map((c) => {
+    const cost = c.repair_slug ? costMap.get(c.repair_slug) ?? costMap.get(c.repair_slug.replace(/-/g, "_")) : null;
+    return { ...c, repair_cost_min: cost?.min ?? null, repair_cost_max: cost?.max ?? null };
+  });
+
+  // Compute overall cost range
+  const costsWithData = causesWithPrices.filter((c) => c.repair_cost_min != null);
+  const costMin = costsWithData.length > 0 ? Math.min(...costsWithData.map((c) => c.repair_cost_min!)) : null;
+  const costMax = costsWithData.length > 0 ? Math.max(...costsWithData.map((c) => c.repair_cost_max!)) : null;
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
@@ -131,8 +151,9 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
                 </tr>
               </thead>
               <tbody>
-                {uniqueCauses.map((c, i) => {
-                  const cost = c.repair_costs?.[0];
+                {causesWithPrices.map((c, i) => {
+                  const costMin = c.repair_cost_min;
+                  const costMax = c.repair_cost_max;
                   const repairSlug = c.repair_slug;
                   return (
                     <tr key={i} className="border-b border-surface-border last:border-0 hover:bg-surface-0/50 transition-colors">
@@ -155,8 +176,8 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-heading ${c.severity === "critical" ? "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400" : c.severity === "high" ? "bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-400" : "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400"}`}>{c.severity}</span>
                       </td>
                       <td className="py-2.5 px-3 text-right text-sm font-heading">
-                        {cost ? (
-                          <span className="font-bold text-text-primary">{formatMoney(cost.min_cost)} – {formatMoney(cost.max_cost)}</span>
+                        {costMin != null ? (
+                          <span className="font-bold text-text-primary">{formatMoney(costMin)} – {formatMoney(costMax)}</span>
                         ) : (
                           <span className="text-text-muted">—</span>
                         )}
@@ -187,7 +208,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
           <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Frequently Asked Questions</h2>
           <div className="space-y-2">
             {[
-              { q: `What causes ${s.name.toLowerCase()}?`, a: `The most common causes include ${uniqueCauses.slice(0, 3).map((c: any) => c.cause_name.toLowerCase()).join(", ")}. A proper diagnosis is recommended to pinpoint the exact cause and avoid replacing the wrong part.` },
+              { q: `What causes ${s.name.toLowerCase()}?`, a: `The most common causes include ${causesWithPrices.slice(0, 3).map((c: any) => (c.cause_name as string).toLowerCase()).join(", ")}. A proper diagnosis is recommended to pinpoint the exact cause and avoid replacing the wrong part.` },
               { q: `How much does it cost to fix ${s.name.toLowerCase()}?`, a: costMin != null && costMax != null ? `Repair costs typically range from ${formatMoney(costMin)} to ${formatMoney(costMax)}, depending on the underlying cause. The final price depends on your vehicle make and model, labor rates in your area, and whether OEM or aftermarket parts are used.` : `Costs vary widely depending on the cause. Get a professional diagnosis first — replacing the wrong part wastes money.` },
               { q: `Is it safe to drive with ${s.name.toLowerCase()}?`, a: s.driving_risk === "unsafe" ? "No. This symptom indicates a serious issue that could cause further damage or create a safety hazard. Have the vehicle towed to a repair shop." : s.driving_risk === "limited" ? "Limited driving only. You can drive short distances to a repair shop, but avoid highway speeds and hard driving. Continuing to drive may worsen the problem and increase repair costs." : "Yes, you can typically continue driving, but schedule a diagnosis soon. Ignoring symptoms can allow minor issues to become major repairs." },
               { q: `Can I fix ${s.name.toLowerCase()} myself?`, a: "It depends on the cause. Some causes are DIY-friendly (like spark plug replacement, L2 Easy). Others require professional equipment and experience (like engine repair, L5 Professional). Check each cause above for its DIY difficulty level." },
