@@ -9,6 +9,9 @@ CREATE TABLE IF NOT EXISTS symptoms (
   severity TEXT NOT NULL DEFAULT 'medium' CHECK (severity IN ('low','medium','high','critical')),
   driving_risk TEXT NOT NULL DEFAULT 'limited' CHECK (driving_risk IN ('safe','limited','unsafe')),
   overview TEXT,
+  diagnosis_steps TEXT,
+  driving_advice TEXT,
+  faq_items TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
