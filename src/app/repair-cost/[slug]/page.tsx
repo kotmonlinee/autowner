@@ -142,6 +142,11 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
     }
   }
 
+  // Fetch DIY difficulty data from knowledge graph
+  const diySupabase = await createServiceSupabase();
+  const dbSlug = repairSlug.replace(/-/g, "_");
+  const { data: diyData } = await diySupabase.from("diy_difficulty").select("*").eq("repair_slug", dbSlug).maybeSingle();
+
   // FAQ
   const faqItems: { question: string; answer: string }[] = [];
   if (parsed && makeName && modelName) {
@@ -429,7 +434,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         </div>
 
         {/* DIY Assessment */}
-        <DiySection repairSlug={repairSlug} tierCards={tierCards} />
+        <DiySection diyData={diyData} tierCards={tierCards} />
 
         {/* Common OBD Codes */}
         {obdCodes.length > 0 && (
@@ -559,22 +564,18 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
 // ── DIY Assessment Component ──────────────────────────────
 // Fetches from diy_difficulty table (AutOwner DIY Knowledge Graph v1.0)
 
-async function DiySection({ repairSlug, tierCards }: { repairSlug: string; tierCards: any[] }) {
-  const supabase = await createServiceSupabase();
-  const dbSlug = repairSlug.replace(/-/g, "_");
-  const { data } = await supabase.from("diy_difficulty").select("*").eq("repair_slug", dbSlug).maybeSingle();
-  if (!data) return null;
-
-  const config = data as any;
+function DiySection({ diyData, tierCards }: { diyData: any; tierCards: any[] }) {
+  if (!diyData) return null;
+  const config = diyData;
   const tierCard = tierCards[0];
   if (!tierCard) return null;
 
-  const levelColors: Record<number, string> = {
-    1: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
-    2: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
-    3: "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",
-    4: "bg-orange-50 dark:bg-orange-950/20 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800",
-    5: "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
+  const levelLabels: Record<number, { icon: string; label: string; bg: string }> = {
+    1: { icon: "✅", label: "Beginner — Anyone can do this", bg: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" },
+    2: { icon: "✅", label: "Easy — Basic tools only", bg: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" },
+    3: { icon: "⚠️", label: "Intermediate — Some experience helps", bg: "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800" },
+    4: { icon: "🔶", label: "Advanced — Special tools needed", bg: "bg-orange-50 dark:bg-orange-950/20 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800" },
+    5: { icon: "🔴", label: "Professional only — Hire a mechanic", bg: "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800" },
   };
 
   const riskColors: Record<string, string> = {
@@ -587,6 +588,8 @@ async function DiySection({ repairSlug, tierCards }: { repairSlug: string; tierC
     "No": "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800",
   };
 
+  const levelInfo = levelLabels[config.difficulty_level] ?? levelLabels[3];
+
   const tools = config.tools.split(", ");
 
   return (
@@ -598,25 +601,25 @@ async function DiySection({ repairSlug, tierCards }: { repairSlug: string; tierC
         <h2 className="text-lg font-heading font-bold text-text-primary">Can You DIY This?</h2>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-        <div className={`flex flex-col items-center gap-1 px-3 py-3 rounded-xl border ${levelColors[config.difficulty_level]}`}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <Link href="/repair-cost/diy-levels" className={`flex flex-col items-center justify-center px-4 py-3 rounded-xl border sm:col-span-1 hover:ring-2 hover:ring-offset-1 transition-all ${levelInfo.bg}`}>
           <span className="text-2xl sm:text-3xl font-heading font-bold">L{config.difficulty_level}</span>
-          <span className="text-[10px] sm:text-xs font-heading text-center">{config.difficulty_label}</span>
+          <span className="text-[10px] text-text-muted font-heading mt-0.5">DIY Difficulty</span>
+          <span className="inline-flex items-center gap-0.5 text-[10px] text-primary font-heading mt-1">
+            What's this?
+            <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+          </span>
+        </Link>
+        <div className="flex flex-col items-center justify-center px-4 py-3 rounded-xl bg-surface-0 border border-surface-border">
+          <span className="text-sm sm:text-base font-heading font-bold text-text-primary">{config.est_time}</span>
+          <span className="text-[10px] text-text-muted font-heading mt-0.5">DIY Time</span>
         </div>
-        <div className={`flex flex-col items-center gap-1 px-3 py-3 rounded-xl border ${diyColors[config.diy_friendly]}`}>
-          <span className="text-sm sm:text-base font-heading font-bold">{config.diy_friendly}</span>
-          <span className="text-[10px] sm:text-xs font-heading text-center">DIY Friendly</span>
-        </div>
-        <div className="flex flex-col items-center gap-1 px-3 py-3 rounded-xl bg-surface-0 border border-surface-border">
-          <span className="text-base sm:text-lg font-heading font-bold text-text-primary">{config.est_time.split(" ")[0]}</span>
-          <span className="text-[10px] sm:text-xs text-text-muted font-heading text-center">Est. Time</span>
-        </div>
-        <div className="flex flex-col items-center gap-1 px-3 py-3 rounded-xl bg-surface-0 border border-surface-border">
+        <div className="flex flex-col items-center justify-center px-4 py-3 rounded-xl bg-surface-0 border border-surface-border">
           <div className="flex items-center gap-1.5">
             <span className={`w-2 h-2 rounded-full ${riskColors[config.risk_level]}`} />
             <span className="text-sm sm:text-base font-heading font-bold text-text-primary">{config.risk_level}</span>
           </div>
-          <span className="text-[10px] sm:text-xs text-text-muted font-heading text-center">Risk Level</span>
+          <span className="text-[10px] text-text-muted font-heading mt-0.5">Risk Level</span>
         </div>
       </div>
 

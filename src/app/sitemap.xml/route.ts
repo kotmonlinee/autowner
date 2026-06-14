@@ -43,6 +43,7 @@ export async function GET() {
   urls.push(urlEntry(`${baseUrl}/recall-check`, now, "weekly", 0.8));
   urls.push(urlEntry(`${baseUrl}/vehicles`, now, "weekly", 0.8));
   urls.push(urlEntry(`${baseUrl}/obd/severity-levels`, now, "monthly", 0.6));
+  urls.push(urlEntry(`${baseUrl}/repair-cost/diy-levels`, now, "monthly", 0.6));
 
   // Repair cost detail pages
   for (const slug of repairSlugs) {
