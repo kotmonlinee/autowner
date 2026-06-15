@@ -1,4 +1,4 @@
-import { createServerSupabase } from "@/lib/supabase-server";
+import { createServiceSupabase } from "@/lib/supabase-server";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "message is required" }, { status: 400 });
     }
 
-    const supabase = await createServerSupabase();
+    const supabase = await createServiceSupabase();
 
     await supabase.from("error_logs").insert({
       message,
