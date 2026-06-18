@@ -1753,10 +1753,19 @@ export async function getObdDiagnosticSteps(code: string): Promise<DiagnosticCau
 
   const fallbackCauses = (obdResult.data as any)?.causes_json || [];
 
-  return (row.causes as any[]).map((c: any, i: number) => ({
+  const causes = (row.causes as any[]).map((c: any) => ({
+    ...c,
+    probability: typeof c.probability === "number" ? c.probability : 0,
+  }));
+
+  // Normalize: if sum <= 1, convert from 0-1 scale to 0-100
+  const probSum = causes.reduce((s: number, c: any) => s + c.probability, 0);
+  const scale = probSum > 1 ? 1 : 100;
+
+  return causes.map((c: any, i: number) => ({
     keywords: c.symptom_keywords || [],
     cause: c.cause_description || fallbackCauses[i] || fallbackCauses[0] || "",
-    probability: c.probability || 0,
+    probability: Math.round(c.probability * scale),
     repairSlug: c.repair_slug ? c.repair_slug.replace(/_/g, "-") : null,
     repairName: c.repair_name || null,
     costRange: DIFFICULTY_COST_MAP[c.difficulty_label || ""] || null,

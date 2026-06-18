@@ -484,7 +484,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
               <div className="mt-3 pt-3 border-t border-surface-border">
                 <h3 className="text-xs font-heading font-semibold text-text-secondary mb-2">How to Diagnose</h3>
                 <div className="space-y-3">
-                  {diagnosticCauses.filter(dc => dc.checks.length > 0).slice(0, 3).map((dc, i) => (
+                  {diagnosticCauses.filter(dc => dc.checks.length > 0).map((dc, i) => (
                     <div key={i}>
                       <p className="text-sm font-medium text-text-primary mb-1">{dc.cause} ({dc.probability}% likely)</p>
                       <ul className="space-y-1 ml-2">
