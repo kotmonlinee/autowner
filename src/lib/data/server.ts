@@ -1,7 +1,8 @@
 // Server-side data access — ONLY used in server components and API routes.
 // All Supabase calls live here so migrating to a different DB only changes this file.
-import { createServerSupabase } from "@/lib/supabase-server";
-import type { PostWithRelations, Category, CommentWithAuthor, CommentWithPost, Notification, ObdCode, RepairCostRow, RepairCostTier, RepairCostFull } from "@/lib/types";
+import { cache } from "react";
+import { createServerSupabase, createServiceSupabase } from "@/lib/supabase-server";
+import type { PostWithRelations, Category, CommentWithAuthor, CommentWithPost, Notification, ObdCode, RepairCostRow, RepairCostTier, RepairCostFull, DiagnosticCause } from "@/lib/types";
 import { MAKE_TIER, TIER_LABELS } from "@/lib/constants";
 
 // ── Slug helpers ─────────────────────────────────────────
@@ -1568,7 +1569,7 @@ export async function getPostVehicles(postId: string) {
 
 // ── OBD Codes ──────────────────────────────────────────────
 
-export async function getObdCode(code: string): Promise<ObdCode | null> {
+export const getObdCode = cache(async (code: string): Promise<ObdCode | null> => {
   const supabase = await createServerSupabase();
   const normalized = code.toUpperCase().trim();
   const { data, error } = await supabase
@@ -1590,7 +1591,7 @@ export async function getObdCode(code: string): Promise<ObdCode | null> {
     min_cost: row.min_cost != null ? Number(row.min_cost) : null,
     max_cost: row.max_cost != null ? Number(row.max_cost) : null,
   };
-}
+});
 
 function parseJsonArray(val: unknown): string[] {
   if (Array.isArray(val)) return val.map((v) => String(v));
@@ -1721,6 +1722,52 @@ export async function getObdCodesPaginated(page: number, pageSize = 50): Promise
     codes: (data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [],
     totalCount: count ?? 0,
   };
+}
+
+// ── OBD Diagnostic Steps ────────────────────────────────────
+
+const DIFFICULTY_COST_MAP: Record<string, string> = {
+  "Beginner": "$50–$300",
+  "Intermediate": "$150–$800",
+  "Advanced": "$300–$2,000",
+};
+
+const LEVEL_ICON_MAP: Record<string, string> = {
+  "no_tools": "👀 No tools",
+  "basic_tools": "🔧 Basic tools",
+  "obd_scanner": "📟 OBD scanner",
+  "shop": "🏪 Shop",
+};
+
+export async function getObdDiagnosticSteps(code: string): Promise<DiagnosticCause[]> {
+  const supabase = await createServiceSupabase();
+  const normCode = code.toUpperCase().trim();
+
+  const [diagResult, obdResult] = await Promise.all([
+    supabase.from("obd_diagnostic_steps").select("causes").eq("obd_code", normCode).maybeSingle(),
+    supabase.from("obd_codes").select("causes_json").eq("code", normCode).maybeSingle(),
+  ]);
+
+  const row = diagResult.data as { causes: unknown } | null;
+  if (!row?.causes || !Array.isArray(row.causes)) return [];
+
+  const fallbackCauses = (obdResult.data as any)?.causes_json || [];
+
+  return (row.causes as any[]).map((c: any, i: number) => ({
+    keywords: c.symptom_keywords || [],
+    cause: c.cause_description || fallbackCauses[i] || fallbackCauses[0] || "",
+    probability: c.probability || 0,
+    repairSlug: c.repair_slug ? c.repair_slug.replace(/_/g, "-") : null,
+    repairName: c.repair_name || null,
+    costRange: DIFFICULTY_COST_MAP[c.difficulty_label || ""] || null,
+    diyLevel: c.difficulty_label || null,
+    estTime: c.est_time || null,
+    checks: (c.verification_steps || []).map((vs: any) => ({
+      level: LEVEL_ICON_MAP[vs.level] || vs.level || "",
+      method: vs.method || "",
+      verdict: vs.verdict || "",
+    })),
+  }));
 }
 
 // ── Repair Costs ───────────────────────────────────────────

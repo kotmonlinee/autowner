@@ -227,6 +227,18 @@ export type ObdCode = {
   max_cost: number | null;
 };
 
+export interface DiagnosticCause {
+  keywords: string[];
+  cause: string;
+  probability: number;
+  repairSlug: string | null;
+  repairName: string | null;
+  costRange: string | null;
+  diyLevel: string | null;
+  estTime: string | null;
+  checks: { level: string; method: string; verdict: string }[];
+}
+
 // ── Repair Costs ───────────────────────────────────────────
 
 export type RepairCostRow = {

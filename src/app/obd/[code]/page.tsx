@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { getObdCode, getRelatedObdCodes } from "@/lib/data/server";
+import { getObdCode, getRelatedObdCodes, getObdDiagnosticSteps } from "@/lib/data/server";
 import { getRelatedRepairs } from "@/lib/internal-linking";
 import { getRepairImageUrl } from "@/lib/repair-images";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ObdDiagnosticFunnel from "@/components/ObdDiagnosticFunnel";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServiceSupabase } from "@/lib/supabase-server";
@@ -24,27 +25,6 @@ function severityColor(severity: number): { bg: string; text: string; border: st
     case 1:
     default:
       return { bg: "#f0fdf4", text: "#16a34a", border: "#bbf7d0", label: "Low" };
-  }
-}
-
-// Dark-mode severity overrides
-function severityStyles(severity: number): string {
-  const light = severityColor(severity);
-  return `background: ${light.bg}; color: ${light.text}; border-color: ${light.border};`;
-}
-
-function severityStylesDark(severity: number): string {
-  switch (severity) {
-    case 5:
-      return "background: #450a0a; color: #fca5a5; border-color: #7f1d1d;";
-    case 4:
-      return "background: #431407; color: #fdba74; border-color: #7c2d12;";
-    case 3:
-      return "background: #422006; color: #fde047; border-color: #713f12;";
-    case 2:
-    case 1:
-    default:
-      return "background: #052e16; color: #86efac; border-color: #14532d;";
   }
 }
 
@@ -83,23 +63,42 @@ function getDrivingAdvice(severity: number): { emoji: string; text: string; bgCl
   };
 }
 
-// ── Natural language intro helper ────────────────────────
+// ── Natural language intro ────────────────────────────────
 
 function generateNaturalIntro(obd: { code: string; title: string; symptoms: string[]; causes: string[]; severity: number }): string {
-  const parts: string[] = [];
-  if (obd.causes.length > 0) {
-    parts.push(`Commonly triggered by ${obd.causes.slice(0, 2).join(" or ").toLowerCase()}.`);
-  }
-  if (obd.symptoms.length > 0) {
-    const symptomList = obd.symptoms.slice(0, 3).join(", ").toLowerCase();
-    parts.push(`Symptoms may include ${symptomList}.`);
-  }
-  if (obd.severity >= 5) {
-    parts.push("This is a critical issue — do not continue driving.");
-  } else if (obd.severity >= 4) {
-    parts.push("Have this diagnosed promptly to avoid further damage.");
-  }
-  return parts.join(" ");
+  const causeText = obd.causes.length > 0
+    ? `The most common cause is ${obd.causes[0].toLowerCase()}.`
+    : "";
+  const symptomText = obd.symptoms.length > 0
+    ? `Drivers typically notice ${obd.symptoms.slice(0, 2).join(" and ").toLowerCase()}.`
+    : "";
+  return `${obd.code} indicates "${obd.title}". ${causeText} ${symptomText}`.trim();
+}
+
+async function fetchValidRepairSlugs(): Promise<Set<string>> {
+  try {
+    const supabase = await createServiceSupabase();
+    const { data } = await supabase.from("repair_costs").select("repair_slug");
+    const slugs = new Set<string>();
+    for (const r of (data ?? [])) slugs.add(r.repair_slug.replace(/_/g, "-"));
+    return slugs;
+  } catch { return new Set(); }
+}
+
+async function fetchRelatedDiagnoses(code: string): Promise<{ slug: string; title: string; severity: string }[]> {
+  try {
+    const supabase = await createServiceSupabase();
+    const { data } = await supabase.from("diagnoses")
+      .select("slug, diagnosis_json, view_count")
+      .contains("diagnosis_json", { possibleCodes: [code.toUpperCase()] })
+      .order("view_count", { ascending: false })
+      .limit(5);
+    return ((data ?? []) as any[]).map((d) => ({
+      slug: d.slug,
+      title: d.diagnosis_json?.title ?? "Car Diagnosis",
+      severity: d.diagnosis_json?.severity ?? "medium",
+    }));
+  } catch { return []; }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
@@ -151,76 +150,71 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
 export default async function ObdCodePage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
 
-  const [obd, relatedCodes] = await Promise.all([
+  const [obd, relatedCodes, diagnosticCauses, relatedDiagnoses, validRepairSlugs] = await Promise.all([
     getObdCode(code),
     getRelatedObdCodes(code, 5),
+    getObdDiagnosticSteps(code),
+    fetchRelatedDiagnoses(code),
+    fetchValidRepairSlugs(),
   ]);
-
-  // Fetch related diagnoses that mention this OBD code
-  let relatedDiagnoses: { slug: string; title: string; severity: string }[] = [];
-  try {
-    const diagSupabase = await createServiceSupabase();
-    const { data: diagData } = await diagSupabase.from("diagnoses")
-      .select("slug, diagnosis_json, view_count")
-      .contains("diagnosis_json", { possibleCodes: [obd?.code ?? code.toUpperCase()] })
-      .order("view_count", { ascending: false })
-      .limit(5);
-    relatedDiagnoses = ((diagData ?? []) as unknown as import("@/lib/types").Diagnosis[]).map((d) => ({
-      slug: d.slug,
-      title: d.diagnosis_json?.title ?? "Car Diagnosis",
-      severity: d.diagnosis_json?.severity ?? "medium",
-    }));
-  } catch { /* diagnoses fetch failed, skip */ }
-
-  // Related repairs via knowledge graph: OBD code → symptoms → causes → repairs
-  interface OdbRepair { slug: string; name: string; diyLabel: string | null; estTime: string | null; }
-  let relatedRepairs: OdbRepair[] = [];
-  try {
-    const kgSupabase = await createServiceSupabase();
-    const { data: obdSymptoms } = await kgSupabase.from("symptom_obd_codes")
-      .select("symptom_id").eq("obd_code", obd?.code ?? code.toUpperCase());
-    const symptomIds = [...new Set((obdSymptoms ?? []).map((r: any) => r.symptom_id))];
-    if (symptomIds.length > 0) {
-      const { data: obdCauses } = await kgSupabase.from("symptom_causes")
-        .select("repair_slug").in("symptom_id", symptomIds);
-      const repairSlugs = [...new Set((obdCauses ?? []).map((r: any) => r.repair_slug).filter(Boolean))];
-      if (repairSlugs.length > 0) {
-        const { data: diyData } = await kgSupabase.from("diy_difficulty")
-          .select("repair_slug, repair_name, difficulty_label, est_time")
-          .in("repair_slug", repairSlugs);
-        relatedRepairs = ((diyData ?? []) as any[]).map((r) => ({
-          slug: r.repair_slug.replace(/_/g, "-"),
-          name: r.repair_name,
-          diyLabel: r.difficulty_label,
-          estTime: r.est_time,
-        }));
-      }
-    }
-  } catch { /* fallback to keyword matching below */ }
-  // Fallback: keyword matching for OBD codes not in knowledge graph
-  if (relatedRepairs.length === 0) {
-    relatedRepairs = getRelatedRepairs(obd?.title ?? "", 3).map((r) => ({
-      slug: r.slug, name: r.name, diyLabel: null, estTime: null,
-    }));
-  }
 
   if (!obd) notFound();
 
+  // Related repairs — derived from diagnostic causes, filtered by valid slugs
+  const relatedRepairs = (() => {
+    const seen = new Set<string>();
+    const repairs: { slug: string; name: string; diyLabel: string | null; estTime: string | null }[] = [];
+    for (const dc of diagnosticCauses) {
+      if (dc.repairSlug && dc.repairName && validRepairSlugs.has(dc.repairSlug) && !seen.has(dc.repairSlug)) {
+        seen.add(dc.repairSlug);
+        repairs.push({ slug: dc.repairSlug, name: dc.repairName, diyLabel: dc.diyLevel, estTime: dc.estTime });
+        if (repairs.length >= 4) break;
+      }
+    }
+    if (repairs.length > 0) return repairs;
+    // Fallback: keyword matching, filtered
+    return getRelatedRepairs(obd.title, 5)
+      .filter(r => validRepairSlugs.has(r.slug))
+      .slice(0, 4)
+      .map((r) => ({ slug: r.slug, name: r.name, diyLabel: null, estTime: null }));
+  })();
+
   const sev = severityColor(obd.severity);
-  const sevDark = severityStylesDark(obd.severity);
   const driving = getDrivingAdvice(obd.severity);
   const naturalIntro = generateNaturalIntro(obd);
 
   const canonCode = obd.code.toLowerCase();
+
+  // Make a fix → repair mapping (by keyword overlap with diagnostic causes)
+  const fixRepairMap = new Map<string, { slug: string; name: string }>();
+  for (const fix of obd.fixes) {
+    const fixLower = fix.toLowerCase();
+    for (const dc of diagnosticCauses) {
+      if (!dc.repairSlug || !dc.repairName || !validRepairSlugs.has(dc.repairSlug)) continue;
+      if (fixRepairMap.has(fix)) break;
+      const matchText = (dc.cause + " " + dc.keywords.join(" ")).toLowerCase();
+      const words = fixLower.split(/\s+/).filter(w => w.length > 4);
+      if (words.some(w => matchText.includes(w))) {
+        fixRepairMap.set(fix, { slug: dc.repairSlug, name: dc.repairName });
+      }
+    }
+    if (!fixRepairMap.has(fix)) {
+      for (const dc of diagnosticCauses) {
+        if (!dc.repairSlug || !dc.repairName || !validRepairSlugs.has(dc.repairSlug)) continue;
+        if (![...fixRepairMap.values()].some(v => v.slug === dc.repairSlug)) {
+          fixRepairMap.set(fix, { slug: dc.repairSlug, name: dc.repairName });
+          break;
+        }
+      }
+    }
+  }
 
   // ── FAQ items ──────────────────────────────────────────
 
   const faqItems: { question: string; answer: string }[] = [];
 
   // 1. What does {CODE} mean?
-  const meaningAnswer = obd.title
-    ? `${obd.code} stands for "${obd.title}". ${naturalIntro}`
-    : `${obd.code} is a diagnostic trouble code that indicates ${naturalIntro}`;
+  const meaningAnswer = `${obd.code} indicates "${obd.title}". ${naturalIntro}`;
   faqItems.push({
     question: `What does ${obd.code} mean?`,
     answer: meaningAnswer,
@@ -235,18 +229,12 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
   // 3. How much does it cost to fix {CODE}?
   let costAnswer: string;
   if (obd.min_cost != null && obd.max_cost != null && obd.min_cost > 0) {
-    if (obd.max_cost !== obd.min_cost) {
-      costAnswer = `Repair costs for ${obd.code} typically range from $${obd.min_cost} to $${obd.max_cost}, depending on your vehicle make, model, and local labor rates. `;
-    } else {
-      costAnswer = `The typical repair cost for ${obd.code} starts at approximately $${obd.min_cost}, though costs vary by vehicle and location. `;
+    costAnswer = `Repair costs for ${obd.code} typically range from $${obd.min_cost} to $${obd.max_cost}, depending on your vehicle and local labor rates. `;
+    if (obd.fixes.length > 0) {
+      costAnswer += `The most common fixes are: ${obd.fixes.slice(0, 2).join("; ")}.`;
     }
   } else {
-    costAnswer = `Repair costs for ${obd.code} vary widely depending on the root cause, your vehicle, and local labor rates. `;
-  }
-  if (obd.fixes.length > 0) {
-    costAnswer += `Common fixes include: ${obd.fixes.slice(0, 3).join("; ")}.`;
-  } else {
-    costAnswer += `A professional diagnosis is recommended to determine the exact cause and cost.`;
+    costAnswer = `Repair costs for ${obd.code} vary depending on the root cause. A professional diagnosis is recommended to get an accurate estimate.`;
   }
   faqItems.push({
     question: `How much does it cost to fix ${obd.code}?`,
@@ -256,9 +244,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
   // 4. Will {CODE} clear itself?
   let clearAnswer: string;
   if (obd.severity <= 1) {
-    clearAnswer = `${obd.code} may clear itself after a few drive cycles if the underlying issue was temporary (such as a loose gas cap or minor sensor glitch). However, if the underlying problem persists, the code will return. It's best to have the vehicle diagnosed even if the light goes off.`;
+    clearAnswer = `${obd.code} may clear itself after a few drive cycles if the underlying issue was temporary. However, if the problem persists, the code will return. It's best to have it diagnosed even if the light goes off.`;
   } else if (obd.severity <= 3) {
-    clearAnswer = `${obd.code} is unlikely to clear itself permanently. Even if the check engine light turns off temporarily, the underlying issue typically remains and the code will return. Proper diagnosis and repair are recommended.`;
+    clearAnswer = `${obd.code} is unlikely to clear itself permanently. Even if the check engine light turns off temporarily, the underlying issue typically remains. Proper diagnosis and repair are recommended.`;
   } else {
     clearAnswer = `${obd.code} will not clear itself. This code indicates a serious issue that requires immediate attention. The check engine light will remain on until the problem is properly diagnosed and repaired.`;
   }
@@ -289,8 +277,8 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
     "@type": "Article",
     headline: `${obd.code}: ${obd.title}`,
     description: `Learn what ${obd.code} means, common symptoms, repair costs, and whether it's safe to keep driving.`,
-    datePublished: new Date().toISOString(),
-    dateModified: new Date().toISOString(),
+    datePublished: "2025-05-01T00:00:00.000Z",
+    dateModified: "2026-06-18T00:00:00.000Z",
     author: {
       "@type": "Organization",
       name: "AutOwner",
@@ -438,63 +426,57 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           </p>
         </div>
 
-
-        {/* Symptoms */}
-        {obd.symptoms.length > 0 && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
-              Common Symptoms
-            </h2>
-            <ul className="space-y-2">
-              {obd.symptoms.map((s, i) => (
-                <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
-                  <svg
-                    className="w-4 h-4 text-amber dark:text-amber-dark mt-0.5 shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                    <line x1="12" y1="9" x2="12" y2="13" />
-                    <line x1="12" y1="17" x2="12.01" y2="17" />
-                  </svg>
-                  {s}
-                </li>
-              ))}
-            </ul>
+        {/* Diagnostic Funnel — narrow down the exact cause */}
+        {diagnosticCauses.length > 0 ? (
+          <ObdDiagnosticFunnel
+            code={obd.code}
+            symptoms={obd.symptoms}
+            diagnosticCauses={diagnosticCauses}
+          />
+        ) : (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4 text-center">
+            <p className="text-sm text-text-muted">
+              Interactive diagnosis is being prepared for {obd.code}. Check the quick reference below for common causes and fixes.
+            </p>
           </div>
         )}
 
-        {/* Possible Causes */}
-        {obd.causes.length > 0 && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
-              Possible Causes
-            </h2>
-            <ul className="space-y-2">
-              {obd.causes.map((c, i) => (
-                <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
-                  <svg
-                    className="w-4 h-4 text-text-muted mt-0.5 shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                  {c}
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Quick reference: Symptoms & Causes (SEO-visible, collapsed by default) */}
+        {(obd.symptoms.length > 0 || obd.causes.length > 0) && (
+          <details className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4 group">
+            <summary className="cursor-pointer list-none font-heading font-bold text-sm text-text-primary uppercase tracking-wider flex items-center gap-2 select-none min-h-[44px]">
+              <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+              Quick Reference: Symptoms &amp; Causes for {obd.code}
+            </summary>
+
+            {obd.symptoms.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-surface-border">
+                <h3 className="text-xs font-heading font-semibold text-text-secondary mb-2">Common Symptoms</h3>
+                <ul className="space-y-1.5">
+                  {obd.symptoms.map((s, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                      <span className="text-amber dark:text-amber-dark mt-0.5 shrink-0">⚠</span>
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {obd.causes.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-surface-border">
+                <h3 className="text-xs font-heading font-semibold text-text-secondary mb-2">Possible Causes</h3>
+                <ul className="space-y-1.5">
+                  {obd.causes.map((c, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                      <span className="text-text-muted mt-0.5 shrink-0">•</span>
+                      {c}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </details>
         )}
 
         {/* Common Fixes */}
@@ -504,22 +486,31 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
               Common Fixes
             </h2>
             <ul className="space-y-2">
-              {obd.fixes.map((f, i) => (
-                <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
-                  <svg
-                    className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  {f}
-                </li>
-              ))}
+              {obd.fixes.map((f, i) => {
+                const repair = fixRepairMap.get(f);
+                return (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
+                    <svg
+                      className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    {repair ? (
+                      <Link href={`/repair-cost/${repair.slug}`} className="text-primary hover:underline">
+                        {f}
+                      </Link>
+                    ) : (
+                      f
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
