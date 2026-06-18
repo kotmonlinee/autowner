@@ -235,13 +235,15 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
                             ✗ Not this one
                           </button>
                         )}
-                        <Link
-                          href={`/repair-cost/${cause.repairSlug}`}
-                          className="ml-auto px-3 py-1.5 rounded-lg text-[11px] font-heading font-bold bg-primary text-white hover:bg-primary-glow transition-colors flex items-center gap-1"
-                        >
-                          View Repair
-                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                        </Link>
+                        {cause.repairSlug && (
+                          <Link
+                            href={`/repair-cost/${cause.repairSlug}`}
+                            className="ml-auto px-3 py-1.5 rounded-lg text-[11px] font-heading font-bold bg-primary text-white hover:bg-primary-glow transition-colors flex items-center gap-1"
+                          >
+                            View Repair
+                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                          </Link>
+                        )}
                       </div>
                     </div>
                   )}
@@ -262,13 +264,15 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
             {confirmedCause.cause}
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href={`/repair-cost/${confirmedCause.repairSlug}`}
-              className="px-5 py-2.5 bg-emerald-600 text-white text-sm font-heading font-bold rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2"
-            >
-              See Repair Options
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-            </Link>
+            {confirmedCause.repairSlug && (
+              <Link
+                href={`/repair-cost/${confirmedCause.repairSlug}`}
+                className="px-5 py-2.5 bg-emerald-600 text-white text-sm font-heading font-bold rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2"
+              >
+                See Repair Options
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              </Link>
+            )}
             <Link
               href={`/quote-checker`}
               className="px-4 py-2 text-sm font-heading font-semibold text-primary border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors"

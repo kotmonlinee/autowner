@@ -431,7 +431,10 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           <ObdDiagnosticFunnel
             code={obd.code}
             symptoms={obd.symptoms}
-            diagnosticCauses={diagnosticCauses}
+            diagnosticCauses={diagnosticCauses.map(dc => ({
+              ...dc,
+              repairSlug: dc.repairSlug && validRepairSlugs.has(dc.repairSlug) ? dc.repairSlug : null,
+            }))}
           />
         ) : (
           <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4 text-center">
