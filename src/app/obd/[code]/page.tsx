@@ -426,6 +426,36 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           </p>
         </div>
 
+        {/* Common Symptoms */}
+        {obd.symptoms.length > 0 && (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Common Symptoms</h2>
+            <ul className="space-y-1.5">
+              {obd.symptoms.map((s, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                  <span className="text-amber dark:text-amber-dark mt-0.5 shrink-0">⚠</span>
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Most Likely Causes */}
+        {obd.causes.length > 0 && (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Most Likely Causes</h2>
+            <ul className="space-y-1.5">
+              {obd.causes.map((c, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                  <span className="text-text-muted mt-0.5 shrink-0">•</span>
+                  {c}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Diagnostic Funnel — narrow down the exact cause */}
         {diagnosticCauses.length > 0 ? (
           <ObdDiagnosticFunnel
@@ -442,65 +472,6 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
               Interactive diagnosis is being prepared for {obd.code}. Check the quick reference below for common causes and fixes.
             </p>
           </div>
-        )}
-
-        {/* Quick reference: Symptoms & Causes (SEO-visible, collapsed by default) */}
-        {(obd.symptoms.length > 0 || obd.causes.length > 0) && (
-          <details className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4 group">
-            <summary className="cursor-pointer list-none font-heading font-bold text-sm text-text-primary uppercase tracking-wider flex items-center gap-2 select-none min-h-[44px]">
-              <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
-              Quick Reference: Symptoms &amp; Causes for {obd.code}
-            </summary>
-
-            {obd.symptoms.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-surface-border">
-                <h3 className="text-xs font-heading font-semibold text-text-secondary mb-2">Common Symptoms</h3>
-                <ul className="space-y-1.5">
-                  {obd.symptoms.map((s, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
-                      <span className="text-amber dark:text-amber-dark mt-0.5 shrink-0">⚠</span>
-                      {s}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {obd.causes.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-surface-border">
-                <h3 className="text-xs font-heading font-semibold text-text-secondary mb-2">Possible Causes</h3>
-                <ul className="space-y-1.5">
-                  {obd.causes.map((c, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
-                      <span className="text-text-muted mt-0.5 shrink-0">•</span>
-                      {c}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {diagnosticCauses.length > 0 && diagnosticCauses.some(dc => dc.checks.length > 0) && (
-              <div className="mt-3 pt-3 border-t border-surface-border">
-                <h3 className="text-xs font-heading font-semibold text-text-secondary mb-2">How to Diagnose</h3>
-                <div className="space-y-3">
-                  {diagnosticCauses.filter(dc => dc.checks.length > 0).map((dc, i) => (
-                    <div key={i}>
-                      <p className="text-sm font-medium text-text-primary mb-1">{dc.cause} ({dc.probability}% likely)</p>
-                      <ul className="space-y-1 ml-2">
-                        {dc.checks.map((check, j) => (
-                          <li key={j} className="text-xs text-text-secondary">
-                            <span className="text-primary/70">{check.level}:</span> {check.method}{" — "}
-                            <span className="text-text-muted italic">{check.verdict}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </details>
         )}
 
         {/* Common Fixes */}
