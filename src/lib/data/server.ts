@@ -1830,7 +1830,7 @@ export async function getVehicleRepairCost(
   return { make, model, repair: repairData, tier, tierLabel: TIER_LABELS[tier] ?? tier };
 }
 
-export async function getRepairCosts(slug: string): Promise<RepairCostFull | null> {
+export const getRepairCosts = cache(async (slug: string): Promise<RepairCostFull | null> => {
   const supabase = await createServerSupabase();
 
   // Normalize slug: convert URL dashes to underscores (DB convention)
@@ -1894,7 +1894,7 @@ export async function getRepairCosts(slug: string): Promise<RepairCostFull | nul
     overallAvg,
     confidence: rows[0].confidence_level,
   };
-}
+});
 
 export async function searchRepairCosts(query: string): Promise<Pick<RepairCostRow, "repair_name" | "repair_slug">[]> {
   const supabase = await createServerSupabase();

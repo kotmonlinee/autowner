@@ -94,10 +94,20 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
   const parsed = await parseRepairSlug(slug);
   const repairSlug = parsed?.repairSlug ?? slug;
 
-  const [repair, popularVehicles] = await Promise.all([
+  const [repair, popularVehiclesRaw] = await Promise.all([
     getRepairCosts(repairSlug),
-    getVehicleRepairSlugs(20),
+    getVehicleRepairSlugs(100),
   ]);
+
+  // Filter to vehicles that actually have cost data for this repair
+  const popularVehicles = (() => {
+    const valid = new Set<string>();
+    for (const tierKey of TIER_ORDER) {
+      const tier = repair?.tiers?.[tierKey];
+      if (tier) for (const v of tier.vehicles) valid.add(`${v.make.toLowerCase()}-${v.model.toLowerCase()}`);
+    }
+    return popularVehiclesRaw.filter(v => valid.has(`${v.makeSlug}-${v.modelSlug}`)).slice(0, 20);
+  })();
 
   if (!repair) notFound();
 
@@ -116,12 +126,23 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
 
   const vehicleImageUrl = parsed ? getVehicleImageUrl(parsed.makeSlug, parsed.modelSlug) : null;
 
-  // Related OBD codes via knowledge graph: repair → symptom_causes → symptom_obd_codes → obd_codes
+  // Related OBD codes: parallel fetch symptom_causes + symptom_obd_codes, then obd_codes
   const supabase = await createServiceSupabase();
   let obdCodes: { code: string; title: string }[] = [];
-  const { data: causeSymptomIds } = await supabase.from("symptom_causes")
-    .select("symptom_id").eq("repair_slug", repairSlug.replace(/-/g, "_"));
-  const symptomIds = [...new Set((causeSymptomIds ?? []).map((r: any) => r.symptom_id))];
+  const dbSlug = repairSlug.replace(/-/g, "_");
+  const [causeResult, obdCodesResult] = await Promise.all([
+    supabase.from("symptom_causes").select("symptom_id").eq("repair_slug", dbSlug),
+    // Also try direct keyword search in parallel as fallback
+    (async () => {
+      const repairKeywords = repair.name.toLowerCase().split(" ").filter((w: string) => w.length > 3);
+      if (repairKeywords.length === 0) return null;
+      const conditions = repairKeywords.slice(0, 3).map((kw: string) => `title.ilike.%${kw}%`).join(",");
+      const { data } = await supabase.from("obd_codes").select("code, title").or(conditions).order("code").limit(10);
+      return data;
+    })(),
+  ]);
+
+  const symptomIds = [...new Set(((causeResult.data ?? []) as any[]).map((r: any) => r.symptom_id))];
   if (symptomIds.length > 0) {
     const { data: obdJunction } = await supabase.from("symptom_obd_codes")
       .select("obd_code").in("symptom_id", symptomIds);
@@ -132,15 +153,8 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
       obdCodes = (obdData as unknown as { code: string; title: string }[]) ?? [];
     }
   }
-  // Fallback: keyword search on OBD titles
-  if (obdCodes.length === 0) {
-    const repairKeywords = repair.name.toLowerCase().split(" ").filter((w: string) => w.length > 3);
-    if (repairKeywords.length > 0) {
-      const conditions = repairKeywords.slice(0, 3).map((kw: string) => `title.ilike.%${kw}%`).join(",");
-      const { data } = await supabase.from("obd_codes")
-        .select("code, title").or(conditions).order("code").limit(10);
-      obdCodes = (data as unknown as { code: string; title: string }[]) ?? [];
-    }
+  if (obdCodes.length === 0 && obdCodesResult) {
+    obdCodes = (obdCodesResult as unknown as { code: string; title: string }[]) ?? [];
   }
 
   const tierKeys = TIER_ORDER.filter((t) => repair.tiers[t]);
@@ -160,7 +174,6 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
 
   // Fetch DIY difficulty data from knowledge graph
   const diySupabase = await createServiceSupabase();
-  const dbSlug = repairSlug.replace(/-/g, "_");
   const { data: diyData } = await diySupabase.from("diy_difficulty").select("*").eq("repair_slug", dbSlug).maybeSingle();
 
   // FAQ
@@ -213,7 +226,8 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
     "@context": "https://schema.org", "@type": "Article",
     headline: parsed ? `${makeName} ${modelName} ${repair.name} — Cost Estimate & Price Guide` : `${repair.name} — Cost Estimate & Price Guide`,
     description: `${repair.name} for ${parsed ? `${makeName} ${modelName}` : "all vehicle types"} typically costs ${formatRange(repair.overallMin, repair.overallMax)}. Compare prices across 5 vehicle tiers.`,
-    datePublished: new Date().toISOString(),
+    datePublished: "2025-05-01T00:00:00.000Z",
+    dateModified: "2026-06-18T00:00:00.000Z",
     publisher: { "@type": "Organization", name: "AutOwner" },
   };
 
