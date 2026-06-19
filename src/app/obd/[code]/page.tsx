@@ -85,6 +85,24 @@ async function fetchValidRepairSlugs(): Promise<Set<string>> {
   } catch { return new Set(); }
 }
 
+function incrementViewCount(code: string): void {
+  void createServiceSupabase().then(async (supabase) => {
+    try {
+      const { data } = await supabase
+        .from("obd_codes")
+        .select("view_count")
+        .eq("code", code.toUpperCase().trim())
+        .single();
+      if (data) {
+        await supabase
+          .from("obd_codes")
+          .update({ view_count: (data.view_count || 0) + 1 })
+          .eq("code", code.toUpperCase().trim());
+      }
+    } catch { /* column may not exist yet */ }
+  });
+}
+
 async function fetchRelatedDiagnoses(code: string): Promise<{ slug: string; title: string; severity: string }[]> {
   try {
     const supabase = await createServiceSupabase();
@@ -160,6 +178,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
   if (!obd) notFound();
 
+  // Increment view count (fire-and-forget, don't block page render)
+  incrementViewCount(code);
+
   // Related repairs — derived from diagnostic causes, filtered by valid slugs
   const relatedRepairs = (() => {
     const seen = new Set<string>();
@@ -185,29 +206,8 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
   const canonCode = obd.code.toLowerCase();
 
-  // Make a fix → repair mapping (by keyword overlap with diagnostic causes)
-  const fixRepairMap = new Map<string, { slug: string; name: string }>();
-  for (const fix of obd.fixes) {
-    const fixLower = fix.toLowerCase();
-    for (const dc of diagnosticCauses) {
-      if (!dc.repairSlug || !dc.repairName || !validRepairSlugs.has(dc.repairSlug)) continue;
-      if (fixRepairMap.has(fix)) break;
-      const matchText = (dc.cause + " " + dc.keywords.join(" ")).toLowerCase();
-      const words = fixLower.split(/\s+/).filter(w => w.length > 4);
-      if (words.some(w => matchText.includes(w))) {
-        fixRepairMap.set(fix, { slug: dc.repairSlug, name: dc.repairName });
-      }
-    }
-    if (!fixRepairMap.has(fix)) {
-      for (const dc of diagnosticCauses) {
-        if (!dc.repairSlug || !dc.repairName || !validRepairSlugs.has(dc.repairSlug)) continue;
-        if (![...fixRepairMap.values()].some(v => v.slug === dc.repairSlug)) {
-          fixRepairMap.set(fix, { slug: dc.repairSlug, name: dc.repairName });
-          break;
-        }
-      }
-    }
-  }
+  // Direct lookup: fix_repair_slugs[i] ↔ fixes_json[i], AI-aligned
+  const fixRepairSlugs = obd.fix_repair_slugs;
 
   // ── FAQ items ──────────────────────────────────────────
 
@@ -511,7 +511,8 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             </h2>
             <ul className="space-y-2">
               {obd.fixes.map((f, i) => {
-                const repair = fixRepairMap.get(f);
+                const slug = fixRepairSlugs[i];
+                const repair = slug ? { slug: slug.replace(/_/g, "-"), name: "" } : null;
                 return (
                   <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
                     <svg
@@ -582,8 +583,14 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 return (
                   <Link key={repair.slug} href={`/repair-cost/${repair.slug}`}
                     className="flex items-center gap-3 p-3 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                      {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />}
+                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2 flex items-center justify-center">
+                      {img ? (
+                        <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />
+                      ) : (
+                        <svg className="w-5 h-5 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                        </svg>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="text-sm font-medium text-text-primary font-heading truncate block group-hover:text-primary transition-colors">{repair.name}</span>

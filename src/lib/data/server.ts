@@ -1588,6 +1588,7 @@ export const getObdCode = cache(async (code: string): Promise<ObdCode | null> =>
     symptoms: parseJsonArray(row.symptoms_json),
     causes: parseJsonArray(row.causes_json),
     fixes: parseJsonArray(row.fixes_json),
+    fix_repair_slugs: parseJsonArray(row.fix_repair_slugs),
     min_cost: row.min_cost != null ? Number(row.min_cost) : null,
     max_cost: row.max_cost != null ? Number(row.max_cost) : null,
   };

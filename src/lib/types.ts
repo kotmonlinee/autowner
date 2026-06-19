@@ -223,6 +223,7 @@ export type ObdCode = {
   symptoms: string[];
   causes: string[];
   fixes: string[];
+  fix_repair_slugs: (string | null)[];
   min_cost: number | null;
   max_cost: number | null;
 };
