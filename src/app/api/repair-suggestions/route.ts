@@ -1,4 +1,4 @@
-import { createServerSupabase } from "@/lib/supabase-server";
+import { createServiceSupabase } from "@/lib/supabase-server";
 import { NextResponse } from "next/server";
 
 interface RepairSuggestion {
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ suggestions: [] });
     }
 
-    const supabase = await createServerSupabase();
+    const supabase = await createServiceSupabase();
 
     // Search repair_costs for matching repair_name
     const { data, error } = await supabase
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
       .select("repair_name")
       .ilike("repair_name", `%${q}%`)
       .order("repair_name")
-      .limit(50);
+      .limit(100);
 
     if (error || !data) {
       return NextResponse.json({ suggestions: [] });
@@ -61,7 +61,7 @@ export async function GET(request: Request) {
       if (!seen.has(key)) {
         seen.add(key);
         suggestions.push({ display, raw: row.repair_name });
-        if (suggestions.length >= 10) break;
+        if (suggestions.length >= 50) break;
       }
     }
 

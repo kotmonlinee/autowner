@@ -44,10 +44,28 @@ const EXOTIC_MAKES = new Set([
   "aston martin", "maserati", "bugatti", "koenigsegg", "pagani",
 ]);
 
-function determineTier(make: string): string {
-  const normalized = make.toLowerCase().trim();
-  if (EXOTIC_MAKES.has(normalized)) return "exotic";
-  if (LUXURY_MAKES.has(normalized)) return "luxury";
+function determineTier(make: string, model?: string): string {
+  const normalizedMake = make.toLowerCase().trim();
+  if (EXOTIC_MAKES.has(normalizedMake)) return "exotic";
+  if (LUXURY_MAKES.has(normalizedMake)) return "luxury";
+
+  // Known non-luxury makes where specific models escalate to luxury tier
+  const modelTierOverrides: Record<string, string[]> = {
+    toyota: ["land cruiser", "sequoia", "tundra"],
+    chevrolet: ["corvette", "tahoe", "suburban"],
+    ford: ["expedition", "f-150 raptor", "mustang shelby"],
+    gmc: ["yukon", "sierra denali"],
+    ram: ["1500 limited", "2500", "3500"],
+    nissan: ["gt-r", "armada"],
+    volkswagen: ["touareg", "phaeton"],
+  };
+
+  if (model) {
+    const normalizedModel = model.toLowerCase().trim();
+    const overrides = modelTierOverrides[normalizedMake];
+    if (overrides?.some(m => normalizedModel.includes(m))) return "luxury";
+  }
+
   return "standard";
 }
 
@@ -94,76 +112,22 @@ export async function POST(request: Request) {
 
     const supabase = await createServerSupabase();
     const repairSlug = slugify(repairType);
-    const tier = determineTier(make);
+    const tier = determineTier(make, model);
+    const repairLower = repairType.trim().toLowerCase();
 
-    // Try to find a matching repair cost row
-    // Match by repair type slug and vehicle tier
+    // Single query: exact match first, then fuzzy fallbacks via or()
     let { data: costData, error } = await supabase
       .from("repair_costs")
       .select("*")
-      .eq("repair_slug", repairSlug)
-      .eq("tier", tier)
+      .or(
+        `and(repair_slug.eq.${repairSlug},tier.eq.${tier}),` +
+        `and(repair_slug.eq.${repairSlug},tier.eq.standard),` +
+        `repair_slug.ilike.%${repairSlug}%,` +
+        `repair_name.ilike.%${repairLower}%`
+      )
+      .order("tier", { ascending: tier === "standard" }) // prefer exact tier match
+      .limit(1)
       .maybeSingle();
-
-    // If no match on the specific tier, try with "standard" tier as fallback
-    if (!costData && tier !== "standard") {
-      const fallback = await supabase
-        .from("repair_costs")
-        .select("*")
-        .eq("repair_slug", repairSlug)
-        .eq("tier", "standard")
-        .maybeSingle();
-      costData = fallback.data;
-      error = fallback.error;
-    }
-
-    // If still no match, try partial match on repair_slug using ILIKE
-    if (!costData) {
-      const fuzzySlug = await supabase
-        .from("repair_costs")
-        .select("*")
-        .ilike("repair_slug", `%${repairSlug}%`)
-        .limit(1)
-        .maybeSingle();
-      costData = fuzzySlug.data;
-      error = fuzzySlug.error;
-    }
-
-    // If still no match, try matching by repair_name using ILIKE
-    if (!costData) {
-      // Try full repair type text against repair_name
-      const fuzzyName = await supabase
-        .from("repair_costs")
-        .select("*")
-        .ilike("repair_name", `%${repairType.trim()}%`)
-        .limit(1)
-        .maybeSingle();
-      costData = fuzzyName.data;
-      error = fuzzyName.error;
-    }
-
-    // If still no match, try word-by-word matching on repair_name
-    if (!costData) {
-      const words = repairType
-        .toLowerCase()
-        .split(/[\s-]+/)
-        .filter((w) => w.length >= 3);
-      if (words.length > 0) {
-        // Build ILIKE filter that matches any word
-        for (const word of words) {
-          const wordMatch = await supabase
-            .from("repair_costs")
-            .select("*")
-            .ilike("repair_name", `%${word}%`)
-            .limit(1)
-            .maybeSingle();
-          if (wordMatch.data) {
-            costData = wordMatch.data;
-            break;
-          }
-        }
-      }
-    }
 
     if (error) {
       console.error("Error querying repair_costs:", error);

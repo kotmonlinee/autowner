@@ -24,29 +24,113 @@ interface RepairSuggestion {
 }
 
 const FALLBACK_REPAIRS = [
-  "Brake pad replacement",
-  "Brake rotor replacement",
-  "Oil change",
-  "Alternator replacement",
-  "Starter replacement",
-  "Water pump replacement",
-  "Timing belt replacement",
-  "Spark plug replacement",
-  "Catalytic converter replacement",
-  "AC compressor replacement",
-  "Radiator replacement",
-  "Transmission fluid change",
-  "Fuel pump replacement",
-  "Strut replacement",
-  "Ball joint replacement",
-  "Tie rod replacement",
-  "Wheel bearing replacement",
-  "Head gasket replacement",
-  "Clutch replacement",
-  "Battery replacement",
-  "Power steering pump replacement",
-  "Thermostat replacement",
-  "Valve cover gasket replacement",
+  "ABS Module Replacement",
+  "ABS Module/HCU Replacement",
+  "ABS Sensor Replacement",
+  "AC Compressor Replacement",
+  "Airbag / SRS Replacement",
+  "Alternator Replacement",
+  "Ball Joints Replacement",
+  "Battery Replacement",
+  "Battery Terminal & Ground Connection Service",
+  "Blend Door Actuator Replacement",
+  "Blower Motor Replacement",
+  "Body Control Module (BCM) Replacement",
+  "Brake Caliper Replacement",
+  "Brake Fluid Flush",
+  "Brake Hose Replacement",
+  "Brake Line Replacement",
+  "Brake Pads Replacement - Front",
+  "Brake Pads Replacement - Rear",
+  "Cabin Air Filter Replacement",
+  "Camshaft Position Sensor Replacement",
+  "Catalytic Converter Replacement",
+  "Clutch Replacement",
+  "Control Arms Replacement",
+  "Coolant Flush",
+  "Cooling Fan Replacement",
+  "Crankshaft Position Sensor Replacement",
+  "CV Axle Replacement",
+  "Differential Fluid Change",
+  "Door Lock Actuator Replacement",
+  "Drive Belt Replacement",
+  "Driveshaft Replacement",
+  "ECM/PCM Replacement & Programming",
+  "ECM/PCM Software Update / Reprogramming",
+  "EGR Valve Replacement",
+  "Engine Air Filter Replacement",
+  "Engine Mount Replacement",
+  "EVAP System Diagnosis & Repair",
+  "Evaporator Core Replacement",
+  "Fuel Filter Replacement",
+  "Fuel Injector Replacement",
+  "Fuel Pump Replacement",
+  "Fuse or Relay Replacement",
+  "Gas Cap Replacement",
+  "Head Gasket Replacement",
+  "Heat Shield Repair",
+  "Heater Core Replacement",
+  "Heater Hose Replacement",
+  "Idle Air Control Valve Replacement",
+  "Ignition Coil Replacement",
+  "Ignition Switch Replacement",
+  "Intake Manifold Gasket Replacement",
+  "Lifter Replacement",
+  "Mass Air Flow Sensor Replacement",
+  "Master Cylinder Replacement",
+  "Muffler Replacement",
+  "Neutral Safety Switch Replacement",
+  "Oil Change - Full Synthetic",
+  "Oil Pan Gasket Replacement",
+  "Oil Pressure Sensor Replacement",
+  "Oil Pump Replacement",
+  "Oxygen Sensor Replacement",
+  "PCV Valve Replacement",
+  "Piston Ring Replacement",
+  "Power Steering Fluid Flush",
+  "Power Steering Hose Replacement",
+  "Power Steering Pump Replacement",
+  "Radiator Replacement",
+  "Rear Main Seal Replacement",
+  "Rod Bearing Replacement",
+  "Rotor Replacement - Front",
+  "Rotor Replacement - Rear",
+  "Sensor Replacement (Generic)",
+  "Serpentine Belt Replacement",
+  "Shocks Replacement - Rear",
+  "Smoke Test & Vacuum Leak Diagnosis",
+  "Spark Plugs Replacement",
+  "Starter Replacement",
+  "Steering Angle Sensor Replacement",
+  "Steering Rack Replacement",
+  "Struts Replacement - Front",
+  "Sway Bar Link Replacement",
+  "Thermostat Replacement",
+  "Throttle Body Cleaning / Replacement",
+  "Throttle Body Replacement",
+  "Throttle Position Sensor Replacement",
+  "Tie Rod Ends Replacement",
+  "Timing Belt Replacement",
+  "Tire Balance",
+  "Tire Replacement",
+  "Transfer Case Fluid Change",
+  "Transmission Fluid Change",
+  "Transmission Fluid Flush & Refill",
+  "Transmission Mount Replacement",
+  "Transmission Pan Gasket Replacement",
+  "Transmission Seal Replacement",
+  "Turbocharger Replacement",
+  "Vacuum Leak Diagnosis & Repair",
+  "Valve Adjustment",
+  "Valve Cover Gasket Replacement",
+  "Valve Seal Replacement",
+  "Water Pump Replacement",
+  "Wheel Alignment",
+  "Wheel Bearing Replacement",
+  "Wheel Speed Sensor Replacement",
+  "Window Regulator Replacement",
+  "Windshield Replacement",
+  "Wiring Harness / Connector Repair",
 ];
 
 const ASSESSMENT_COLORS: Record<AssessmentResult["assessment"], { bg: string; text: string; border: string; label: string }> = {
@@ -277,7 +361,7 @@ function QuoteCheckerContent() {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
-    if (repairType.length >= 2) {
+    if (repairType.length >= 3) {
       debounceRef.current = setTimeout(() => {
         fetchSuggestions(repairType);
       }, 250);
@@ -297,9 +381,9 @@ function QuoteCheckerContent() {
     if (repairType.length > 0) {
       return FALLBACK_REPAIRS.filter((r) =>
         r.toLowerCase().includes(repairType.toLowerCase())
-      ).slice(0, 8);
+      );
     }
-    return FALLBACK_REPAIRS.slice(0, 8);
+    return FALLBACK_REPAIRS;
   })();
 
   // ── Core: perform the quote check (shared by manual + auto submit) ──
@@ -1050,8 +1134,9 @@ function QuoteCheckerContent() {
                   document.getElementById("quote-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
                 className="group flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer text-left overflow-hidden">
-                <div className="w-14 h-11 sm:w-16 sm:h-12 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                  <img src={`/vehicles/${r.makeSlug}-${r.modelSlug}.jpg`} alt={`${r.make} ${r.model}`} className="w-full h-full object-cover" loading="lazy" />
+                <div className="w-14 h-11 sm:w-16 sm:h-12 rounded-lg overflow-hidden shrink-0 bg-surface-2 flex items-center justify-center">
+                  <img src={`/vehicles/${r.makeSlug}-${r.modelSlug}.jpg`} alt={`${r.make} ${r.model}`} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  <svg className="w-6 h-6 text-text-muted absolute" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 14 23 9 23 23 1 23 1 16"/><circle cx="5.5" cy="8.5" r="1.5"/></svg>
                 </div>
                 <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
                   <div className="min-w-0">
