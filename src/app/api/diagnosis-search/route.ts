@@ -6,40 +6,55 @@ export async function GET(req: Request) {
   const q = searchParams.get("q")?.trim() ?? "";
   const limit = Math.min(100, parseInt(searchParams.get("limit") ?? "6", 10));
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
-  const offset = (page - 1) * limit;
 
   const supabase = await createServiceSupabase();
 
-  let query = supabase.from("diagnoses")
-    .select("slug, symptom_path, diagnosis_json, view_count, vehicle_make, vehicle_model", { count: "exact" })
+  if (q.length < 2) {
+    // No search query — return top diagnoses by view count
+    const offset = (page - 1) * limit;
+    const { data, error, count } = await supabase.from("diagnoses")
+      .select("slug, symptom_path, diagnosis_json, view_count, vehicle_make, vehicle_model", { count: "exact" })
+      .order("view_count", { ascending: false })
+      .range(offset, offset + limit - 1);
+    if (error) return NextResponse.json({ diagnoses: [], total: 0, error: error.message }, { status: 500 });
+    return NextResponse.json({ diagnoses: data ?? [], total: count ?? 0 });
+  }
+
+  // Split query into words and search each across all fields
+  const words = q.toLowerCase().split(/\s+/).filter(w => w.length >= 2);
+  const fetchLimit = Math.min(limit * 3, 100);
+
+  // Build OR conditions for first 3 words (to keep query manageable)
+  const searchWords = words.slice(0, 3);
+  const orConditions = searchWords.flatMap(w => [
+    `symptom_path.ilike.%${w}%`,
+    `vehicle_make.ilike.%${w}%`,
+    `vehicle_model.ilike.%${w}%`
+  ]).join(",");
+
+  const { data, error } = await supabase.from("diagnoses")
+    .select("slug, symptom_path, diagnosis_json, view_count, vehicle_make, vehicle_model")
+    .or(orConditions)
     .order("view_count", { ascending: false })
-    .range(offset, offset + limit - 1);
+    .range(0, fetchLimit - 1);
 
-  if (q.length >= 2) {
-    const lower = q.toLowerCase();
-    query = query.or(
-      `symptom_path.ilike.%${lower}%,vehicle_make.ilike.%${lower}%,vehicle_model.ilike.%${lower}%`,
-    );
-  }
+  if (error) return NextResponse.json({ diagnoses: [], total: 0, error: error.message }, { status: 500 });
 
-  const { data, error, count } = await query;
+  // Post-filter: require ALL words to match somewhere (AND logic across search terms)
+  const allResults = (data ?? []).filter((d: any) => {
+    const json = d.diagnosis_json;
+    const title = (json?.title ?? "").toLowerCase();
+    const summary = (json?.summary ?? "").toLowerCase();
+    const path = (d.symptom_path ?? "").toLowerCase();
+    const make = (d.vehicle_make ?? "").toLowerCase();
+    const model = (d.vehicle_model ?? "").toLowerCase();
+    const allText = `${title} ${summary} ${path} ${make} ${model}`;
+    return words.every(w => allText.includes(w));
+  });
 
-  // Client-side filter for diagnosis_json->>title since Supabase .or() doesn't chain well with JSONB
-  let results = (data ?? []) as unknown as any[];
-  if (q.length >= 2) {
-    const lower = q.toLowerCase();
-    results = results.filter((d: any) => {
-      const title = d.diagnosis_json?.title?.toLowerCase() ?? "";
-      const summary = d.diagnosis_json?.summary?.toLowerCase() ?? "";
-      const path = (d.symptom_path ?? "").toLowerCase();
-      const make = (d.vehicle_make ?? "").toLowerCase();
-      const model = (d.vehicle_model ?? "").toLowerCase();
-      const all = `${title} ${summary} ${path} ${make} ${model}`;
-      return all.includes(lower);
-    });
-  }
+  // Paginate from filtered results
+  const offset = (page - 1) * limit;
+  const paged = allResults.slice(offset, offset + limit);
 
-  if (error) return NextResponse.json({ diagnoses: [], error: error.message }, { status: 500 });
-
-  return NextResponse.json({ diagnoses: results, total: count ?? 0 });
+  return NextResponse.json({ diagnoses: paged, total: allResults.length });
 }

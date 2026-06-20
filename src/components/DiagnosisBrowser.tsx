@@ -42,54 +42,60 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
   const [diagnoses, setDiagnoses] = useState<any[]>(initialDiagnoses);
   const [page, setPage] = useState(initialPage);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
+  const [searching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const LIMIT = 6;
+  const isSearching = query.trim().length >= 2;
   const computedPages = Math.max(1, Math.ceil(totalCount / LIMIT));
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       if (query.trim().length >= 2) {
+        setSearching(true);
         try {
           const res = await fetch(`/api/diagnosis-search?q=${encodeURIComponent(query.trim())}&limit=48`);
           if (res.ok) {
             const data = await res.json();
             setDiagnoses(data.diagnoses ?? []);
             setTotalCount(data.total ?? 0);
+            setPage(1);
           }
         } catch { /* fallback */ }
+        setSearching(false);
       } else {
         setDiagnoses(initialDiagnoses);
+        setTotalCount(initialTotalCount);
         setPage(initialPage);
+        setSearching(false);
       }
-    }, 250);
+    }, 300);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
-  }, [query, initialDiagnoses, initialPage]);
+  }, [query, initialDiagnoses, initialPage, initialTotalCount]);
 
-  // Fetch paginated results via API
   const loadPage = async (p: number) => {
-    try {
-      const q = query.trim().length >= 2 ? `&q=${encodeURIComponent(query.trim())}` : "";
-      const res = await fetch(`/api/diagnosis-search?limit=${LIMIT}&page=${p}${q}`);
-      if (res.ok) {
-        const data = await res.json();
-        setDiagnoses(data.diagnoses ?? []);
-        setTotalCount(data.total ?? 0);
-        setPage(p);
-        document.getElementById("diagnosis-results")?.scrollIntoView({ behavior: "smooth" });
-      }
-    } catch { /* fallback */ }
+    const q = query.trim().length >= 2 ? `&q=${encodeURIComponent(query.trim())}` : "";
+    const res = await fetch(`/api/diagnosis-search?limit=${LIMIT}&page=${p}${q}`);
+    if (res.ok) {
+      const data = await res.json();
+      setDiagnoses(data.diagnoses ?? []);
+      setTotalCount(data.total ?? 0);
+      setPage(p);
+      document.getElementById("diagnosis-results")?.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
     <section id="diagnosis-results" className="mt-16 pt-12 border-t border-surface-border">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <h2 className="text-lg font-heading font-bold text-text-primary">Popular Diagnoses</h2>
-          <span className="text-xs text-text-muted">{query.trim().length >= 2 ? `${diagnoses.length} results` : `${initialTotalCount} results`}</span>
+          <span className="text-xs text-text-muted">
+            {searching ? "Searching..." : isSearching ? `${totalCount} results` : `${totalCount} diagnoses`}
+          </span>
         </div>
-        <div className="relative w-full sm:w-64">
+        <div className="relative w-full sm:flex-1 sm:max-w-md">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
@@ -109,9 +115,16 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
         </div>
       </div>
 
-      {diagnoses.length === 0 ? (
+      {diagnoses.length === 0 && !searching ? (
         <div className="text-center py-12 bg-surface-1 rounded-xl border border-surface-border">
-          <p className="text-text-muted text-sm">No diagnoses found{query ? ` for "${query}"` : ""}.</p>
+          <p className="text-text-muted text-sm">
+            {isSearching ? `No diagnoses found for "${query}". Try different keywords.` : "No diagnoses available yet."}
+          </p>
+          {isSearching && (
+            <Link href="/symptom-checker" className="inline-flex items-center gap-1.5 mt-3 text-sm font-heading font-semibold text-primary hover:underline">
+              Try a new diagnosis →
+            </Link>
+          )}
         </div>
       ) : (
         <>
@@ -147,7 +160,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
           </div>
 
           {/* Pagination */}
-          {query.trim().length < 2 && computedPages > 1 && (
+          {!isSearching && computedPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-8">
               {page > 1 && (
                 <button onClick={() => loadPage(page - 1)} className="flex items-center gap-1 px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors">

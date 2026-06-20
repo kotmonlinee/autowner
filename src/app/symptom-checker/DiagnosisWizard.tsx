@@ -30,12 +30,17 @@ export default function DiagnosisWizard() {
   const [extraNotes, setExtraNotes] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [modelsLoading, setModelsLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => { fetchVehicleMakes().then(setMakes); }, []);
   useEffect(() => {
     if (!makeSlug) { setModels([]); return; }
-    fetchVehicleModels(makeSlug).then(d => setModels(d.map((m: any) => ({ name: m.name, slug: m.slug }))));
+    setModelsLoading(true);
+    fetchVehicleModels(makeSlug).then(d => {
+      setModels(d.map((m: any) => ({ name: m.name, slug: m.slug })));
+      setModelsLoading(false);
+    });
   }, [makeSlug]);
 
   const reset = () => { setStep(0); setS1(null); setS2(null); setS3(null); setError(""); setCelStatus(""); setDuration(""); setMileage(""); setRecentWork(""); setExtraNotes(""); };
@@ -71,7 +76,28 @@ export default function DiagnosisWizard() {
   );
 
   return (
-    <div>
+    <div className="relative">
+      {/* Loading overlay — masks the entire wizard while AI is working */}
+      {loading && (
+        <div className="absolute inset-0 z-50 flex items-start justify-center pt-20">
+          <div className="absolute inset-0 bg-surface-0/80 backdrop-blur-sm rounded-2xl" />
+          <div className="relative bg-surface-1 border border-surface-border rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center animate-in fade-in zoom-in duration-300">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <svg className="w-8 h-8 text-primary animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-heading font-bold text-text-primary mb-2">Analyzing your symptoms...</h3>
+            <p className="text-sm text-text-muted mb-4">Our AI is reviewing your symptoms{makeName ? ` and ${makeName} ${modelName} repair data` : ""} to find the most likely cause. This usually takes 5–10 seconds.</p>
+            <div className="flex gap-1.5 justify-center">
+              {[0, 1, 2].map(i => (
+                <div key={i} className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Step 1: Symptom type */}
       {step === 0 && (
         <div>
@@ -177,9 +203,9 @@ export default function DiagnosisWizard() {
                 <option value="">Select make</option>
                 {makes.map(m => <option key={m.slug} value={m.name}>{m.name}</option>)}
               </select>
-              <select value={modelName} onChange={e => setModelName(e.target.value)} disabled={!models.length}
+              <select value={modelName} onChange={e => setModelName(e.target.value)} disabled={!models.length || modelsLoading}
                 className="w-full px-4 py-2.5 bg-surface-0 border border-surface-border rounded-xl text-sm text-text-primary focus:border-primary/50 transition-all appearance-none font-heading disabled:opacity-50">
-                <option value="">{makeName ? "Select model" : "Select make first"}</option>
+                <option value="">{modelsLoading ? "Loading models..." : makeName ? "Select model" : "Select make first"}</option>
                 {models.map(m => <option key={m.slug} value={m.name}>{m.name}</option>)}
               </select>
               <select value={year} onChange={e => setYear(e.target.value)}
