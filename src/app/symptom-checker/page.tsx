@@ -21,10 +21,11 @@ const PAGE_SIZE = 6;
 export default async function DiagnosisPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; symptom?: string }>;
 }) {
   const sp = await searchParams;
   const page = Math.max(1, parseInt(sp.page || "1", 10) || 1);
+  const prefilledSymptom = sp.symptom || null;
 
   let popular: any[] = [];
   let totalCount = 0;
@@ -55,7 +56,7 @@ export default async function DiagnosisPage({
           <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-3">AI Car Diagnosis</h1>
           <p className="text-text-muted text-sm sm:text-base leading-relaxed max-w-2xl">Tell us what's happening with your car. Our AI analyzes symptoms and provides possible causes, OBD-II codes, and repair estimates.</p>
         </div>
-        <DiagnosisWizard />
+        <DiagnosisWizard prefilledSymptom={prefilledSymptom} />
 
         <DiagnosisBrowser
           initialDiagnoses={popular}

@@ -10,7 +10,7 @@ import { STEP1, STEP2, type Step2Option, type Option } from "@/lib/diagnosis-tre
 const YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: 30 }, (_, i) => String(YEAR - i));
 
-export default function DiagnosisWizard() {
+export default function DiagnosisWizard({ prefilledSymptom }: { prefilledSymptom?: string | null }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [s1, setS1] = useState<Option | null>(null);
@@ -56,7 +56,8 @@ export default function DiagnosisWizard() {
     if (recentWork === "yes") context.push("Recent work: yes");
     if (extraNotes.trim()) context.push(`Additional notes: ${extraNotes.trim()}`);
     const contextStr = context.length > 0 ? ` Context: ${context.join(". ")}.` : "";
-    const q = `Vehicle: ${v}. Symptom: ${s1.label}. Location: ${s2.label}. When: ${s3.label}.${contextStr}`;
+    const symptomRef = prefilledSymptom ? ` Known symptom from lookup: ${prefilledSymptom}.` : "";
+    const q = `Vehicle: ${v}. Symptom: ${s1.label}. Location: ${s2.label}. When: ${s3.label}.${symptomRef}${contextStr}`;
     try {
       const r = await fetch("/api/diagnosis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ symptoms: q, make: makeName || undefined, model: modelName || undefined, year: year || undefined }) });
       const d = await r.json();
@@ -95,6 +96,16 @@ export default function DiagnosisWizard() {
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Prefilled symptom banner */}
+      {prefilledSymptom && (
+        <div className="mb-5 flex items-center gap-2 px-4 py-2.5 bg-primary/5 border border-primary/20 rounded-xl text-sm">
+          <svg className="w-4 h-4 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          <span className="text-text-secondary">Diagnosing: <strong className="text-text-primary">{prefilledSymptom}</strong></span>
         </div>
       )}
 
