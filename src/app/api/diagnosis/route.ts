@@ -51,25 +51,35 @@ Return ONLY valid JSON with this structure:
 }
 Rules: severity: "critical"=stop driving immediately, "high"=get inspected within days, "medium"=schedule soon, "low"=monitor. 2-3 causes ordered by likelihood. Max 4 codes. 3 faq items. Write for non-mechanic.`;
 
+function hashStr(s: string): string {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h).toString(36).padStart(6, "0");
+}
+
 function generateSlug(symptoms: string, vehicle?: string): string {
-  // Extract key terms: symptom type + location + trigger
+  // Extract key terms for readable prefix
   const parts = symptoms.match(/Symptom: ([^.]+)\. Location: ([^.]+)\. When: ([^.]+)\./);
   const baseParts: string[] = [];
   if (parts) {
     baseParts.push(parts[1].trim(), parts[2].trim(), parts[3].trim());
   } else {
-    baseParts.push(symptoms);
+    baseParts.push(symptoms.substring(0, 40));
   }
-  // Add vehicle if provided
   if (vehicle) baseParts.push(vehicle);
-  // Generate clean slug
-  return baseParts.join(" ")
+
+  // Hash the full input (including context fields like mileage, CEL, duration, etc.) for uniqueness
+  const hash = hashStr(symptoms + (vehicle ?? ""));
+
+  return `${baseParts.join(" ")
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
     .replace(/(^-|-$)/g, "")
-    .substring(0, 80);
+    .substring(0, 64)}-${hash}`;
 }
 
 export async function POST(request: Request) {
@@ -86,7 +96,7 @@ export async function POST(request: Request) {
     const slug = generateSlug(symptoms, vehicleStr || undefined);
     const supabase = await createServiceSupabase();
 
-    // 1. Check cache: exact symptom match OR similar slug match
+    // Check cache: slug is now fully deterministic from all input fields (including context)
     const { data: cached } = await supabase.from("diagnoses").select("*").eq("slug", slug).maybeSingle();
     if (cached) {
       const cachedData = cached as unknown as Diagnosis;
@@ -94,18 +104,6 @@ export async function POST(request: Request) {
       return NextResponse.json({
         diagnosis: cachedData.diagnosis_json,
         slug: cachedData.slug,
-        cached: true,
-      });
-    }
-
-    // Also check ILIKE match on symptom_path for similar queries
-    const { data: similar } = await supabase.from("diagnoses").select("*").ilike("symptom_path", `%${symptoms.substring(0, 40)}%`).limit(1).maybeSingle();
-    if (similar) {
-      const similarData = similar as unknown as Diagnosis;
-      await supabase.from("diagnoses").update({ view_count: (similarData.view_count || 1) + 1 }).eq("id", similarData.id);
-      return NextResponse.json({
-        diagnosis: similarData.diagnosis_json,
-        slug: similarData.slug,
         cached: true,
       });
     }
