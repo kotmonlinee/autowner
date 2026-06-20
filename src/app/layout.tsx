@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description:
     "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification. Know what's wrong with your car and what it should cost to fix.",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/favicon.ico",
     apple: "/favicon.svg",
   },
   openGraph: {
