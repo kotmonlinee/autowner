@@ -87,6 +87,29 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+async function fetchRelatedRepairs(currentSlug: string): Promise<{ slug: string; name: string }[]> {
+  try {
+    const supabase = await createServiceSupabase();
+    const dbSlug = currentSlug.replace(/-/g, "_");
+    // Get 8 random repair types excluding the current one
+    const { data } = await supabase
+      .from("repair_costs")
+      .select("repair_slug, repair_name")
+      .neq("repair_slug", dbSlug)
+      .limit(100);
+    // Deduplicate and pick 6 randomly
+    const seen = new Set<string>();
+    const unique: { slug: string; name: string }[] = [];
+    for (const r of (data ?? [])) {
+      if (!seen.has(r.repair_slug)) {
+        seen.add(r.repair_slug);
+        unique.push({ slug: r.repair_slug.replace(/_/g, "-"), name: r.repair_name });
+      }
+    }
+    return unique.sort(() => Math.random() - 0.5).slice(0, 6);
+  } catch { return []; }
+}
+
 // ── Page ─────────────────────────────────────────────────
 
 export default async function RepairCostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -94,9 +117,10 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
   const parsed = await parseRepairSlug(slug);
   const repairSlug = parsed?.repairSlug ?? slug;
 
-  const [repair, popularVehiclesRaw] = await Promise.all([
+  const [repair, popularVehiclesRaw, relatedRepairsRaw] = await Promise.all([
     getRepairCosts(repairSlug),
     getVehicleRepairSlugs(100),
+    fetchRelatedRepairs(repairSlug),
   ]);
 
   // Filter to vehicles that actually have cost data for this repair
@@ -305,7 +329,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         </div>
 
         {/* Price Summary Card */}
-        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 mb-6">
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 mb-4">
           <div className="text-center">
             <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-2">
               {parsed && vehicleTierCard ? `Estimated Cost for ${makeName} ${modelName}` : "Estimated Cost Range"}
@@ -329,25 +353,51 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               </span>
             </p>
           </div>
+          {/* Tier price labels — compact one-row preview */}
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-4">
+            {tierCards.map((tier) => (
+              <div key={tier.tier} className="text-center p-2 rounded-lg bg-surface-0 border border-surface-border">
+                <p className="text-[10px] text-text-muted font-heading uppercase tracking-wider">{tier.tierLabel}</p>
+                <p className="text-sm font-heading font-bold text-text-primary">{formatRange(tier.min, tier.max)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA: Quote Checker — right below price */}
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex-1">
+              <h3 className="text-sm font-heading font-bold text-text-primary mb-0.5">Got a mechanic&apos;s quote? Check if it&apos;s fair</h3>
+              <p className="text-text-muted text-xs">Enter your quote amount and we&apos;ll tell you if you&apos;re being overcharged.</p>
+            </div>
+            <Link
+              href={`/quote-checker?repair=${encodeURIComponent(repair.name)}${parsed ? `&make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}` : ""}`}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
+            >
+              Check your quote
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            </Link>
+          </div>
         </div>
 
         {/* Safety Recalls (vehicle-specific only) */}
         {parsed && makeName && (
-          <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-2xl border border-severity-caution-border p-6 mb-6">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-severity-caution-bg flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5 text-severity-caution" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-2xl border border-severity-caution-border p-5 mb-4">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-lg bg-severity-caution-bg flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-severity-caution" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
               <div>
-                <h2 className="text-lg font-heading font-bold text-text-primary mb-1">Check for Open Safety Recalls</h2>
-                <p className="text-sm text-text-secondary mb-3">
+                <h2 className="text-base font-heading font-bold text-text-primary mb-1">Check for Open Safety Recalls</h2>
+                <p className="text-sm text-text-secondary mb-2">
                   Your {makeName} {modelName} may have open safety recalls. Repairs covered by a recall are <strong>free</strong> at dealerships.
                 </p>
                 <Link
                   href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-colors font-heading"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors font-heading"
                 >
                   Check Recalls Now →
                 </Link>
@@ -356,93 +406,110 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           </div>
         )}
 
-        {/* Price Breakdown by Vehicle Tier */}
-        <section className="mb-6">
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
-            Cost by Vehicle Tier
-          </h2>
-          <div className="space-y-3">
-            {tierCards.map((tier) => {
-              const isActive = vehicleTier === tier.tier;
-              return (
-              <div
-                key={tier.tier}
-                className={`rounded-xl border-2 p-4 transition-all duration-150 ${
-                  isActive
-                    ? "border-primary/40 bg-primary/5 shadow-sm"
-                    : "bg-surface-1 border-surface-border hover:border-primary/20 hover:shadow-sm"
-                }`}
-              >
-                {isActive && (
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                    <span className="text-xs font-heading font-bold text-primary uppercase tracking-wider">Your Vehicle Tier</span>
-                  </div>
-                )}
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <h3 className={`text-sm font-heading font-bold ${isActive ? "text-primary" : "text-text-primary"}`}>
-                    {TIER_LABELS[tier.tier] ?? tier.tierLabel}
-                  </h3>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <p className={`text-lg font-heading font-bold ${isActive ? "text-primary" : "text-text-primary"}`}>
-                      {formatRange(tier.min, tier.max)}
-                    </p>
-                    <span className="text-xs font-heading text-text-muted">
-                      {tier.confidence === "high" ? "High confidence" : tier.confidence === "medium" ? "Medium confidence" : "Estimate"}
-                    </span>
-                  </div>
-                </div>
-                <div className="bg-surface-0 rounded-xl border border-surface-border p-3">
-                  <p className="text-xs font-heading font-bold text-text-primary mb-2">
-                    Average cost: <span className="text-base">{formatMoney(tier.avg)}</span>
-                  </p>
-                  <div className="space-y-2">
-                    <div>
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-text-muted">Labor</span>
-                        <span className="text-text-secondary font-medium">{formatMoney(tier.labor)} ({Math.round((tier.labor / (tier.labor + tier.parts)) * 100)}%)</span>
-                      </div>
-                      <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.round((tier.labor / (tier.labor + tier.parts)) * 100)}%` }} />
-                      </div>
+        {/* Cost for Popular Vehicles — horizontal scroll */}
+        {popularVehicles.length > 0 && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base font-heading font-bold text-text-primary">{repair.name} Cost by Make &amp; Model</h2>
+              <Link href="/vehicles" className="text-xs font-heading font-semibold text-primary hover:underline shrink-0">All vehicles →</Link>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 snap-x">
+              {popularVehicles.map((v) => {
+                const compositeSlug = `${repairSlug}-${v.makeSlug}-${v.modelSlug}`;
+                return (
+                  <Link key={`${v.makeSlug}-${v.modelSlug}`} href={`/repair-cost/${compositeSlug}`}
+                    className="group flex-shrink-0 w-36 p-3 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors snap-start">
+                    <div className="w-full h-16 rounded-lg overflow-hidden bg-surface-2 mb-2">
+                      <img src={`/vehicles/${v.makeSlug}-${v.modelSlug}.jpg`} alt={`${v.makeName} ${v.modelName}`} className="w-full h-full object-cover" loading="lazy" />
                     </div>
-                    <div>
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-text-muted">Parts</span>
-                        <span className="text-text-secondary font-medium">{formatMoney(tier.parts)} ({Math.round((tier.parts / (tier.labor + tier.parts)) * 100)}%)</span>
-                      </div>
-                      <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden">
-                        <div className="h-full bg-amber dark:bg-amber-dark rounded-full transition-all" style={{ width: `${Math.round((tier.parts / (tier.labor + tier.parts)) * 100)}%` }} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              );
-            })}
+                    <p className="text-xs font-heading font-semibold text-text-primary truncate">{v.makeName} {v.modelName}</p>
+                    <p className="text-[10px] text-text-muted">View cost →</p>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
+        )}
+
+        {/* Price Breakdown by Vehicle Tier — collapsible detail */}
+        <section className="mb-4">
+          <details className="bg-surface-1 rounded-xl border border-surface-border p-4 group">
+            <summary className="flex items-center justify-between cursor-pointer list-none">
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+                <h2 className="text-sm font-heading font-bold text-text-primary">Full Cost Breakdown by Vehicle Tier</h2>
+              </div>
+              <span className="text-xs text-text-muted">{tierCards.length} tiers</span>
+            </summary>
+            <div className="mt-3 space-y-2">
+              {tierCards.map((tier) => {
+                const isActive = vehicleTier === tier.tier;
+                return (
+                <div key={tier.tier}
+                  className={`rounded-lg border p-3 transition-all duration-150 ${
+                    isActive ? "border-primary/40 bg-primary/5" : "bg-surface-0 border-surface-border"
+                  }`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                      <h3 className={`text-xs font-heading font-bold ${isActive ? "text-primary" : "text-text-primary"}`}>
+                        {TIER_LABELS[tier.tier] ?? tier.tierLabel}
+                      </h3>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-heading font-bold text-text-primary">{formatRange(tier.min, tier.max)}</p>
+                      <p className="text-[10px] text-text-muted">{tier.confidence === "high" ? "High" : tier.confidence === "medium" ? "Medium" : "Est."} confidence</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-text-muted">
+                    <span>Avg: <strong className="text-text-secondary">{formatMoney(tier.avg)}</strong></span>
+                    <span>Labor: <strong className="text-text-secondary">{formatMoney(tier.labor)}</strong> ({Math.round((tier.labor / (tier.labor + tier.parts)) * 100)}%)</span>
+                    <span>Parts: <strong className="text-text-secondary">{formatMoney(tier.parts)}</strong></span>
+                  </div>
+                </div>
+                );
+              })}
+            </div>
+          </details>
         </section>
 
-        {/* CTA: Quote Checker */}
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1">
-              <h3 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">
-                Got a quote from your mechanic?
-              </h3>
-              <p className="text-text-muted text-sm">
-                Compare it against our estimates to see if you&apos;re getting a fair deal.
-              </p>
+        {/* Do You Need This Repair? */}
+        {(diyData as any)?.check_steps?.length > 0 && (
+          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-4">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </span>
+              <h2 className="text-lg font-heading font-bold text-text-primary">Do You Actually Need {repair.name}?</h2>
             </div>
-            <Link
-              href={`/quote-checker?repair=${encodeURIComponent(repair.name)}${parsed ? `&make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}` : ""}`}
-              className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
-            >
-              Check your quote
-              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-            </Link>
+            <p className="text-sm text-text-muted mb-4">Check your symptoms against these stages to see if this repair is right for you.</p>
+            <div className="space-y-3">
+              {(diyData as any).check_steps.map((step: any, i: number) => {
+                const stageColors: Record<string, string> = {
+                  early_warning: "border-l-amber-400 bg-amber-50/50 dark:bg-amber-950/10",
+                  moderate: "border-l-orange-400 bg-orange-50/50 dark:bg-orange-950/10",
+                  critical: "border-l-red-400 bg-red-50/50 dark:bg-red-950/10",
+                };
+                const stageLabels: Record<string, string> = {
+                  early_warning: "Early Warning",
+                  moderate: "Getting Worse",
+                  critical: "Critical — Act Now",
+                };
+                return (
+                  <div key={i} className={`border-l-4 rounded-r-lg p-4 ${stageColors[step.stage] || stageColors.early_warning}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-heading font-bold text-text-primary uppercase tracking-wider">{stageLabels[step.stage] || step.stage}</span>
+                      <span className="w-1 h-1 rounded-full bg-text-muted" />
+                      <span className="text-xs text-text-muted font-heading">{step.symptom}</span>
+                    </div>
+                    <p className="text-sm text-text-secondary mb-1"><strong>What to do:</strong> {step.action}</p>
+                    <p className="text-xs text-text-muted"><strong>If ignored:</strong> {step.if_ignored}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Factors Affecting Price */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-6">
@@ -513,48 +580,24 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           );
         })()}
 
-        {/* AI Diagnosis CTA */}
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1">
-              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Not Sure This Is the Right Repair?</h2>
-              <p className="text-sm text-text-muted">Describe your symptoms to our AI — it identifies possible causes, OBD codes, and cost estimates in seconds.</p>
-            </div>
-            <Link href={`/symptom-checker${parsed ? `?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}` : ""}`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
-              Diagnose with AI
-              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-            </Link>
-          </div>
-        </div>
-
-        {/* Cost for Popular Vehicles */}
-        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
-            {repair.name} Cost for Popular Vehicles
-          </h2>
-          <p className="text-xs text-text-muted mb-3">
-            See how much this repair costs for specific makes and models:
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {popularVehicles.slice(0, 20).map((v) => {
-              const compositeSlug = `${repairSlug}-${v.makeSlug}-${v.modelSlug}`;
-              return (
-                <Link
-                  key={`${v.makeSlug}-${v.modelSlug}`}
-                  href={`/repair-cost/${compositeSlug}`}
-                  className="group flex items-center justify-between px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors font-heading"
-                  title={`${v.makeName} ${v.modelName} ${repair.name}`}
-                >
-                  <span className="truncate">{v.makeName} {v.modelName}</span>
-                  <svg className="w-3 h-3 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+        {/* Related Repairs */}
+        {relatedRepairsRaw.length > 0 && (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h2>
+            <p className="text-xs text-text-muted mb-3">People looking at {repair.name.toLowerCase()} also check these repairs:</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {relatedRepairsRaw.map((r) => (
+                <Link key={r.slug} href={`/repair-cost/${r.slug}`}
+                  className="flex items-center gap-2.5 p-3 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
+                  <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-surface-2">
+                    {(() => { const img = getRepairImageUrl(r.slug); return img ? <img src={img} alt={r.name} className="w-full h-full object-cover" loading="lazy" /> : <svg className="w-4 h-4 text-text-muted m-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>; })()}
+                  </div>
+                  <span className="text-xs font-heading font-medium text-text-secondary group-hover:text-primary transition-colors truncate">{r.name}</span>
                 </Link>
-              );
-            })}
+              ))}
+            </div>
           </div>
-          <Link href="/vehicles" className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
-            Browse all vehicles →
-          </Link>
-        </div>
+        )}
 
         {/* FAQ */}
         <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">

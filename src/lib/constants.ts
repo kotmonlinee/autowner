@@ -21,7 +21,7 @@ export const TIER_LABELS: Record<string, string> = {
   mid_range: "Mid-Range",
   luxury: "Luxury",
   truck_suv: "Truck/SUV",
-  european: "European",
+  european: "Euro",
 };
 
 export function formatMoney(n: number): string {
