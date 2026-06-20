@@ -355,12 +355,18 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           </div>
           {/* Tier price labels — compact one-row preview */}
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-4">
-            {tierCards.map((tier) => (
-              <div key={tier.tier} className="text-center p-2 rounded-lg bg-surface-0 border border-surface-border">
-                <p className="text-[10px] text-text-muted font-heading uppercase tracking-wider">{tier.tierLabel}</p>
-                <p className="text-sm font-heading font-bold text-text-primary">{formatRange(tier.min, tier.max)}</p>
+            {tierCards.map((tier) => {
+              const isActive = vehicleTier === tier.tier;
+              return (
+              <div key={tier.tier} className={`text-center p-2 rounded-lg border transition-all ${
+                isActive ? "bg-primary/10 border-primary shadow-sm shadow-primary/10" : "bg-surface-0 border-surface-border"
+              }`}>
+                <p className={`text-[10px] font-heading uppercase tracking-wider ${isActive ? "text-primary font-bold" : "text-text-muted"}`}>{tier.tierLabel}</p>
+                <p className={`text-sm font-heading font-bold ${isActive ? "text-primary" : "text-text-primary"}`}>{formatRange(tier.min, tier.max)}</p>
+                {isActive && <p className="text-[9px] text-primary/70 font-heading mt-0.5">Your vehicle</p>}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -587,7 +593,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             <p className="text-xs text-text-muted mb-3">People looking at {repair.name.toLowerCase()} also check these repairs:</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {relatedRepairsRaw.map((r) => (
-                <Link key={r.slug} href={`/repair-cost/${r.slug}`}
+                <Link key={r.slug} href={parsed ? `/repair-cost/${r.slug}-${parsed.makeSlug}-${parsed.modelSlug}` : `/repair-cost/${r.slug}`}
                   className="flex items-center gap-2.5 p-3 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
                   <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                     {(() => { const img = getRepairImageUrl(r.slug); return img ? <img src={img} alt={r.name} className="w-full h-full object-cover" loading="lazy" /> : <svg className="w-4 h-4 text-text-muted m-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>; })()}
@@ -673,6 +679,16 @@ function DiySection({ diyData, tierCards }: { diyData: any; tierCards: any[] }) 
         </span>
         <h2 className="text-lg font-heading font-bold text-text-primary">Can You DIY This?</h2>
       </div>
+
+      <p className="text-sm text-text-secondary mb-4">
+        This repair is rated{" "}
+        <Link href="/repair-cost/diy-levels" className="text-primary hover:underline font-semibold">{config.difficulty_label} (L{config.difficulty_level})</Link>
+        {" "}— typical DIY time is <strong className="text-text-primary">{config.est_time}</strong> with{" "}
+        <Link href="/repair-cost/diy-levels" className={`hover:underline font-semibold ${config.risk_level === "Low" ? "text-emerald-600" : config.risk_level === "Medium" ? "text-amber-600" : "text-red-600"}`}>{config.risk_level.toLowerCase()} risk</Link>.
+        {config.diy_friendly === "Yes" ? " Most car owners can handle this with basic tools." :
+         config.diy_friendly === "Maybe" ? " You'll need some mechanical experience and the right tools." :
+         " This is best left to a professional mechanic."}
+      </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <Link href="/repair-cost/diy-levels" className={`flex flex-col items-center justify-center px-4 py-3 rounded-xl border sm:col-span-1 hover:ring-2 hover:ring-offset-1 transition-all ${levelInfo.bg}`}>
