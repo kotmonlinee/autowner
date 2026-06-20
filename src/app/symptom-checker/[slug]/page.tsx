@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { cache } from "react";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { resolveRepairSlug } from "@/lib/internal-linking";
 import ShareButtons from "@/components/ShareButtons";
@@ -21,9 +22,17 @@ const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string
 };
 
 function parseCostRange(costStr: string): { min: number; max: number } | null {
-  const match = costStr.match(/\$?([\d,]+)\s*[–-]\s*\$?([\d,]+)/);
-  if (!match) return null;
-  return { min: parseInt(match[1].replace(/,/g, "")), max: parseInt(match[2].replace(/,/g, "")) };
+  const cleaned = costStr.replace(/[,]/g, "");
+  // Range: $500-$1000, $500–$1,000, $500 to $1000, 500-1000
+  let m = cleaned.match(/\$?(\d+)\s*(?:[–\-]|to)\s*\$?(\d+)/i);
+  if (m) return { min: parseInt(m[1]), max: parseInt(m[2]) };
+  // Single value: "Around $500", "Typically $800", "$500+"
+  m = cleaned.match(/\$?(\d{3,})/);
+  if (m) {
+    const v = parseInt(m[1]);
+    return { min: Math.round(v * 0.8), max: Math.round(v * 1.2) };
+  }
+  return null;
 }
 
 const LIKELIHOOD_CONFIG: Record<string, { bg: string; text: string; border: string; bar: string; label: string }> = {
@@ -32,12 +41,17 @@ const LIKELIHOOD_CONFIG: Record<string, { bg: string; text: string; border: stri
   "less common": { bg: "bg-surface-0 dark:bg-surface-0", text: "text-text-muted", border: "border-surface-border", bar: "border-l-surface-border", label: "Less Common" },
 };
 
+const getDiagnosisBySlug = cache(async (slug: string) => {
+  const supabase = await createServiceSupabase();
+  const { data } = await supabase.from("diagnoses").select("*").eq("slug", slug).maybeSingle();
+  return (data as unknown as import("@/lib/types").Diagnosis) || null;
+});
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createServiceSupabase();
-  const { data } = await supabase.from("diagnoses").select("diagnosis_json").eq("slug", slug).maybeSingle();
-  if (!data) return { title: "Diagnosis Not Found" };
-  const d = (data as unknown as import("@/lib/types").Diagnosis).diagnosis_json;
+  const diagnosis = await getDiagnosisBySlug(slug);
+  if (!diagnosis) return { title: "Diagnosis Not Found" };
+  const d = diagnosis.diagnosis_json;
   return {
     title: `${d.title} | AutOwner AI Diagnosis`,
     description: d.summary,
@@ -49,23 +63,30 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function DiagnosisResultPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const supabase = await createServiceSupabase();
-  const { data } = await supabase.from("diagnoses").select("*").eq("slug", slug).maybeSingle();
-  if (!data) notFound();
+  const diagnosis = await getDiagnosisBySlug(slug);
+  if (!diagnosis) notFound();
 
-  const diagnosis = data as unknown as import("@/lib/types").Diagnosis;
   const d = diagnosis.diagnosis_json;
   const vehicle = diagnosis.vehicle_make ? `${diagnosis.vehicle_make} ${diagnosis.vehicle_model ?? ""} ${diagnosis.vehicle_year ?? ""}`.trim() : null;
+
+  // Parallel: OBD codes + repair resolution
+  const supabase = await createServiceSupabase();
+  const obdPromise = d.possibleCodes?.length
+    ? supabase.from("obd_codes").select("code, title").in("code", d.possibleCodes).order("code")
+    : Promise.resolve(null);
+  const diyPromise = d.matchedRepairSlugs?.length
+    ? supabase.from("diy_difficulty").select("*").in("repair_slug", d.matchedRepairSlugs)
+    : Promise.resolve(null);
+  const costPromise = d.matchedRepairSlugs?.length
+    ? supabase.from("repair_costs").select("repair_slug, avg_cost").in("repair_slug", d.matchedRepairSlugs)
+    : Promise.resolve(null);
+
+  const [obdResult, diyResult, costResult] = await Promise.all([obdPromise, diyPromise, costPromise]);
+
   const obdCodeDetails: { code: string; title: string }[] = [];
-  if (d.possibleCodes?.length) {
-    const { data: obdData } = await supabase.from("obd_codes")
-      .select("code, title")
-      .in("code", d.possibleCodes)
-      .order("code");
-    if (obdData) {
-      const detailMap = new Map((obdData as unknown as { code: string; title: string }[]).map((r) => [r.code, r.title]));
-      for (const c of d.possibleCodes) obdCodeDetails.push({ code: c, title: detailMap.get(c) || "" });
-    }
+  if (obdResult?.data) {
+    const detailMap = new Map((obdResult.data as any[]).map(r => [r.code, r.title]));
+    for (const c of (d.possibleCodes || [])) obdCodeDetails.push({ code: c, title: detailMap.get(c) || "" });
   }
   const vehicleImage = vehicle ? getVehicleImageUrl(
     (diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-"),
@@ -74,7 +95,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   const sev = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.medium;
   const cost = parseCostRange(d.costEstimate ?? "");
 
-  // Resolve repairs: AI-matched slugs (precise) → fallback to keyword matching
+  // Resolve repairs from AI-matched slugs
   interface ResolvedRepair {
     slug: string; name: string; repairSlug: string; image: string | null;
     diyLevel: number | null; diyLabel: string | null; diyFriendly: string | null;
@@ -82,13 +103,9 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   }
   let resolvedRepairs: ResolvedRepair[] = [];
   if (d.matchedRepairSlugs?.length) {
-    const [{ data: diyData }, { data: costData }] = await Promise.all([
-      supabase.from("diy_difficulty").select("*").in("repair_slug", d.matchedRepairSlugs),
-      supabase.from("repair_costs").select("repair_slug, avg_cost").in("repair_slug", d.matchedRepairSlugs),
-    ]);
-    const costMap = new Map((costData ?? []).map((r: any) => [r.repair_slug, r.avg_cost]));
+    const costMap = new Map((costResult?.data ?? []).map((r: any) => [r.repair_slug, r.avg_cost]));
     for (const dbSlug of d.matchedRepairSlugs) {
-      const diy = (diyData ?? []).find((r: any) => r.repair_slug === dbSlug) as any;
+      const diy = (diyResult?.data ?? []).find((r: any) => r.repair_slug === dbSlug) as any;
       if (!diy) continue;
       const urlSlug = dbSlug.replace(/_/g, "-");
       resolvedRepairs.push({
@@ -99,81 +116,45 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         avgCost: costMap.get(dbSlug) ?? null,
       });
     }
-  } else {
-    // Fallback: keyword → slug mapping for legacy diagnoses
-    // Try diy_difficulty.repair_name match first, then resolveRepairSlug
-    const { data: allDiy } = await supabase.from("diy_difficulty").select("*");
-    const allDiyList = (allDiy ?? []) as any[];
-    const keywords = d.repairKeywords ?? [];
-    for (const item of keywords) {
-      const itemLower = item.toLowerCase();
-      // Direct name match against diy_difficulty
-      let match = allDiyList.find((r: any) => r.repair_name.toLowerCase().includes(itemLower) || itemLower.includes(r.repair_name.toLowerCase()));
-      // Try resolveRepairSlug and convert to underscore format
-      if (!match) {
-        const slug = resolveRepairSlug(item);
-        if (slug) {
-          const dbSlug = slug.replace(/-/g, "_");
-          match = allDiyList.find((r: any) => r.repair_slug === dbSlug);
-        }
-      }
-      if (!match) continue;
-      const urlSlug = match.repair_slug.replace(/_/g, "-");
-      resolvedRepairs.push({
-        slug: match.repair_slug, name: match.repair_name, repairSlug: urlSlug,
-        image: getRepairImageUrl(urlSlug),
-        diyLevel: match.difficulty_level, diyLabel: match.difficulty_label,
-        diyFriendly: match.diy_friendly, estTime: match.est_time, riskLevel: match.risk_level,
-        avgCost: null,
-      });
-    }
   }
+
+  // Parallel: related symptoms + cross-validation from knowledge graph
+  const relatedSymptomsPromise = resolvedRepairs.length > 0
+    ? (async () => {
+        const slugs = resolvedRepairs.map(r => r.slug);
+        const { data: causeData } = await supabase.from("symptom_causes").select("symptom_id").in("repair_slug", slugs);
+        const sids = [...new Set((causeData ?? []).map((r: any) => r.symptom_id))];
+        if (!sids.length) return [];
+        const { data } = await supabase.from("symptoms").select("slug, name, category").in("id", sids).limit(5);
+        return (data ?? []) as any[];
+      })()
+    : Promise.resolve([] as any[]);
+
+  const crossValidatePromise = d.possibleCodes?.length && obdCodeDetails.length > 0
+    ? (async () => {
+        const existingSlugs = new Set(resolvedRepairs.map(r => r.slug));
+        const { data: obdSx } = await supabase.from("symptom_obd_codes").select("symptom_id").in("obd_code", d.possibleCodes!);
+        const sxIds = [...new Set((obdSx ?? []).map((r: any) => r.symptom_id))];
+        if (!sxIds.length) return [];
+        const { data: causes } = await supabase.from("symptom_causes").select("repair_slug").in("symptom_id", sxIds);
+        const missing = [...new Set((causes ?? []).map((r: any) => r.repair_slug).filter(Boolean))].filter(s => !existingSlugs.has(s));
+        if (!missing.length) return [];
+        const { data: diy } = await supabase.from("diy_difficulty").select("*").in("repair_slug", missing);
+        return (diy ?? []).map((r: any) => ({
+          slug: r.repair_slug, name: r.repair_name, repairSlug: r.repair_slug.replace(/_/g, "-"),
+          image: getRepairImageUrl(r.repair_slug.replace(/_/g, "-")),
+          diyLevel: r.difficulty_level, diyLabel: r.difficulty_label, diyFriendly: r.diy_friendly,
+          estTime: r.est_time, riskLevel: r.risk_level, avgCost: null,
+        }));
+      })()
+    : Promise.resolve([] as any[]);
+
+  const [relatedSymptoms, crossValidatedRepairs] = await Promise.all([relatedSymptomsPromise, crossValidatePromise]);
+  resolvedRepairs.push(...crossValidatedRepairs);
+
   const browseRepairUrl = vehicle
     ? `/vehicles/${(diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-")}/${(diagnosis.vehicle_model ?? "").toLowerCase().replace(/\s+/g, "-")}`
     : "/repair-cost";
-
-  // Cross-validate: ensure OBD codes have matching repairs via knowledge graph
-  if (d.possibleCodes?.length && obdCodeDetails.length > 0) {
-    const existingSlugs = new Set(resolvedRepairs.map((r) => r.slug));
-    // OBD codes → symptom_obd_codes → symptom_causes → repair_slugs
-    const { data: obdSymptoms } = await supabase.from("symptom_obd_codes")
-      .select("symptom_id").in("obd_code", d.possibleCodes);
-    const symptomIds = [...new Set((obdSymptoms ?? []).map((r: any) => r.symptom_id))];
-    if (symptomIds.length > 0) {
-      const { data: obdCauses } = await supabase.from("symptom_causes")
-        .select("repair_slug").in("symptom_id", symptomIds);
-      const missingSlugs = [...new Set((obdCauses ?? []).map((r: any) => r.repair_slug).filter(Boolean))]
-        .filter((s) => !existingSlugs.has(s));
-      if (missingSlugs.length > 0) {
-        const { data: missingDiy } = await supabase.from("diy_difficulty")
-          .select("*").in("repair_slug", missingSlugs);
-        for (const diy of (missingDiy ?? []) as any[]) {
-          const urlSlug = diy.repair_slug.replace(/_/g, "-");
-          resolvedRepairs.push({
-            slug: diy.repair_slug, name: diy.repair_name, repairSlug: urlSlug,
-            image: getRepairImageUrl(urlSlug),
-            diyLevel: diy.difficulty_level, diyLabel: diy.difficulty_label,
-            diyFriendly: diy.diy_friendly, estTime: diy.est_time, riskLevel: diy.risk_level,
-            avgCost: null,
-          });
-        }
-      }
-    }
-  }
-
-  // Related symptoms — from matched repairs via symptom_causes
-  let relatedSymptoms: { slug: string; name: string; category: string }[] = [];
-  if (resolvedRepairs.length > 0) {
-    const repSlugs = resolvedRepairs.map(r => r.slug);
-    const { data: causeData } = await supabase.from("symptom_causes")
-      .select("symptom_id").in("repair_slug", repSlugs);
-    const sids = [...new Set((causeData ?? []).map((r: any) => r.symptom_id))];
-    if (sids.length > 0) {
-      const { data: symptomData } = await supabase.from("symptoms")
-        .select("slug, name, category").in("id", sids).limit(5);
-      relatedSymptoms = (symptomData ?? []) as any[];
-    }
-  }
 
   // Collect related warning lights from resolved repairs
   const relatedWarningLights: { slug: string; title: string }[] = [];
@@ -190,12 +171,12 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
-      <main id="main-content" className="max-w-3xl mx-auto px-5 py-6 flex-1 w-full">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <Link href="/symptom-checker" className="hover:text-primary transition-colors">AI Diagnosis</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
+        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading whitespace-nowrap overflow-x-auto" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-primary transition-colors shrink-0">Home</Link>
+          <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <Link href="/symptom-checker" className="hover:text-primary transition-colors shrink-0">AI Diagnosis</Link>
+          <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary truncate">{d.title}</span>
         </nav>
 
@@ -230,7 +211,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           </span>
         </div>
 
-        {/* ── Possible Causes ── */}
+        {/* ── Possible Causes (with verification steps) ── */}
         {d.causes?.length > 0 && (
           <div className="mb-6">
             <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Diagnosis Details</p>
@@ -243,10 +224,33 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
             <div className="space-y-3">
               {d.causes.map((c: any, i: number) => {
                 const lc = LIKELIHOOD_CONFIG[c.likelihood] ?? LIKELIHOOD_CONFIG["possible"];
+                const matchedRepair = c.repair_slug ? resolvedRepairs.find((r: any) => r.slug === c.repair_slug) : null;
                 return (
-                  <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${lc.bg} ${lc.border} border-l-4 ${lc.bar}`}>
-                    <span className={`inline-flex items-center px-2.5 py-2 rounded-full text-[11px] font-bold border shrink-0 mt-0.5 ${lc.bg} ${lc.text} ${lc.border} font-heading`}>{lc.label}</span>
-                    <p className="text-sm text-text-secondary leading-relaxed">{c.description}</p>
+                  <div key={i} className={`rounded-xl border overflow-hidden ${lc.bg} ${lc.border} border-l-4 ${lc.bar}`}>
+                    <div className="p-4">
+                      <div className="flex items-start gap-3 mb-3">
+                        <span className={`inline-flex items-center px-2.5 py-2 rounded-full text-[11px] font-bold border shrink-0 mt-0.5 ${lc.bg} ${lc.text} ${lc.border} font-heading`}>{lc.label}</span>
+                        <p className="text-sm text-text-secondary leading-relaxed pt-0.5">{c.description}</p>
+                      </div>
+                      {c.verification_steps?.length > 0 && (
+                        <div className="ml-2 pl-4 border-l-2 border-text-muted/20 space-y-2 mb-3">
+                          <p className="text-xs font-heading font-bold text-text-primary uppercase tracking-wider">How to Verify</p>
+                          {c.verification_steps.map((step: string, j: number) => (
+                            <div key={j} className="flex gap-2.5 text-xs">
+                              <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 text-[10px] font-bold">{j + 1}</span>
+                              <p className="text-text-secondary leading-relaxed pt-0.5">{step}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {matchedRepair && (
+                        <Link href={`/repair-cost/${matchedRepair.repairSlug}`} className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-heading font-semibold hover:bg-primary/20 transition-colors">
+                          <Wrench className="w-3.5 h-3.5" />
+                          {matchedRepair.name} — View Repair Cost
+                          <ChevronRight className="w-3 h-3" />
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -332,6 +336,25 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               </div>
             )}
 
+            {/* Quote Checker CTA */}
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1">
+                  <h3 className="text-sm font-heading font-bold text-text-primary mb-0.5">Got a mechanic&apos;s quote? Check if it&apos;s fair</h3>
+                  <p className="text-text-muted text-xs">Compare your quote against real repair cost data for your vehicle.</p>
+                </div>
+                <Link
+                  href={`/quote-checker?repair=${encodeURIComponent(resolvedRepairs[0]?.name || d.title)}${
+                    vehicle ? `&make=${encodeURIComponent(diagnosis.vehicle_make || "")}&model=${encodeURIComponent(diagnosis.vehicle_model || "")}` : ""
+                  }`}
+                  className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
+                >
+                  Check your quote
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+
           </div>
         )}
 
@@ -396,6 +419,24 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                   <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1">{s.name}</span>
                   <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── FAQ ── */}
+        {d.faq && d.faq.length > 0 && (
+          <div className="mb-6 bg-surface-1 rounded-2xl border border-surface-border p-5">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Frequently Asked Questions</h2>
+            <div className="space-y-2">
+              {d.faq.map((item: any, i: number) => (
+                <details key={i} className="group bg-surface-0 rounded-xl border border-surface-border">
+                  <summary className="flex items-center gap-2 cursor-pointer list-none px-4 py-3 min-h-[44px] font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
+                    <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+                    {item.question}
+                  </summary>
+                  <p className="px-4 pb-4 ml-6 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
+                </details>
               ))}
             </div>
           </div>

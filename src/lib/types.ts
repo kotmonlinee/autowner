@@ -283,6 +283,8 @@ export type RepairCostFull = {
 export type DiagnosisCause = {
   likelihood: string;
   description: string;
+  verification_steps?: string[];
+  repair_slug?: string | null;
 };
 
 export type DiagnosisJson = {
@@ -295,6 +297,7 @@ export type DiagnosisJson = {
   possibleCodes?: string[];
   repairKeywords?: string[];
   matchedRepairSlugs?: string[];
+  faq?: { question: string; answer: string }[];
 };
 
 export type Diagnosis = {

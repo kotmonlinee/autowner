@@ -16,23 +16,40 @@ The user may also provide diagnostic context — use it to refine your diagnosis
 - Odometer reading: Use to determine if the issue aligns with known service intervals (e.g., timing belt at 90k).
 - Recent repair work: A symptom that started right after a repair often points to an installation error or disturbed component.
 
-CRITICAL — Repair matching: You will be given a catalog of available repairs. For "matchedRepairSlugs", select ONLY from the provided list. Choose 2-4 most relevant repairs.
+CRITICAL — Repair matching: You will be given a catalog of available repairs. Each cause MUST have a "repair_slug" from the catalog, or null if nothing matches.
 
-CRITICAL — Consistency: "possibleCodes" and "matchedRepairSlugs" MUST be consistent. Every OBD code you list should have at least one repair in matchedRepairSlugs that addresses its typical root cause. If you list P0300 (misfire), you MUST include spark_plugs or ignition_coil. If you list P0420 (catalyst), you MUST include catalytic_converter or oxygen_sensor. Do not list codes without corresponding repairs.
+CRITICAL — Consistency: Every OBD code in "possibleCodes" must have at least one corresponding repair in "matchedRepairSlugs". matchedRepairSlugs collects all non-null repair_slug values from causes.
+
+CRITICAL — Verification steps: Each cause MUST have 3 verification_steps, ordered from easiest (no tools) to hardest (professional equipment). Write specific, actionable steps — never vague like "check the sensor".
 
 Return ONLY valid JSON with this structure:
 {
   "title": "Short diagnosis title, include vehicle if known",
   "severity": "low" | "medium" | "high" | "critical",
   "summary": "2-3 sentence plain-language summary of the diagnosis, explaining what's happening and why",
-  "causes": [{"description": "...", "likelihood": "most likely" | "possible" | "less common"}],
+  "causes": [
+    {
+      "description": "Detailed cause description, written for car owner to understand",
+      "likelihood": "most likely" | "possible" | "less common",
+      "verification_steps": [
+        "Step 1: Easiest check — no tools needed (eyes, ears, hands)",
+        "Step 2: Intermediate check — basic tools or OBD scanner",
+        "Step 3: Professional verification — shop equipment if needed"
+      ],
+      "repair_slug": "exact_slug_from_catalog_or_null"
+    }
+  ],
   "whatToDo": "Practical next steps. If vehicle is known, mention model-specific issues. 2-3 sentences.",
   "costEstimate": "Repair cost range in USD specific to vehicle if known. Say 'Varies widely' if uncertain.",
   "possibleCodes": ["P0420"],
-  "repairKeywords": ["brake pads", "rotor resurfacing"],
-  "matchedRepairSlugs": ["brake_pads_front"]
+  "matchedRepairSlugs": ["brake_pads_front"],
+  "faq": [
+    {"question": "How urgent is this repair?", "answer": "Specific urgency based on severity and symptoms"},
+    {"question": "Can I drive with this issue?", "answer": "Clear yes/no with explanation of risks"},
+    {"question": "What happens if I ignore this?", "answer": "Progression of symptoms and potential damage/cost if untreated"}
+  ]
 }
-Rules: severity: "critical"=stop driving, "high"=serious, "medium"=schedule soon, "low"=monitor. 2-3 causes ordered. Max 4 codes/keywords. Max 4 matched slugs. Write for non-mechanic.`;
+Rules: severity: "critical"=stop driving immediately, "high"=get inspected within days, "medium"=schedule soon, "low"=monitor. 2-3 causes ordered by likelihood. Max 4 codes. 3 faq items. Write for non-mechanic.`;
 
 function generateSlug(symptoms: string, vehicle?: string): string {
   // Extract key terms: symptom type + location + trigger
@@ -108,7 +125,7 @@ export async function POST(request: Request) {
           { role: "system", content: systemPrompt },
           { role: "user", content: `Diagnose these car symptoms: ${symptoms}` },
         ],
-        temperature: 0.3, max_tokens: 800,
+        temperature: 0.3, max_tokens: 4000,
       }),
     });
 
