@@ -282,6 +282,15 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               </div>
             )}
 
+            {/* ── Try another diagnosis ── */}
+            <div className="py-5 px-4 bg-surface-1 rounded-2xl border border-surface-border text-center">
+              <p className="text-sm text-text-secondary font-heading font-medium mb-3">Not satisfied with this diagnosis?</p>
+              <Link href="/symptom-checker" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all font-heading shadow-sm shadow-primary/20">
+                Try Another Diagnosis
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
             {resolvedRepairs.length > 0 && (
               <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
                 <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
@@ -458,15 +467,6 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           <div className="mt-4 pt-4 border-t border-surface-border">
             <ShareButtons url={`https://www.autowner.com/symptom-checker/${slug}`} title={d.title} />
           </div>
-        </div>
-
-        {/* ── Try another diagnosis ── */}
-        <div className="mb-6 py-6 px-5 bg-surface-1 rounded-2xl border border-surface-border text-center">
-          <p className="text-sm text-text-secondary font-heading font-medium mb-3">Not satisfied with this diagnosis?</p>
-          <Link href="/symptom-checker" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all font-heading shadow-sm shadow-primary/20">
-            Try Another Diagnosis
-            <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
 
         {/* ── Disclaimer ── */}

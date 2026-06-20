@@ -130,7 +130,16 @@ const TREE = {
 for (const [s1Key, s2s] of Object.entries(TREE)) {
   for (const [s2Label, step3s] of s2s) {
     for (const [s3Label] of step3s) {
-      combos.push({ key: `${s1Key}/${s2Label}/${s3Label}`, s1: s1Key, s2: s2Label, s3: s3Label });
+      // S1 key → label for matching against symptom_path
+      const S1_LABEL = {
+        noise: "Unusual noise or sound", smell: "Strange smell or odor", smoke: "Smoke or steam from the car",
+        vibration: "Vibration or shaking", performance: "Power loss, stalling, or hesitation",
+        "warning-lights": "Dashboard warning light is on", temperature: "Engine overheating or temperature issue",
+        starting: "Hard to start or won't start", fluid: "Fluid leaking under the car",
+        brakes: "Brake or steering issue", electrical: "Electrical problem (lights, windows, battery)",
+        hvac: "AC or heater not working properly", transmission: "Transmission or gear shifting problem",
+      };
+      combos.push({ key: `${s1Key}/${s2Label}/${s3Label}`, s1: S1_LABEL[s1Key], s2: s2Label, s3: s3Label });
     }
   }
 }
@@ -162,7 +171,7 @@ for (const combo of combos) {
   const s2Match = allPaths.find((d) => {
     const sp = (d.symptom_path || "").toLowerCase();
     // Match S1 keyword + S2 label fragment
-    const hasS1 = sp.includes(combo.s1);
+    const hasS1 = sp.includes(combo.s1.toLowerCase());
     // For S2, match the first few words
     const s2Words = combo.s2.toLowerCase().split(" ").slice(0, 3).join(" ");
     const hasS2 = sp.includes(s2Words);
