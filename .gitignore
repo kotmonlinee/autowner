@@ -43,3 +43,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .claude/gsc-key.json
+
+# scraper scripts (local only)
+scripts/scrapling-*.py
+scripts/carfax-*.py
+scripts/*scraper*
+scripts/*crawl*
+__pycache__/
+*.pyc
