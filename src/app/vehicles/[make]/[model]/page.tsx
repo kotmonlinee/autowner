@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { cache } from "react";
 import { getAllRepairSlugs } from "@/lib/data/server";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import VehicleImage from "@/components/VehicleImage";
+import VehicleDiagnosisList from "@/components/VehicleDiagnosisList";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createServerSupabase } from "@/lib/supabase-server";
@@ -16,7 +18,7 @@ function formatMoney(n: number): string {
   return n >= 1000 ? `$${(n / 1000).toFixed(1)}k` : `$${n}`;
 }
 
-async function getVehicleData(makeSlug: string, modelSlug: string) {
+const getVehicleData = cache(async (makeSlug: string, modelSlug: string) => {
   const supabase = await createServerSupabase();
   const { data: make } = await supabase.from("vehicle_makes").select("id, name, slug").eq("slug", makeSlug).single();
   if (!make) return null;
@@ -24,7 +26,7 @@ async function getVehicleData(makeSlug: string, modelSlug: string) {
   const { data: model } = await supabase.from("vehicle_models").select("name, slug").eq("slug", modelSlug).eq("make_id", m.id).single();
   if (!model) return null;
   return { make: { name: m.name, slug: m.slug }, model: model as { name: string; slug: string } };
-}
+});
 
 async function getVehicleStats(makeName: string, modelName: string, makeSlug: string, modelSlug: string) {
   const supabase = await createServerSupabase();
@@ -107,17 +109,22 @@ function generateVehicleDescription(makeName: string, modelName: string, stats: 
 async function getRepairCostsForVehicle(makeSlug: string, repairSlugs: string[]) {
   const supabase = await createServerSupabase();
   const tier = MAKE_TIER[makeSlug] ?? "mid_range";
-  const results: { name: string; slug: string; min: number; max: number; avg: number }[] = [];
 
-  // Fetch in batches
-  for (let i = 0; i < repairSlugs.length; i += 20) {
-    const batch = repairSlugs.slice(i, i + 20);
+  const batchSize = 20;
+  const batchQueries: any[] = [];
+  for (let i = 0; i < repairSlugs.length; i += batchSize) {
+    const batch = repairSlugs.slice(i, i + batchSize);
     const dbSlugs = batch.map((s) => s.replace(/-/g, "_"));
-    const { data } = await supabase
-      .from("repair_costs")
-      .select("repair_name, repair_slug, min_cost, max_cost, avg_cost")
-      .in("repair_slug", [...batch, ...dbSlugs])
-      .eq("tier", tier);
+    batchQueries.push((supabase
+        .from("repair_costs")
+        .select("repair_name, repair_slug, min_cost, max_cost, avg_cost")
+        .in("repair_slug", [...batch, ...dbSlugs])
+        .eq("tier", tier) as any) as Promise<any>);
+  }
+
+  const batchResults = await Promise.all(batchQueries);
+  const results: { name: string; slug: string; min: number; max: number; avg: number }[] = [];
+  for (const { data } of batchResults) {
     for (const row of (data ?? []) as any[]) {
       results.push({
         name: row.repair_name,
@@ -190,20 +197,20 @@ export default async function VehicleHubPage({
 
   const supabase = await createServerSupabase();
   const repairSlugs = await getAllRepairSlugs();
-  const [repairCosts, obdCodes, diagnosisData] = await Promise.all([
+  const [repairCosts, obdCodes, diagnosisData, stats] = await Promise.all([
     getRepairCostsForVehicle(makeSlug, repairSlugs),
     getCommonObdCodes(makeSlug, modelSlug),
-    supabase.from("diagnoses").select("slug, diagnosis_json, view_count").or(`vehicle_make.ilike.${makeSlug},vehicle_make.ilike.%${makeName}%`).order("view_count", { ascending: false }).limit(6),
+    supabase.from("diagnosis_summaries").select("slug, title, severity, view_count").eq("vehicle_make", makeName).eq("vehicle_model", modelName).order("view_count", { ascending: false }).limit(500),
+    getVehicleStats(makeName, modelName, makeSlug, modelSlug),
   ]);
-  const relatedDiagnoses = ((diagnosisData.data ?? []) as unknown as any[]).map((d: any) => ({
+  const allDiagnoses = ((diagnosisData.data ?? []) as unknown as any[]).map((d: any) => ({
     slug: d.slug,
-    title: d.diagnosis_json?.title ?? "Car Diagnosis",
-    severity: d.diagnosis_json?.severity ?? "medium",
-    costEstimate: d.diagnosis_json?.costEstimate,
+    title: d.title ?? "Car Diagnosis",
+    severity: d.severity ?? "medium",
+    viewCount: d.view_count ?? 0,
   }));
 
   const imageUrl = getVehicleImageUrl(makeSlug, modelSlug);
-  const stats = await getVehicleStats(makeName, modelName, makeSlug, modelSlug);
   const vehicleDescription = generateVehicleDescription(makeName, modelName, stats);
 
   // Group repairs by category
@@ -290,6 +297,20 @@ export default async function VehicleHubPage({
           </div>
         ))}
 
+        {/* Quote Checker */}
+        <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Got a Quote from Your Mechanic?</h2>
+              <p className="text-xs text-text-secondary">Verify if the quoted price for your {makeName} {modelName} repair is fair.</p>
+            </div>
+            <Link href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
+              Verify Quote
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            </Link>
+          </div>
+        </div>
+
         {/* Common OBD Codes */}
         {obdCodes.length > 0 && (
           <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-4">
@@ -348,27 +369,13 @@ export default async function VehicleHubPage({
           );
         })()}
 
-        {/* Related Diagnoses */}
-        {relatedDiagnoses.length > 0 && (
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-4">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
-              {makeName} {modelName} Diagnoses
-            </h2>
-            <p className="text-xs text-text-muted mb-3">AI-powered diagnoses from {makeName} {modelName} owners describing their symptoms:</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {relatedDiagnoses.map((d: any) => (
-                <Link key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center justify-between p-3 min-h-[44px] bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
-                  <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors truncate flex-1 min-w-0">{d.title}</span>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 mx-2 ${d.severity === "critical" ? "bg-red-50 text-red-700 border-red-200" : d.severity === "high" ? "bg-orange-50 text-orange-700 border-orange-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>{d.severity}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                </Link>
-              ))}
-            </div>
-          </div>
+        {/* Diagnoses */}
+        {allDiagnoses.length > 0 && (
+          <VehicleDiagnosisList diagnoses={allDiagnoses} makeName={makeName} modelName={modelName} />
         )}
 
         {/* AI Diagnosis CTA */}
-        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 mb-4">
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="flex-1">
               <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Having a Problem with Your {makeName} {modelName}?</h2>
@@ -376,20 +383,6 @@ export default async function VehicleHubPage({
             </div>
             <Link href={`/symptom-checker`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
               Diagnose Your {makeName}
-              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-            </Link>
-          </div>
-        </div>
-
-        {/* Quote Checker */}
-        <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1">
-              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Got a Quote from Your Mechanic?</h2>
-              <p className="text-xs text-text-secondary">Verify if the quoted price for your {makeName} {modelName} repair is fair.</p>
-            </div>
-            <Link href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
-              Verify Quote
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           </div>

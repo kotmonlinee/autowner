@@ -188,6 +188,12 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               </div>
             )}
             <span className="text-xs text-text-muted font-heading">{vehicle}</span>
+            <Link
+              href={`/vehicles/${(diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-")}/${(diagnosis.vehicle_model ?? "").toLowerCase().replace(/\s+/g, "-")}`}
+              className="text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors ml-auto shrink-0"
+            >
+              All {diagnosis.vehicle_make} {diagnosis.vehicle_model} issues →
+            </Link>
           </div>
         )}
 

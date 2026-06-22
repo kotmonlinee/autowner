@@ -58,6 +58,20 @@ export default async function DiagnosisPage({
         </div>
         <DiagnosisWizard prefilledSymptom={prefilledSymptom} />
 
+        {/* Diagnoses by Vehicle */}
+        <section className="mt-8 mb-10 bg-surface-1 rounded-2xl border border-surface-border p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Diagnoses by Vehicle</h2>
+              <p className="text-xs text-text-muted">Browse AI-powered problem diagnoses for your specific make and model.</p>
+            </div>
+            <Link href="/vehicles" className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
+              Browse All Vehicles
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            </Link>
+          </div>
+        </section>
+
         <DiagnosisBrowser
           initialDiagnoses={popular}
           initialTotalCount={totalCount}
