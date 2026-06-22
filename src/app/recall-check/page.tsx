@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageFeedback from "@/components/PageFeedback";
 import RecallForm from "./RecallForm";
 
 export const metadata: Metadata = {
@@ -101,6 +102,7 @@ export default function RecallCheckPage() {
             ))}
           </div>
         </section>
+        <PageFeedback />
       </main>
       <Footer />
     </div>

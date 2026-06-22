@@ -4,6 +4,7 @@ import { getRelatedRepairs } from "@/lib/internal-linking";
 import { getRepairImageUrl } from "@/lib/repair-images";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageFeedback from "@/components/PageFeedback";
 import ObdDiagnosticFunnel from "@/components/ObdDiagnosticFunnel";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -644,6 +645,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           </div>
         )}
 
+        <PageFeedback />
       </main>
 
       <Footer />

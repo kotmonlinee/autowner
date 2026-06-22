@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageFeedback from "@/components/PageFeedback";
 import { cache } from "react";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { resolveRepairSlug } from "@/lib/internal-linking";
@@ -482,6 +483,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
             <span className="font-semibold">Disclaimer:</span> This AI-generated diagnosis is for informational reference only. Always consult a qualified mechanic for an in-person inspection. AutOwner is not responsible for decisions made based on this information.
           </p>
         </div>
+        <PageFeedback />
       </main>
       <Footer />
     </div>

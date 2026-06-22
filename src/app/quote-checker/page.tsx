@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageFeedback from "@/components/PageFeedback";
 import { fetchVehicleMakes, fetchVehicleModels, fetchVehicleGenerations } from "@/lib/data/browser";
 
 interface AssessmentResult {
@@ -1201,6 +1202,7 @@ function QuoteCheckerContent() {
             ))}
           </div>
         </section>
+        <PageFeedback />
       </main>
 
       <Footer />

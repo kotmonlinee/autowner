@@ -8,6 +8,7 @@ import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import { parseRepairSlug } from "@/lib/repair-slug-parser";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageFeedback from "@/components/PageFeedback";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -632,6 +633,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             </p>
           </div>
         </div>
+        <PageFeedback />
 
       </main>
 

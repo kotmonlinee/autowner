@@ -7,6 +7,7 @@ import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import VehicleImage from "@/components/VehicleImage";
 import VehicleDiagnosisList from "@/components/VehicleDiagnosisList";
+import PageFeedback from "@/components/PageFeedback";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createServerSupabase } from "@/lib/supabase-server";
@@ -387,6 +388,7 @@ export default async function VehicleHubPage({
             </Link>
           </div>
         </div>
+        <PageFeedback />
       </main>
       <Footer />
     </div>

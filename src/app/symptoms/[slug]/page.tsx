@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cache } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageFeedback from "@/components/PageFeedback";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { formatMoney } from "@/lib/constants";
 export const revalidate = 86400;
@@ -534,6 +535,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
             ))}
           </div>
         </div>
+        <PageFeedback />
       </main>
       <Footer />
     </div>

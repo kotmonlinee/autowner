@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageFeedback from "@/components/PageFeedback";
 
 export const revalidate = 86400;
 import WarningLightIcon from "@/components/WarningLightIcon";
@@ -218,6 +219,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
           Back to all warning lights
         </Link>
+        <PageFeedback />
       </main>
 
       <Footer />
