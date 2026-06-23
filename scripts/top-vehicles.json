@@ -20,5 +20,10 @@
   "GMC Sierra 1500", "GMC Terrain", "GMC Canyon",
   "Ram 1500", "Ram 2500",
   "Tesla Model 3", "Tesla Model Y", "Tesla Model S", "Tesla Model X",
-  "Rivian R1T", "Rivian R1S"
+  "Rivian R1T", "Rivian R1S",
+  "Cadillac Escalade", "Chrysler Pacifica", "Dodge Charger",
+  "Ford Bronco", "Hyundai Palisade",
+  "Porsche 911", "Porsche Cayenne", "Porsche Macan",
+  "Subaru Ascent", "Toyota 4Runner", "Toyota Sienna",
+  "Volkswagen Golf GTI"
 ]

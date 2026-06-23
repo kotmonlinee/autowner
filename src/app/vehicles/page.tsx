@@ -15,35 +15,56 @@ const vehicles = [
   { make: "Acura", makeSlug: "acura", model: "RDX", modelSlug: "rdx" },
   { make: "Audi", makeSlug: "audi", model: "A3", modelSlug: "a3" },
   { make: "Audi", makeSlug: "audi", model: "A4", modelSlug: "a4" },
+  { make: "Audi", makeSlug: "audi", model: "A6", modelSlug: "a6" },
   { make: "Audi", makeSlug: "audi", model: "Q5", modelSlug: "q5" },
+  { make: "Audi", makeSlug: "audi", model: "Q7", modelSlug: "q7" },
   { make: "BMW", makeSlug: "bmw", model: "3 Series", modelSlug: "3-series" },
+  { make: "BMW", makeSlug: "bmw", model: "5 Series", modelSlug: "5-series" },
+  { make: "BMW", makeSlug: "bmw", model: "X3", modelSlug: "x3" },
   { make: "BMW", makeSlug: "bmw", model: "X5", modelSlug: "x5" },
   { make: "Cadillac", makeSlug: "cadillac", model: "Escalade", modelSlug: "escalade" },
+  { make: "Chevrolet", makeSlug: "chevrolet", model: "Colorado", modelSlug: "colorado" },
   { make: "Chevrolet", makeSlug: "chevrolet", model: "Equinox", modelSlug: "equinox" },
+  { make: "Chevrolet", makeSlug: "chevrolet", model: "Equinox EV", modelSlug: "equinox-ev" },
   { make: "Chevrolet", makeSlug: "chevrolet", model: "Malibu", modelSlug: "malibu" },
   { make: "Chevrolet", makeSlug: "chevrolet", model: "Silverado 1500", modelSlug: "silverado-1500" },
   { make: "Chevrolet", makeSlug: "chevrolet", model: "Tahoe", modelSlug: "tahoe" },
+  { make: "Chevrolet", makeSlug: "chevrolet", model: "Traverse", modelSlug: "traverse" },
   { make: "Chrysler", makeSlug: "chrysler", model: "Pacifica", modelSlug: "pacifica" },
   { make: "Dodge", makeSlug: "dodge", model: "Charger", modelSlug: "charger" },
   { make: "Ford", makeSlug: "ford", model: "Bronco", modelSlug: "bronco" },
+  { make: "Ford", makeSlug: "ford", model: "Edge", modelSlug: "edge" },
   { make: "Ford", makeSlug: "ford", model: "Escape", modelSlug: "escape" },
   { make: "Ford", makeSlug: "ford", model: "Explorer", modelSlug: "explorer" },
   { make: "Ford", makeSlug: "ford", model: "F-150", modelSlug: "f-150" },
+  { make: "Ford", makeSlug: "ford", model: "Fusion", modelSlug: "fusion" },
   { make: "Ford", makeSlug: "ford", model: "Maverick", modelSlug: "maverick" },
   { make: "Ford", makeSlug: "ford", model: "Mustang", modelSlug: "mustang" },
+  { make: "Ford", makeSlug: "ford", model: "Mustang Mach-E", modelSlug: "mustang-mach-e" },
+  { make: "Ford", makeSlug: "ford", model: "Ranger", modelSlug: "ranger" },
+  { make: "GMC", makeSlug: "gmc", model: "Canyon", modelSlug: "canyon" },
   { make: "GMC", makeSlug: "gmc", model: "Sierra 1500", modelSlug: "sierra-1500" },
+  { make: "GMC", makeSlug: "gmc", model: "Terrain", modelSlug: "terrain" },
   { make: "Honda", makeSlug: "honda", model: "Accord", modelSlug: "accord" },
   { make: "Honda", makeSlug: "honda", model: "Civic", modelSlug: "civic" },
   { make: "Honda", makeSlug: "honda", model: "CR-V", modelSlug: "cr-v" },
   { make: "Honda", makeSlug: "honda", model: "Odyssey", modelSlug: "odyssey" },
   { make: "Honda", makeSlug: "honda", model: "Pilot", modelSlug: "pilot" },
   { make: "Hyundai", makeSlug: "hyundai", model: "Elantra", modelSlug: "elantra" },
+  { make: "Hyundai", makeSlug: "hyundai", model: "Ioniq 5", modelSlug: "ioniq-5" },
   { make: "Hyundai", makeSlug: "hyundai", model: "Palisade", modelSlug: "palisade" },
   { make: "Hyundai", makeSlug: "hyundai", model: "Santa Fe", modelSlug: "santa-fe" },
   { make: "Hyundai", makeSlug: "hyundai", model: "Sonata", modelSlug: "sonata" },
   { make: "Hyundai", makeSlug: "hyundai", model: "Tucson", modelSlug: "tucson" },
+  { make: "Infiniti", makeSlug: "infiniti", model: "QX60", modelSlug: "qx60" },
+  { make: "Jeep", makeSlug: "jeep", model: "Cherokee", modelSlug: "cherokee" },
+  { make: "Jeep", makeSlug: "jeep", model: "Compass", modelSlug: "compass" },
+  { make: "Jeep", makeSlug: "jeep", model: "Gladiator", modelSlug: "gladiator" },
   { make: "Jeep", makeSlug: "jeep", model: "Grand Cherokee", modelSlug: "grand-cherokee" },
+  { make: "Jeep", makeSlug: "jeep", model: "Renegade", modelSlug: "renegade" },
   { make: "Jeep", makeSlug: "jeep", model: "Wrangler", modelSlug: "wrangler" },
+  { make: "Kia", makeSlug: "kia", model: "EV6", modelSlug: "ev6" },
+  { make: "Kia", makeSlug: "kia", model: "Forte", modelSlug: "forte" },
   { make: "Kia", makeSlug: "kia", model: "Sorento", modelSlug: "sorento" },
   { make: "Kia", makeSlug: "kia", model: "Sportage", modelSlug: "sportage" },
   { make: "Kia", makeSlug: "kia", model: "Telluride", modelSlug: "telluride" },
@@ -56,19 +77,28 @@ const vehicles = [
   { make: "Mercedes-Benz", makeSlug: "mercedes-benz", model: "C-Class", modelSlug: "c-class" },
   { make: "Mercedes-Benz", makeSlug: "mercedes-benz", model: "E-Class", modelSlug: "e-class" },
   { make: "Mercedes-Benz", makeSlug: "mercedes-benz", model: "GLC", modelSlug: "glc" },
+  { make: "Mercedes-Benz", makeSlug: "mercedes-benz", model: "GLE", modelSlug: "gle" },
   { make: "Nissan", makeSlug: "nissan", model: "Altima", modelSlug: "altima" },
+  { make: "Nissan", makeSlug: "nissan", model: "Frontier", modelSlug: "frontier" },
   { make: "Nissan", makeSlug: "nissan", model: "Pathfinder", modelSlug: "pathfinder" },
   { make: "Nissan", makeSlug: "nissan", model: "Rogue", modelSlug: "rogue" },
   { make: "Nissan", makeSlug: "nissan", model: "Sentra", modelSlug: "sentra" },
+  { make: "Nissan", makeSlug: "nissan", model: "Titan", modelSlug: "titan" },
   { make: "Porsche", makeSlug: "porsche", model: "911", modelSlug: "911" },
   { make: "Porsche", makeSlug: "porsche", model: "Cayenne", modelSlug: "cayenne" },
   { make: "Porsche", makeSlug: "porsche", model: "Macan", modelSlug: "macan" },
   { make: "Ram", makeSlug: "ram", model: "1500", modelSlug: "1500" },
+  { make: "Ram", makeSlug: "ram", model: "2500", modelSlug: "2500" },
+  { make: "Rivian", makeSlug: "rivian", model: "R1S", modelSlug: "r1s" },
+  { make: "Rivian", makeSlug: "rivian", model: "R1T", modelSlug: "r1t" },
   { make: "Subaru", makeSlug: "subaru", model: "Ascent", modelSlug: "ascent" },
   { make: "Subaru", makeSlug: "subaru", model: "Crosstrek", modelSlug: "crosstrek" },
   { make: "Subaru", makeSlug: "subaru", model: "Forester", modelSlug: "forester" },
+  { make: "Subaru", makeSlug: "subaru", model: "Legacy", modelSlug: "legacy" },
   { make: "Subaru", makeSlug: "subaru", model: "Outback", modelSlug: "outback" },
   { make: "Tesla", makeSlug: "tesla", model: "Model 3", modelSlug: "model-3" },
+  { make: "Tesla", makeSlug: "tesla", model: "Model S", modelSlug: "model-s" },
+  { make: "Tesla", makeSlug: "tesla", model: "Model X", modelSlug: "model-x" },
   { make: "Tesla", makeSlug: "tesla", model: "Model Y", modelSlug: "model-y" },
   { make: "Toyota", makeSlug: "toyota", model: "4Runner", modelSlug: "4runner" },
   { make: "Toyota", makeSlug: "toyota", model: "Camry", modelSlug: "camry" },
@@ -87,6 +117,13 @@ const vehicles = [
 ];
 
 export default function VehiclesPage() {
+  // Group by make, preserving brand order
+  const grouped = new Map<string, typeof vehicles>();
+  for (const v of vehicles) {
+    if (!grouped.has(v.make)) grouped.set(v.make, []);
+    grouped.get(v.make)!.push(v);
+  }
+
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
@@ -101,25 +138,33 @@ export default function VehiclesPage() {
           <p className="text-text-muted text-sm sm:text-base max-w-xl">Find repair costs, OBD codes, and diagnostics for your specific make and model.</p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {vehicles.map((v) => {
-            const img = getVehicleImageUrl(v.makeSlug, v.modelSlug);
-            return (
-              <Link
-                key={`${v.makeSlug}/${v.modelSlug}`}
-                href={`/vehicles/${v.makeSlug}/${v.modelSlug}`}
-                className="group bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm hover:-translate-y-0.5 transition-all overflow-hidden"
-              >
-                <div className="aspect-[4/3] bg-surface-2 overflow-hidden">
-                  {img && <img src={img} alt={`${v.make} ${v.model}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />}
-                </div>
-                <div className="p-3">
-                  <p className="text-xs font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate">{v.make} {v.model}</p>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+        {Array.from(grouped.entries()).map(([make, models]) => (
+          <section key={make} className="mb-8">
+            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+              {make}
+              <span className="text-xs font-normal text-text-muted">({models.length})</span>
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {models.map((v) => {
+                const img = getVehicleImageUrl(v.makeSlug, v.modelSlug);
+                return (
+                  <Link
+                    key={`${v.makeSlug}/${v.modelSlug}`}
+                    href={`/vehicles/${v.makeSlug}/${v.modelSlug}`}
+                    className="group bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm hover:-translate-y-0.5 transition-all overflow-hidden"
+                  >
+                    <div className="aspect-[4/3] bg-surface-2 overflow-hidden">
+                      {img && <img src={img} alt={`${v.make} ${v.model}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />}
+                    </div>
+                    <div className="p-3">
+                      <p className="text-xs font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate">{v.model}</p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        ))}
       </main>
       <Footer />
     </div>
