@@ -15,6 +15,7 @@ export async function GET() {
     sitemapEntry(`${baseUrl}/sitemap/3`, now),
     sitemapEntry(`${baseUrl}/sitemap/4`, now),
     sitemapEntry(`${baseUrl}/sitemap/5`, now),
+    sitemapEntry(`${baseUrl}/sitemap/6`, now),
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</sitemapindex>`;

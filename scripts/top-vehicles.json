@@ -25,5 +25,18 @@
   "Ford Bronco", "Hyundai Palisade",
   "Porsche 911", "Porsche Cayenne", "Porsche Macan",
   "Subaru Ascent", "Toyota 4Runner", "Toyota Sienna",
-  "Volkswagen Golf GTI"
+  "Volkswagen Golf GTI",
+  "Toyota Prius", "Honda Passport", "Honda Ridgeline",
+  "Nissan Murano", "Nissan Armada", "Nissan Kicks",
+  "Hyundai Kona", "Hyundai Venue", "Kia Soul", "Kia Seltos", "Kia Niro",
+  "Subaru Impreza", "Chevrolet Suburban", "Chevrolet Blazer",
+  "Ford Expedition", "GMC Yukon", "GMC Acadia", "Ram 3500",
+  "Volkswagen ID.4", "Volkswagen Taos", "BMW X1",
+  "Genesis GV70", "Genesis GV80", "Mitsubishi Outlander", "Mini Cooper",
+  "Acura Integra", "Acura TLX", "Acura RLX", "Acura NSX",
+  "Cadillac CT4", "Cadillac CT5", "Cadillac XT5", "Cadillac Escalade ESV",
+  "Chrysler 300", "Chrysler Voyager",
+  "Dodge Challenger", "Dodge Durango", "Dodge Hornet",
+  "Infiniti Q50", "Infiniti QX50", "Infiniti QX80",
+  "Volvo XC40", "Volvo S60", "Volvo S90", "Volvo V60"
 ]

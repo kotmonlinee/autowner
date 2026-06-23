@@ -113,11 +113,27 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     }
   }
 
-  // ── id=5: Diagnoses batch 2 (10000+) ──────────────────────
+  // ── id=5: Diagnoses batch 2 (10000–19999) ──────────────────
   if (id === "5") {
     const supabase = await createServiceSupabase();
     const BATCH = 1000;
-    for (let offset = 10000; offset < 50000; offset += BATCH) {
+    for (let offset = 10000; offset < 20000; offset += BATCH) {
+      const { data } = await supabase.from("diagnoses")
+        .select("slug, created_at")
+        .order("created_at", { ascending: false })
+        .range(offset, offset + BATCH - 1);
+      if (!data || data.length === 0) break;
+      for (const d of data) {
+        urls.push(urlEntry(`${baseUrl}/symptom-checker/${d.slug}`, d.created_at ?? now, "weekly", 0.6));
+      }
+    }
+  }
+
+  // ── id=6: Diagnoses batch 3 (20000+) ──────────────────────
+  if (id === "6") {
+    const supabase = await createServiceSupabase();
+    const BATCH = 1000;
+    for (let offset = 20000; offset < 50000; offset += BATCH) {
       const { data } = await supabase.from("diagnoses")
         .select("slug, created_at")
         .order("created_at", { ascending: false })
