@@ -10,7 +10,7 @@ const SEVERITY_COLORS: Record<string, string> = {
   low: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
-interface DiagnosisItem {
+export interface DiagnosisItem {
   slug: string;
   title: string;
   severity: string;

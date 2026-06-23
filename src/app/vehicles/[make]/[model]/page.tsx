@@ -6,7 +6,7 @@ import { getAllRepairSlugs } from "@/lib/data/server";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import VehicleImage from "@/components/VehicleImage";
-import VehicleDiagnosisList from "@/components/VehicleDiagnosisList";
+import VehicleDiagnosisListAsync from "@/components/VehicleDiagnosisListAsync";
 import PageFeedback from "@/components/PageFeedback";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -198,18 +198,11 @@ export default async function VehicleHubPage({
 
   const supabase = await createServerSupabase();
   const repairSlugs = await getAllRepairSlugs();
-  const [repairCosts, obdCodes, diagnosisData, stats] = await Promise.all([
+  const [repairCosts, obdCodes, stats] = await Promise.all([
     getRepairCostsForVehicle(makeSlug, repairSlugs),
     getCommonObdCodes(makeSlug, modelSlug),
-    supabase.from("diagnosis_summaries").select("slug, title, severity, view_count").eq("vehicle_make", makeName).eq("vehicle_model", modelName).order("view_count", { ascending: false }).limit(500),
     getVehicleStats(makeName, modelName, makeSlug, modelSlug),
   ]);
-  const allDiagnoses = ((diagnosisData.data ?? []) as unknown as any[]).map((d: any) => ({
-    slug: d.slug,
-    title: d.title ?? "Car Diagnosis",
-    severity: d.severity ?? "medium",
-    viewCount: d.view_count ?? 0,
-  }));
 
   const imageUrl = getVehicleImageUrl(makeSlug, modelSlug);
   const vehicleDescription = generateVehicleDescription(makeName, modelName, stats);
@@ -370,10 +363,8 @@ export default async function VehicleHubPage({
           );
         })()}
 
-        {/* Diagnoses */}
-        {allDiagnoses.length > 0 && (
-          <VehicleDiagnosisList diagnoses={allDiagnoses} makeName={makeName} modelName={modelName} />
-        )}
+        {/* Diagnoses — loaded async to avoid blocking page render */}
+        <VehicleDiagnosisListAsync makeName={makeName} modelName={modelName} />
 
         {/* AI Diagnosis CTA */}
         <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5">
