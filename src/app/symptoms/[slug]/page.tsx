@@ -9,6 +9,12 @@ import { createServiceSupabase } from "@/lib/supabase-server";
 import { formatMoney } from "@/lib/constants";
 export const revalidate = 86400;
 
+export async function generateStaticParams() {
+  const supabase = await createServiceSupabase();
+  const { data } = await supabase.from("symptoms").select("slug").limit(200);
+  return ((data ?? []) as { slug: string }[]).map((s) => ({ slug: s.slug }));
+}
+
 const SEVERITY_COLORS: Record<string, string> = {
   low: "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800",
   medium: "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",

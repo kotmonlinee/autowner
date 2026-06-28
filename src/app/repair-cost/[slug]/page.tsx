@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getRepairCosts, getVehicleRepairSlugs } from "@/lib/data/server";
+import { getRepairCosts, getVehicleRepairSlugs, getAllRepairSlugs } from "@/lib/data/server";
 import type { RepairCostFull, RepairCostTier } from "@/lib/types";
 import { getRepairImageUrl } from "@/lib/repair-images";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
@@ -13,6 +13,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  const slugs = await getAllRepairSlugs();
+  return slugs.slice(0, 200).map((s: string) => ({ slug: s }));
+}
 
 // ── Tier display order ──────────────────────────────────
 
