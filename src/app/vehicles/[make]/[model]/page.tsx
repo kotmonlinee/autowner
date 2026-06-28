@@ -14,6 +14,14 @@ import { createServiceSupabase } from "@/lib/supabase-server";
 import { MAKE_TIER } from "@/lib/constants";
 
 export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  const supabase = await createServiceSupabase();
+  const { data } = await supabase.from("vehicle_models").select("slug, vehicle_makes!inner(slug)")
+    .limit(100);
+  return ((data ?? []) as any[]).map((m) => ({ make: m.vehicle_makes.slug, model: m.slug }));
+}
+
 function formatMoney(n: number): string {
   return n >= 1000 ? `$${(n / 1000).toFixed(1)}k` : `$${n}`;
 }

@@ -13,6 +13,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  const slugs = await getAllRepairSlugs();
+  return slugs.slice(0, 200).map((s: string) => ({ slug: s }));
+}
+
 // ── Tier display order ──────────────────────────────────
 
 const TIER_ORDER = ["economy", "mid_range", "luxury", "truck_suv", "european"];
