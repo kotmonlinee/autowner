@@ -12,12 +12,6 @@ import { getRepairImageUrl } from "@/lib/repair-images";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { type WarningLightSeverity } from "@/lib/warning-lights-data";
 import { getWarningLightBySlug, getAllWarningLights, type WarningLightRow } from "@/lib/data/server";
-
-export async function generateStaticParams() {
-  const lights = await getAllWarningLights();
-  return lights.map((w) => ({ slug: w.slug }));
-}
-
 function generateWarningLightTitle(light: WarningLightRow): string {
   const t = light.title;
   if (t.includes("Check Engine")) return "Check Engine Light On? Can You Still Drive?";
