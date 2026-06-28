@@ -12,16 +12,6 @@ import { createServiceSupabase } from "@/lib/supabase-server";
 
 export const revalidate = 86400;
 
-export async function generateStaticParams() {
-  const supabase = await createServiceSupabase();
-  const { data } = await supabase
-    .from("obd_codes")
-    .select("code")
-    .order("severity", { ascending: false })
-    .limit(500);
-  return ((data ?? []) as { code: string }[]).map((c) => ({ code: c.code.toLowerCase() }));
-}
-
 // ── Helpers ──────────────────────────────────────────────
 
 function severityColor(severity: number): { bg: string; text: string; border: string; label: string } {
