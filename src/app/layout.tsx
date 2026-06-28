@@ -70,7 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.clarity.ms" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"Organization","name":"AutOwner","url":"https://www.autowner.com","logo":"https://www.autowner.com/logo.svg"}) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"Organization","name":"AutOwner","url":"https://www.autowner.com","logo":"https://www.autowner.com/icon-512.svg"}) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"WebSite","url":"https://www.autowner.com","potentialAction":{"@type":"SearchAction","target":"https://www.autowner.com/search?q={search_term_string}","query-input":"required name=search_term_string"}}) }} />
         {/* Critical inline styles — prevent FOUC when CSS chunk is delayed */}
         <style dangerouslySetInnerHTML={{ __html: `
