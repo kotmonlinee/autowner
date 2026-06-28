@@ -15,6 +15,13 @@ import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSig
 
 export const revalidate = 86400;
 
+export function generateStaticParams() {
+  return [
+    { slug: "strange-smell-or-odor-gasoline-fuel-smell-all-the-time" },
+    { slug: "unusual-noise-or-sound-from-the-engine-compartment-all-the-time" },
+  ];
+}
+
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
   critical: { bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", label: "Critical — Stop Driving", icon: <AlertTriangle className="w-6 h-6" /> },
   high: { bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-orange-700 dark:text-orange-400", border: "border-orange-200 dark:border-orange-800", label: "Serious — Inspect Soon", icon: <AlertTriangle className="w-6 h-6" /> },
