@@ -1570,7 +1570,7 @@ export async function getPostVehicles(postId: string) {
 // ── OBD Codes ──────────────────────────────────────────────
 
 export const getObdCode = cache(async (code: string): Promise<ObdCode | null> => {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const normalized = code.toUpperCase().trim();
   const { data, error } = await supabase
     .from("obd_codes")
@@ -1684,7 +1684,7 @@ export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code
 }
 
 export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const allCodes: Pick<ObdCode, "code" | "title" | "severity">[] = [];
 
   for (let offset = 0; offset < limit; offset += 1000) {
@@ -1704,7 +1704,7 @@ export async function getObdCodesPaginated(page: number, pageSize = 50): Promise
   codes: Pick<ObdCode, "code" | "title" | "severity">[];
   totalCount: number;
 }> {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const offset = (page - 1) * pageSize;
 
   const [{ data, error }, { count }] = await Promise.all([
@@ -1831,7 +1831,7 @@ export async function getVehicleRepairCost(
 }
 
 export const getRepairCosts = cache(async (slug: string): Promise<RepairCostFull | null> => {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
 
   // Normalize slug: convert URL dashes to underscores (DB convention)
   // Also try original slug as fallback
@@ -1921,7 +1921,7 @@ export async function searchRepairCosts(query: string): Promise<Pick<RepairCostR
 }
 
 export async function getAllRepairSlugs(): Promise<string[]> {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const { data } = await supabase
     .from("repair_costs")
     .select("repair_slug")
@@ -1966,7 +1966,7 @@ export async function getRepairCategoryCounts(
 // ── Vehicle Repair Cross Pages ────────────────────────────
 
 export async function getVehicleRepairSlugs(limit = 100): Promise<{ makeSlug: string; modelSlug: string; makeName: string; modelName: string }[]> {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   // Top US models by sales popularity, grouped by brand
   const POPULAR_ORDER = [
     "f-150", "silverado-1500", "ram-1500", "tacoma", "tundra",
@@ -2033,7 +2033,7 @@ export async function getPopularRepairCosts(limit = 10): Promise<{
   avgCost: number;
   tierCount: number;
 }[]> {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const { data } = await supabase
     .from("repair_costs")
     .select("repair_slug, repair_name, min_cost, max_cost, avg_cost")

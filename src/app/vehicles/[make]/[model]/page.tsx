@@ -10,7 +10,7 @@ import VehicleDiagnosisListAsync from "@/components/VehicleDiagnosisListAsync";
 import PageFeedback from "@/components/PageFeedback";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { createServerSupabase } from "@/lib/supabase-server";
+import { createServiceSupabase } from "@/lib/supabase-server";
 import { MAKE_TIER } from "@/lib/constants";
 
 export const revalidate = 86400;
@@ -20,7 +20,7 @@ function formatMoney(n: number): string {
 }
 
 const getVehicleData = cache(async (makeSlug: string, modelSlug: string) => {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const { data: make } = await supabase.from("vehicle_makes").select("id, name, slug").eq("slug", makeSlug).single();
   if (!make) return null;
   const m = make as { id: string; name: string; slug: string };
@@ -30,7 +30,7 @@ const getVehicleData = cache(async (makeSlug: string, modelSlug: string) => {
 });
 
 async function getVehicleStats(makeName: string, modelName: string, makeSlug: string, modelSlug: string) {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const tier = MAKE_TIER[makeSlug] ?? "mid_range";
 
   // Get make/model IDs for generations query
@@ -108,7 +108,7 @@ function generateVehicleDescription(makeName: string, modelName: string, stats: 
 }
 
 async function getRepairCostsForVehicle(makeSlug: string, repairSlugs: string[]) {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const tier = MAKE_TIER[makeSlug] ?? "mid_range";
 
   const batchSize = 20;
@@ -140,7 +140,7 @@ async function getRepairCostsForVehicle(makeSlug: string, repairSlugs: string[])
 }
 
 async function getCommonObdCodes(makeSlug: string, modelSlug: string) {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   // Get OBD codes most commonly associated with this vehicle's make
   const makeKeywords: Record<string, string[]> = {
     toyota: ["camry", "corolla", "toyota", "rav4"],
@@ -196,7 +196,7 @@ export default async function VehicleHubPage({
   const makeName = make.name;
   const modelName = model.name;
 
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const repairSlugs = await getAllRepairSlugs();
   const [repairCosts, obdCodes, stats] = await Promise.all([
     getRepairCostsForVehicle(makeSlug, repairSlugs),
