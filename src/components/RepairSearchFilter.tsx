@@ -47,7 +47,7 @@ export default function RepairSearchFilter({
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-        >
+         width={20} height={20}>
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
@@ -73,7 +73,7 @@ export default function RepairSearchFilter({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-            >
+             width={16} height={16}>
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
@@ -91,7 +91,7 @@ export default function RepairSearchFilter({
               className="group flex items-center justify-between px-4 py-2.5 bg-surface-1 border border-surface-border rounded-lg text-sm text-text-secondary hover:border-primary/20 hover:text-primary hover:shadow-sm transition-all duration-150 font-medium min-h-[44px]"
             >
               <span className="truncate">{formatSlug(slug)}</span>
-              <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           ))}
         </div>

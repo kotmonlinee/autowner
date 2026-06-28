@@ -66,7 +66,7 @@ export default async function Sidebar({ active }: { active?: string }) {
               : "text-text-secondary hover:text-text-primary hover:bg-surface-2 border-l-2 border-transparent"
           }`}
         >
-          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={categoryIcons.home} />
           </svg>
           Home
@@ -81,7 +81,7 @@ export default async function Sidebar({ active }: { active?: string }) {
                 : "text-text-secondary hover:text-text-primary hover:bg-surface-2 border-l-2 border-transparent"
             }`}
           >
-            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={categoryIcons[cat.slug] || categoryIcons.home} />
             </svg>
             {cat.name}

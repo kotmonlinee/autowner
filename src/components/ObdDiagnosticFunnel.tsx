@@ -69,7 +69,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
             <circle cx="11" cy="11" r="8" />
             <path d="M21 21l-4.35-4.35" />
             <path d="M8 11h6M11 8v6" />
@@ -92,7 +92,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
         </p>
         <p className="text-xs text-text-muted mb-3">
           <span className="inline-flex items-center gap-1">
-            <svg className="w-3.5 h-3.5 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            <svg className="w-3.5 h-3.5 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             <span className="hidden sm:inline">Tap a symptom — matching causes move to the top</span>
             <span className="sm:hidden">Tap below to refine the causes</span>
           </span>
@@ -193,7 +193,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
                     <svg
                       className={`w-4 h-4 text-text-muted shrink-0 mt-1 transition-transform ${isExpanded ? "rotate-180" : ""}`}
                       viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                    >
+                     width={24} height={24}>
                       <polyline points="6 9 12 15 18 9" />
                     </svg>
                   </button>
@@ -246,7 +246,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
                           className="ml-auto px-3 py-1.5 rounded-lg text-[11px] font-heading font-bold bg-primary text-white hover:bg-primary-glow transition-colors flex items-center gap-1"
                         >
                           {cause.repairSlug ? "View Repair" : "Browse Repairs"}
-                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                         </Link>
                       </div>
                     </div>
@@ -273,7 +273,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
               className="px-5 py-2.5 bg-emerald-600 text-white text-sm font-heading font-bold rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2"
             >
               {confirmedCause.repairSlug ? "See Repair Options" : "Browse All Repairs"}
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
             <Link
               href={`/quote-checker`}

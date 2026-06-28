@@ -216,6 +216,8 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
     "@context": "https://schema.org", "@type": "Article",
     headline: pageTitle,
     description: pageDesc.substring(0, 160),
+    datePublished: (s.created_at as string) || (vs?.created_at as string) || "2026-05-07T00:00:00.000Z",
+    dateModified: (s.updated_at as string) || (s.created_at as string) || (vs?.updated_at as string) || (vs?.created_at as string) || "2026-05-07T00:00:00.000Z",
     publisher: { "@type": "Organization", name: "AutOwner" },
   };
   const breadcrumbJsonLd = {
@@ -241,15 +243,15 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
       <main className="flex-1 max-w-3xl mx-auto px-5 py-8 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <Link href="/symptoms" className="hover:text-primary transition-colors">Symptoms</Link>
           {vs && (
             <>
-              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               <span className="text-text-secondary">{vs.vehicle_make} {vs.vehicle_model}</span>
             </>
           )}
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary truncate">{vs ? vs.symptom_name : s.name}</span>
         </nav>
 
@@ -273,7 +275,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
           </div>
           <Link href={`/symptom-checker?symptom=${encodeURIComponent(vs ? vs.symptom_name : s.name)}`} className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl hover:bg-primary/10 hover:border-primary/40 transition-all group">
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-              <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
                 <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
               </svg>
             </div>
@@ -281,7 +283,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
               <span className="text-sm font-heading font-bold text-primary block group-hover:text-primary-glow transition-colors">Not Sure Which Cause Applies?</span>
               <span className="text-xs text-text-muted">Describe your exact symptoms and vehicle — our AI narrows down the possibilities and gives you a specific diagnosis with repair costs.</span>
             </div>
-            <svg className="w-5 h-5 text-primary shrink-0 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            <svg className="w-5 h-5 text-primary shrink-0 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
           </Link>
         </div>
 
@@ -388,7 +390,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
                 <Link key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center gap-3 p-3 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
                   <span className={`w-2 h-2 rounded-full shrink-0 ${d.severity === "critical" ? "bg-red-500" : d.severity === "high" ? "bg-orange-500" : d.severity === "medium" ? "bg-amber-500" : "bg-emerald-500"}`} />
                   <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1">{d.title}</span>
-                  <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -444,7 +446,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
                     <td className="py-2.5 px-3 text-right text-sm font-heading">
                       {c.repair_cost_min != null ? <span className="font-bold text-text-primary">{formatMoney(c.repair_cost_min)} – {formatMoney(c.repair_cost_max)}</span> : <span className="text-text-muted text-xs">Varies by vehicle</span>}
                     </td>
-                    <td className="py-2.5 px-1">{c.repair_slug && <svg className="w-3.5 h-3.5 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>}</td>
+                    <td className="py-2.5 px-1">{c.repair_slug && <svg className="w-3.5 h-3.5 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>}</td>
                   </tr>
                 ))}
               </tbody>
@@ -466,7 +468,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
               className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
             >
               Check your quote
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           </div>
         </div>
@@ -482,7 +484,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
                   <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code}</span>
                   <span className="h-4 w-px bg-surface-border shrink-0" />
                   <span className="text-xs text-text-secondary truncate flex-1">{obd.title}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -498,7 +500,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
                 <Link key={l.slug} href={`/warning-lights/${l.slug}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                   <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2"><img src={`/warning-lights/${l.slug}.jpg`} alt={l.title} className="w-full h-full object-cover" loading="lazy" /></div>
                   <span className="text-sm font-heading font-semibold text-text-primary truncate flex-1">{l.title}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -513,7 +515,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
               {relatedVehicles.map((rv) => (
                 <Link key={rv.slug} href={`/symptoms/${rv.slug}`} className="flex items-center gap-2 p-2.5 rounded-lg bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
                   <span className="text-sm font-heading font-medium text-text-primary group-hover:text-primary transition-colors truncate">{rv.vehicle_make} {rv.vehicle_model}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted shrink-0 group-hover:text-primary group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-3.5 h-3.5 text-text-muted shrink-0 group-hover:text-primary group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -527,7 +529,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
             {faqItems.map((faq, i) => (
               <details key={i} className="group bg-surface-0 rounded-xl border border-surface-border">
                 <summary className="flex items-center gap-2 cursor-pointer list-none px-4 py-3 min-h-[44px] font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
-                  <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+                  <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}><polyline points="9 18 15 12 9 6" /></svg>
                   {faq.q}
                 </summary>
                 <p className="px-4 pb-4 ml-6 text-sm text-text-secondary leading-relaxed">{faq.a}</p>

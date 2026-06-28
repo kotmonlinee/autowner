@@ -96,7 +96,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
           </span>
         </div>
         <div className="relative w-full sm:flex-1 sm:max-w-md">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
@@ -109,7 +109,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
           {query && (
             <button type="button" onClick={() => setQuery("")}
               className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-surface-3 text-text-muted flex items-center justify-center hover:text-text-primary transition-colors">
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
             </button>
           )}
         </div>
@@ -151,7 +151,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
                     {diag.costEstimate && <span className="text-xs text-text-muted font-heading">Est. {diag.costEstimate}</span>}
                     <div className="flex items-center justify-between mt-auto pt-2 border-t border-surface-border">
                       <span className="text-xs text-text-muted">{d.view_count} view{d.view_count !== 1 ? "s" : ""}</span>
-                      <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                      <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                     </div>
                   </div>
                 </Link>
@@ -164,7 +164,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
             <div className="flex items-center justify-center gap-2 mt-8">
               {page > 1 && (
                 <button onClick={() => loadPage(page - 1)} className="flex items-center gap-1 px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>Previous
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={16} height={16}><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>Previous
                 </button>
               )}
               {Array.from({ length: Math.min(computedPages, 7) }, (_, i) => {
@@ -179,7 +179,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
               })}
               {page < computedPages && (
                 <button onClick={() => loadPage(page + 1)} className="flex items-center gap-1 px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors">
-                  Next<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  Next<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </button>
               )}
             </div>

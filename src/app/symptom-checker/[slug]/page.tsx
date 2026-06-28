@@ -13,7 +13,7 @@ import { getRepairImageUrl } from "@/lib/repair-images";
 import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash, ListChecks } from "lucide-react";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
   critical: { bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", label: "Critical — Stop Driving", icon: <AlertTriangle className="w-6 h-6" /> },
@@ -172,12 +172,15 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: d.title, description: d.summary, datePublished: diagnosis.created_at, dateModified: diagnosis.updated_at || diagnosis.created_at, publisher: { "@type": "Organization", name: "AutOwner" } }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: "https://www.autowner.com/" }, { "@type": "ListItem", position: 2, name: "AI Diagnosis", item: "https://www.autowner.com/symptom-checker" }, { "@type": "ListItem", position: 3, name: d.title }] }) }} />
+      {d.faq && d.faq.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: d.faq.map((item: any) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })) }) }} />}
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading whitespace-nowrap overflow-x-auto" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors shrink-0">Home</Link>
-          <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <Link href="/symptom-checker" className="hover:text-primary transition-colors shrink-0">AI Diagnosis</Link>
-          <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary truncate">{d.title}</span>
         </nav>
 
@@ -413,7 +416,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                     <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                   <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1 min-w-0">{light.title}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -425,7 +428,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
           <div className="mb-6">
             <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
               <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><path d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
               </span>
               Related Symptoms
             </h2>
@@ -433,7 +436,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               {relatedSymptoms.map((s) => (
                 <Link key={s.slug} href={`/symptoms/${s.slug}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
                   <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1">{s.name}</span>
-                  <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -448,7 +451,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               {d.faq.map((item: any, i: number) => (
                 <details key={i} className="group bg-surface-0 rounded-xl border border-surface-border">
                   <summary className="flex items-center gap-2 cursor-pointer list-none px-4 py-3 min-h-[44px] font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
-                    <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+                    <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}><polyline points="9 18 15 12 9 6" /></svg>
                     {item.question}
                   </summary>
                   <p className="px-4 pb-4 ml-6 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
@@ -462,7 +465,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         <div className="mb-6 p-5 bg-surface-1 rounded-2xl border border-surface-border">
           <div className="flex items-center gap-3">
             <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
                 <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" />
               </svg>
             </span>

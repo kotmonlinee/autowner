@@ -52,7 +52,7 @@ export default async function CommunityPage({
       <main id="main-content" className="flex-1 max-w-3xl mx-auto px-5 py-6 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary">Community</span>
         </nav>
 
@@ -68,7 +68,7 @@ export default async function CommunityPage({
         {/* Search */}
         <form action="/community" method="GET" className="mb-6">
           <div className="relative">
-            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
               <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input
@@ -179,7 +179,7 @@ export default async function CommunityPage({
         {!query && trendingVehicles.length > 0 && (
           <section>
             <h2 className="text-lg font-bold text-text-primary font-heading flex items-center gap-2 mb-4">
-              <svg className="w-5 h-5 text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-5 h-5 text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
               </svg>
               Trending Vehicles
@@ -200,7 +200,7 @@ export default async function CommunityPage({
                   <Link key={eng.id as string} href={`/vehicle/${eng.id}`} className="bg-surface-1 rounded-xl border border-surface-border p-4 hover:border-primary/20 hover:bg-surface-2 transition-all duration-150 group">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-lg bg-amber/10 flex items-center justify-center shrink-0">
-                        <svg className="w-5 h-5 text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="w-5 h-5 text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
                           <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
                           <circle cx="9" cy="17" r="1" /><circle cx="15" cy="17" r="1" />
                         </svg>
@@ -209,7 +209,7 @@ export default async function CommunityPage({
                         <p className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors font-heading truncate">{makeName} {modelName}</p>
                         <p className="text-xs text-text-muted truncate">{genName} ({engineCode})</p>
                         <div className="flex items-center gap-1 mt-1.5 text-xs text-text-muted">
-                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}>
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
                           </svg>
                           <span>{followerCount} {followerCount === 1 ? "owner" : "owners"}</span>

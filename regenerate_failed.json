@@ -1,0 +1,58 @@
+[
+  {
+    "code": "B1779",
+    "error": "validation_failed"
+  },
+  {
+    "code": "B2305",
+    "error": "validation_failed"
+  },
+  {
+    "code": "B2462",
+    "error": "validation_failed"
+  },
+  {
+    "code": "C052D",
+    "error": "validation_failed"
+  },
+  {
+    "code": "C1417",
+    "error": "validation_failed"
+  },
+  {
+    "code": "P00B3",
+    "error": "validation_failed"
+  },
+  {
+    "code": "P02F3",
+    "error": "validation_failed"
+  },
+  {
+    "code": "P0ACC",
+    "error": "validation_failed"
+  },
+  {
+    "code": "P0AC3",
+    "error": "validation_failed"
+  },
+  {
+    "code": "P21C0",
+    "error": "validation_failed"
+  },
+  {
+    "code": "P2492",
+    "error": "validation_failed"
+  },
+  {
+    "code": "P26B6",
+    "error": "validation_failed"
+  },
+  {
+    "code": "U1023",
+    "error": "validation_failed"
+  },
+  {
+    "code": "U3003",
+    "error": "validation_failed"
+  }
+]

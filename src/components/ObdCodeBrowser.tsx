@@ -73,7 +73,7 @@ export default function ObdCodeBrowser({ initialCodes, initialPrefix }: { initia
       {/* Search */}
       <div className="max-w-xl mb-6">
         <div className="relative">
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
@@ -90,7 +90,7 @@ export default function ObdCodeBrowser({ initialCodes, initialPrefix }: { initia
               className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-surface-3 text-text-muted flex items-center justify-center hover:text-text-primary transition-colors"
               aria-label="Clear search"
             >
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
             </button>
           )}
         </div>
@@ -128,7 +128,7 @@ export default function ObdCodeBrowser({ initialCodes, initialPrefix }: { initia
               <span className="text-sm font-mono font-bold text-text-primary group-hover:text-primary transition-colors shrink-0 w-14 sm:w-16">{c.code}</span>
               <span className="flex-1 min-w-0 text-sm text-text-secondary truncate">{c.title}</span>
               <span className={`inline-flex items-center px-2.5 py-1 rounded text-[11px] font-bold font-heading border shrink-0 ${severityBadgeClass(c.severity)}`}>{SEVERITY_LABELS[c.severity] ?? "Minor"}</span>
-              <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 hidden sm:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 hidden sm:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           ))}
         </div>

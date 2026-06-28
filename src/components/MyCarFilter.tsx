@@ -188,7 +188,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
       <div className="px-2 pb-3 mb-3 border-b border-surface-border">
         <div className="bg-surface-1 border border-surface-border rounded-xl p-4 text-center">
           <div className="w-10 h-10 mx-auto mb-2 bg-surface-3 rounded-xl flex items-center justify-center">
-            <svg className="w-5 h-5 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg className="w-5 h-5 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width={20} height={20}>
               <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
               <circle cx="9" cy="17" r="1.5" /><circle cx="15" cy="17" r="1.5" />
             </svg>
@@ -213,7 +213,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
             <div className="flex items-center gap-2">
               {step !== "make" && (
                 <button onClick={backToModels} className="p-0.5 text-text-muted hover:text-text-primary transition-colors">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" width={16} height={16}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                 </button>
               )}
               <span className="text-xs font-bold text-text-primary font-heading">
@@ -221,7 +221,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
               </span>
             </div>
             <button onClick={close} className="text-text-muted hover:text-text-primary transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" width={16} height={16}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
 
@@ -282,7 +282,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
                           {e.code} {e.displacement && `· ${e.displacement}`} {e.fuel_type && `· ${e.fuel_type}`} {e.horsepower && `· ${e.horsepower}hp`}
                         </p>
                       </div>
-                      <svg className="w-4 h-4 text-text-muted shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                      <svg className="w-4 h-4 text-text-muted shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" width={16} height={16}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                     </div>
                   </button>
                 ))}
@@ -307,7 +307,7 @@ export default function MyCarFilter({ vehicle }: { vehicle: PrimaryVehicleInfo |
         <div className="p-3">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <svg className="w-4.5 h-4.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg className="w-4.5 h-4.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width={18} height={18}>
                 <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
                 <circle cx="9" cy="17" r="1.5" /><circle cx="15" cy="17" r="1.5" />
               </svg>

@@ -72,7 +72,7 @@ export default function DemoSymptomsHub() {
           </p>
           <div className="max-w-xl mx-auto">
             <div className="relative">
-              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={20} height={20}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
               <input
                 type="search"
                 placeholder='Describe your symptom (e.g. "car shakes when braking")'
@@ -81,7 +81,7 @@ export default function DemoSymptomsHub() {
             </div>
             <Link href="/symptom-checker" className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow transition-all font-heading shadow-sm shadow-primary/20">
               Diagnose with AI
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function DemoSymptomsHub() {
                   <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors line-clamp-2">{s.name}</span>
                   <span className="text-[10px] text-text-muted font-heading">{s.category}</span>
                 </div>
-                <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
               </Link>
             ))}
           </div>
@@ -129,9 +129,9 @@ export default function DemoSymptomsHub() {
           {/* Breadcrumb */}
           <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading">
             <span className="hover:text-primary transition-colors">Home</span>
-            <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             <span className="hover:text-primary transition-colors">Symptoms</span>
-            <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             <span className="text-text-secondary">Car Shaking When Accelerating</span>
           </nav>
 
@@ -206,7 +206,7 @@ export default function DemoSymptomsHub() {
                       </td>
                       <td className="py-2.5 px-3 text-right text-sm font-heading font-bold text-text-primary">{formatMoney(c.min)} – {formatMoney(c.max)}</td>
                       <td className="py-2.5 px-1">
-                        <svg className="w-3.5 h-3.5 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                        <svg className="w-3.5 h-3.5 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                       </td>
                     </tr>
                   ))}
@@ -244,7 +244,7 @@ export default function DemoSymptomsHub() {
                 <Link key={code} href={`/obd/${code.toLowerCase()}`}
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors">
                   {code}
-                  <svg className="w-3 h-3 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-3 h-3 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -261,7 +261,7 @@ export default function DemoSymptomsHub() {
                     <img src={`/warning-lights/${l.slug}.jpg`} alt={l.title} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                   <span className="text-sm font-heading font-semibold text-text-primary truncate flex-1">{l.title}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -284,7 +284,7 @@ export default function DemoSymptomsHub() {
             <p className="text-sm text-text-secondary mb-4">Describe your exact symptoms to our AI. It'll identify possible causes, OBD codes, and repair costs in seconds.</p>
             <Link href="/symptom-checker" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow transition-all font-heading shadow-sm shadow-primary/20">
               Diagnose Your Symptoms
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           </div>
 
@@ -302,7 +302,7 @@ export default function DemoSymptomsHub() {
               ].map((faq, i) => (
                 <details key={i} className="group bg-surface-0 rounded-xl border border-surface-border">
                   <summary className="flex items-center gap-2 cursor-pointer list-none px-4 py-3 min-h-[44px] font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
-                    <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+                    <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}><polyline points="9 18 15 12 9 6" /></svg>
                     {faq.q}
                   </summary>
                   <p className="px-4 pb-4 ml-6 text-sm text-text-secondary leading-relaxed">{faq.a}</p>

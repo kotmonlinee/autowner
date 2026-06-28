@@ -1922,24 +1922,14 @@ export async function searchRepairCosts(query: string): Promise<Pick<RepairCostR
 
 export async function getAllRepairSlugs(): Promise<string[]> {
   const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from("repair_costs")
+    .select("repair_slug")
+    .limit(5000);
   const slugs = new Set<string>();
-  const BATCH = 1000;
-  let offset = 0;
-
-  while (true) {
-    const { data } = await supabase
-      .from("repair_costs")
-      .select("repair_slug")
-      .range(offset, offset + BATCH - 1);
-    if (!data || data.length === 0) break;
-
-    for (const row of data as unknown as { repair_slug: string }[]) {
-      slugs.add(row.repair_slug.replace(/_/g, "-"));
-    }
-    if (data.length < BATCH) break;
-    offset += BATCH;
+  for (const row of (data ?? []) as unknown as { repair_slug: string }[]) {
+    slugs.add(row.repair_slug.replace(/_/g, "-"));
   }
-
   return Array.from(slugs).sort();
 }
 
@@ -2046,7 +2036,8 @@ export async function getPopularRepairCosts(limit = 10): Promise<{
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from("repair_costs")
-    .select("repair_slug, repair_name, min_cost, max_cost, avg_cost");
+    .select("repair_slug, repair_name, min_cost, max_cost, avg_cost")
+    .limit(300);
 
   if (!data || data.length === 0) return [];
 
@@ -2058,26 +2049,23 @@ export async function getPopularRepairCosts(limit = 10): Promise<{
     avg_cost: number;
   }[];
 
-  // Group by slug
   const groups = new Map<string, {
     name: string;
     costs: { min: number; max: number; avg: number }[];
   }>();
 
   for (const row of rows) {
-    const slug = row.repair_slug;
-    const existing = groups.get(slug);
+    const existing = groups.get(row.repair_slug);
     if (existing) {
       existing.costs.push({ min: row.min_cost, max: row.max_cost, avg: row.avg_cost });
     } else {
-      groups.set(slug, {
+      groups.set(row.repair_slug, {
         name: row.repair_name,
         costs: [{ min: row.min_cost, max: row.max_cost, avg: row.avg_cost }],
       });
     }
   }
 
-  // Sort by number of entries (tier count) descending = most documented = most popular
   const sorted = Array.from(groups.entries())
     .sort((a, b) => b[1].costs.length - a[1].costs.length)
     .slice(0, limit);
@@ -2098,3 +2086,32 @@ export async function getPopularRepairCosts(limit = 10): Promise<{
     };
   });
 }
+
+// ── Warning Lights ────────────────────────────────────────
+
+export interface WarningLightRow {
+  slug: string;
+  title: string;
+  severity: "critical" | "caution" | "informational";
+  meaning: string;
+  causes: string[];
+  can_drive: string;
+  min_cost: number;
+  max_cost: number;
+  icon: string;
+  related_obd_codes: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export const getAllWarningLights = cache(async (): Promise<WarningLightRow[]> => {
+  const supabase = await createServiceSupabase();
+  const { data } = await supabase.from("warning_lights").select("*").order("slug");
+  return (data ?? []) as unknown as WarningLightRow[];
+});
+
+export const getWarningLightBySlug = cache(async (slug: string): Promise<WarningLightRow | null> => {
+  const supabase = await createServiceSupabase();
+  const { data } = await supabase.from("warning_lights").select("*").eq("slug", slug).maybeSingle();
+  return (data as unknown as WarningLightRow) || null;
+});

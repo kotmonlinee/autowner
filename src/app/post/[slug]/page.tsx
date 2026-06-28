@@ -17,7 +17,7 @@ import ProductCard from "@/components/ProductCard";
 import AuthorBio from "@/components/AuthorBio";
 import ReadingProgress from "@/components/ReadingProgress";
 
-export const revalidate = 3600;
+export const revalidate = 604800;
 import { FollowVehicleButton } from "@/app/vehicle/[engineId]/FollowVehicleButton";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -263,13 +263,13 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             {/* Breadcrumb */}
             <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
               <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
               {post.categories && (
                 <>
                   <Link href={`/?category=${post.categories.slug}`} className="hover:text-primary transition-colors">{post.categories.name}</Link>
-                  <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </>
@@ -281,7 +281,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               {isDeleted ? (
                 /* Deleted post state */
                 <div className="py-12 text-center">
-                  <svg className="w-12 h-12 mx-auto mb-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-12 h-12 mx-auto mb-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={48} height={48}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                   <h1 className="text-xl font-bold text-text-secondary font-heading mb-2">This post has been deleted</h1>
@@ -290,7 +290,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                     href="/"
                     className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-surface-3 text-text-secondary text-sm font-bold rounded-lg hover:bg-surface-4 transition-colors font-heading"
                   >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={16} height={16}>
                       <path d="M5 12h14M12 5l-7 7 7 7" />
                     </svg>
                     Back to Home
@@ -392,7 +392,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  >
+                   width={16} height={16}>
                     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
                     <line x1="3" y1="6" x2="21" y2="6" />
                     <path d="M16 10a4 4 0 01-8 0" />

@@ -251,8 +251,8 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
     "@context": "https://schema.org", "@type": "Article",
     headline: parsed ? `${makeName} ${modelName} ${repair.name} — Cost Estimate & Price Guide` : `${repair.name} — Cost Estimate & Price Guide`,
     description: `${repair.name} for ${parsed ? `${makeName} ${modelName}` : "all vehicle types"} typically costs ${formatRange(repair.overallMin, repair.overallMax)}. Compare prices across 5 vehicle tiers.`,
-    datePublished: "2025-05-01T00:00:00.000Z",
-    dateModified: "2026-06-18T00:00:00.000Z",
+    datePublished: (repair.created_at as string) || "2026-05-07T00:00:00.000Z",
+    dateModified: (repair.updated_at as string) || (repair.created_at as string) || "2026-05-07T00:00:00.000Z",
     publisher: { "@type": "Organization", name: "AutOwner" },
   };
 
@@ -281,19 +281,19 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         {/* Breadcrumb */}
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <Link href="/repair-cost" className="hover:text-primary transition-colors">Repair Costs</Link>
           {parsed && (
             <>
-              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               <Link href={`/repair-cost/${repairSlug}`} className="hover:text-primary transition-colors">{repair.name}</Link>
-              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               <Link href={`/vehicles/${parsed.makeSlug}/${parsed.modelSlug}`} className="hover:text-primary transition-colors">{makeName} {modelName}</Link>
             </>
           )}
           {!parsed && (
             <>
-              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               <span className="text-text-secondary truncate">{repair.name}</span>
             </>
           )}
@@ -383,7 +383,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
             >
               Check your quote
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           </div>
         </div>
@@ -393,7 +393,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-2xl border border-severity-caution-border p-5 mb-4">
             <div className="flex items-start gap-3">
               <div className="w-9 h-9 rounded-lg bg-severity-caution-bg flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4 text-severity-caution" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-severity-caution" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
@@ -443,7 +443,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           <details className="bg-surface-1 rounded-xl border border-surface-border p-4 group">
             <summary className="flex items-center justify-between cursor-pointer list-none">
               <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+                <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}><polyline points="9 18 15 12 9 6" /></svg>
                 <h2 className="text-sm font-heading font-bold text-text-primary">Full Cost Breakdown by Vehicle Tier</h2>
               </div>
               <span className="text-xs text-text-muted">{tierCards.length} tiers</span>
@@ -485,7 +485,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-4">
             <div className="flex items-center gap-2 mb-4">
               <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </span>
               <h2 className="text-lg font-heading font-bold text-text-primary">Do You Actually Need {repair.name}?</h2>
             </div>
@@ -552,13 +552,13 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
                   <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code}</span>
                   <span className="h-4 w-px bg-surface-border shrink-0" />
                   <span className="text-xs text-text-secondary truncate flex-1 min-w-0">{obd.title}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
             <Link href="/obd" className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-primary hover:text-primary-glow transition-colors">
               Browse all OBD-II codes
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           </div>
         )}
@@ -579,7 +579,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
                       <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" loading="lazy" />
                     </div>
                     <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1 min-w-0">{light.title}</span>
-                    <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                    <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                   </Link>
                 ))}
               </div>
@@ -597,7 +597,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
                 <Link key={r.slug} href={parsed ? `/repair-cost/${r.slug}-${parsed.makeSlug}-${parsed.modelSlug}` : `/repair-cost/${r.slug}`}
                   className="flex items-center gap-2.5 p-3 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
                   <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                    {(() => { const img = getRepairImageUrl(r.slug); return img ? <img src={img} alt={r.name} className="w-full h-full object-cover" loading="lazy" /> : <svg className="w-4 h-4 text-text-muted m-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>; })()}
+                    {(() => { const img = getRepairImageUrl(r.slug); return img ? <img src={img} alt={r.name} className="w-full h-full object-cover" loading="lazy" /> : <svg className="w-4 h-4 text-text-muted m-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width={16} height={16}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>; })()}
                   </div>
                   <span className="text-xs font-heading font-medium text-text-secondary group-hover:text-primary transition-colors truncate">{r.name}</span>
                 </Link>
@@ -614,7 +614,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               <details key={i} className="group">
                 <summary className="flex items-center justify-between px-4 py-3 min-h-[44px] cursor-pointer text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors bg-surface-0 rounded-lg border border-surface-border">
                   {item.question}
-                  <svg className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
+                  <svg className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}><polyline points="6 9 12 15 18 9" /></svg>
                 </summary>
                 <p className="px-4 pb-4 pt-2 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
               </details>
@@ -625,7 +625,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         {/* Disclaimer */}
         <div className="bg-amber/5 dark:bg-yellow-950/20 border border-amber/20 dark:border-yellow-800/20 rounded-xl p-4">
           <div className="flex items-start gap-2.5">
-            <svg className="w-5 h-5 text-amber dark:text-amber-dark mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+            <svg className="w-5 h-5 text-amber dark:text-amber-dark mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
             <p className="text-xs text-text-muted leading-relaxed">
               <strong className="text-text-secondary">Disclaimer:</strong> Prices are estimates only and may vary by location, vehicle condition, shop rates, and parts availability. Always get multiple quotes before authorizing repairs. Use our{" "}
               <Link href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`} className="text-primary hover:text-primary-glow underline">Quote Checker</Link>{" "}
@@ -677,7 +677,7 @@ function DiySection({ diyData, tierCards }: { diyData: any; tierCards: any[] }) 
     <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-4">
       <div className="flex items-center gap-2 mb-4">
         <span className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-          <svg className="w-4 h-4 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
+          <svg className="w-4 h-4 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
         </span>
         <h2 className="text-lg font-heading font-bold text-text-primary">Can You DIY This?</h2>
       </div>
@@ -698,7 +698,7 @@ function DiySection({ diyData, tierCards }: { diyData: any; tierCards: any[] }) 
           <span className="text-[10px] text-text-muted font-heading mt-0.5">DIY Difficulty</span>
           <span className="inline-flex items-center gap-0.5 text-[10px] text-primary font-heading mt-1">
             What's this?
-            <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={10} height={10}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
           </span>
         </Link>
         <div className="flex flex-col items-center justify-center px-4 py-3 rounded-xl bg-surface-0 border border-surface-border">
@@ -740,7 +740,7 @@ function DiySection({ diyData, tierCards }: { diyData: any; tierCards: any[] }) 
       </div>
 
       <div className="flex items-start gap-2 bg-red-50/50 dark:bg-red-950/10 rounded-xl border border-red-200/50 dark:border-red-800/50 p-3">
-        <svg className="w-4 h-4 text-red-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+        <svg className="w-4 h-4 text-red-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={16} height={16}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
         <p className="text-xs text-text-secondary leading-relaxed"><strong className="text-text-primary">Safety:</strong> {config.safety}</p>
       </div>
     </div>

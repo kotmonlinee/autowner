@@ -76,7 +76,7 @@ export default function AnonymousBookmarks() {
           className="w-5 h-5 text-amber mt-0.5 shrink-0"
           fill="currentColor"
           viewBox="0 0 24 24"
-        >
+         width={20} height={20}>
           <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 5-3.3 9.45-7 10.7-3.7-1.25-7-5.7-7-10.7V6.3l7-3.12z" />
         </svg>
         <div>
@@ -105,7 +105,7 @@ export default function AnonymousBookmarks() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-            >
+             width={40} height={40}>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -133,7 +133,7 @@ export default function AnonymousBookmarks() {
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-            >
+             width={16} height={16}>
               <path d="M5 12h14M12 5l-7 7 7 7" />
             </svg>
             Browse Popular Posts

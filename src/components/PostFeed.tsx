@@ -21,7 +21,7 @@ export default function PostFeed({
       <div className="text-center py-20">
         {/* Car + wrench illustration */}
         <div className="w-20 h-20 mx-auto mb-5 bg-surface-2 rounded-3xl flex items-center justify-center">
-          <svg className="w-10 h-10 text-text-muted" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-10 h-10 text-text-muted" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width={40} height={40}>
             {/* Car body */}
             <path d="M10 28h28v-6a4 4 0 00-4-4H14a4 4 0 00-4 4v6z" />
             <path d="M10 28v4a2 2 0 002 2h2a2 2 0 002-2v-2" />
@@ -47,7 +47,7 @@ export default function PostFeed({
           href="/submit"
           className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
             <path d="M12 5v14M5 12h14" />
           </svg>
           Create the First Post

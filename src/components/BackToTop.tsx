@@ -36,7 +36,7 @@ export default function BackToTop() {
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-      >
+       width={20} height={20}>
         <path d="M18 15l-6-6-6 6" />
       </svg>
     </button>

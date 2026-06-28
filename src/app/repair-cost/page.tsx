@@ -6,6 +6,8 @@ import Footer from "@/components/Footer";
 import RepairSearchFilter from "@/components/RepairSearchFilter";
 import Link from "next/link";
 
+export const revalidate = 86400;
+
 export const metadata: Metadata = {
   title: "Repair Cost Estimator — Compare Prices by Vehicle Tier",
   description:
@@ -39,7 +41,7 @@ const CATEGORIES = [
     keywords: ["brake", "rotor", "caliper", "pad"],
     description: "Brake pads, rotors, calipers, and brake fluid",
     icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
         <circle cx="12" cy="12" r="10" />
         <circle cx="12" cy="12" r="6" />
         <circle cx="12" cy="12" r="2" />
@@ -52,7 +54,7 @@ const CATEGORIES = [
     keywords: ["engine", "head_gasket", "timing", "spark", "valve", "injector", "ignition", "fuel_pump", "fuel_filter", "belt", "mount", "pcv", "throttle"],
     description: "Timing belts, head gaskets, spark plugs, fuel system",
     icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
         <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
       </svg>
     ),
@@ -63,7 +65,7 @@ const CATEGORIES = [
     keywords: ["transmission", "clutch", "differential", "transfer_case", "fluid"],
     description: "Clutch, transmission fluid, differential service",
     icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
         <circle cx="9" cy="19" r="2" />
         <circle cx="15" cy="5" r="2" />
         <circle cx="5" cy="12" r="2" />
@@ -80,7 +82,7 @@ const CATEGORIES = [
     keywords: ["strut", "shock", "tie_rod", "ball_joint", "control_arm", "cv_axle", "wheel_bearing", "power_steering"],
     description: "Struts, shocks, control arms, tie rods, wheel bearings",
     icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
       </svg>
     ),
@@ -91,7 +93,7 @@ const CATEGORIES = [
     keywords: ["ac_compressor", "evaporator", "heater", "blower", "cabin"],
     description: "AC compressor, heater core, blower motor, cabin filter",
     icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
         <polyline points="22,6 12,13 2,6" />
       </svg>
@@ -103,7 +105,7 @@ const CATEGORIES = [
     keywords: ["alternator", "starter", "battery", "sensor", "mass_air", "oxygen", "window", "door_lock"],
     description: "Alternator, starter, battery, sensors, window regulators",
     icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
         <rect x="1" y="6" width="18" height="12" rx="2" /><line x1="12" y1="18" x2="12" y2="22" /><line x1="8" y1="22" x2="16" y2="22" />
       </svg>
     ),
@@ -114,7 +116,7 @@ const CATEGORIES = [
     keywords: ["catalytic", "muffler", "egr", "exhaust"],
     description: "Catalytic converter, muffler, EGR valve",
     icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
         <line x1="6" y1="6" x2="18" y2="18" />
         <line x1="18" y1="6" x2="6" y2="18" />
       </svg>
@@ -126,7 +128,7 @@ const CATEGORIES = [
     keywords: ["oil_change", "coolant", "windshield", "air_filter", "power_steering_flush", "brake_fluid_flush", "serpentine"],
     description: "Oil changes, flushes, filters, belts, windshield",
     icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
         <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
       </svg>
     ),
@@ -181,7 +183,7 @@ export default async function RepairCostLandingPage() {
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-          >
+           width={12} height={12}>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -237,7 +239,7 @@ export default async function RepairCostLandingPage() {
                         {formatCurrency(repair.minCost)} &ndash; {formatCurrency(repair.maxCost)}
                       </span>
                     </div>
-                    <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                    <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                   </div>
                   <div className="flex items-center gap-2 mt-1.5">
                     <span className="text-xs text-text-muted">
@@ -273,7 +275,7 @@ export default async function RepairCostLandingPage() {
             </div>
             <Link href="/vehicles" className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
               Browse Vehicles
-              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           </div>
         </section>

@@ -84,7 +84,7 @@ export default function DiagnosisWizard({ prefilledSymptom }: { prefilledSymptom
           <div className="absolute inset-0 bg-surface-0/80 backdrop-blur-sm rounded-2xl" />
           <div className="relative bg-surface-1 border border-surface-border rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center animate-in fade-in zoom-in duration-300">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <svg className="w-8 h-8 text-primary animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg className="w-8 h-8 text-primary animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width={32} height={32}>
                 <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
@@ -102,7 +102,7 @@ export default function DiagnosisWizard({ prefilledSymptom }: { prefilledSymptom
       {/* Prefilled symptom banner */}
       {prefilledSymptom && (
         <div className="mb-5 flex items-center gap-2 px-4 py-2.5 bg-primary/5 border border-primary/20 rounded-xl text-sm">
-          <svg className="w-4 h-4 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-4 h-4 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
             <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
           </svg>
           <span className="text-text-secondary">Diagnosing: <strong className="text-text-primary">{prefilledSymptom}</strong></span>

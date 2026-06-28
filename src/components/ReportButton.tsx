@@ -78,7 +78,7 @@ export default function ReportButton({
         title="Report this content"
         aria-label="Report this content"
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}>
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -108,7 +108,7 @@ export default function ReportButton({
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
-                >
+                 width={40} height={40}>
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -141,7 +141,7 @@ export default function ReportButton({
                     className="p-2.5 text-text-muted hover:text-text-secondary transition-colors rounded-lg"
                     aria-label="Close"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}>
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"

@@ -79,9 +79,9 @@ export default async function ObdVehiclePage({
       <Navbar />
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-          <Link href="/obd" className="hover:text-primary transition-colors">OBD Codes</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-          <Link href={`/obd/${obd.code.toLowerCase()}`} className="hover:text-primary transition-colors">{obd.code}</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+          <Link href="/obd" className="hover:text-primary transition-colors">OBD Codes</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+          <Link href={`/obd/${obd.code.toLowerCase()}`} className="hover:text-primary transition-colors">{obd.code}</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
           <Link href={`/vehicles/${makeSlug}/${modelSlug}`} className="hover:text-primary transition-colors">{makeName} {modelName}</Link>
         </nav>
 

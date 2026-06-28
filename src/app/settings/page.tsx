@@ -343,7 +343,7 @@ export default function SettingsPage() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-              >
+               width={20} height={20}>
                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
                 <polyline points="10 17 15 12 10 7" />
                 <line x1="15" y1="12" x2="3" y2="12" />
@@ -417,7 +417,7 @@ export default function SettingsPage() {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  >
+                   width={18} height={18}>
                     <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
                     <circle cx="9" cy="17" r="1" />
                     <circle cx="15" cy="17" r="1" />
@@ -472,7 +472,7 @@ export default function SettingsPage() {
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                >
+                 width={16} height={16}>
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
                 See related content
@@ -792,7 +792,7 @@ export default function SettingsPage() {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  >
+                   width={20} height={20}>
                     <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
                     <path d="M22 4L12 14.01l-3-3" />
                   </svg>
@@ -853,7 +853,7 @@ export default function SettingsPage() {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                    >
+                     width={18} height={18}>
                       <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
                       <circle cx="9" cy="17" r="1" />
                       <circle cx="15" cy="17" r="1" />

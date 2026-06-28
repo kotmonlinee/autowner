@@ -48,7 +48,7 @@ export default function Pagination({
           className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-surface-2 text-text-secondary text-sm font-semibold font-heading rounded-xl border border-surface-border hover:bg-surface-3 hover:text-text-primary hover:border-surface-4 transition-all duration-150"
           aria-label="Load more posts"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
           Load more posts...

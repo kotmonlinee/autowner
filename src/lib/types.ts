@@ -226,6 +226,8 @@ export type ObdCode = {
   fix_repair_slugs: (string | null)[];
   min_cost: number | null;
   max_cost: number | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 };
 
 export interface DiagnosticCause {
@@ -276,6 +278,8 @@ export type RepairCostFull = {
   overallMax: number;
   overallAvg: number;
   confidence: string;
+  created_at?: string | null;
+  updated_at?: string | null;
 };
 
 // ── AI Diagnosis ─────────────────────────────────────────────
@@ -310,4 +314,5 @@ export type Diagnosis = {
   diagnosis_json: DiagnosisJson;
   view_count: number;
   created_at: string;
+  updated_at?: string | null;
 };

@@ -266,7 +266,7 @@ export default function VehicleSelector({
           className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
         >
           <span className="flex items-center justify-center gap-2">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
               <path d="M12 5v14M5 12h14" />
             </svg>
             Add Your Vehicle
@@ -302,7 +302,7 @@ export default function VehicleSelector({
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  >
+                   width={20} height={20}>
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
@@ -384,7 +384,7 @@ function SelectedVehicleCard({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-            >
+             width={20} height={20}>
               <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
               <circle cx="9" cy="17" r="1" />
               <circle cx="15" cy="17" r="1" />
@@ -456,7 +456,7 @@ function StepIndicator({
                 }`}
               >
                 {isDone ? (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-2 h-2">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-2 h-2" width={8} height={8}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
@@ -608,7 +608,7 @@ function StepSelector({
           selectedMake && (
             <div className="flex flex-wrap gap-1.5">
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium font-heading bg-primary/10 text-primary border border-primary/20">
-                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width={12} height={12}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 {selectedMake}
@@ -650,7 +650,7 @@ function StepSelector({
             /* Collapsed: show selected model */
             <div className="flex flex-wrap gap-1.5">
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium font-heading bg-primary/10 text-primary border border-primary/20">
-                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width={12} height={12}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 {selectedModel}
@@ -757,7 +757,7 @@ function StepHeader({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-          >
+           width={16} height={16}>
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>

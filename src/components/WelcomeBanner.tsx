@@ -29,7 +29,7 @@ export default function WelcomeBanner() {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-          >
+           width={24} height={24}>
             <path d="M5 17h14v2H5zM6 10l3-3 3 3 3-3 3 3v5H3v-5l3-3z" />
             <circle cx="9" cy="17" r="1" />
             <circle cx="15" cy="17" r="1" />

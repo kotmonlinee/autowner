@@ -86,7 +86,7 @@ export default function SmartSearchBar() {
     <div ref={containerRef} className="relative mt-6 sm:mt-10 max-w-2xl mx-auto">
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3" role="search">
         <div className="relative flex-1">
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" width={20} height={20}>
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input

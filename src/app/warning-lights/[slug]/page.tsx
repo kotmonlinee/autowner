@@ -10,18 +10,15 @@ import WarningLightIcon from "@/components/WarningLightIcon";
 import { getRelatedRepairs, TOP_REPAIRS } from "@/lib/internal-linking";
 import { getRepairImageUrl } from "@/lib/repair-images";
 import { createServiceSupabase } from "@/lib/supabase-server";
-import {
-  warningLights,
-  getWarningLightBySlug,
-  type WarningLight,
-  type WarningLightSeverity,
-} from "@/lib/warning-lights-data";
+import { type WarningLightSeverity } from "@/lib/warning-lights-data";
+import { getWarningLightBySlug, getAllWarningLights, type WarningLightRow } from "@/lib/data/server";
 
-export function generateStaticParams() {
-  return warningLights.map((w) => ({ slug: w.slug }));
+export async function generateStaticParams() {
+  const lights = await getAllWarningLights();
+  return lights.map((w) => ({ slug: w.slug }));
 }
 
-function generateWarningLightTitle(light: WarningLight): string {
+function generateWarningLightTitle(light: WarningLightRow): string {
   const t = light.title;
   if (t.includes("Check Engine")) return "Check Engine Light On? Can You Still Drive?";
   if (t.includes("Oil Pressure")) return "Oil Pressure Warning: Stop Driving Immediately";
@@ -34,14 +31,14 @@ function generateWarningLightTitle(light: WarningLight): string {
   return `${t}: Symptoms, Causes & Repair Cost`;
 }
 
-function generateWarningLightDescription(light: WarningLight): string {
+function generateWarningLightDescription(light: WarningLightRow): string {
   const desc = `Is your ${light.title} on? Learn what it means, common causes, repair costs, and whether it's safe to keep driving.`;
   return desc.length <= 160 ? desc : desc.substring(0, 160);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const light = getWarningLightBySlug(slug);
+  const light = await getWarningLightBySlug(slug);
   if (!light) return { title: "Warning Light Not Found" };
   const seoTitle = generateWarningLightTitle(light);
   const seoDescription = generateWarningLightDescription(light);
@@ -65,7 +62,7 @@ function formatCurrency(value: number): string {
 
 export default async function WarningLightDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const light = getWarningLightBySlug(slug);
+  const light = await getWarningLightBySlug(slug);
   if (!light) notFound();
 
   const sev = SEVERITY_CONFIG[light.severity];
@@ -91,7 +88,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
   ];
 
   const faqJsonLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqItems.map((item) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })) };
-  const articleJsonLd = { "@context": "https://schema.org", "@type": "Article", headline: light.title, description: light.meaning.substring(0, 160), datePublished: new Date().toISOString(), publisher: { "@type": "Organization", name: "AutOwner" } };
+  const articleJsonLd = { "@context": "https://schema.org", "@type": "Article", headline: light.title, description: light.meaning.substring(0, 160), datePublished: light.created_at, dateModified: light.updated_at || light.created_at, publisher: { "@type": "Organization", name: "AutOwner" } };
   const breadcrumbJsonLd = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: "https://www.autowner.com/" }, { "@type": "ListItem", position: 2, name: "Warning Lights", item: "https://www.autowner.com/warning-lights" }, { "@type": "ListItem", position: 3, name: light.title }] };
 
   return (
@@ -157,7 +154,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
             <p className="text-xs text-text-muted">Estimate varies by vehicle make, model, year, and shop labor rates. Always get multiple quotes.</p>
             <Link href="/repair-cost" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
               See all repair cost estimates
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
           </div>
         </div>
@@ -172,7 +169,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
                   <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code.toUpperCase()}</span>
                   <span className="h-4 w-px bg-surface-border shrink-0" />
                   <span className="text-xs text-text-secondary truncate flex-1 min-w-0">{obd.title}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               ))}
             </div>
@@ -191,7 +188,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
                     {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />}
                   </div>
                   <span className="text-sm font-medium text-text-primary font-heading truncate flex-1 min-w-0">{repair.name}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
               );
             })}
@@ -206,7 +203,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
               <details key={i} className="group bg-surface-1 rounded-xl border border-surface-border">
                 <summary className="flex items-center justify-between px-5 py-3.5 cursor-pointer text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors">
                   {item.question}
-                  <svg className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
+                  <svg className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}><polyline points="6 9 12 15 18 9" /></svg>
                 </summary>
                 <p className="px-5 pb-4 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
               </details>
@@ -216,7 +213,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
 
         {/* ── Back ── */}
         <Link href="/warning-lights" className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
           Back to all warning lights
         </Link>
         <PageFeedback />

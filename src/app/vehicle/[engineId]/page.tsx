@@ -141,7 +141,7 @@ export default async function VehiclePage({
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
-                    >
+                     width={12} height={12}>
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -242,7 +242,7 @@ export default async function VehiclePage({
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  >
+                   width={16} height={16}>
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
@@ -305,7 +305,7 @@ export default async function VehiclePage({
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  >
+                   width={20} height={20}>
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
                     <line x1="16" y1="13" x2="8" y2="13" />
@@ -329,7 +329,7 @@ export default async function VehiclePage({
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                    >
+                     width={48} height={48}>
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                       <polyline points="14 2 14 8 20 8" />
                     </svg>
@@ -352,7 +352,7 @@ export default async function VehiclePage({
                         strokeWidth="2.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                      >
+                       width={16} height={16}>
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
                       </svg>
@@ -380,7 +380,7 @@ export default async function VehiclePage({
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                    >
+                     width={20} height={20}>
                       <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                     </svg>
                     Popular Discussions
@@ -408,7 +408,7 @@ export default async function VehiclePage({
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  >
+                   width={16} height={16}>
                     <circle cx="12" cy="12" r="10" />
                     <line x1="12" y1="16" x2="12" y2="12" />
                     <line x1="12" y1="8" x2="12.01" y2="8" />
@@ -487,7 +487,7 @@ export default async function VehiclePage({
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  >
+                   width={20} height={20}>
                     <circle cx="12" cy="12" r="10" />
                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                     <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -512,7 +512,7 @@ export default async function VehiclePage({
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  >
+                   width={16} height={16}>
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
                   </svg>

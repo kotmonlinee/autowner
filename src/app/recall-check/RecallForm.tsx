@@ -151,7 +151,7 @@ export default function RecallForm() {
           {recalls.length === 0 ? (
             <div className="text-center py-16 bg-surface-1 rounded-2xl border border-surface-border">
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-severity-info-bg border border-severity-info-border flex items-center justify-center">
-                <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={32} height={32}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>

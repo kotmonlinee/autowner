@@ -34,7 +34,7 @@ export default function PostError({
               strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
-            >
+             width={96} height={96}>
               <line x1="18" y1="82" x2="52" y2="48" />
               <circle cx="70" cy="30" r="20" />
               <circle cx="70" cy="30" r="10" strokeWidth="2.5" />
@@ -66,7 +66,7 @@ export default function PostError({
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-              >
+               width={16} height={16}>
                 <path d="M1 4v6h6M23 20v-6h-6" />
                 <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
               </svg>

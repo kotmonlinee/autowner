@@ -149,7 +149,7 @@ export default function ImageUploader({ onChange }: ImageUploaderProps) {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
-              >
+               width={32} height={32}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -169,7 +169,7 @@ export default function ImageUploader({ onChange }: ImageUploaderProps) {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
-              >
+               width={32} height={32}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"

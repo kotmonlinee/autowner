@@ -128,7 +128,7 @@ export function FollowVehicleButton({
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-        >
+         width={16} height={16}>
           {userId ? (
             <polyline points="20 6 9 17 4 12" />
           ) : (
@@ -157,7 +157,7 @@ export function FollowVehicleButton({
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-      >
+       width={16} height={16}>
         <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
         <line x1="12" y1="3" x2="12" y2="8" />
       </svg>

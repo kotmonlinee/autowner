@@ -1,6 +1,5 @@
-import { getAllRepairSlugs, getTopObdCodes, getVehicleRepairSlugs } from "@/lib/data/server";
+import { getAllRepairSlugs, getTopObdCodes, getVehicleRepairSlugs, getAllWarningLights } from "@/lib/data/server";
 import { createServiceSupabase } from "@/lib/supabase-server";
-import { warningLights } from "@/lib/warning-lights-data";
 
 export const revalidate = 3600;
 
@@ -36,7 +35,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     urls.push(urlEntry(`${baseUrl}/symptoms`, now, "weekly", 0.8));
     urls.push(urlEntry(`${baseUrl}/obd/severity-levels`, now, "weekly", 0.6));
     urls.push(urlEntry(`${baseUrl}/repair-cost/diy-levels`, now, "weekly", 0.6));
-    for (const l of warningLights) {
+    for (const l of (await getAllWarningLights())) {
       urls.push(urlEntry(`${baseUrl}/warning-lights/${l.slug}`, now, "weekly", 0.7));
     }
   }

@@ -33,7 +33,7 @@ export default function NotFound() {
     <div className="min-h-screen bg-surface-0 flex items-center justify-center">
       <div className="max-w-lg mx-auto px-5 py-24 text-center">
         <div className="mb-8 flex items-center justify-center">
-          <svg className="w-32 h-32 sm:w-40 sm:h-40 text-surface-3" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-32 h-32 sm:w-40 sm:h-40 text-surface-3" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width={128} height={128}>
             <line x1="18" y1="82" x2="52" y2="48" />
             <circle cx="70" cy="30" r="20" />
             <circle cx="70" cy="30" r="10" strokeWidth="2.5" />
@@ -52,7 +52,7 @@ export default function NotFound() {
 
         <form onSubmit={handleSearch} className="max-w-sm mx-auto mb-8" role="search">
           <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" width={16} height={16}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input type="search" value={query} onChange={(e) => setQuery(e.target.value)}
@@ -70,7 +70,7 @@ export default function NotFound() {
         </div>
 
         <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20">
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
             <path d="M5 12h14M12 5l-7 7 7 7" />
           </svg>
           Back to Homepage

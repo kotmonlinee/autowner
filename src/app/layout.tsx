@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/react";
 import { russoOne, outfit, manrope } from "@/lib/fonts";
@@ -55,10 +55,23 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0b0f" },
+  ],
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.clarity.ms" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"Organization","name":"AutOwner","url":"https://www.autowner.com","logo":"https://www.autowner.com/logo.svg"}) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"WebSite","url":"https://www.autowner.com","potentialAction":{"@type":"SearchAction","target":"https://www.autowner.com/search?q={search_term_string}","query-input":"required name=search_term_string"}}) }} />
         {/* Critical inline styles — prevent FOUC when CSS chunk is delayed */}
         <style dangerouslySetInnerHTML={{ __html: `
           html,body{margin:0;padding:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}

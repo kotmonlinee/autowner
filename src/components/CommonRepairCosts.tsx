@@ -50,7 +50,7 @@ export default async function CommonRepairCosts() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                >
+                 width={20} height={20}>
                   <line x1="12" y1="1" x2="12" y2="23" />
                   <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
@@ -82,7 +82,7 @@ export default async function CommonRepairCosts() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                >
+                 width={12} height={12}>
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
@@ -105,7 +105,7 @@ export default async function CommonRepairCosts() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-            >
+             width={16} height={16}>
               <line x1="5" y1="12" x2="19" y2="12" />
               <polyline points="12 5 19 12 12 19" />
             </svg>

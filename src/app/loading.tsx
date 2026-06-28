@@ -15,7 +15,7 @@ export default function RootLoading() {
           <span style={{ fontSize: 14, fontWeight: 500 }}>Loading...</span>
         </div>
       </main>
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}@media(prefers-color-scheme:dark){body{background:#0a0b0f;color:#f0f1f3}}`}</style>
     </div>
   );
 }

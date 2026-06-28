@@ -6,6 +6,8 @@ import Footer from "@/components/Footer";
 import PageFeedback from "@/components/PageFeedback";
 import RecallForm from "./RecallForm";
 
+export const revalidate = 86400;
+
 export const metadata: Metadata = {
   title: "Vehicle Safety Recall Check — Free NHTSA Lookup",
   description:
@@ -31,7 +33,7 @@ export default function RecallCheckPage() {
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary">Recall Check</span>
         </nav>
         <div className="mb-8">
@@ -74,7 +76,7 @@ export default function RecallCheckPage() {
                   <img src={`/vehicles/${v.makeSlug}-${v.modelSlug}.jpg`} alt={`${v.make} ${v.model}`} className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <span className="text-sm font-medium text-text-secondary group-hover:text-primary transition-colors font-heading truncate">{v.make} {v.model} ({v.year})</span>
-                <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
               </Link>
             ))}
           </div>
@@ -94,7 +96,7 @@ export default function RecallCheckPage() {
             ].map((faq, i) => (
               <details key={i} className="group bg-surface-1 rounded-xl border border-surface-border">
                 <summary className="flex items-center gap-2 cursor-pointer list-none p-4 font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
-                  <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+                  <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}><polyline points="9 18 15 12 9 6" /></svg>
                   {faq.q}
                 </summary>
                 <p className="px-4 pb-4 ml-6 text-sm text-text-secondary leading-relaxed">{faq.a}</p>

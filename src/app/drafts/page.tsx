@@ -46,7 +46,7 @@ export default async function DraftsPage() {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-              >
+               width={40} height={40}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -65,7 +65,7 @@ export default async function DraftsPage() {
               href="/submit"
               className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
                 <path d="M12 5v14M5 12h14" />
               </svg>
               Start Writing
@@ -103,7 +103,7 @@ export default async function DraftsPage() {
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
-                    >
+                     width={16} height={16}>
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
