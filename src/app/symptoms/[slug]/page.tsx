@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import PageFeedback from "@/components/PageFeedback";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { formatMoney } from "@/lib/constants";
-export const revalidate = 86400;
+export const revalidate = 604800;
 
 export async function generateStaticParams() {
   const supabase = await createServiceSupabase();

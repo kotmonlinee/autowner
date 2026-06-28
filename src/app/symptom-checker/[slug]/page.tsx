@@ -13,7 +13,7 @@ import { getRepairImageUrl } from "@/lib/repair-images";
 import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash, ListChecks } from "lucide-react";
 
-export const revalidate = 86400;
+export const revalidate = 604800;
 
 export async function generateStaticParams() {
   const supabase = await createServiceSupabase();

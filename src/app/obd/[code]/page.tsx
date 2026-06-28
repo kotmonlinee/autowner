@@ -10,7 +10,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServiceSupabase } from "@/lib/supabase-server";
 
-export const revalidate = 86400;
+export const revalidate = 604800;
 
 export async function generateStaticParams() {
   const supabase = await createServiceSupabase();

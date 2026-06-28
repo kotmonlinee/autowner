@@ -13,7 +13,7 @@ import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { MAKE_TIER } from "@/lib/constants";
 
-export const revalidate = 86400;
+export const revalidate = 604800;
 
 export async function generateStaticParams() {
   const supabase = await createServiceSupabase();
