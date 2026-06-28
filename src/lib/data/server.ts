@@ -1608,7 +1608,7 @@ function parseJsonArray(val: unknown): string[] {
 }
 
 export async function getRelatedObdCodes(code: string, limit = 5): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const normalized = code.toUpperCase().trim();
 
   // Determine prefix for related codes:
