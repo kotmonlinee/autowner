@@ -17,6 +17,7 @@ export async function generateStaticParams() {
   const { data } = await supabase
     .from("obd_codes")
     .select("code")
+    .order("severity", { ascending: false })
     .limit(200);
   return ((data ?? []) as { code: string }[]).map((c) => ({ code: c.code.toLowerCase() }));
 }

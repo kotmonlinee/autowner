@@ -20,7 +20,8 @@ export async function generateStaticParams() {
   const { data } = await supabase
     .from("diagnoses")
     .select("slug")
-    .limit(50);
+    .order("view_count", { ascending: false })
+    .limit(200);
   return ((data ?? []) as { slug: string }[]).map((d) => ({ slug: d.slug }));
 }
 
