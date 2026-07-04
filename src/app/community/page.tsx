@@ -5,11 +5,19 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Community",
-  description: "Join the AutOwner community. See active discussions and trending vehicles.",
-  alternates: { canonical: "https://www.autowner.com/community" },
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+  const { q } = await searchParams;
+  return {
+    title: q ? `Community: ${q}` : "Community",
+    description: "Join the AutOwner community. See active discussions and trending vehicles.",
+    alternates: { canonical: "https://www.autowner.com/community" },
+    robots: { index: false, follow: true },
+  };
+}
 
 const PAGE_SIZE = 8;
 

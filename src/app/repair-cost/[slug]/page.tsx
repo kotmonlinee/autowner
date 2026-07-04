@@ -61,9 +61,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const repair = await getRepairCosts(repairSlug);
   if (!repair) return { title: "Repair Cost Not Found" };
 
-  const canonical = parsed
-    ? `https://www.autowner.com/repair-cost/${slug}`
-    : `https://www.autowner.com/repair-cost/${slug}`;
+  const canonical = `https://www.autowner.com/repair-cost/${slug}`;
 
   if (parsed) {
     const supabase = await createServiceSupabase();

@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   description:
     "AutOwner's privacy policy. Learn what data we collect, how we use it, and your rights.",
   alternates: { canonical: "https://www.autowner.com/privacy" },
+  robots: { index: false, follow: true },
   openGraph: {
     title: "Privacy Policy",
     description: "Learn what data we collect, how we use it, and your rights.",

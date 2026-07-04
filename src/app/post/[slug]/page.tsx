@@ -121,6 +121,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     alternates: {
       canonical: `https://www.autowner.com/post/${canonicalSlug}`,
     },
+    robots: { index: false, follow: true },
     openGraph: {
       title: post.title,
       description,

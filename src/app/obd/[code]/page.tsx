@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getObdCode, getRelatedObdCodes, getObdDiagnosticSteps } from "@/lib/data/server";
+import { getObdCode, getRelatedObdCodes, getObdDiagnosticSteps, getVehicleRepairSlugs } from "@/lib/data/server";
 import { getRelatedRepairs } from "@/lib/internal-linking";
 import { getRepairImageUrl } from "@/lib/repair-images";
 import Navbar from "@/components/Navbar";
@@ -179,12 +179,13 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
 export default async function ObdCodePage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
 
-  const [obd, relatedCodes, diagnosticCauses, relatedDiagnoses, validRepairSlugs] = await Promise.all([
+  const [obd, relatedCodes, diagnosticCauses, relatedDiagnoses, validRepairSlugs, popularVehicles] = await Promise.all([
     getObdCode(code),
     getRelatedObdCodes(code, 5),
     getObdDiagnosticSteps(code),
     fetchRelatedDiagnoses(code),
     fetchValidRepairSlugs(),
+    getVehicleRepairSlugs(10),
   ]);
 
   if (!obd) notFound();
@@ -650,6 +651,25 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                   </summary>
                   <p className="mt-2 ml-6 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
                 </details>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {popularVehicles.length > 0 && (
+          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
+            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
+              {obd.code} on Popular Vehicles
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {popularVehicles.slice(0, 9).map((v) => (
+                <Link
+                  key={`${v.makeSlug}-${v.modelSlug}`}
+                  href={`/obd/${code}/${v.makeSlug}/${v.modelSlug}`}
+                  className="text-xs text-text-secondary hover:text-primary transition-colors truncate"
+                >
+                  {v.makeName} {v.modelName}
+                </Link>
               ))}
             </div>
           </div>

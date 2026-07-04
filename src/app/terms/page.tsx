@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   description:
     "AutOwner's terms of service. Understand your rights, disclaimers, and limitations of liability.",
   alternates: { canonical: "https://www.autowner.com/terms" },
+  robots: { index: false, follow: true },
   openGraph: {
     title: "Terms of Service",
     description: "Understand your rights, disclaimers, and limitations of liability.",

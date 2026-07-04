@@ -4,10 +4,26 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
 
-export const metadata: Metadata = {
-  title: "Search",
-  description: "Search OBD codes, repairs, diagnoses, and warning lights.",
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+  const { q } = await searchParams;
+  if (q?.trim()) {
+    return {
+      title: `Search: ${q.trim()}`,
+      description: `Search results for "${q.trim()}" — OBD codes, repairs, diagnoses, and warning lights.`,
+      robots: { index: false, follow: true },
+      alternates: { canonical: "https://www.autowner.com/search" },
+    };
+  }
+  return {
+    title: "Search",
+    description: "Search OBD codes, repairs, diagnoses, and warning lights.",
+    alternates: { canonical: "https://www.autowner.com/search" },
+  };
+}
 
 const WARNING_LIGHTS = [
   { slug: "check-engine", title: "Check Engine Light (MIL)" },

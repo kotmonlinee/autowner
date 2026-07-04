@@ -8,6 +8,15 @@ const footerLinks = [
   { label: "Terms", href: "/terms" },
 ];
 
+const toolLinks = [
+  { label: "Repair Costs", href: "/repair-cost" },
+  { label: "OBD Codes", href: "/obd" },
+  { label: "Symptoms", href: "/symptoms" },
+  { label: "Warning Lights", href: "/warning-lights" },
+  { label: "Vehicles", href: "/vehicles" },
+  { label: "DIY Guides", href: "/repair-cost/diy-levels" },
+];
+
 export default function Footer() {
   return (
     <footer className="border-t border-surface-border bg-surface-1" role="contentinfo">
@@ -42,6 +51,19 @@ export default function Footer() {
           {/* Links */}
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             {footerLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm text-text-muted hover:text-text-secondary transition-colors font-heading font-medium"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Tool Links */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {toolLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
