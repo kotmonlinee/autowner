@@ -11,7 +11,7 @@ export const revalidate = 604800;
 
 export async function generateStaticParams() {
   const supabase = await createServiceSupabase();
-  const { data } = await supabase.from("symptoms").select("slug").limit(200);
+  const { data } = await supabase.from("symptoms").select("slug").limit(500);
   return ((data ?? []) as { slug: string }[]).map((s) => ({ slug: s.slug }));
 }
 

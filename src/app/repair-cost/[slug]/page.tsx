@@ -16,7 +16,7 @@ export const revalidate = 604800;
 
 export async function generateStaticParams() {
   const slugs = await getAllRepairSlugs();
-  return slugs.slice(0, 200).map((s: string) => ({ slug: s }));
+  return slugs.slice(0, 500).map((s: string) => ({ slug: s }));
 }
 
 // ── Tier display order ──────────────────────────────────

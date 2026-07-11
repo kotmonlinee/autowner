@@ -18,7 +18,7 @@ export async function generateStaticParams() {
     .from("obd_codes")
     .select("code")
     .order("severity", { ascending: false })
-    .limit(200);
+    .limit(500);
   return ((data ?? []) as { code: string }[]).map((c) => ({ code: c.code.toLowerCase() }));
 }
 

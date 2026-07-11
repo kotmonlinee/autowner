@@ -21,7 +21,7 @@ export async function generateStaticParams() {
     .from("diagnoses")
     .select("slug")
     .order("view_count", { ascending: false })
-    .limit(200);
+    .limit(500);
   return ((data ?? []) as { slug: string }[]).map((d) => ({ slug: d.slug }));
 }
 
