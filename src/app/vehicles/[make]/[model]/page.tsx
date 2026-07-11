@@ -18,7 +18,7 @@ export const revalidate = 604800;
 export async function generateStaticParams() {
   const supabase = await createServiceSupabase();
   const { data } = await supabase.from("vehicle_models").select("slug, vehicle_makes!inner(slug)")
-    .limit(100);
+    .limit(500);
   return ((data ?? []) as any[]).map((m) => ({ make: m.vehicle_makes.slug, model: m.slug }));
 }
 
