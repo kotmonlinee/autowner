@@ -143,7 +143,7 @@ export default async function SearchPage({
             <div className="flex justify-center gap-3 mt-4">
               <Link href="/obd" className="text-sm font-semibold text-primary hover:text-primary-glow font-heading">OBD Codes</Link>
               <Link href="/repair-cost" className="text-sm font-semibold text-primary hover:text-primary-glow font-heading">Repair Costs</Link>
-              <Link href="/symptom-checker" className="text-sm font-semibold text-primary hover:text-primary-glow font-heading">AI Diagnosis</Link>
+              <Link href="/symptom-checker" className="text-sm font-semibold text-primary hover:text-primary-glow font-heading">Symptom Checker</Link>
             </div>
           </div>
         ) : (

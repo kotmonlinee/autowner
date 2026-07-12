@@ -20,10 +20,6 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   // ── id=0: Static + Tools + Warning Lights ─────────────────
   if (id === "0") {
     urls.push(urlEntry(baseUrl, now, "hourly", 1.0));
-    urls.push(urlEntry(`${baseUrl}/about`, now, "weekly", 0.4));
-    urls.push(urlEntry(`${baseUrl}/privacy`, now, "weekly", 0.1));
-    urls.push(urlEntry(`${baseUrl}/terms`, now, "weekly", 0.1));
-    urls.push(urlEntry(`${baseUrl}/contact`, now, "weekly", 0.4));
     urls.push(urlEntry(`${baseUrl}/search`, now, "weekly", 0.4));
     urls.push(urlEntry(`${baseUrl}/repair-cost`, now, "weekly", 0.9));
     urls.push(urlEntry(`${baseUrl}/obd`, now, "weekly", 0.8));
@@ -50,9 +46,6 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       urls.push(urlEntry(`${baseUrl}/repair-cost/${s}`, now, "weekly", 0.7));
     }
     for (const vm of vehicleModels) {
-      for (const s of repairSlugs) {
-        urls.push(urlEntry(`${baseUrl}/repair-cost/${s}-${vm.makeSlug}-${vm.modelSlug}`, now, "weekly", 0.65));
-      }
       urls.push(urlEntry(`${baseUrl}/vehicles/${vm.makeSlug}/${vm.modelSlug}`, now, "weekly", 0.7));
     }
   }
@@ -60,14 +53,6 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   // ── id=2: OBD codes + OBD×Vehicle ─────────────────────────
   if (id === "2") {
     const topObdCodes = await getTopObdCodes(15000);
-    const vehicleModels = await getVehicleRepairSlugs(20);
-
-    const standardCodes = topObdCodes.filter((c) => /^[PCBU]\d{4}$/i.test(c.code)).slice(0, 50);
-    for (const c of standardCodes) {
-      for (const vm of vehicleModels) {
-        urls.push(urlEntry(`${baseUrl}/obd/${c.code.toLowerCase()}/${vm.makeSlug}/${vm.modelSlug}`, now, "weekly", 0.6));
-      }
-    }
     for (const c of topObdCodes) {
       const code = c.code;
       if (!/^[A-Z0-9]+$/i.test(code)) continue;

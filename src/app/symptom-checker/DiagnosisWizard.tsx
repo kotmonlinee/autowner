@@ -271,7 +271,7 @@ export default function DiagnosisWizard({ prefilledSymptom }: { prefilledSymptom
 
           <button onClick={handleDiagnose} disabled={loading}
             className="w-full sm:w-auto px-8 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow transition-all duration-150 disabled:opacity-50 font-heading shadow-sm shadow-primary/20 flex items-center gap-2 justify-center">
-            {loading ? <><span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"/>Analyzing with AI...</> : <><Sparkles className="w-4 h-4"/>Diagnose with AI</>}
+            {loading ? <><span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"/>Checking...</> : <><Sparkles className="w-4 h-4"/>Check Symptoms</>}
           </button>
           {error && <p className="text-xs text-red-400 mt-3">{error}</p>}
         </div>

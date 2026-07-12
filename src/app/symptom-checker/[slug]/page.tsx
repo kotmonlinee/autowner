@@ -15,16 +15,6 @@ import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSig
 
 export const revalidate = 604800;
 
-export async function generateStaticParams() {
-  const supabase = await createServiceSupabase();
-  const { data } = await supabase
-    .from("diagnoses")
-    .select("slug")
-    .order("view_count", { ascending: false })
-    .limit(500);
-  return ((data ?? []) as { slug: string }[]).map((d) => ({ slug: d.slug }));
-}
-
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
   critical: { bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", label: "Critical — Stop Driving", icon: <AlertTriangle className="w-6 h-6" /> },
   high: { bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-orange-700 dark:text-orange-400", border: "border-orange-200 dark:border-orange-800", label: "Serious — Inspect Soon", icon: <AlertTriangle className="w-6 h-6" /> },
@@ -64,7 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!diagnosis) return { title: "Diagnosis Not Found" };
   const d = diagnosis.diagnosis_json;
   return {
-    title: `${d.title} | AutOwner AI Diagnosis`,
+    title: `${d.title} | AutOwner Symptom Checker`,
     description: d.summary,
     alternates: { canonical: `https://www.autowner.com/symptom-checker/${slug}` },
     openGraph: { title: d.title, description: d.summary, type: "article" },
@@ -183,13 +173,13 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: d.title, description: d.summary, datePublished: diagnosis.created_at, dateModified: diagnosis.updated_at || diagnosis.created_at, publisher: { "@type": "Organization", name: "AutOwner" } }) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: "https://www.autowner.com/" }, { "@type": "ListItem", position: 2, name: "AI Diagnosis", item: "https://www.autowner.com/symptom-checker" }, { "@type": "ListItem", position: 3, name: d.title }] }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: "https://www.autowner.com/" }, { "@type": "ListItem", position: 2, name: "Symptom Checker", item: "https://www.autowner.com/symptom-checker" }, { "@type": "ListItem", position: 3, name: d.title }] }) }} />
       {d.faq && d.faq.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: d.faq.map((item: any) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })) }) }} />}
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading whitespace-nowrap overflow-x-auto" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors shrink-0">Home</Link>
           <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <Link href="/symptom-checker" className="hover:text-primary transition-colors shrink-0">AI Diagnosis</Link>
+          <Link href="/symptom-checker" className="hover:text-primary transition-colors shrink-0">Symptom Checker</Link>
           <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary truncate">{d.title}</span>
         </nav>

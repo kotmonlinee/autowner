@@ -18,7 +18,7 @@ import AuthorBio from "@/components/AuthorBio";
 import ReadingProgress from "@/components/ReadingProgress";
 
 export const revalidate = 604800;
-import { FollowVehicleButton } from "@/app/vehicle/[engineId]/FollowVehicleButton";
+import { FollowVehicleButton } from "@/components/FollowVehicleButton";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 

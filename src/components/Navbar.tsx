@@ -93,7 +93,7 @@ export default function Navbar() {
               href="/symptom-checker"
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
-              AI Diagnosis
+              Symptom Checker
             </Link>
             <Link
               href="/repair-cost"
@@ -199,24 +199,21 @@ export default function Navbar() {
             onClick={() => setMenuOpen((prev) => !prev)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
-            className="lg:hidden ml-auto shrink-0 w-11 h-11 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-surface-2 transition-colors"
+            className="overflow-visible lg:!hidden ml-auto shrink-0 w-11 h-11 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-surface-2 transition-colors"
           >
-            {/* Top line */}
             <span
               className={`block w-5 h-0.5 bg-text-primary rounded-full transition-all duration-200 origin-center ${
-                menuOpen ? "translate-y-[4px] rotate-45" : ""
+                menuOpen ? "translate-y-1 rotate-45" : ""
               }`}
             />
-            {/* Middle line */}
             <span
               className={`block w-5 h-0.5 bg-text-primary rounded-full transition-all duration-200 ${
                 menuOpen ? "opacity-0 scale-x-0" : ""
               }`}
             />
-            {/* Bottom line */}
             <span
               className={`block w-5 h-0.5 bg-text-primary rounded-full transition-all duration-200 origin-center ${
-                menuOpen ? "-translate-y-[4px] -rotate-45" : ""
+                menuOpen ? "-translate-y-1 -rotate-45" : ""
               }`}
             />
           </button>
@@ -252,7 +249,7 @@ export default function Navbar() {
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
                   <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" /><path d="M18.259 12.715L18 13.5l-.259-.785a3 3 0 0 0-2.456-2.456L13.5 10l1.785-.259a3 3 0 0 0 2.456-2.456L18 5.5l.259 1.785a3 3 0 0 0 2.456 2.456L22.5 10l-1.785.259a3 3 0 0 0-2.456 2.456Z" />
                 </svg>
-                AI Diagnosis
+                Symptom Checker
               </Link>
               <Link
                 href="/repair-cost"

@@ -560,7 +560,7 @@ function QuoteCheckerContent() {
   const assessmentStyle = result ? ASSESSMENT_COLORS[result.assessment] : null;
 
   return (
-    <div>
+    <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
 
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
@@ -1213,7 +1213,7 @@ function QuoteCheckerContent() {
 
 function QuoteCheckerFallback() {
   return (
-    <div>
+    <div className="min-h-screen bg-surface-0 flex flex-col">
       <header className="h-14 border-b border-surface-border bg-surface-1/80 backdrop-blur-sm" />
       <main className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
         <div className="animate-pulse">

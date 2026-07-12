@@ -24,8 +24,8 @@ export const metadata: Metadata = {
 
 const tools = [
   {
-    title: "AI Diagnosis",
-    desc: "Tell us your symptoms. AI analyzes possible causes, OBD codes, and repair costs.",
+    title: "Symptom Checker",
+    desc: "Tell us your symptoms. We'll find the cause. Get possible OBD codes and repair estimates.",
     href: "/symptom-checker",
     accent: "bg-primary",
     icon: (
@@ -35,7 +35,7 @@ const tools = [
     ),
   },
   {
-    title: "Repair Cost Estimator",
+    title: "Repair Costs",
     desc: "Instant cost estimates for 55+ repairs across 5 vehicle tiers. See labor vs. parts breakdown.",
     href: "/repair-cost",
     accent: "bg-blue-500",
@@ -133,7 +133,7 @@ export default async function HomePage() {
                 </h2>
                 <p className="text-xs sm:text-sm text-text-muted leading-relaxed flex-1 line-clamp-2 sm:line-clamp-none">{tool.desc}</p>
                 <span className="inline-flex items-center gap-1.5 mt-3 sm:mt-4 text-xs sm:text-sm font-medium text-primary font-heading group-hover:gap-2 transition-all duration-200">
-                  {isPrimary ? "Diagnose Now" : "Get started"}
+                  {isPrimary ? "Check Symptoms" : "Get started"}
                   <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </span>
               </Link>

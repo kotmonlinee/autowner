@@ -7,13 +7,13 @@ import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import VehicleImage from "@/components/VehicleImage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { createServerSupabase } from "@/lib/supabase-server";
+import { createServiceSupabase } from "@/lib/supabase-server";
 import { MAKE_TIER, formatMoney } from "@/lib/constants";
 
 export const revalidate = 86400;
 
 async function getVehicleInfo(makeSlug: string, modelSlug: string) {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const { data: make } = await supabase.from("vehicle_makes").select("id, name, slug").eq("slug", makeSlug).single();
   if (!make) return null;
   const m = make as { id: string; name: string; slug: string };
@@ -23,7 +23,7 @@ async function getVehicleInfo(makeSlug: string, modelSlug: string) {
 }
 
 async function getRepairCostsFor(makeSlug: string, repairSlugs: string[]) {
-  const supabase = await createServerSupabase();
+  const supabase = await createServiceSupabase();
   const tier = MAKE_TIER[makeSlug] ?? "mid_range";
   const results: { name: string; slug: string; min: number; max: number }[] = [];
   for (const s of repairSlugs) {
