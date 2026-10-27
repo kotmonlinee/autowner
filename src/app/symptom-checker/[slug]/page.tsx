@@ -51,7 +51,7 @@ const getDiagnosisBySlug = cache(async (slug: string) => {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const diagnosis = await getDiagnosisBySlug(slug);
-  if (!diagnosis) return { title: "Diagnosis Not Found" };
+  if (!diagnosis) return { title: "Diagnosis Not Found", robots: { index: false, follow: false } };
   const d = diagnosis.diagnosis_json;
   return {
     title: `${d.title} | AutOwner Symptom Checker`,

@@ -39,7 +39,7 @@ function generateWarningLightDescription(light: WarningLightRow): string {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const light = await getWarningLightBySlug(slug);
-  if (!light) return { title: "Warning Light Not Found" };
+  if (!light) return { title: "Warning Light Not Found", robots: { index: false, follow: false } };
   const seoTitle = generateWarningLightTitle(light);
   const seoDescription = generateWarningLightDescription(light);
   return {

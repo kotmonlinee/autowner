@@ -40,13 +40,6 @@ export const metadata: Metadata = {
       "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification.",
     images: ["/logo.svg"],
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  alternates: {
-    canonical: "https://www.autowner.com",
-  },
   verification: {
     google: "ksNIR6fOTCzLYST4OAU_3cdoTqnRtV6dyD3_xTpBt-k",
   },

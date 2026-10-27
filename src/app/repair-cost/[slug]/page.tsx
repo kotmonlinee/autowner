@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const parsed = await parseRepairSlug(slug);
   const repairSlug = parsed?.repairSlug ?? slug;
   const repair = await getRepairCosts(repairSlug);
-  if (!repair) return { title: "Repair Cost Not Found" };
+  if (!repair) return { title: "Repair Cost Not Found", robots: { index: false, follow: false } };
 
   const canonical = `https://www.autowner.com/repair-cost/${slug}`;
 

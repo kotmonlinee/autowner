@@ -176,7 +176,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { make, model } = await params;
   const data = await getVehicleData(make, model);
-  if (!data) return { title: "Not Found" };
+  if (!data) return { title: "Not Found", robots: { index: false, follow: false } };
 
   const title = `${data.make.name} ${data.model.name} Repair Costs, OBD Codes & Common Problems`;
   const desc = `Complete guide to ${data.make.name} ${data.model.name} — repair costs for 50+ jobs, common OBD-II diagnostic codes, safety recalls, and engine specifications.`;

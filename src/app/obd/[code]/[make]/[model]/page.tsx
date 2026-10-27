@@ -44,7 +44,7 @@ export async function generateMetadata({
 }: { params: Promise<{ code: string; make: string; model: string }> }): Promise<Metadata> {
   const { code, make, model } = await params;
   const [obd, vehicle] = await Promise.all([getObdCode(code), getVehicleInfo(make, model)]);
-  if (!obd || !vehicle) return { title: "Not Found" };
+  if (!obd || !vehicle) return { title: "Not Found", robots: { index: false, follow: false } };
   const title = `${obd.code} on ${vehicle.make.name} ${vehicle.model.name} — Causes, Repair Cost & Can You Drive?`;
   const costText = obd.min_cost ? ` Repair costs typically ${formatMoney(obd.min_cost)}–${formatMoney(obd.max_cost ?? obd.min_cost)}.` : "";
   const desc = `${obd.code} on ${vehicle.make.name} ${vehicle.model.name}: ${obd.title}.${costText} Learn causes, symptoms, and whether it's safe to drive.`;

@@ -112,7 +112,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     post = await getPostByIdAny(slug);
   }
 
-  if (!post) return { title: "Post Not Found" };
+  if (!post) return { title: "Post Not Found", robots: { index: false, follow: false } };
   const description = extractDescription(post.body);
   const canonicalSlug = post.slug || post.id;
   return {

@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
   const { data } = await supabase.from("symptoms").select("name").eq("slug", slug).maybeSingle();
-  if (!data) return { title: "Symptom Not Found" };
+  if (!data) return { title: "Symptom Not Found", robots: { index: false, follow: false } };
   const s = data as any;
   return {
     title: `${s.name}: Causes, Repair Cost & Is It Safe To Drive?`,

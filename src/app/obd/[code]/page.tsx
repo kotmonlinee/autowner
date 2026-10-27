@@ -124,7 +124,7 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
   const { code } = await params;
   const obd = await getObdCode(code);
   if (!obd) {
-    return { title: "OBD Code Not Found" };
+    return { title: "OBD Code Not Found", robots: { index: false, follow: false } };
   }
 
   const title = `${obd.code} Code: Meaning, Repair Cost & Can You Still Drive?`;
