@@ -1683,18 +1683,30 @@ export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code
   return (prefix as unknown as Pick<ObdCode, "code" | "title" | "severity">[]);
 }
 
-export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
+export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" | "title" | "severity" | "updated_at">[]> {
   const supabase = await createServiceSupabase();
-  const allCodes: Pick<ObdCode, "code" | "title" | "severity">[] = [];
+  const allCodes: Pick<ObdCode, "code" | "title" | "severity" | "updated_at">[] = [];
 
-  for (let offset = 0; offset < limit; offset += 1000) {
-    const { data } = await supabase
-      .from("obd_codes")
-      .select("code, title, severity")
-      .order("code", { ascending: true })
-      .range(offset, offset + 999);
-    if (!data || data.length === 0) break;
-    allCodes.push(...(data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]));
+  const offsets: number[] = [];
+  for (let offset = 0; offset < limit; offset += 1000) offsets.push(offset);
+
+  // Fetch in parallel batches of 5 to avoid long sequential round trips
+  // (the sitemap requests up to 15,000 codes; 15 sequential queries can
+  // exceed the serverless function budget).
+  for (let i = 0; i < offsets.length; i += 5) {
+    const batch = await Promise.all(
+      offsets.slice(i, i + 5).map(async (offset) => {
+        const { data } = await supabase
+          .from("obd_codes")
+          .select("code, title, severity, updated_at")
+          .order("code", { ascending: true })
+          .range(offset, offset + 999);
+        return (data ?? []) as unknown as Pick<ObdCode, "code" | "title" | "severity" | "updated_at">[];
+      }),
+    );
+    for (const page of batch) allCodes.push(...page);
+    // Once a page comes back short, higher offsets are empty — stop early.
+    if (batch.some((page) => page.length < 1000)) break;
   }
 
   return allCodes.slice(0, limit);
@@ -1931,6 +1943,34 @@ export async function getAllRepairSlugs(): Promise<string[]> {
     slugs.add(row.repair_slug.replace(/_/g, "-"));
   }
   return Array.from(slugs).sort();
+}
+
+/**
+ * Distinct repair slugs with their latest update time, for sitemap lastmod.
+ * The same repair exists across multiple cost tiers, so we keep the newest
+ * updated_at per slug.
+ */
+export async function getAllRepairSlugsWithDates(): Promise<{ slug: string; lastmod: string | null }[]> {
+  const supabase = await createServiceSupabase();
+  const { data } = await supabase
+    .from("repair_costs")
+    .select("repair_slug, updated_at")
+    .limit(5000);
+
+  const seen = new Map<string, string | null>();
+  for (const row of (data ?? []) as unknown as { repair_slug: string; updated_at: string | null }[]) {
+    const slug = row.repair_slug.replace(/_/g, "-");
+    const current = seen.get(slug);
+    if (current === undefined) {
+      seen.set(slug, row.updated_at ?? null);
+    } else if (row.updated_at && (!current || row.updated_at > current)) {
+      seen.set(slug, row.updated_at);
+    }
+  }
+
+  return Array.from(seen, ([slug, lastmod]) => ({ slug, lastmod })).sort((a, b) =>
+    a.slug.localeCompare(b.slug),
+  );
 }
 
 function slugToKeywords(slug: string): string[] {
