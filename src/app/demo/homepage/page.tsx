@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Sparkles, Search, ChevronRight, Wrench, AlertTriangle } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Homepage Preview (Demo)",
+  robots: { index: false, follow: false },
+};
 
 export default function DemoHomepage() {
   return (

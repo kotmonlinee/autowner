@@ -20,8 +20,8 @@ export async function generateMetadata({
   const { slug } = await params;
   let post = await getPostBySlug(slug);
   if (!post && isUUID(slug)) post = await getPostByIdAny(slug);
-  if (!post) return { title: "Post Not Found" };
-  return { title: `Edit ${post.title}` };
+  if (!post) return { title: "Post Not Found", robots: { index: false, follow: false } };
+  return { title: `Edit ${post.title}`, robots: { index: false, follow: false } };
 }
 
 export default async function EditPostPage({

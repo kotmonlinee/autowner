@@ -11,6 +11,7 @@ import { timeAgo } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "My Drafts",
   description: "Your saved draft posts on AutOwner.",
+  robots: { index: false, follow: true },
 };
 
 export default async function DraftsPage() {

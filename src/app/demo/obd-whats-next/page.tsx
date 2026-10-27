@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Sparkles, DollarSign, ShieldAlert, AlertTriangle, ChevronRight } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "OBD What's Next (Demo)",
+  robots: { index: false, follow: false },
+};
 
 export default function DemoObdWhatsNext() {
   return (

@@ -10,6 +10,7 @@ import AnonymousBookmarks from "@/components/AnonymousBookmarks";
 export const metadata: Metadata = {
   title: "My Bookmarks",
   description: "Your saved posts on AutOwner.",
+  robots: { index: false, follow: true },
 };
 
 export default async function BookmarksPage() {

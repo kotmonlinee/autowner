@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/data/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Admin",
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();

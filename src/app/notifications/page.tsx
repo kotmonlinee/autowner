@@ -16,6 +16,7 @@ import { timeAgo } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Notifications",
   description: "View your notifications on AutOwner.",
+  robots: { index: false, follow: true },
 };
 
 function NotificationIcon({ type }: { type: string }) {
