@@ -8,13 +8,45 @@ import { createServiceSupabase } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Symptom Checker — Car Diagnostics",
-  description: "Tell us your symptoms. We'll find the cause. Get possible OBD codes, repair suggestions, and cost estimates.",
-  alternates: { canonical: "https://www.autowner.com/symptom-checker" },
-  openGraph: { title: "Symptom Checker — Car Diagnostics", description: "Describe your car's symptoms and get possible causes, OBD codes, and estimated repair costs.", type: "website" },
-  twitter: { card: "summary_large_image", title: "Symptom Checker — Car Diagnostics | AutOwner", description: "Describe your car's symptoms and get possible causes and estimated repair costs." },
-};
+const PAGE_TITLE = "Symptom Checker — Car Diagnostics";
+const PAGE_DESCRIPTION =
+  "Tell us your symptoms. We'll find the cause. Get possible OBD codes, repair suggestions, and cost estimates.";
+const OG_DESCRIPTION =
+  "Describe your car's symptoms and get possible causes, OBD codes, and estimated repair costs.";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; symptom?: string }>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const base = {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    openGraph: { title: PAGE_TITLE, description: OG_DESCRIPTION, type: "website" as const },
+    twitter: {
+      card: "summary_large_image" as const,
+      title: "Symptom Checker — Car Diagnostics | AutOwner",
+      description: "Describe your car's symptoms and get possible causes and estimated repair costs.",
+    },
+  };
+
+  // Prefilled links (?symptom=...) render the same page with form state, so they
+  // are not distinct landing pages and must not be indexed.
+  if (sp.symptom?.trim()) {
+    return { ...base, robots: { index: false, follow: true } };
+  }
+
+  // Paginated list pages have different content; give each its own canonical
+  // instead of collapsing thousands of them onto page 1.
+  const page = Math.max(1, parseInt(sp.page || "1", 10) || 1);
+  const canonical =
+    page > 1
+      ? `https://www.autowner.com/symptom-checker?page=${page}`
+      : "https://www.autowner.com/symptom-checker";
+
+  return { ...base, alternates: { canonical } };
+}
 
 const PAGE_SIZE = 6;
 

@@ -17,6 +17,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next(); // clean lowercase OBD — skip auth checks
   }
 
+  // Tool pages render identical content for every query string (share and
+  // prefill links such as /quote-checker?repair=... or /recall-check?make=...).
+  // Keep those variants out of the index without making the pages dynamic or
+  // sending them through the Supabase auth round trip.
+  if (
+    request.nextUrl.pathname === "/quote-checker" ||
+    request.nextUrl.pathname === "/recall-check"
+  ) {
+    const response = NextResponse.next({ request });
+    if ([...request.nextUrl.searchParams.keys()].length > 0) {
+      response.headers.set("X-Robots-Tag", "noindex, follow");
+    }
+    return response;
+  }
+
   try {
     const response = NextResponse.next({ request });
 
@@ -136,6 +151,9 @@ export const config = {
   matcher: [
     // OBD canonicalization only — no Supabase calls for crawlers.
     "/obd/:path*",
+    // Tool pages: query-string variants get X-Robots-Tag noindex.
+    "/quote-checker",
+    "/recall-check",
     // Auth-protected paths (everything else is public and skips middleware).
     "/submit/:path*",
     "/admin/:path*",
