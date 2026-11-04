@@ -31,9 +31,10 @@ export async function generateMetadata({
     },
   };
 
-  // Prefilled links (?symptom=...) render the same page with form state, so they
-  // are not distinct landing pages and must not be indexed.
-  if (sp.symptom?.trim()) {
+  // Any parameter other than pagination (prefilled ?symptom=, free-text ?q=,
+  // or future params) only drives client-side state, so those URLs are not
+  // distinct landing pages and must not be indexed.
+  if (Object.keys(sp).some((key) => key !== "page")) {
     return { ...base, robots: { index: false, follow: true } };
   }
 
