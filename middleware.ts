@@ -32,6 +32,22 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  // Legacy forum-style homepage filters (/?category=..., /?tag=...) are
+  // duplicate homepage variants: the homepage no longer reads those params, so
+  // every one of them pointed at the same canonical URL. Send them to the
+  // community filter instead, and keep the homepage off the auth path.
+  if (request.nextUrl.pathname === "/") {
+    if (
+      request.nextUrl.searchParams.has("category") ||
+      request.nextUrl.searchParams.has("tag")
+    ) {
+      const target = new URL("/community", request.url);
+      target.search = request.nextUrl.search;
+      return NextResponse.redirect(target, 301);
+    }
+    return NextResponse.next();
+  }
+
   try {
     const response = NextResponse.next({ request });
 
@@ -149,6 +165,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    // Legacy homepage filter redirects only — no Supabase calls.
+    "/",
     // OBD canonicalization only — no Supabase calls for crawlers.
     "/obd/:path*",
     // Tool pages: query-string variants get X-Robots-Tag noindex.

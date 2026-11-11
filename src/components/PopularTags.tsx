@@ -34,7 +34,7 @@ export default async function PopularTags() {
         {tags.map((tag) => (
           <Link
             key={tag.id}
-            href={`/?tag=${tag.slug}`}
+            href={`/community?tag=${tag.slug}`}
             className={`inline-flex items-center px-2.5 py-1 rounded-full transition-all duration-150 font-heading hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 ${getTagStyle(tag.post_count)}`}
             title={`${tag.post_count} post${tag.post_count === 1 ? "" : "s"}`}
           >

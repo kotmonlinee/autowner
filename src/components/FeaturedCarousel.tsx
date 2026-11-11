@@ -68,7 +68,7 @@ export default function FeaturedCarousel({
                   <div className="flex items-center gap-2 mb-3">
                     {post.categories && (
                       <Link
-                        href={`/?category=${post.categories.slug}`}
+                        href={`/community?category=${post.categories.slug}`}
                         className="inline-flex items-center gap-1 px-2 py-0.5 bg-surface-3 text-text-secondary rounded-full text-xs font-bold uppercase tracking-wider hover:bg-surface-4 hover:text-primary transition-colors font-heading"
                       >
                         <span className="w-1 h-1 rounded-full bg-primary" />

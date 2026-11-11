@@ -24,32 +24,42 @@ const PAGE_SIZE = 8;
 export default async function CommunityPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; category?: string; tag?: string }>;
 }) {
   const sp = await searchParams;
   const query = sp.q?.trim() || "";
+  const categorySlug = sp.category?.trim() || "";
+  const tagSlug = sp.tag?.trim() || "";
   const page = Math.max(1, parseInt(sp.page || "1", 10) || 1);
+  const hasScope = Boolean(categorySlug || tagSlug);
 
   const [postsResult, trendingVehicles] = await Promise.all([
     getPosts({
       sort: "new",
       search: query || undefined,
+      categorySlug: categorySlug || undefined,
+      tagSlug: tagSlug || undefined,
       limit: PAGE_SIZE,
       page,
     }),
-    query ? Promise.resolve([]) : getTrendingVehicles(6),
+    query || hasScope ? Promise.resolve([]) : getTrendingVehicles(6),
   ]);
 
-  // Count total posts separately for accurate pagination
-  const supabase = await createServiceSupabase();
-  let countQuery = supabase.from("posts").select("id", { count: "exact", head: true })
-    .eq("status", "approved")
-    .or("is_draft.is.null,is_draft.eq.false");
-  if (query) {
-    countQuery = countQuery.textSearch("search_vector", query, { config: "english" });
+  // Count total posts separately for accurate pagination. Category/tag scoped
+  // views are secondary surfaces, so the estimated count from getPosts is good
+  // enough and avoids re-running the tag join just to count.
+  let totalCount = postsResult.totalCount;
+  if (!hasScope) {
+    const supabase = await createServiceSupabase();
+    let countQuery = supabase.from("posts").select("id", { count: "exact", head: true })
+      .eq("status", "approved")
+      .or("is_draft.is.null,is_draft.eq.false");
+    if (query) {
+      countQuery = countQuery.textSearch("search_vector", query, { config: "english" });
+    }
+    const { count } = await countQuery;
+    totalCount = count ?? postsResult.posts.length;
   }
-  const { count } = await countQuery;
-  const totalCount = count ?? postsResult.posts.length;
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 

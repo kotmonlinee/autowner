@@ -74,7 +74,7 @@ export default async function Sidebar({ active }: { active?: string }) {
         {categories.map(cat => (
           <Link
             key={cat.id}
-            href={`/?category=${cat.slug}`}
+            href={`/community?category=${cat.slug}`}
             rel="nofollow"
             className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 font-heading ${
               active === cat.slug
