@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { MAKE_TIER, formatMoney } from "@/lib/constants";
 
-export const revalidate = 86400;
+export const revalidate = 604800;
 
 async function getVehicleInfo(makeSlug: string, modelSlug: string) {
   const supabase = await createServiceSupabase();

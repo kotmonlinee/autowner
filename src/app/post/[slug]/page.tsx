@@ -17,7 +17,7 @@ import ProductCard from "@/components/ProductCard";
 import AuthorBio from "@/components/AuthorBio";
 import ReadingProgress from "@/components/ReadingProgress";
 
-export const revalidate = 604800;
+export const revalidate = 1209600;
 import { FollowVehicleButton } from "@/components/FollowVehicleButton";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";

@@ -12,7 +12,7 @@ import PageFeedback from "@/components/PageFeedback";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export const revalidate = 604800;
+export const revalidate = 5184000;
 
 export async function generateStaticParams() {
   const slugs = await getAllRepairSlugs();

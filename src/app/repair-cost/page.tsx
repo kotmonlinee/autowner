@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import RepairSearchFilter from "@/components/RepairSearchFilter";
 import Link from "next/link";
 
-export const revalidate = 86400;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Repair Cost Estimator — Compare Prices by Vehicle Tier",
@@ -144,10 +144,17 @@ function formatCurrency(value: number): string {
 }
 
 export default async function RepairCostLandingPage() {
-  const allSlugs = await getAllRepairSlugs();
-  const categorySlugs = CATEGORIES.map((c) => ({ slug: c.slug, keywords: c.keywords }));
-  const categoryCounts = await getRepairCategoryCounts(categorySlugs);
-  const popularRepairs = await getPopularRepairCosts(10);
+  let allSlugs: string[] = [];
+  let categoryCounts: Record<string, number> = {};
+  let popularRepairs: Awaited<ReturnType<typeof getPopularRepairCosts>> = [];
+  try {
+    allSlugs = await getAllRepairSlugs();
+    const categorySlugs = CATEGORIES.map((c) => ({ slug: c.slug, keywords: c.keywords }));
+    categoryCounts = await getRepairCategoryCounts(categorySlugs);
+    popularRepairs = await getPopularRepairCosts(10);
+  } catch {
+    // Keep the build deployable while the database is unavailable.
+  }
 
   const totalRepairs = allSlugs.length;
 

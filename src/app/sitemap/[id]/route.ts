@@ -1,7 +1,7 @@
 import { getAllRepairSlugsWithDates, getTopObdCodes, getVehicleRepairSlugs, getAllWarningLights } from "@/lib/data/server";
 import { createServiceSupabase } from "@/lib/supabase-server";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 export const maxDuration = 60;
 
 function xmlEscape(s: string): string {
@@ -39,7 +39,7 @@ async function fetchDiagnosisBatches(
   startOffset: number,
   maxRows: number,
   batchSize = 1000,
-  concurrency = 5,
+  concurrency = 1,
 ): Promise<DiagnosisSitemapRow[]> {
   const offsets: number[] = [];
   for (let offset = startOffset; offset < startOffset + maxRows; offset += batchSize) {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getObdCode, getRelatedObdCodes, getObdDiagnosticSteps, getVehicleRepairSlugs } from "@/lib/data/server";
+import { unstable_cache } from "next/cache";
+import { getObdCode, getRelatedObdCodes, getObdDiagnosticSteps, getVehicleRepairSlugs, getValidRepairSlugs } from "@/lib/data/server";
 import { getRelatedRepairs } from "@/lib/internal-linking";
 import { getRepairImageUrl } from "@/lib/repair-images";
 import Navbar from "@/components/Navbar";
@@ -10,7 +11,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServiceSupabase } from "@/lib/supabase-server";
 
-export const revalidate = 604800;
+export const revalidate = 2592000;
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -76,49 +77,52 @@ function generateNaturalIntro(obd: { code: string; title: string; symptoms: stri
   return `${obd.code} indicates "${obd.title}". ${causeText} ${symptomText}`.trim();
 }
 
-async function fetchValidRepairSlugs(): Promise<Set<string>> {
-  try {
-    const supabase = await createServiceSupabase();
-    const { data } = await supabase.from("repair_costs").select("repair_slug").limit(5000);
-    const slugs = new Set<string>();
-    for (const r of (data ?? [])) slugs.add(r.repair_slug.replace(/_/g, "-"));
-    return slugs;
-  } catch { return new Set(); }
-}
-
-function incrementViewCount(code: string): void {
-  void createServiceSupabase().then(async (supabase) => {
+/**
+ * Related diagnoses used to select slug + diagnosis_json + view_count for every
+ * JSONB match before sorting. A popular code matches thousands of rows and each
+ * diagnosis_json is several KB, so a single render could materialise megabytes.
+ * Sort on the small columns only, pull titles from the lightweight
+ * diagnosis_summaries view afterwards, and cache the result per code.
+ */
+const fetchRelatedDiagnoses = unstable_cache(
+  async (code: string): Promise<{ slug: string; title: string; severity: string }[]> => {
     try {
-      const { data } = await supabase
-        .from("obd_codes")
-        .select("view_count")
-        .eq("code", code.toUpperCase().trim())
-        .single();
-      if (data) {
-        await supabase
-          .from("obd_codes")
-          .update({ view_count: (data.view_count || 0) + 1 })
-          .eq("code", code.toUpperCase().trim());
-      }
-    } catch { /* column may not exist yet */ }
-  });
-}
+      const supabase = await createServiceSupabase();
+      const { data } = await supabase.from("diagnoses")
+        .select("slug, view_count")
+        .contains("diagnosis_json", { possibleCodes: [code.toUpperCase()] })
+        .order("view_count", { ascending: false })
+        .limit(5);
 
-async function fetchRelatedDiagnoses(code: string): Promise<{ slug: string; title: string; severity: string }[]> {
-  try {
-    const supabase = await createServiceSupabase();
-    const { data } = await supabase.from("diagnoses")
-      .select("slug, diagnosis_json, view_count")
-      .contains("diagnosis_json", { possibleCodes: [code.toUpperCase()] })
-      .order("view_count", { ascending: false })
-      .limit(5);
-    return ((data ?? []) as any[]).map((d) => ({
-      slug: d.slug,
-      title: d.diagnosis_json?.title ?? "Car Diagnosis",
-      severity: d.diagnosis_json?.severity ?? "medium",
-    }));
-  } catch { return []; }
-}
+      const rows = (data ?? []) as { slug: string }[];
+      if (rows.length === 0) return [];
+      const slugs = rows.map((row) => row.slug);
+
+      // Only five rows are needed, so pulling diagnosis_json here is cheap;
+      // the expensive part was projecting it for every JSONB match above.
+      const { data: summaries } = await supabase
+        .from("diagnoses")
+        .select("slug, diagnosis_json")
+        .in("slug", slugs);
+
+      const bySlug = new Map(
+        ((summaries ?? []) as { slug: string; diagnosis_json: { title?: string; severity?: string } | null }[])
+          .map((s) => [s.slug, s]),
+      );
+
+      return slugs.map((slug) => {
+        const summary = bySlug.get(slug);
+        return {
+          slug,
+          title: summary?.diagnosis_json?.title ?? "Car Diagnosis",
+          severity: summary?.diagnosis_json?.severity ?? "medium",
+        };
+      });
+    } catch { return []; }
+  },
+  ["related-diagnoses"],
+  { revalidate: 86400 },
+);
 
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
   const { code } = await params;
@@ -169,19 +173,18 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
 export default async function ObdCodePage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
 
-  const [obd, relatedCodes, diagnosticCauses, relatedDiagnoses, validRepairSlugs, popularVehicles] = await Promise.all([
+  const [obd, relatedCodes, diagnosticCauses, relatedDiagnoses, validRepairSlugList, popularVehicles] = await Promise.all([
     getObdCode(code),
     getRelatedObdCodes(code, 5),
     getObdDiagnosticSteps(code),
     fetchRelatedDiagnoses(code),
-    fetchValidRepairSlugs(),
+    getValidRepairSlugs(),
     getVehicleRepairSlugs(10),
   ]);
 
   if (!obd) notFound();
 
-  // Increment view count (fire-and-forget, don't block page render)
-  incrementViewCount(code);
+  const validRepairSlugs = new Set(validRepairSlugList);
 
   // Related repairs — derived from diagnostic causes, filtered by valid slugs
   const relatedRepairs = (() => {

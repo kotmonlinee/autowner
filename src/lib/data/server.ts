@@ -1,6 +1,7 @@
 // Server-side data access — ONLY used in server components and API routes.
 // All Supabase calls live here so migrating to a different DB only changes this file.
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createServerSupabase, createServiceSupabase } from "@/lib/supabase-server";
 import type { PostWithRelations, Category, CommentWithAuthor, CommentWithPost, Notification, ObdCode, RepairCostRow, RepairCostTier, RepairCostFull, DiagnosticCause } from "@/lib/types";
 import { MAKE_TIER, TIER_LABELS } from "@/lib/constants";
@@ -1607,7 +1608,12 @@ function parseJsonArray(val: unknown): string[] {
   return [];
 }
 
-export async function getRelatedObdCodes(code: string, limit = 5): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
+/**
+ * Related codes only depend on the code family, so cache per (code, limit).
+ * The underlying ILIKE prefix scan is not index-friendly and used to run on
+ * every OBD page render.
+ */
+export const getRelatedObdCodes = unstable_cache(async (code: string, limit = 5): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> => {
   const supabase = await createServiceSupabase();
   const normalized = code.toUpperCase().trim();
 
@@ -1643,7 +1649,7 @@ export async function getRelatedObdCodes(code: string, limit = 5): Promise<Pick<
   }
 
   return unique.slice(0, limit);
-}
+}, ["related-obd-codes"], { revalidate: 86400 });
 
 export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
   const supabase = await createServerSupabase();
@@ -1690,23 +1696,18 @@ export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" |
   const offsets: number[] = [];
   for (let offset = 0; offset < limit; offset += 1000) offsets.push(offset);
 
-  // Fetch in parallel batches of 5 to avoid long sequential round trips
-  // (the sitemap requests up to 15,000 codes; 15 sequential queries can
-  // exceed the serverless function budget).
-  for (let i = 0; i < offsets.length; i += 5) {
-    const batch = await Promise.all(
-      offsets.slice(i, i + 5).map(async (offset) => {
-        const { data } = await supabase
-          .from("obd_codes")
-          .select("code, title, severity, updated_at")
-          .order("code", { ascending: true })
-          .range(offset, offset + 999);
-        return (data ?? []) as unknown as Pick<ObdCode, "code" | "title" | "severity" | "updated_at">[];
-      }),
-    );
-    for (const page of batch) allCodes.push(...page);
+  // Kept sequential on purpose: running several 1,000-row window queries at
+  // once is what pushed the database to 100% CPU when the sitemap was fetched.
+  for (const offset of offsets) {
+    const { data } = await supabase
+      .from("obd_codes")
+      .select("code, title, severity, updated_at")
+      .order("code", { ascending: true })
+      .range(offset, offset + 999);
+    const page = (data ?? []) as unknown as Pick<ObdCode, "code" | "title" | "severity" | "updated_at">[];
+    allCodes.push(...page);
     // Once a page comes back short, higher offsets are empty — stop early.
-    if (batch.some((page) => page.length < 1000)) break;
+    if (page.length < 1000) break;
   }
 
   return allCodes.slice(0, limit);
@@ -2005,7 +2006,11 @@ export async function getRepairCategoryCounts(
  */
 // ── Vehicle Repair Cross Pages ────────────────────────────
 
-export async function getVehicleRepairSlugs(limit = 100): Promise<{ makeSlug: string; modelSlug: string; makeName: string; modelName: string }[]> {
+/**
+ * The vehicle catalogue changes rarely but this joined query used to run on
+ * every OBD page render (and in sitemap generation). Cache it for a day.
+ */
+export const getVehicleRepairSlugs = unstable_cache(async (limit = 100): Promise<{ makeSlug: string; modelSlug: string; makeName: string; modelName: string }[]> => {
   const supabase = await createServiceSupabase();
   // Top US models by sales popularity, grouped by brand
   const POPULAR_ORDER = [
@@ -2036,7 +2041,21 @@ export async function getVehicleRepairSlugs(limit = 100): Promise<{ makeSlug: st
     return a.modelName.localeCompare(b.modelName);
   });
   return all.slice(0, limit);
-}
+}, ["vehicle-repair-slugs"], { revalidate: 86400 });
+
+/**
+ * Valid repair slugs are a static dictionary: fetch once per day instead of
+ * re-reading 5,000 rows for every OBD page render.
+ */
+export const getValidRepairSlugs = unstable_cache(async (): Promise<string[]> => {
+  const supabase = await createServiceSupabase();
+  const { data } = await supabase.from("repair_costs").select("repair_slug").limit(5000);
+  const slugs = new Set<string>();
+  for (const row of (data ?? []) as { repair_slug: string }[]) {
+    slugs.add(row.repair_slug.replace(/_/g, "-"));
+  }
+  return Array.from(slugs);
+}, ["valid-repair-slugs"], { revalidate: 86400 });
 
 // ── Homepage Activity ──────────────────────────────────────
 

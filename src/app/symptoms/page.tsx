@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
 
-export const revalidate = 86400;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Common Car Symptoms — Causes, Repair Costs & Safety",
@@ -39,9 +39,14 @@ const SEV_COLORS: Record<string, string> = {
 };
 
 export default async function SymptomsPage() {
-  const supabase = await createServiceSupabase();
-  const { data } = await supabase.from("symptoms").select("slug, name, category, severity").order("name");
-  const symptoms = (data ?? []) as { slug: string; name: string; category: string; severity: string }[];
+  let symptoms: { slug: string; name: string; category: string; severity: string }[] = [];
+  try {
+    const supabase = await createServiceSupabase();
+    const { data } = await supabase.from("symptoms").select("slug, name, category, severity").order("name");
+    symptoms = (data ?? []) as { slug: string; name: string; category: string; severity: string }[];
+  } catch {
+    // Keep the build deployable while the database is unavailable.
+  }
 
   const grouped = new Map<string, typeof symptoms>();
   for (const s of symptoms) {

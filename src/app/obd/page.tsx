@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import ObdCodeBrowser from "@/components/ObdCodeBrowser";
 
-export const revalidate = 86400;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "OBD-II Code Decoder",
@@ -21,12 +21,18 @@ export const metadata: Metadata = {
 };
 
 export default async function ObdLandingPage() {
-  const result = await getObdCodesPaginated(1, 50);
-  const initialCodes = result.codes.map((c) => ({
-    code: c.code,
-    title: c.title,
-    severity: (c as any).severity ?? 1,
-  }));
+  let initialCodes: { code: string; title: string; severity: number }[] = [];
+  try {
+    const result = await getObdCodesPaginated(1, 50);
+    initialCodes = result.codes.map((c) => ({
+      code: c.code,
+      title: c.title,
+      severity: (c as any).severity ?? 1,
+    }));
+  } catch {
+    // Never fail the build when the database is unavailable; ISR repopulates
+    // this list on the next successful render.
+  }
 
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">

@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import PageFeedback from "@/components/PageFeedback";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { formatMoney } from "@/lib/constants";
-export const revalidate = 604800;
+export const revalidate = 2592000;
 
 export async function generateStaticParams() {
   const supabase = await createServiceSupabase();
@@ -75,13 +75,6 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
   const vs = vehicleSymptom as any;
   if (!symptom) notFound();
   const s = symptom as any;
-
-  // Fire-and-forget view count increment
-  try {
-    const viewTable = vs ? "vehicle_symptoms" : "symptoms";
-    const viewSlug = vs ? vs.slug : slug;
-    (supabase.from as any)(viewTable).update({ view_count: (s.view_count ?? 0) + 1 }).eq("slug", viewSlug).then(() => {}, () => {});
-  } catch { /* column may not exist yet */ }
 
   // Batch 1: causes + junction lookups + related vehicles (all independent)
   const [causeResult, obdJunctionResult, warningJunctionResult, relatedVehiclesResult] = await Promise.all([
