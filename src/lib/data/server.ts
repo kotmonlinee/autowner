@@ -1575,7 +1575,7 @@ export const getObdCode = cache(async (code: string): Promise<ObdCode | null> =>
   const normalized = code.toUpperCase().trim();
   const { data, error } = await supabase
     .from("obd_codes")
-    .select("*")
+    .select("code, title, severity, symptoms_json, causes_json, fixes_json, fix_repair_slugs, min_cost, max_cost")
     .eq("code", normalized)
     .maybeSingle();
 
@@ -1933,7 +1933,12 @@ export async function searchRepairCosts(query: string): Promise<Pick<RepairCostR
   return result;
 }
 
-export async function getAllRepairSlugs(): Promise<string[]> {
+/**
+ * Repair slugs are a static dictionary read twice per /repair-cost render
+ * (directly and again inside getRepairCategoryCounts) plus once per sitemap
+ * build. Cache it for a day.
+ */
+export const getAllRepairSlugs = unstable_cache(async (): Promise<string[]> => {
   const supabase = await createServiceSupabase();
   const { data } = await supabase
     .from("repair_costs")
@@ -1944,7 +1949,7 @@ export async function getAllRepairSlugs(): Promise<string[]> {
     slugs.add(row.repair_slug.replace(/_/g, "-"));
   }
   return Array.from(slugs).sort();
-}
+}, ["all-repair-slugs"], { revalidate: 86400 });
 
 /**
  * Distinct repair slugs with their latest update time, for sitemap lastmod.

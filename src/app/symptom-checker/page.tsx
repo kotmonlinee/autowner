@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -51,6 +52,28 @@ export async function generateMetadata({
 
 const PAGE_SIZE = 6;
 
+/**
+ * The hub is force-dynamic (it powers the interactive wizard), but the
+ * "popular diagnoses" list only changes slowly. Cache it per page for an hour
+ * so each request no longer costs two database queries.
+ */
+const getPopularDiagnoses = unstable_cache(
+  async (page: number): Promise<{ popular: any[]; totalCount: number }> => {
+    const supabase = await createServiceSupabase();
+    const [{ data }, { count }] = await Promise.all([
+      supabase.from("diagnoses")
+        .select("slug, symptom_path, diagnosis_json, view_count, vehicle_make, vehicle_model")
+        .order("view_count", { ascending: false })
+        .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1),
+      supabase.from("diagnoses")
+        .select("id", { count: "exact", head: true }),
+    ]);
+    return { popular: (data ?? []) as unknown as any[], totalCount: count ?? 0 };
+  },
+  ["popular-diagnoses"],
+  { revalidate: 3600 },
+);
+
 export default async function DiagnosisPage({
   searchParams,
 }: {
@@ -63,17 +86,9 @@ export default async function DiagnosisPage({
   let popular: any[] = [];
   let totalCount = 0;
   try {
-    const supabase = await createServiceSupabase();
-    const [{ data }, { count }] = await Promise.all([
-      supabase.from("diagnoses")
-        .select("slug, symptom_path, diagnosis_json, view_count, vehicle_make, vehicle_model")
-        .order("view_count", { ascending: false })
-        .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1),
-      supabase.from("diagnoses")
-        .select("id", { count: "exact", head: true }),
-    ]);
-    popular = (data ?? []) as unknown as any[];
-    totalCount = count ?? 0;
+    const cached = await getPopularDiagnoses(page);
+    popular = cached.popular;
+    totalCount = cached.totalCount;
   } catch { /* diagnoses fetch failed, skip */ }
 
   return (
