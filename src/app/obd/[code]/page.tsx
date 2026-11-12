@@ -121,7 +121,7 @@ const fetchRelatedDiagnoses = unstable_cache(
       });
     } catch { return []; }
   },
-  ["related-diagnoses"],
+  ["related-diagnoses-v2"],
   { revalidate: 86400 },
 );
 

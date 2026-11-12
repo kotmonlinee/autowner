@@ -1583,7 +1583,9 @@ export const getObdCode = unstable_cache(async (code: string): Promise<ObdCode |
     .eq("code", normalized)
     .maybeSingle();
 
-  if (error || !data) return null;
+  // Never cache a transient failure as "code not found".
+  if (error) throw new Error(error.message);
+  if (!data) return null;
 
   const row = data as Record<string, unknown>;
   return {
@@ -1597,7 +1599,7 @@ export const getObdCode = unstable_cache(async (code: string): Promise<ObdCode |
     min_cost: row.min_cost != null ? Number(row.min_cost) : null,
     max_cost: row.max_cost != null ? Number(row.max_cost) : null,
   };
-}, ["obd-code"], { revalidate: 2592000 });
+}, ["obd-code-v2"], { revalidate: 2592000 });
 
 function parseJsonArray(val: unknown): string[] {
   if (Array.isArray(val)) return val.map((v) => String(v));
@@ -1631,7 +1633,7 @@ export const getRelatedObdCodes = unstable_cache(async (code: string, limit = 5)
     prefix = normalized.charAt(0);
   }
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("obd_codes")
     .select("code, title, severity")
     .ilike("code", `${prefix}%`)
@@ -1640,6 +1642,7 @@ export const getRelatedObdCodes = unstable_cache(async (code: string, limit = 5)
     .order("code", { ascending: true })
     .limit(limit + 5);
 
+  if (error) throw new Error(error.message);
   const results = (data as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [];
 
   // Deduplicate by code just in case
@@ -1653,7 +1656,7 @@ export const getRelatedObdCodes = unstable_cache(async (code: string, limit = 5)
   }
 
   return unique.slice(0, limit);
-}, ["related-obd-codes"], { revalidate: 86400 });
+}, ["related-obd-codes-v2"], { revalidate: 86400 });
 
 export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code" | "title" | "severity">[]> {
   const supabase = await createServerSupabase();
@@ -1766,6 +1769,7 @@ export const getObdDiagnosticSteps = unstable_cache(async (code: string): Promis
     supabase.from("obd_codes").select("causes_json").eq("code", normCode).maybeSingle(),
   ]);
 
+  if (diagResult.error) throw new Error(diagResult.error.message);
   const row = diagResult.data as { causes: unknown } | null;
   if (!row?.causes || !Array.isArray(row.causes)) return [];
 
@@ -1795,7 +1799,7 @@ export const getObdDiagnosticSteps = unstable_cache(async (code: string): Promis
       verdict: vs.verdict || "",
     })),
   }));
-}, ["obd-diagnostic-steps"], { revalidate: 2592000 });
+}, ["obd-diagnostic-steps-v2"], { revalidate: 2592000 });
 
 // ── Repair Costs ───────────────────────────────────────────
 
@@ -1944,16 +1948,17 @@ export async function searchRepairCosts(query: string): Promise<Pick<RepairCostR
  */
 export const getAllRepairSlugs = unstable_cache(async (): Promise<string[]> => {
   const supabase = await createServiceSupabase();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("repair_costs")
     .select("repair_slug")
     .limit(5000);
+  if (error) throw new Error(error.message);
   const slugs = new Set<string>();
   for (const row of (data ?? []) as unknown as { repair_slug: string }[]) {
     slugs.add(row.repair_slug.replace(/_/g, "-"));
   }
   return Array.from(slugs).sort();
-}, ["all-repair-slugs"], { revalidate: 86400 });
+}, ["all-repair-slugs-v2"], { revalidate: 86400 });
 
 /**
  * Distinct repair slugs with their latest update time, for sitemap lastmod.
@@ -2030,10 +2035,11 @@ export const getVehicleRepairSlugs = unstable_cache(async (limit = 100): Promise
     "wrangler", "grand-cherokee", "explorer", "highlander", "pilot",
     "mustang", "charger", "outback", "forester", "cx-5",
   ];
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("vehicle_models")
     .select("slug, name, vehicle_makes!inner(slug, name)")
     .limit(300);
+  if (error) throw new Error(error.message);
   const all = ((data as unknown as any[]) ?? []).map((m) => ({
     modelSlug: m.slug,
     modelName: m.name,
@@ -2050,7 +2056,7 @@ export const getVehicleRepairSlugs = unstable_cache(async (limit = 100): Promise
     return a.modelName.localeCompare(b.modelName);
   });
   return all.slice(0, limit);
-}, ["vehicle-repair-slugs"], { revalidate: 86400 });
+}, ["vehicle-repair-slugs-v2"], { revalidate: 86400 });
 
 /**
  * Valid repair slugs are a static dictionary: fetch once per day instead of
@@ -2058,13 +2064,14 @@ export const getVehicleRepairSlugs = unstable_cache(async (limit = 100): Promise
  */
 export const getValidRepairSlugs = unstable_cache(async (): Promise<string[]> => {
   const supabase = await createServiceSupabase();
-  const { data } = await supabase.from("repair_costs").select("repair_slug").limit(5000);
+  const { data, error } = await supabase.from("repair_costs").select("repair_slug").limit(5000);
+  if (error) throw new Error(error.message);
   const slugs = new Set<string>();
   for (const row of (data ?? []) as { repair_slug: string }[]) {
     slugs.add(row.repair_slug.replace(/_/g, "-"));
   }
   return Array.from(slugs);
-}, ["valid-repair-slugs"], { revalidate: 86400 });
+}, ["valid-repair-slugs-v2"], { revalidate: 86400 });
 
 // ── Homepage Activity ──────────────────────────────────────
 

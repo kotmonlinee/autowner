@@ -45,9 +45,11 @@ const LIKELIHOOD_CONFIG: Record<string, { bg: string; text: string; border: stri
 
 const getDiagnosisBySlug = unstable_cache(async (slug: string) => {
   const supabase = await createServiceSupabase();
-  const { data } = await supabase.from("diagnoses").select("*").eq("slug", slug).maybeSingle();
+  const { data, error } = await supabase.from("diagnoses").select("*").eq("slug", slug).maybeSingle();
+  // Never cache a transient failure as "diagnosis not found".
+  if (error) throw new Error(error.message);
   return (data as unknown as import("@/lib/types").Diagnosis) || null;
-}, ["diagnosis-by-slug"], { revalidate: 2592000 });
+}, ["diagnosis-by-slug-v2"], { revalidate: 2592000 });
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

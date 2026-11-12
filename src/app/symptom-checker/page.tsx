@@ -60,7 +60,7 @@ const PAGE_SIZE = 6;
 const getPopularDiagnoses = unstable_cache(
   async (page: number): Promise<{ popular: any[]; totalCount: number }> => {
     const supabase = await createServiceSupabase();
-    const [{ data }, { count }] = await Promise.all([
+    const [listResult, countResult] = await Promise.all([
       supabase.from("diagnoses")
         .select("slug, symptom_path, diagnosis_json, view_count, vehicle_make, vehicle_model")
         .order("view_count", { ascending: false })
@@ -68,10 +68,23 @@ const getPopularDiagnoses = unstable_cache(
       supabase.from("diagnoses")
         .select("id", { count: "exact", head: true }),
     ]);
-    return { popular: (data ?? []) as unknown as any[], totalCount: count ?? 0 };
+
+    // Throw instead of returning an empty list: unstable_cache would otherwise
+    // cache the empty result for the whole TTL, which is how this page went
+    // blank after the database outage.
+    if (listResult.error || countResult.error) {
+      throw new Error(
+        listResult.error?.message ?? countResult.error?.message ?? "diagnoses query failed",
+      );
+    }
+
+    return {
+      popular: (listResult.data ?? []) as unknown as any[],
+      totalCount: countResult.count ?? 0,
+    };
   },
-  ["popular-diagnoses"],
-  { revalidate: 3600 },
+  ["popular-diagnoses-v2"],
+  { revalidate: 600 },
 );
 
 export default async function DiagnosisPage({
