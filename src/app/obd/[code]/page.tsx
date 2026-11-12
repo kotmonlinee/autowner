@@ -90,11 +90,26 @@ const fetchRelatedDiagnoses = unstable_cache(
   async (code: string): Promise<{ slug: string; title: string; severity: string }[]> => {
     try {
       const supabase = await createServiceSupabase();
-      const { data } = await supabase.from("diagnoses")
+      const normalized = code.toUpperCase();
+
+      // Fast path: possible_codes is a generated column holding just the
+      // possibleCodes array, with its own small GIN index (migration 039).
+      // Falls back to the full diagnosis_json containment query until that
+      // migration has been applied.
+      let { data, error } = await supabase.from("diagnoses")
         .select("slug, view_count")
-        .contains("diagnosis_json", { possibleCodes: [code.toUpperCase()] })
+        .contains("possible_codes", [normalized])
         .order("view_count", { ascending: false })
         .limit(5);
+
+      if (error) {
+        ({ data, error } = await supabase.from("diagnoses")
+          .select("slug, view_count")
+          .contains("diagnosis_json", { possibleCodes: [normalized] })
+          .order("view_count", { ascending: false })
+          .limit(5));
+      }
+      if (error) throw new Error(error.message);
 
       const rows = (data ?? []) as { slug: string }[];
       if (rows.length === 0) return [];
