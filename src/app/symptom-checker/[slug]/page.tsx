@@ -4,7 +4,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageFeedback from "@/components/PageFeedback";
-import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { resolveRepairSlug } from "@/lib/internal-linking";
 import ShareButtons from "@/components/ShareButtons";
@@ -42,11 +42,11 @@ const LIKELIHOOD_CONFIG: Record<string, { bg: string; text: string; border: stri
   "less common": { bg: "bg-surface-0 dark:bg-surface-0", text: "text-text-muted", border: "border-surface-border", bar: "border-l-surface-border", label: "Less Common" },
 };
 
-const getDiagnosisBySlug = cache(async (slug: string) => {
+const getDiagnosisBySlug = unstable_cache(async (slug: string) => {
   const supabase = await createServiceSupabase();
   const { data } = await supabase.from("diagnoses").select("*").eq("slug", slug).maybeSingle();
   return (data as unknown as import("@/lib/types").Diagnosis) || null;
-});
+}, ["diagnosis-by-slug"], { revalidate: 2592000 });
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

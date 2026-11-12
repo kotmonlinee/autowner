@@ -1570,7 +1570,11 @@ export async function getPostVehicles(postId: string) {
 
 // ── OBD Codes ──────────────────────────────────────────────
 
-export const getObdCode = cache(async (code: string): Promise<ObdCode | null> => {
+/**
+ * Content is static, so keep it in the persistent Data Cache (which survives
+ * deployments) instead of re-querying on every ISR render.
+ */
+export const getObdCode = unstable_cache(async (code: string): Promise<ObdCode | null> => {
   const supabase = await createServiceSupabase();
   const normalized = code.toUpperCase().trim();
   const { data, error } = await supabase
@@ -1593,7 +1597,7 @@ export const getObdCode = cache(async (code: string): Promise<ObdCode | null> =>
     min_cost: row.min_cost != null ? Number(row.min_cost) : null,
     max_cost: row.max_cost != null ? Number(row.max_cost) : null,
   };
-});
+}, ["obd-code"], { revalidate: 2592000 });
 
 function parseJsonArray(val: unknown): string[] {
   if (Array.isArray(val)) return val.map((v) => String(v));
@@ -1753,7 +1757,7 @@ const LEVEL_ICON_MAP: Record<string, string> = {
   "shop": "🏪 Shop",
 };
 
-export async function getObdDiagnosticSteps(code: string): Promise<DiagnosticCause[]> {
+export const getObdDiagnosticSteps = unstable_cache(async (code: string): Promise<DiagnosticCause[]> => {
   const supabase = await createServiceSupabase();
   const normCode = code.toUpperCase().trim();
 
@@ -1791,7 +1795,7 @@ export async function getObdDiagnosticSteps(code: string): Promise<DiagnosticCau
       verdict: vs.verdict || "",
     })),
   }));
-}
+}, ["obd-diagnostic-steps"], { revalidate: 2592000 });
 
 // ── Repair Costs ───────────────────────────────────────────
 
