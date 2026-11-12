@@ -31,7 +31,7 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen bg-surface-0 flex items-center justify-center px-4 relative">
-      <Link href="/" className="absolute top-6 left-6" aria-label="AutOwner">
+      <Link prefetch={false} href="/" className="absolute top-6 left-6" aria-label="AutOwner">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80" width="168" height="32" className="h-[32px] w-auto">
           <defs>
             <linearGradient id="auth-logo-grad" x1="0" y1="0" x2="1" y2="0">
@@ -65,7 +65,7 @@ export default function LoginForm() {
             <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-heading">Password</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" className="w-full px-4 py-2.5 bg-surface-2 text-text-primary text-sm rounded-xl border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted" placeholder="••••••••" required />
             <div className="mt-1.5 text-right">
-              <Link href="/auth/reset-password" className="text-xs text-text-muted hover:text-primary transition-colors">Forgot password?</Link>
+              <Link prefetch={false} href="/auth/reset-password" className="text-xs text-text-muted hover:text-primary transition-colors">Forgot password?</Link>
             </div>
           </div>
           <button type="submit" disabled={loading} className="w-full py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 disabled:opacity-50 disabled:hover:translate-y-0 font-heading shadow-sm shadow-primary/20">
@@ -73,7 +73,7 @@ export default function LoginForm() {
           </button>
         </form>
         <p className="mt-6 text-sm text-text-muted text-center">
-          Don&apos;t have an account? <Link href="/auth/register" className="text-primary hover:text-primary-glow font-semibold transition-colors">Create one</Link>
+          Don&apos;t have an account? <Link prefetch={false} href="/auth/register" className="text-primary hover:text-primary-glow font-semibold transition-colors">Create one</Link>
         </p>
       </div>
     </div>

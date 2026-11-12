@@ -58,7 +58,7 @@ export default function UpdatePasswordPage() {
   if (!hasSession) {
     return (
       <div className="min-h-screen bg-surface-0 flex items-center justify-center px-4 relative">
-        <Link href="/" className="absolute top-6 left-6" aria-label="AutOwner">
+        <Link prefetch={false} href="/" className="absolute top-6 left-6" aria-label="AutOwner">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80" width="168" height="32" className="h-[32px] w-auto">
             <defs>
               <linearGradient id="auth-logo-grad" x1="0" y1="0" x2="1" y2="0">
@@ -87,7 +87,7 @@ export default function UpdatePasswordPage() {
           <p className="text-sm text-text-muted mb-6">
             This password reset link is invalid or has expired. Please request a new one.
           </p>
-          <Link
+          <Link prefetch={false}
             href="/auth/reset-password"
             className="inline-block px-4 py-2 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow transition-all font-heading"
           >
@@ -100,7 +100,7 @@ export default function UpdatePasswordPage() {
 
   return (
     <div className="min-h-screen bg-surface-0 flex items-center justify-center px-4 relative">
-      <Link href="/" className="absolute top-6 left-6" aria-label="AutOwner">
+      <Link prefetch={false} href="/" className="absolute top-6 left-6" aria-label="AutOwner">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80" width="168" height="32" className="h-[32px] w-auto">
           <defs>
             <linearGradient id="auth-logo-grad" x1="0" y1="0" x2="1" y2="0">
@@ -173,7 +173,7 @@ export default function UpdatePasswordPage() {
         </form>
 
         <p className="mt-6 text-sm text-text-muted text-center">
-          <Link
+          <Link prefetch={false}
             href="/auth/login"
             className="text-primary hover:text-primary-glow font-semibold transition-colors"
           >

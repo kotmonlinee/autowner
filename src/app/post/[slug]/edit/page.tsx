@@ -84,13 +84,13 @@ export default async function EditPostPage({
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         {/* Breadcrumb */}
         <nav className="mb-5 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">
             Home
           </Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-          <Link href={`/post/${postSlug}`} className="hover:text-primary transition-colors truncate max-w-[200px]">
+          <Link prefetch={false} href={`/post/${postSlug}`} className="hover:text-primary transition-colors truncate max-w-[200px]">
             {post.title}
           </Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}>
@@ -175,7 +175,7 @@ export default async function EditPostPage({
               >
                 Save Changes
               </button>
-              <Link
+              <Link prefetch={false}
                 href={`/post/${postSlug}`}
                 className="px-4 py-2 text-sm font-bold text-text-muted hover:text-text-secondary transition-colors font-heading"
               >

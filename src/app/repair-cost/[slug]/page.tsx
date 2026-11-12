@@ -284,15 +284,15 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
 
         {/* Breadcrumb */}
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <Link href="/repair-cost" className="hover:text-primary transition-colors">Repair Costs</Link>
+          <Link prefetch={false} href="/repair-cost" className="hover:text-primary transition-colors">Repair Costs</Link>
           {parsed && (
             <>
               <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              <Link href={`/repair-cost/${repairSlug}`} className="hover:text-primary transition-colors">{repair.name}</Link>
+              <Link prefetch={false} href={`/repair-cost/${repairSlug}`} className="hover:text-primary transition-colors">{repair.name}</Link>
               <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              <Link href={`/vehicles/${parsed.makeSlug}/${parsed.modelSlug}`} className="hover:text-primary transition-colors">{makeName} {modelName}</Link>
+              <Link prefetch={false} href={`/vehicles/${parsed.makeSlug}/${parsed.modelSlug}`} className="hover:text-primary transition-colors">{makeName} {modelName}</Link>
             </>
           )}
           {!parsed && (
@@ -382,7 +382,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               <h3 className="text-sm font-heading font-bold text-text-primary mb-0.5">Got a mechanic&apos;s quote? Check if it&apos;s fair</h3>
               <p className="text-text-muted text-xs">Enter your quote amount and we&apos;ll tell you if you&apos;re being overcharged.</p>
             </div>
-            <Link
+            <Link prefetch={false}
               href={`/quote-checker?repair=${encodeURIComponent(repair.name)}${parsed ? `&make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}` : ""}`}
               className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
             >
@@ -406,7 +406,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
                 <p className="text-sm text-text-secondary mb-2">
                   Your {makeName} {modelName} may have open safety recalls. Repairs covered by a recall are <strong>free</strong> at dealerships.
                 </p>
-                <Link
+                <Link prefetch={false}
                   href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors font-heading"
                 >
@@ -422,13 +422,13 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-heading font-bold text-text-primary">{repair.name} Cost by Make &amp; Model</h2>
-              <Link href="/vehicles" className="text-xs font-heading font-semibold text-primary hover:underline shrink-0">All vehicles →</Link>
+              <Link prefetch={false} href="/vehicles" className="text-xs font-heading font-semibold text-primary hover:underline shrink-0">All vehicles →</Link>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 snap-x">
               {popularVehicles.map((v) => {
                 const compositeSlug = `${repairSlug}-${v.makeSlug}-${v.modelSlug}`;
                 return (
-                  <Link key={`${v.makeSlug}-${v.modelSlug}`} href={`/repair-cost/${compositeSlug}`}
+                  <Link prefetch={false} key={`${v.makeSlug}-${v.modelSlug}`} href={`/repair-cost/${compositeSlug}`}
                     className="group flex-shrink-0 w-36 p-3 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors snap-start">
                     <div className="w-full h-16 rounded-lg overflow-hidden bg-surface-2 mb-2">
                       <img src={`/vehicles/${v.makeSlug}-${v.modelSlug}.jpg`} alt={`${v.makeName} ${v.modelName}`} className="w-full h-full object-cover" loading="lazy" />
@@ -551,7 +551,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             <p className="text-text-muted text-xs mb-3">These diagnostic trouble codes are commonly related to {repair.name.toLowerCase()}:</p>
             <div className="space-y-2">
               {obdCodes.map((obd) => (
-                <Link key={obd.code} href={`/obd/${obd.code.toLowerCase()}`}
+                <Link prefetch={false} key={obd.code} href={`/obd/${obd.code.toLowerCase()}`}
                   className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
                   <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code}</span>
                   <span className="h-4 w-px bg-surface-border shrink-0" />
@@ -560,7 +560,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
                 </Link>
               ))}
             </div>
-            <Link href="/obd" className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-primary hover:text-primary-glow transition-colors">
+            <Link prefetch={false} href="/obd" className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-primary hover:text-primary-glow transition-colors">
               Browse all OBD-II codes
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
@@ -577,7 +577,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               <p className="text-text-muted text-xs mb-3">These warning lights may appear when you have {repair.name.toLowerCase()} issues:</p>
               <div className="space-y-2">
                 {lights.map((light) => (
-                  <Link key={light.slug} href={`/warning-lights/${light.slug}`}
+                  <Link prefetch={false} key={light.slug} href={`/warning-lights/${light.slug}`}
                     className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                     <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                       <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" loading="lazy" />
@@ -598,7 +598,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             <p className="text-xs text-text-muted mb-3">People looking at {repair.name.toLowerCase()} also check these repairs:</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {relatedRepairsRaw.map((r) => (
-                <Link key={r.slug} href={parsed ? `/repair-cost/${r.slug}-${parsed.makeSlug}-${parsed.modelSlug}` : `/repair-cost/${r.slug}`}
+                <Link prefetch={false} key={r.slug} href={parsed ? `/repair-cost/${r.slug}-${parsed.makeSlug}-${parsed.modelSlug}` : `/repair-cost/${r.slug}`}
                   className="flex items-center gap-2.5 p-3 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
                   <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                     {(() => { const img = getRepairImageUrl(r.slug); return img ? <img src={img} alt={r.name} className="w-full h-full object-cover" loading="lazy" /> : <svg className="w-4 h-4 text-text-muted m-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width={16} height={16}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>; })()}
@@ -632,7 +632,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             <svg className="w-5 h-5 text-amber dark:text-amber-dark mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
             <p className="text-xs text-text-muted leading-relaxed">
               <strong className="text-text-secondary">Disclaimer:</strong> Prices are estimates only and may vary by location, vehicle condition, shop rates, and parts availability. Always get multiple quotes before authorizing repairs. Use our{" "}
-              <Link href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`} className="text-primary hover:text-primary-glow underline">Quote Checker</Link>{" "}
+              <Link prefetch={false} href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`} className="text-primary hover:text-primary-glow underline">Quote Checker</Link>{" "}
               to verify your mechanic&apos;s estimate.
             </p>
           </div>
@@ -688,16 +688,16 @@ function DiySection({ diyData, tierCards }: { diyData: any; tierCards: any[] }) 
 
       <p className="text-sm text-text-secondary mb-4">
         This repair is rated{" "}
-        <Link href="/repair-cost/diy-levels" className="text-primary hover:underline font-semibold">{config.difficulty_label} (L{config.difficulty_level})</Link>
+        <Link prefetch={false} href="/repair-cost/diy-levels" className="text-primary hover:underline font-semibold">{config.difficulty_label} (L{config.difficulty_level})</Link>
         {" "}— typical DIY time is <strong className="text-text-primary">{config.est_time}</strong> with{" "}
-        <Link href="/repair-cost/diy-levels" className={`hover:underline font-semibold ${config.risk_level === "Low" ? "text-emerald-600" : config.risk_level === "Medium" ? "text-amber-600" : "text-red-600"}`}>{config.risk_level.toLowerCase()} risk</Link>.
+        <Link prefetch={false} href="/repair-cost/diy-levels" className={`hover:underline font-semibold ${config.risk_level === "Low" ? "text-emerald-600" : config.risk_level === "Medium" ? "text-amber-600" : "text-red-600"}`}>{config.risk_level.toLowerCase()} risk</Link>.
         {config.diy_friendly === "Yes" ? " Most car owners can handle this with basic tools." :
          config.diy_friendly === "Maybe" ? " You'll need some mechanical experience and the right tools." :
          " This is best left to a professional mechanic."}
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <Link href="/repair-cost/diy-levels" className={`flex flex-col items-center justify-center px-4 py-3 rounded-xl border sm:col-span-1 hover:ring-2 hover:ring-offset-1 transition-all ${levelInfo.bg}`}>
+        <Link prefetch={false} href="/repair-cost/diy-levels" className={`flex flex-col items-center justify-center px-4 py-3 rounded-xl border sm:col-span-1 hover:ring-2 hover:ring-offset-1 transition-all ${levelInfo.bg}`}>
           <span className="text-2xl sm:text-3xl font-heading font-bold">L{config.difficulty_level}</span>
           <span className="text-[10px] text-text-muted font-heading mt-0.5">DIY Difficulty</span>
           <span className="inline-flex items-center gap-0.5 text-[10px] text-primary font-heading mt-1">

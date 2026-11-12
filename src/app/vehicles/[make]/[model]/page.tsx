@@ -244,9 +244,9 @@ export default async function VehicleHubPage({
       <Navbar />
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <Link href="/vehicles" className="hover:text-primary transition-colors">Vehicles</Link>
+          <Link prefetch={false} href="/vehicles" className="hover:text-primary transition-colors">Vehicles</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary">{makeName} {modelName}</span>
         </nav>
@@ -272,7 +272,7 @@ export default async function VehicleHubPage({
             <div className="flex-1">
               <h2 className="text-sm font-heading font-bold text-text-primary mb-1">Check for Safety Recalls First</h2>
               <p className="text-xs text-text-secondary mb-3">Your {makeName} {modelName} may have open recalls — repairs covered by a recall are <strong>free</strong> at dealerships.</p>
-              <Link href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors font-heading">
+              <Link prefetch={false} href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors font-heading">
                 Check Recalls Now →
               </Link>
             </div>
@@ -285,7 +285,7 @@ export default async function VehicleHubPage({
             <h2 className="text-lg font-heading font-bold text-text-primary mb-4">{cat}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {repairs.map((r) => (
-                <Link
+                <Link prefetch={false}
                   key={r.slug}
                   href={`/repair-cost/${r.slug}-${makeSlug}-${modelSlug}`}
                   className="flex items-center justify-between p-3 min-h-[44px] bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group"
@@ -306,7 +306,7 @@ export default async function VehicleHubPage({
               <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Got a Quote from Your Mechanic?</h2>
               <p className="text-xs text-text-secondary">Verify if the quoted price for your {makeName} {modelName} repair is fair.</p>
             </div>
-            <Link href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
+            <Link prefetch={false} href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
               Verify Quote
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
@@ -321,7 +321,7 @@ export default async function VehicleHubPage({
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {obdCodes.slice(0, 8).map((c: any) => (
-                <Link
+                <Link prefetch={false}
                   key={c.code}
                   href={`/obd/${c.code.toLowerCase()}`}
                   className="group flex items-center gap-3 p-3 min-h-[44px] bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors"
@@ -332,7 +332,7 @@ export default async function VehicleHubPage({
                 </Link>
               ))}
             </div>
-            <Link href="/obd" className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
+            <Link prefetch={false} href="/obd" className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
               Browse all 12,000+ codes →
             </Link>
           </div>
@@ -357,7 +357,7 @@ export default async function VehicleHubPage({
               <p className="text-xs text-text-muted mb-3">Dashboard warning lights that may appear with {makeName} {modelName} repairs:</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {warningLights.slice(0, 8).map((light) => (
-                  <Link key={light.slug} href={`/warning-lights/${light.slug}`}
+                  <Link prefetch={false} key={light.slug} href={`/warning-lights/${light.slug}`}
                     className="group flex items-center gap-3 p-3 min-h-[44px] bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors">
                     <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                       <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" loading="lazy" />
@@ -381,7 +381,7 @@ export default async function VehicleHubPage({
               <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Having a Problem with Your {makeName} {modelName}?</h2>
               <p className="text-xs text-text-secondary">Not sure what repair you need? Describe your symptoms and our AI will diagnose the issue.</p>
             </div>
-            <Link href={`/symptom-checker`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
+            <Link prefetch={false} href={`/symptom-checker`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
               Diagnose Your {makeName}
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>

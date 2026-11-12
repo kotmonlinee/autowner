@@ -58,8 +58,22 @@ export default function NotificationBell({ userId }: { userId: string }) {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 30000);
-    return () => clearInterval(interval);
+    // Polling every 30s generated 120 requests/hour per open tab. Poll every
+    // 5 minutes instead, skip background tabs, and refresh on focus.
+    const interval = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      loadData();
+    }, 5 * 60 * 1000);
+
+    const onVisibilityChange = () => {
+      if (typeof document !== "undefined" && !document.hidden) loadData();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }, [loadData]);
 
   // Close dropdown on outside click

@@ -77,7 +77,7 @@ export default async function SearchPage({
         <Navbar />
         <main className="max-w-3xl mx-auto px-5 py-8 flex-1 w-full">
           <nav className="mb-6 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+            <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
             <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             <span className="text-text-secondary">Search</span>
           </nav>
@@ -124,7 +124,7 @@ export default async function SearchPage({
       <Navbar />
       <main className="max-w-3xl mx-auto px-5 py-8 flex-1 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary">Search</span>
         </nav>
@@ -141,9 +141,9 @@ export default async function SearchPage({
             <p className="text-text-muted text-sm mb-1">No results found for &ldquo;{query}&rdquo;</p>
             <p className="text-text-muted text-xs">Try a different keyword or browse:</p>
             <div className="flex justify-center gap-3 mt-4">
-              <Link href="/obd" className="text-sm font-semibold text-primary hover:text-primary-glow font-heading">OBD Codes</Link>
-              <Link href="/repair-cost" className="text-sm font-semibold text-primary hover:text-primary-glow font-heading">Repair Costs</Link>
-              <Link href="/symptom-checker" className="text-sm font-semibold text-primary hover:text-primary-glow font-heading">Symptom Checker</Link>
+              <Link prefetch={false} href="/obd" className="text-sm font-semibold text-primary hover:text-primary-glow font-heading">OBD Codes</Link>
+              <Link prefetch={false} href="/repair-cost" className="text-sm font-semibold text-primary hover:text-primary-glow font-heading">Repair Costs</Link>
+              <Link prefetch={false} href="/symptom-checker" className="text-sm font-semibold text-primary hover:text-primary-glow font-heading">Symptom Checker</Link>
             </div>
           </div>
         ) : (
@@ -162,7 +162,7 @@ export default async function SearchPage({
                 </h2>
                 <div className="space-y-1.5">
                   {obdCodes.map((c: any) => (
-                    <Link key={c.code} href={`/obd/${c.code.toLowerCase()}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                    <Link prefetch={false} key={c.code} href={`/obd/${c.code.toLowerCase()}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                       <span className="text-sm font-mono font-bold text-primary shrink-0 w-16">{c.code}</span>
                       <span className="flex-1 min-w-0 text-sm text-text-secondary truncate">{c.title}</span>
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold font-heading border shrink-0 ${severityBadge(c.severity ?? 1)}`}>{SEVERITY_LABELS[c.severity] ?? "Minor"}</span>
@@ -183,7 +183,7 @@ export default async function SearchPage({
                 </h2>
                 <div className="space-y-1.5">
                   {repairs.map((r: any) => (
-                    <Link key={r.slug} href={`/repair-cost/${r.slug}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                    <Link prefetch={false} key={r.slug} href={`/repair-cost/${r.slug}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                       <span className="text-sm font-heading font-medium text-text-primary truncate flex-1 min-w-0">{r.name}</span>
                       <span className="text-xs font-heading text-text-muted shrink-0">${r.min}–${r.max}</span>
                       <Arrow />
@@ -203,7 +203,7 @@ export default async function SearchPage({
                 </h2>
                 <div className="space-y-1.5">
                   {diagnoses.map((d: any) => (
-                    <Link key={d.slug} href={`/symptom-checker/${d.slug}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                    <Link prefetch={false} key={d.slug} href={`/symptom-checker/${d.slug}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                       <span className="text-sm font-heading font-medium text-text-primary truncate flex-1 min-w-0">{d.diagnosis_json?.title ?? "Diagnosis"}</span>
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold font-heading border shrink-0 ${d.diagnosis_json?.severity === "critical" ? "bg-red-50 text-red-700 border-red-200" : d.diagnosis_json?.severity === "high" ? "bg-orange-50 text-orange-700 border-orange-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>{d.diagnosis_json?.severity ?? "medium"}</span>
                       <Arrow />
@@ -223,7 +223,7 @@ export default async function SearchPage({
                 </h2>
                 <div className="space-y-1.5">
                   {warningLights.map((w) => (
-                    <Link key={w.slug} href={`/warning-lights/${w.slug}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                    <Link prefetch={false} key={w.slug} href={`/warning-lights/${w.slug}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                       <span className="text-sm font-heading font-medium text-text-primary truncate flex-1 min-w-0">{w.title}</span>
                       <Arrow />
                     </Link>
@@ -242,7 +242,7 @@ export default async function SearchPage({
                 </h2>
                 <div className="space-y-1.5">
                   {posts.map((p: any) => (
-                    <Link key={p.id} href={`/post/${p.slug || p.id}`} className="group flex items-start gap-3 px-4 py-3 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                    <Link prefetch={false} key={p.id} href={`/post/${p.slug || p.id}`} className="group flex items-start gap-3 px-4 py-3 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">{p.title}</p>
                         <p className="text-xs text-text-muted mt-1 line-clamp-1">{(p.body ?? "").replace(/[#*`>\-\n]/g, " ").slice(0, 120)}</p>

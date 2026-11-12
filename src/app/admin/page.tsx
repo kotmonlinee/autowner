@@ -175,7 +175,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
         {posts?.map((post: any) => (
           <div key={post.id} className="bg-surface-1 rounded-xl border border-surface-border p-4 flex items-start justify-between">
             <div className="flex-1 min-w-0">
-              <Link href={`/post/${post.slug || post.id}`} className="font-semibold text-text-primary hover:text-primary transition-colors font-heading">{post.title}</Link>
+              <Link prefetch={false} href={`/post/${post.slug || post.id}`} className="font-semibold text-text-primary hover:text-primary transition-colors font-heading">{post.title}</Link>
               <div className="flex items-center gap-3 text-xs text-text-muted mt-1.5">
                 <span className="px-1.5 py-0.5 bg-surface-3 rounded text-xs font-bold uppercase font-heading">{post.categories?.name}</span>
                 <span className="px-1.5 py-0.5 bg-amber-700/10 dark:bg-amber-400/10 text-severity-caution rounded text-xs font-bold uppercase border border-amber-700/20 dark:border-amber-400/20">{post.source}</span>
@@ -183,7 +183,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
               </div>
             </div>
             <div className="flex items-center gap-2 ml-4 shrink-0">
-              <Link
+              <Link prefetch={false}
                 href={`/admin/edit/${post.id}`}
                 className="px-4 py-2 bg-surface-3 text-text-secondary rounded-lg text-sm font-bold hover:bg-surface-4 hover:text-text-primary transition-colors font-heading border border-surface-border"
               >
@@ -260,7 +260,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                   <p className="text-sm text-text-primary font-heading font-semibold">
                     Reported by{" "}
                     {report.reporter_username ? (
-                      <Link href={`/user/${report.reporter_username}`} className="text-primary hover:text-primary-glow transition-colors">
+                      <Link prefetch={false} href={`/user/${report.reporter_username}`} className="text-primary hover:text-primary-glow transition-colors">
                         {report.reporter_username}
                       </Link>
                     ) : (
@@ -273,7 +273,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                     </p>
                   )}
                   <div className="flex items-center gap-3 text-xs text-text-muted mt-1.5">
-                    <Link
+                    <Link prefetch={false}
                       href={report.target_type === "post" ? `/post/${report.target_id}` : `/post/${report.target_id}`}
                       className="text-primary hover:text-primary-glow font-medium transition-colors"
                     >
@@ -363,7 +363,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
             {searchResults.map((post: any) => (
               <div key={post.id} className="bg-surface-1 rounded-xl border border-surface-border p-4 flex items-start justify-between">
                 <div className="flex-1 min-w-0">
-                  <Link href={`/post/${post.slug || post.id}`} className="font-semibold text-text-primary hover:text-primary transition-colors font-heading">{post.title}</Link>
+                  <Link prefetch={false} href={`/post/${post.slug || post.id}`} className="font-semibold text-text-primary hover:text-primary transition-colors font-heading">{post.title}</Link>
                   <div className="flex items-center gap-3 text-xs text-text-muted mt-1.5">
                     <span className="px-1.5 py-0.5 bg-surface-3 rounded text-xs font-bold uppercase font-heading">{post.categories?.name ?? "none"}</span>
                     <span className={`px-1.5 py-0.5 rounded text-xs font-bold uppercase border ${
@@ -378,7 +378,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                   </div>
                 </div>
                 <div className="flex items-center gap-2 ml-4 shrink-0">
-                  <Link
+                  <Link prefetch={false}
                     href={`/admin/edit/${post.id}`}
                     className="px-4 py-2 bg-surface-3 text-text-secondary rounded-lg text-sm font-bold hover:bg-surface-4 hover:text-text-primary transition-colors font-heading border border-surface-border"
                   >
@@ -432,7 +432,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                 {users.map((user) => (
                   <tr key={user.id} className="hover:bg-surface-2/30 transition-colors">
                     <td className="px-4 py-3">
-                      <Link
+                      <Link prefetch={false}
                         href={`/user/${user.username}`}
                         className="text-text-primary font-semibold font-heading hover:text-primary transition-colors"
                       >

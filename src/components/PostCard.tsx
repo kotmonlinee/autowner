@@ -46,7 +46,7 @@ export default function PostCard({
         {/* Meta line */}
         <div className="flex items-center gap-2 mb-1.5">
           {post.categories && (
-            <Link
+            <Link prefetch={false}
               href={`/community?category=${post.categories.slug}`}
               className="inline-flex items-center gap-1 px-2 py-0.5 bg-surface-3 text-text-secondary rounded-full text-xs font-bold uppercase tracking-wider hover:bg-surface-4 hover:text-primary transition-colors font-heading"
             >
@@ -87,7 +87,7 @@ export default function PostCard({
         </div>
 
         {/* Title */}
-        <Link href={`/post/${post.slug || post.id}`} aria-label={`Read: ${post.title}`}>
+        <Link prefetch={false} href={`/post/${post.slug || post.id}`} aria-label={`Read: ${post.title}`}>
           <h3 className="text-base font-semibold text-text-primary line-clamp-2 group-hover:text-primary transition-colors duration-150 font-heading leading-snug">
             {post.title}
           </h3>
@@ -97,7 +97,7 @@ export default function PostCard({
         {post.post_tags && post.post_tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
             {post.post_tags.map(pt => (
-              <Link
+              <Link prefetch={false}
                 key={pt.car_tags.slug}
                 href={`/community?tag=${pt.car_tags.slug}`}
                 className="px-2 py-0.5 bg-surface-3 text-text-muted rounded-md text-xs font-medium hover:bg-surface-4 hover:text-text-secondary transition-colors"
@@ -111,7 +111,7 @@ export default function PostCard({
         {/* Footer */}
         <div className="flex items-center gap-2.5 mt-2.5 text-xs text-text-muted">
           {post.profiles?.username ? (
-            <Link href={`/user/${post.profiles.username}`} className="font-medium text-text-secondary hover:text-primary transition-colors inline-flex items-center gap-1.5">
+            <Link prefetch={false} href={`/user/${post.profiles.username}`} className="font-medium text-text-secondary hover:text-primary transition-colors inline-flex items-center gap-1.5">
               <Avatar username={post.profiles.username} avatarUrl={post.profiles.avatar_url} size="sm" />
               {post.profiles.username}
             </Link>

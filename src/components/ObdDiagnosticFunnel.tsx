@@ -241,7 +241,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
                             ✗ Not this one
                           </button>
                         )}
-                        <Link
+                        <Link prefetch={false}
                           href={cause.repairSlug ? `/repair-cost/${cause.repairSlug}` : "/repair-cost"}
                           className="ml-auto px-3 py-1.5 rounded-lg text-[11px] font-heading font-bold bg-primary text-white hover:bg-primary-glow transition-colors flex items-center gap-1"
                         >
@@ -268,14 +268,14 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
             {confirmedCause.cause}
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <Link
+            <Link prefetch={false}
               href={confirmedCause.repairSlug ? `/repair-cost/${confirmedCause.repairSlug}` : "/repair-cost"}
               className="px-5 py-2.5 bg-emerald-600 text-white text-sm font-heading font-bold rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2"
             >
               {confirmedCause.repairSlug ? "See Repair Options" : "Browse All Repairs"}
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
-            <Link
+            <Link prefetch={false}
               href={`/quote-checker`}
               className="px-4 py-2 text-sm font-heading font-semibold text-primary border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors"
             >
@@ -289,7 +289,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
       {selectedSymptoms.size > 0 && rankedCauses.length > 0 && (
         <p className="mt-4 text-xs text-text-muted text-center">
           Not sure? Try our full{" "}
-          <Link href={`/symptom-checker`} className="text-primary font-semibold hover:underline">
+          <Link prefetch={false} href={`/symptom-checker`} className="text-primary font-semibold hover:underline">
             AI Diagnosis Wizard
           </Link>{" "}
           for a deeper analysis with vehicle-specific guidance

@@ -103,9 +103,9 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
 
         {/* Breadcrumb */}
         <nav className="mb-6 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
           <span className="mx-2">/</span>
-          <Link href="/warning-lights" className="hover:text-primary transition-colors">Warning Lights</Link>
+          <Link prefetch={false} href="/warning-lights" className="hover:text-primary transition-colors">Warning Lights</Link>
           <span className="mx-2">/</span>
           <span className="text-text-secondary">{light.title}</span>
         </nav>
@@ -153,7 +153,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
               {formatCurrency(light.min_cost)} – {formatCurrency(light.max_cost)}
             </p>
             <p className="text-xs text-text-muted">Estimate varies by vehicle make, model, year, and shop labor rates. Always get multiple quotes.</p>
-            <Link href="/repair-cost" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+            <Link prefetch={false} href="/repair-cost" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
               See all repair cost estimates
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
@@ -166,7 +166,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
             <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related OBD-II Codes</h2>
             <div className="space-y-2">
               {obdDetails.map((obd) => (
-                <Link key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
+                <Link prefetch={false} key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
                   <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code.toUpperCase()}</span>
                   <span className="h-4 w-px bg-surface-border shrink-0" />
                   <span className="text-xs text-text-secondary truncate flex-1 min-w-0">{obd.title}</span>
@@ -184,7 +184,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
             {TOP_REPAIRS.slice(0, 6).map((repair) => {
               const img = getRepairImageUrl(repair.slug);
               return (
-                <Link key={repair.slug} href={`/repair-cost/${repair.slug}`} className="group flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                <Link prefetch={false} key={repair.slug} href={`/repair-cost/${repair.slug}`} className="group flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                   <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                     {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />}
                   </div>
@@ -213,7 +213,7 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
         </section>
 
         {/* ── Back ── */}
-        <Link href="/warning-lights" className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+        <Link prefetch={false} href="/warning-lights" className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
           Back to all warning lights
         </Link>

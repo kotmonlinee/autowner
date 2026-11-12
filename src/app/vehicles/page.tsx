@@ -175,7 +175,7 @@ export default function VehiclesPage() {
       <Navbar />
       <main id="main-content" className="max-w-6xl mx-auto px-5 py-6 flex-1 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary">Vehicles</span>
         </nav>
@@ -194,7 +194,7 @@ export default function VehiclesPage() {
               {models.map((v) => {
                 const img = getVehicleImageUrl(v.makeSlug, v.modelSlug);
                 return (
-                  <Link
+                  <Link prefetch={false}
                     key={`${v.makeSlug}/${v.modelSlug}`}
                     href={`/vehicles/${v.makeSlug}/${v.modelSlug}`}
                     className="group bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm hover:-translate-y-0.5 transition-all overflow-hidden"

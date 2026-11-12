@@ -69,7 +69,7 @@ export default async function CommunityPage({
 
       <main id="main-content" className="flex-1 max-w-3xl mx-auto px-5 py-6 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary">Community</span>
         </nav>
@@ -114,7 +114,7 @@ export default async function CommunityPage({
                 {query ? "No discussions match your search." : "No discussions yet. Be the first to start one!"}
               </p>
               {!query && (
-                <Link href="/submit" className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20">
+                <Link prefetch={false} href="/submit" className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 font-heading shadow-sm shadow-primary/20">
                   Create a Post
                 </Link>
               )}
@@ -128,7 +128,7 @@ export default async function CommunityPage({
                   const readMin = Math.max(1, Math.round(wordCount / 200));
                   const typeLabel = post.categories?.name ?? "Article";
                   return (
-                  <Link
+                  <Link prefetch={false}
                     key={post.id}
                     href={`/post/${post.slug || post.id}`}
                     className="block bg-surface-1 rounded-xl border border-surface-border p-5 hover:border-primary/20 hover:bg-surface-2 transition-all duration-150 group"
@@ -159,7 +159,7 @@ export default async function CommunityPage({
               {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 mt-6">
                   {page > 1 && (
-                    <Link
+                    <Link prefetch={false}
                       href={`/community?${query ? `q=${encodeURIComponent(query)}&` : ""}page=${page - 1}`}
                       className="px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors"
                     >
@@ -167,7 +167,7 @@ export default async function CommunityPage({
                     </Link>
                   )}
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                    <Link
+                    <Link prefetch={false}
                       key={p}
                       href={`/community?${query ? `q=${encodeURIComponent(query)}&` : ""}page=${p}`}
                       className={`px-3 py-2 text-sm font-heading font-medium rounded-lg transition-colors ${
@@ -180,7 +180,7 @@ export default async function CommunityPage({
                     </Link>
                   ))}
                   {page < totalPages && (
-                    <Link
+                    <Link prefetch={false}
                       href={`/community?${query ? `q=${encodeURIComponent(query)}&` : ""}page=${page + 1}`}
                       className="px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors"
                     >
@@ -215,7 +215,7 @@ export default async function CommunityPage({
                 const followerCount = (eng.follower_count as number) ?? 0;
 
                 return (
-                  <Link key={eng.id as string} href={`/vehicle/${eng.id}`} className="bg-surface-1 rounded-xl border border-surface-border p-4 hover:border-primary/20 hover:bg-surface-2 transition-all duration-150 group">
+                  <Link prefetch={false} key={eng.id as string} href={`/vehicle/${eng.id}`} className="bg-surface-1 rounded-xl border border-surface-border p-4 hover:border-primary/20 hover:bg-surface-2 transition-all duration-150 group">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-lg bg-amber/10 flex items-center justify-center shrink-0">
                         <svg className="w-5 h-5 text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>

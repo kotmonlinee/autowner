@@ -67,7 +67,7 @@ export default function FeaturedCarousel({
                   {/* Badges */}
                   <div className="flex items-center gap-2 mb-3">
                     {post.categories && (
-                      <Link
+                      <Link prefetch={false}
                         href={`/community?category=${post.categories.slug}`}
                         className="inline-flex items-center gap-1 px-2 py-0.5 bg-surface-3 text-text-secondary rounded-full text-xs font-bold uppercase tracking-wider hover:bg-surface-4 hover:text-primary transition-colors font-heading"
                       >
@@ -91,7 +91,7 @@ export default function FeaturedCarousel({
                   </div>
 
                   {/* Title */}
-                  <Link href={`/post/${post.slug || post.id}`}>
+                  <Link prefetch={false} href={`/post/${post.slug || post.id}`}>
                     <h2 className="text-xl sm:text-2xl font-bold text-text-primary font-heading leading-tight hover:text-primary transition-colors duration-150 line-clamp-2">
                       {post.title}
                     </h2>
@@ -104,7 +104,7 @@ export default function FeaturedCarousel({
 
                   {/* Footer */}
                   <div className="flex items-center gap-3 mt-4">
-                    <Link
+                    <Link prefetch={false}
                       href={`/post/${post.slug || post.id}`}
                       className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-semibold rounded-lg transition-colors duration-150 font-heading"
                     >
@@ -126,7 +126,7 @@ export default function FeaturedCarousel({
                     {post.profiles?.username && (
                       <>
                         <span className="text-surface-border">by</span>
-                        <Link
+                        <Link prefetch={false}
                           href={`/user/${post.profiles.username}`}
                           className="text-sm text-text-muted hover:text-text-secondary transition-colors font-medium"
                         >

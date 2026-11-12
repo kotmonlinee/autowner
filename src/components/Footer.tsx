@@ -26,7 +26,7 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           {/* Logo + tagline */}
           <div className="flex flex-col items-center sm:items-start gap-1">
-            <Link href="/" className="flex items-center group">
+            <Link prefetch={false} href="/" className="flex items-center group">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80" width="168" height="32" className="h-[32px] w-auto" aria-label="AutOwner">
                 <defs>
                   <linearGradient id="footer-logo-grad" x1="0" y1="0" x2="1" y2="0">
@@ -51,7 +51,7 @@ export default function Footer() {
           {/* Links */}
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             {footerLinks.map((link) => (
-              <Link
+              <Link prefetch={false}
                 key={link.href}
                 href={link.href}
                 className="text-sm text-text-muted hover:text-text-secondary transition-colors font-heading font-medium"
@@ -64,7 +64,7 @@ export default function Footer() {
           {/* Tool Links */}
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             {toolLinks.map((link) => (
-              <Link
+              <Link prefetch={false}
                 key={link.href}
                 href={link.href}
                 className="text-sm text-text-muted hover:text-text-secondary transition-colors font-heading font-medium"

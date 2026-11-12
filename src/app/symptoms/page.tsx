@@ -66,7 +66,7 @@ export default async function SymptomsPage() {
       <Navbar />
       <main id="main-content" className="max-w-5xl mx-auto px-5 py-6 flex-1 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary">Symptoms</span>
         </nav>
@@ -89,7 +89,7 @@ export default async function SymptomsPage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {items.map((s) => (
-                    <Link
+                    <Link prefetch={false}
                       key={s.slug}
                       href={`/symptoms/${s.slug}`}
                       className="group flex items-center gap-3 p-3 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all"

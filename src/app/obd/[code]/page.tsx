@@ -352,7 +352,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading"
           aria-label="Breadcrumb"
         >
-          <Link href="/" className="hover:text-primary transition-colors">
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">
             Home
           </Link>
           <svg
@@ -368,7 +368,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
               d="M9 5l7 7-7 7"
             />
           </svg>
-          <Link href="/obd" className="hover:text-primary transition-colors">
+          <Link prefetch={false} href="/obd" className="hover:text-primary transition-colors">
             OBD Codes
           </Link>
           <svg
@@ -394,7 +394,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             <h1 className="text-3xl sm:text-4xl font-mono font-bold text-text-primary tracking-wider">
               {obd.code}
             </h1>
-            <Link
+            <Link prefetch={false}
               href={`/obd/severity-levels?level=${obd.severity}`}
               className="inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-bold font-heading border hover:ring-2 hover:ring-offset-1 hover:ring-offset-surface-0 transition-all"
               style={{
@@ -504,7 +504,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                     {repair ? (
-                      <Link href={`/repair-cost/${repair.slug}`} className="text-primary hover:underline">
+                      <Link prefetch={false} href={`/repair-cost/${repair.slug}`} className="text-primary hover:underline">
                         {f}
                       </Link>
                     ) : (
@@ -531,7 +531,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 Typical range; varies by vehicle make, model, and local labor rates.
               </span>
             </div>
-            <Link href="/repair-cost" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+            <Link prefetch={false} href="/repair-cost" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
               See all repair cost estimates
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
@@ -541,7 +541,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                   <p className="text-sm font-heading font-semibold text-text-primary">Worried about repair costs?</p>
                   <p className="text-xs text-text-muted">Get transparent estimates and verify your mechanic&apos;s quote before authorizing repairs.</p>
                 </div>
-                <Link href="/quote-checker" className="flex items-center justify-between sm:inline-flex gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold font-heading rounded-lg hover:bg-primary-glow transition-all sm:shrink-0">
+                <Link prefetch={false} href="/quote-checker" className="flex items-center justify-between sm:inline-flex gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold font-heading rounded-lg hover:bg-primary-glow transition-all sm:shrink-0">
                   Check your quote
                   <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>
@@ -558,7 +558,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
               {relatedRepairs.map((repair) => {
                 const img = getRepairImageUrl(repair.slug);
                 return (
-                  <Link key={repair.slug} href={`/repair-cost/${repair.slug}`}
+                  <Link prefetch={false} key={repair.slug} href={`/repair-cost/${repair.slug}`}
                     className="flex items-center gap-3 p-3 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
                     <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2 flex items-center justify-center">
                       {img ? (
@@ -595,7 +595,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             </p>
             <div className="space-y-1.5">
               {relatedCodes.map((rel) => (
-                <Link key={rel.code} href={`/obd/${rel.code.toLowerCase()}`}
+                <Link prefetch={false} key={rel.code} href={`/obd/${rel.code.toLowerCase()}`}
                   className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
                   <span className="w-14 sm:w-16 text-sm font-mono font-bold text-primary shrink-0 text-right">{rel.code}</span>
                   <span className="flex-1 min-w-0 text-xs text-text-secondary font-heading truncate">{rel.title}</span>
@@ -603,7 +603,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 </Link>
               ))}
             </div>
-            <Link href="/obd" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+            <Link prefetch={false} href="/obd" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
               Browse all 12,000+ codes
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
@@ -619,7 +619,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             <p className="text-xs text-text-muted mb-3">People with this code often experience these symptoms:</p>
             <div className="space-y-2">
               {relatedDiagnoses.map((d) => (
-                <Link key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-lg border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
+                <Link prefetch={false} key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-lg border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
                   <span className="text-sm font-medium text-text-primary group-hover:text-primary transition-colors">{d.title}</span>
                   <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${d.severity === "critical" ? "bg-red-50 text-red-700" : d.severity === "high" ? "bg-orange-50 text-orange-700" : "bg-amber-50 text-amber-700"} font-heading`}>{d.severity}</span>
                 </Link>
@@ -657,7 +657,7 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {popularVehicles.slice(0, 9).map((v) => (
-                <Link
+                <Link prefetch={false}
                   key={`${v.makeSlug}-${v.modelSlug}`}
                   href={`/obd/${code}/${v.makeSlug}/${v.modelSlug}`}
                   className="text-xs text-text-secondary hover:text-primary transition-colors truncate"

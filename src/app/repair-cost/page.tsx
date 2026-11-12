@@ -182,7 +182,7 @@ export default async function RepairCostLandingPage() {
           className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading"
           aria-label="Breadcrumb"
         >
-          <Link href="/" className="hover:text-primary transition-colors">
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">
             Home
           </Link>
           <svg
@@ -227,7 +227,7 @@ export default async function RepairCostLandingPage() {
               {popularRepairs.slice(0, 9).map((repair) => {
                 const img = getRepairImageUrl(repair.slug);
                 return (
-                <Link
+                <Link prefetch={false}
                   key={repair.slug}
                   href={`/repair-cost/${repair.slug}`}
                   className="group bg-surface-1 border border-surface-border rounded-xl p-4 hover:border-primary/20 hover:shadow-sm transition-all duration-150 max-w-full overflow-hidden"
@@ -262,7 +262,7 @@ export default async function RepairCostLandingPage() {
             </div>
             {popularRepairs.length > 9 && (
               <div className="text-center mt-4">
-                <Link
+                <Link prefetch={false}
                   href="#all-repairs"
                   className="text-sm font-medium text-primary hover:text-primary-glow transition-colors"
                 >
@@ -280,7 +280,7 @@ export default async function RepairCostLandingPage() {
               <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Repair Costs by Vehicle</h2>
               <p className="text-xs text-text-muted">Find cost estimates for your specific make and model across all repair types.</p>
             </div>
-            <Link href="/vehicles" className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
+            <Link prefetch={false} href="/vehicles" className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
               Browse Vehicles
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
@@ -323,7 +323,7 @@ export default async function RepairCostLandingPage() {
                       )
                       .slice(0, 5)
                       .map((slug) => (
-                        <Link
+                        <Link prefetch={false}
                           key={slug}
                           href={`/repair-cost/${slug}`}
                           className="px-3 py-2 bg-surface-0 border border-surface-border text-text-secondary rounded-lg text-xs font-medium hover:border-primary/30 hover:text-primary transition-colors font-heading"

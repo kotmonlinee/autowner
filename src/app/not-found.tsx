@@ -63,13 +63,13 @@ export default function NotFound() {
 
         <div className="flex flex-wrap justify-center gap-2 mb-10">
           {popularLinks.map((l) => (
-            <Link key={l.href} href={l.href} className="px-3 py-2 rounded-lg bg-surface-1 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/20 transition-colors font-heading">
+            <Link prefetch={false} key={l.href} href={l.href} className="px-3 py-2 rounded-lg bg-surface-1 border border-surface-border text-xs font-medium text-text-secondary hover:text-primary hover:border-primary/20 transition-colors font-heading">
               {l.name}
             </Link>
           ))}
         </div>
 
-        <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20">
+        <Link prefetch={false} href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20">
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
             <path d="M5 12h14M12 5l-7 7 7 7" />
           </svg>

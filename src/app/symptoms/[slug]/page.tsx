@@ -242,9 +242,9 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
 
       <main className="flex-1 max-w-3xl mx-auto px-5 py-8 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <Link href="/symptoms" className="hover:text-primary transition-colors">Symptoms</Link>
+          <Link prefetch={false} href="/symptoms" className="hover:text-primary transition-colors">Symptoms</Link>
           {vs && (
             <>
               <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
@@ -273,7 +273,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
               </span>
             </div>
           </div>
-          <Link href={`/symptom-checker?symptom=${encodeURIComponent(vs ? vs.symptom_name : s.name)}`} className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl hover:bg-primary/10 hover:border-primary/40 transition-all group">
+          <Link prefetch={false} href={`/symptom-checker?symptom=${encodeURIComponent(vs ? vs.symptom_name : s.name)}`} className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl hover:bg-primary/10 hover:border-primary/40 transition-all group">
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
               <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
                 <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
@@ -387,7 +387,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
             <h2 className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Related AI Diagnoses</h2>
             <div className="space-y-2">
               {relatedDiagnoses.map((d) => (
-                <Link key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center gap-3 p-3 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
+                <Link prefetch={false} key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center gap-3 p-3 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
                   <span className={`w-2 h-2 rounded-full shrink-0 ${d.severity === "critical" ? "bg-red-500" : d.severity === "high" ? "bg-orange-500" : d.severity === "medium" ? "bg-amber-500" : "bg-emerald-500"}`} />
                   <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1">{d.title}</span>
                   <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
@@ -429,7 +429,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
                   <tr key={i} className="border-b border-surface-border last:border-0 hover:bg-surface-0/50 transition-colors">
                     <td className="py-2.5 px-3">
                       {c.repair_slug ? (
-                        <Link href={`/repair-cost/${c.repair_slug.replace(/_/g, "-")}`} className="text-sm font-heading font-medium text-primary hover:text-primary-glow transition-colors">{c.cause_name}</Link>
+                        <Link prefetch={false} href={`/repair-cost/${c.repair_slug.replace(/_/g, "-")}`} className="text-sm font-heading font-medium text-primary hover:text-primary-glow transition-colors">{c.cause_name}</Link>
                       ) : (
                         <span className="text-sm font-heading font-medium text-text-primary">{c.cause_name}</span>
                       )}
@@ -461,7 +461,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
               <h3 className="text-sm font-heading font-bold text-text-primary mb-0.5">Got a mechanic&apos;s quote? Check if it&apos;s fair</h3>
               <p className="text-text-muted text-xs">Compare your quote against real repair cost data for your vehicle.</p>
             </div>
-            <Link
+            <Link prefetch={false}
               href={`/quote-checker?repair=${encodeURIComponent(repSlugs[0]?.replace(/_/g, "-") || s.name)}${
                 vs ? `&make=${encodeURIComponent(vs.vehicle_make || "")}&model=${encodeURIComponent(vs.vehicle_model || "")}` : ""
               }`}
@@ -480,7 +480,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
             <p className="text-xs text-text-muted mb-3">These diagnostic trouble codes are commonly associated with this symptom:</p>
             <div className="space-y-1.5">
               {obdCodes.map((obd) => (
-                <Link key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                <Link prefetch={false} key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                   <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code}</span>
                   <span className="h-4 w-px bg-surface-border shrink-0" />
                   <span className="text-xs text-text-secondary truncate flex-1">{obd.title}</span>
@@ -497,7 +497,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
             <h2 className="text-lg font-heading font-bold text-text-primary mb-3">Related Warning Lights</h2>
             <div className="space-y-2">
               {warningLights.slice(0, 5).map((l) => (
-                <Link key={l.slug} href={`/warning-lights/${l.slug}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
+                <Link prefetch={false} key={l.slug} href={`/warning-lights/${l.slug}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                   <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2"><img src={`/warning-lights/${l.slug}.jpg`} alt={l.title} className="w-full h-full object-cover" loading="lazy" /></div>
                   <span className="text-sm font-heading font-semibold text-text-primary truncate flex-1">{l.title}</span>
                   <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
@@ -513,7 +513,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
             <h2 className="text-lg font-heading font-bold text-text-primary mb-3">See This Symptom on Specific Vehicles</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {relatedVehicles.map((rv) => (
-                <Link key={rv.slug} href={`/symptoms/${rv.slug}`} className="flex items-center gap-2 p-2.5 rounded-lg bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
+                <Link prefetch={false} key={rv.slug} href={`/symptoms/${rv.slug}`} className="flex items-center gap-2 p-2.5 rounded-lg bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
                   <span className="text-sm font-heading font-medium text-text-primary group-hover:text-primary transition-colors truncate">{rv.vehicle_make} {rv.vehicle_model}</span>
                   <svg className="w-3.5 h-3.5 text-text-muted shrink-0 group-hover:text-primary group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>

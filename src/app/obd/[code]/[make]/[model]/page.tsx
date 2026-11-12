@@ -80,10 +80,10 @@ export default async function ObdVehiclePage({
       <Navbar />
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-          <Link href="/obd" className="hover:text-primary transition-colors">OBD Codes</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-          <Link href={`/obd/${obd.code.toLowerCase()}`} className="hover:text-primary transition-colors">{obd.code}</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-          <Link href={`/vehicles/${makeSlug}/${modelSlug}`} className="hover:text-primary transition-colors">{makeName} {modelName}</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+          <Link prefetch={false} href="/obd" className="hover:text-primary transition-colors">OBD Codes</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+          <Link prefetch={false} href={`/obd/${obd.code.toLowerCase()}`} className="hover:text-primary transition-colors">{obd.code}</Link><svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+          <Link prefetch={false} href={`/vehicles/${makeSlug}/${modelSlug}`} className="hover:text-primary transition-colors">{makeName} {modelName}</Link>
         </nav>
 
         <div className="flex flex-col md:flex-row gap-6 mb-6">
@@ -132,13 +132,13 @@ export default async function ObdVehiclePage({
             <p className="text-sm text-text-secondary mb-4">These repairs are commonly needed to resolve the {obd.code} code on a {makeName} {modelName}:</p>
             <div className="space-y-2">
               {repairCosts.map((r) => (
-                <Link key={r.slug} href={`/repair-cost/${r.slug}-${makeSlug}-${modelSlug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
+                <Link prefetch={false} key={r.slug} href={`/repair-cost/${r.slug}-${makeSlug}-${modelSlug}`} className="flex items-center justify-between p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
                   <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors">{r.name}</span>
                   <span className="text-sm font-bold text-primary font-heading">{formatMoney(r.min)}–{formatMoney(r.max)}</span>
                 </Link>
               ))}
             </div>
-            <Link href={`/vehicles/${makeSlug}/${modelSlug}`} className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
+            <Link prefetch={false} href={`/vehicles/${makeSlug}/${modelSlug}`} className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
               See all repair costs for {makeName} {modelName} →
             </Link>
           </div>
@@ -170,12 +170,12 @@ export default async function ObdVehiclePage({
             <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related OBD-II Codes</h2>
             <div className="flex flex-wrap gap-2">
               {relatedCodes.map((c) => (
-                <Link key={c.code} href={`/obd/${c.code.toLowerCase()}/${makeSlug}/${modelSlug}`} className="inline-flex items-center px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-xs font-mono font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">
+                <Link prefetch={false} key={c.code} href={`/obd/${c.code.toLowerCase()}/${makeSlug}/${modelSlug}`} className="inline-flex items-center px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-xs font-mono font-medium text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors">
                   {c.code}
                 </Link>
               ))}
             </div>
-            <Link href={`/obd/${obd.code.toLowerCase()}`} className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
+            <Link prefetch={false} href={`/obd/${obd.code.toLowerCase()}`} className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
               {obd.code} on all vehicles →
             </Link>
           </div>
@@ -185,10 +185,10 @@ export default async function ObdVehiclePage({
         <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
           <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">More for {makeName} {modelName} Owners</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <Link href={`/vehicles/${makeSlug}/${modelSlug}`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-xs font-heading font-semibold text-text-primary text-center">All Repair Costs</Link>
-            <Link href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-xs font-heading font-semibold text-text-primary text-center">Safety Recalls</Link>
-            <Link href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-xs font-heading font-semibold text-text-primary text-center">Check a Quote</Link>
-            <Link href={`/warning-lights`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-xs font-heading font-semibold text-text-primary text-center">Warning Lights</Link>
+            <Link prefetch={false} href={`/vehicles/${makeSlug}/${modelSlug}`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-xs font-heading font-semibold text-text-primary text-center">All Repair Costs</Link>
+            <Link prefetch={false} href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-xs font-heading font-semibold text-text-primary text-center">Safety Recalls</Link>
+            <Link prefetch={false} href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-xs font-heading font-semibold text-text-primary text-center">Check a Quote</Link>
+            <Link prefetch={false} href={`/warning-lights`} className="p-3 bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 transition-colors text-xs font-heading font-semibold text-text-primary text-center">Warning Lights</Link>
           </div>
         </div>
       </main>

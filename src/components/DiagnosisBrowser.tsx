@@ -121,7 +121,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
             {isSearching ? `No diagnoses found for "${query}". Try different keywords.` : "No diagnoses available yet."}
           </p>
           {isSearching && (
-            <Link href="/symptom-checker" className="inline-flex items-center gap-1.5 mt-3 text-sm font-heading font-semibold text-primary hover:underline">
+            <Link prefetch={false} href="/symptom-checker" className="inline-flex items-center gap-1.5 mt-3 text-sm font-heading font-semibold text-primary hover:underline">
               Try a new diagnosis →
             </Link>
           )}
@@ -135,7 +135,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
               const vehicle = d.vehicle_make ? `${d.vehicle_make} ${d.vehicle_model ?? ""}` : null;
               const img = getDiagnosisImage(d, diag);
               return (
-                <Link key={d.slug} href={`/symptom-checker/${d.slug}`}
+                <Link prefetch={false} key={d.slug} href={`/symptom-checker/${d.slug}`}
                   className="flex flex-col bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group overflow-hidden">
                   {img && (
                     <div className="w-full h-36 bg-surface-2 overflow-hidden">

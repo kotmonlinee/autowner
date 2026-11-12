@@ -32,7 +32,7 @@ export default function RecallCheckPage() {
       <Navbar />
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
           <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary">Recall Check</span>
         </nav>
@@ -69,7 +69,7 @@ export default function RecallCheckPage() {
               { make: "BMW", makeSlug: "bmw", model: "3 Series", modelSlug: "3-series", year: "2023" },
               { make: "Subaru", makeSlug: "subaru", model: "Outback", modelSlug: "outback", year: "2020" },
             ].map((v) => (
-              <Link key={`${v.make}-${v.model}-${v.year}`}
+              <Link prefetch={false} key={`${v.make}-${v.model}-${v.year}`}
                 href={`/recall-check?make=${encodeURIComponent(v.make)}&model=${encodeURIComponent(v.model)}&year=${v.year}`}
                 className="group flex items-center gap-3 p-2 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors overflow-hidden">
                 <div className="w-14 h-11 sm:w-16 sm:h-12 rounded-lg overflow-hidden shrink-0 bg-surface-2">

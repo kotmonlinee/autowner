@@ -222,7 +222,7 @@ function SubmitForm() {
   return (
     <div className="min-h-screen bg-surface-0 relative">
       <nav className="sticky top-0 z-50 bg-surface-0/80 backdrop-blur-xl border-b border-surface-border h-16 flex items-center px-5">
-        <Link href="/" className="flex items-center gap-2.5 group">
+        <Link prefetch={false} href="/" className="flex items-center gap-2.5 group">
           <span className="w-8 h-8 rounded-md bg-primary flex items-center justify-center group-hover:bg-primary-glow transition-colors">
             <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={18} height={18}>
               <path d="M5 12h14M12 5l7 7-7 7" />
@@ -501,7 +501,7 @@ function SubmitForm() {
             >
               {saving ? "Saving..." : "Save Draft"}
             </button>
-            <Link href="/" className="px-6 py-2.5 bg-surface-2 text-text-secondary text-sm font-medium rounded-xl hover:bg-surface-3 transition-colors font-heading border border-surface-border">
+            <Link prefetch={false} href="/" className="px-6 py-2.5 bg-surface-2 text-text-secondary text-sm font-medium rounded-xl hover:bg-surface-3 transition-colors font-heading border border-surface-border">
               Cancel
             </Link>
           </div>

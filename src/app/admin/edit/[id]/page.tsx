@@ -17,7 +17,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
         <div className="bg-surface-1 rounded-xl border border-surface-border p-12 text-center">
           <h1 className="text-2xl font-bold text-text-primary font-heading mb-2">Post not found</h1>
           <p className="text-text-muted mb-4">No post exists with ID: {id}</p>
-          <Link
+          <Link prefetch={false}
             href="/admin"
             className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary-glow transition-colors font-heading"
           >
@@ -42,7 +42,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
     <div>
       {/* Breadcrumb */}
       <nav className="mb-5 flex items-center gap-2 text-sm text-text-muted font-heading">
-        <Link href="/admin" className="hover:text-primary transition-colors">Admin</Link>
+        <Link prefetch={false} href="/admin" className="hover:text-primary transition-colors">Admin</Link>
         <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}>
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
@@ -63,7 +63,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Link
+            <Link prefetch={false}
               href={`/post/${post.slug || post.id}`}
               target="_blank"
               className="px-4 py-2 bg-surface-3 text-text-secondary rounded-lg text-sm font-bold hover:bg-surface-4 hover:text-text-primary transition-colors font-heading border border-surface-border"
@@ -230,7 +230,7 @@ export default async function AdminEditPostPage({ params }: { params: Promise<{ 
             >
               Save Changes
             </button>
-            <Link
+            <Link prefetch={false}
               href="/admin"
               className="px-4 py-2 text-sm font-bold text-text-muted hover:text-text-secondary transition-colors font-heading"
             >

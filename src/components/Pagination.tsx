@@ -43,7 +43,7 @@ export default function Pagination({
     <div className="mt-8 pt-6 border-t border-surface-border space-y-4">
       {/* Load More button — prominent, full-width */}
       {hasNext && (
-        <Link
+        <Link prefetch={false}
           href={buildHref(page + 1)}
           className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-surface-2 text-text-secondary text-sm font-semibold font-heading rounded-xl border border-surface-border hover:bg-surface-3 hover:text-text-primary hover:border-surface-4 transition-all duration-150"
           aria-label="Load more posts"
@@ -61,7 +61,7 @@ export default function Pagination({
         aria-label="Pagination"
       >
         {hasPrev ? (
-          <Link href={buildHref(page - 1)} className={`${btnBase} ${btnEnabled}`} aria-label="Previous page">
+          <Link prefetch={false} href={buildHref(page - 1)} className={`${btnBase} ${btnEnabled}`} aria-label="Previous page">
             Previous
           </Link>
         ) : (
@@ -78,7 +78,7 @@ export default function Pagination({
         </span>
 
         {hasNext ? (
-          <Link href={buildHref(page + 1)} className={`${btnBase} ${btnEnabled}`} aria-label="Next page">
+          <Link prefetch={false} href={buildHref(page + 1)} className={`${btnBase} ${btnEnabled}`} aria-label="Next page">
             Next
           </Link>
         ) : (

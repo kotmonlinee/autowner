@@ -20,7 +20,7 @@ export default function DiagnosisLink() {
   return (
     <div className="mt-2 text-sm font-heading">
       <span className="text-text-muted">Not sure what's wrong? </span>
-      <Link href={href} className="text-primary hover:text-primary-glow font-semibold transition-colors">
+      <Link prefetch={false} href={href} className="text-primary hover:text-primary-glow font-semibold transition-colors">
         AI Diagnosis →
       </Link>
     </div>

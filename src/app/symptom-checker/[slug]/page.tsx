@@ -180,9 +180,9 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
       {d.faq && d.faq.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: d.faq.map((item: any) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })) }) }} />}
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
         <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading whitespace-nowrap overflow-x-auto" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors shrink-0">Home</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors shrink-0">Home</Link>
           <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <Link href="/symptom-checker" className="hover:text-primary transition-colors shrink-0">Symptom Checker</Link>
+          <Link prefetch={false} href="/symptom-checker" className="hover:text-primary transition-colors shrink-0">Symptom Checker</Link>
           <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-text-secondary truncate">{d.title}</span>
         </nav>
@@ -195,7 +195,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
               </div>
             )}
             <span className="text-xs text-text-muted font-heading">{vehicle}</span>
-            <Link
+            <Link prefetch={false}
               href={`/vehicles/${(diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-")}/${(diagnosis.vehicle_model ?? "").toLowerCase().replace(/\s+/g, "-")}`}
               className="text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors ml-auto shrink-0"
             >
@@ -257,7 +257,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                         </div>
                       )}
                       {matchedRepair && (
-                        <Link href={`/repair-cost/${matchedRepair.repairSlug}`} className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-heading font-semibold hover:bg-primary/20 transition-colors">
+                        <Link prefetch={false} href={`/repair-cost/${matchedRepair.repairSlug}`} className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-heading font-semibold hover:bg-primary/20 transition-colors">
                           <Wrench className="w-3.5 h-3.5" />
                           {matchedRepair.name} — View Repair Cost
                           <ChevronRight className="w-3 h-3" />
@@ -298,7 +298,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
             {/* ── Try another diagnosis ── */}
             <div className="py-5 px-4 bg-surface-1 rounded-2xl border border-surface-border text-center">
               <p className="text-sm text-text-secondary font-heading font-medium mb-3">Not satisfied with this diagnosis?</p>
-              <Link href="/symptom-checker" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all font-heading shadow-sm shadow-primary/20">
+              <Link prefetch={false} href="/symptom-checker" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all font-heading shadow-sm shadow-primary/20">
                 Try Another Diagnosis
                 <ArrowRight className="w-4 h-4" />
               </Link>
@@ -314,7 +314,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {resolvedRepairs.map((r) => (
-                    <Link key={r.slug} href={`/repair-cost/${r.repairSlug}`} className="flex items-center gap-3 p-3 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
+                    <Link prefetch={false} key={r.slug} href={`/repair-cost/${r.repairSlug}`} className="flex items-center gap-3 p-3 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
                       <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2 flex items-center justify-center">
                         {r.image ? (
                           <img src={r.image} alt={r.name} className="w-full h-full object-cover" loading="lazy" />
@@ -337,7 +337,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                   ))}
                 </div>
                 <div className="mt-3 pt-3 border-t border-surface-border">
-                  <Link href={browseRepairUrl} className="inline-flex items-center gap-1.5 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+                  <Link prefetch={false} href={browseRepairUrl} className="inline-flex items-center gap-1.5 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
                     Browse all repair costs
                     <ArrowRight className="w-3 h-3" />
                   </Link>
@@ -365,7 +365,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                   <h3 className="text-sm font-heading font-bold text-text-primary mb-0.5">Got a mechanic&apos;s quote? Check if it&apos;s fair</h3>
                   <p className="text-text-muted text-xs">Compare your quote against real repair cost data for your vehicle.</p>
                 </div>
-                <Link
+                <Link prefetch={false}
                   href={`/quote-checker?repair=${encodeURIComponent(resolvedRepairs[0]?.name || d.title)}${
                     vehicle ? `&make=${encodeURIComponent(diagnosis.vehicle_make || "")}&model=${encodeURIComponent(diagnosis.vehicle_model || "")}` : ""
                   }`}
@@ -391,7 +391,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
             </h2>
             <div className="space-y-2">
               {obdCodeDetails.map((obd) => (
-                <Link key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
+                <Link prefetch={false} key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
                   <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code}</span>
                   <span className="h-4 w-px bg-surface-border shrink-0" />
                   <span className="text-xs text-text-secondary truncate">{obd.title}</span>
@@ -413,7 +413,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
             </h2>
             <div className="space-y-2">
               {relatedWarningLights.slice(0, 6).map((light) => (
-                <Link key={light.slug} href={`/warning-lights/${light.slug}`}
+                <Link prefetch={false} key={light.slug} href={`/warning-lights/${light.slug}`}
                   className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                   <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                     <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" loading="lazy" />
@@ -437,7 +437,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
             </h2>
             <div className="space-y-2">
               {relatedSymptoms.map((s) => (
-                <Link key={s.slug} href={`/symptoms/${s.slug}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
+                <Link prefetch={false} key={s.slug} href={`/symptoms/${s.slug}`} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
                   <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1">{s.name}</span>
                   <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </Link>

@@ -85,7 +85,7 @@ export default function DemoSymptomsHub() {
                 className="w-full h-14 pl-12 pr-5 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
               />
             </div>
-            <Link href="/symptom-checker" className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow transition-all font-heading shadow-sm shadow-primary/20">
+            <Link prefetch={false} href="/symptom-checker" className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow transition-all font-heading shadow-sm shadow-primary/20">
               Diagnose with AI
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
@@ -97,7 +97,7 @@ export default function DemoSymptomsHub() {
           <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">Common Symptoms</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {HIGHLIGHTS.map((s) => (
-              <Link key={s.slug} href={`/demo/symptoms-hub#detail`}
+              <Link prefetch={false} key={s.slug} href={`/demo/symptoms-hub#detail`}
                 className="group flex items-center gap-3 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all">
                 <div className="flex-1 min-w-0">
                   <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors line-clamp-2">{s.name}</span>
@@ -114,7 +114,7 @@ export default function DemoSymptomsHub() {
           <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">Browse by Category</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {CATEGORIES.map((cat) => (
-              <Link key={cat.slug} href={`/demo/symptoms-hub#${cat.slug}`}
+              <Link prefetch={false} key={cat.slug} href={`/demo/symptoms-hub#${cat.slug}`}
                 className="group flex items-center justify-between p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 transition-all">
                 <span className="text-sm font-heading font-medium text-text-primary group-hover:text-primary transition-colors">{cat.name}</span>
                 <span className="text-xs text-text-muted font-heading">{cat.count}</span>
@@ -161,7 +161,7 @@ export default function DemoSymptomsHub() {
                 <p className="text-[10px] text-text-muted">varies by cause — see breakdown below</p>
               </div>
             </div>
-            <Link href="/symptom-checker" className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
+            <Link prefetch={false} href="/symptom-checker" className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
               Not sure this matches? Describe YOUR symptoms for a personalized diagnosis →
             </Link>
           </div>
@@ -195,7 +195,7 @@ export default function DemoSymptomsHub() {
                   {EXAMPLE_CAUSES.map((c, i) => (
                     <tr key={i} className="border-b border-surface-border last:border-0 hover:bg-surface-0/50 transition-colors">
                       <td className="py-2.5 px-3">
-                        <Link href={`/repair-cost/${c.repair.toLowerCase().replace(/ /g, "-")}`} className="text-sm font-heading font-medium text-primary hover:text-primary-glow transition-colors">{c.repair}</Link>
+                        <Link prefetch={false} href={`/repair-cost/${c.repair.toLowerCase().replace(/ /g, "-")}`} className="text-sm font-heading font-medium text-primary hover:text-primary-glow transition-colors">{c.repair}</Link>
                       </td>
                       <td className="py-2.5 px-3 text-center">
                         <div className="flex items-center justify-center gap-1.5">
@@ -227,7 +227,7 @@ export default function DemoSymptomsHub() {
               <span className="text-3xl font-heading font-bold text-primary">L3</span>
               <p className="text-xs text-text-muted font-heading mt-1">DIY Difficulty</p>
               <p className="text-[10px] text-text-muted mt-0.5">Intermediate — Some experience helps</p>
-              <Link href="/repair-cost/diy-levels" className="inline-flex items-center gap-0.5 text-[10px] text-primary font-heading mt-2 hover:text-primary-glow">What's this? →</Link>
+              <Link prefetch={false} href="/repair-cost/diy-levels" className="inline-flex items-center gap-0.5 text-[10px] text-primary font-heading mt-2 hover:text-primary-glow">What's this? →</Link>
             </div>
             <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 text-center">
               <p className="text-xl font-heading font-bold text-text-primary">2 – 5 hours</p>
@@ -247,7 +247,7 @@ export default function DemoSymptomsHub() {
             <p className="text-xs text-text-muted mb-3">These diagnostic codes are commonly associated with this symptom:</p>
             <div className="flex flex-wrap gap-2">
               {RELATED_OBD.map((code) => (
-                <Link key={code} href={`/obd/${code.toLowerCase()}`}
+                <Link prefetch={false} key={code} href={`/obd/${code.toLowerCase()}`}
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-0 border border-surface-border text-sm font-mono font-bold text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors">
                   {code}
                   <svg className="w-3 h-3 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
@@ -261,7 +261,7 @@ export default function DemoSymptomsHub() {
             <h2 className="text-lg font-heading font-bold text-text-primary mb-3">Related Warning Lights</h2>
             <div className="space-y-2">
               {RELATED_LIGHTS.map((l) => (
-                <Link key={l.slug} href={`/warning-lights/${l.slug}`}
+                <Link prefetch={false} key={l.slug} href={`/warning-lights/${l.slug}`}
                   className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
                   <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
                     <img src={`/warning-lights/${l.slug}.jpg`} alt={l.title} className="w-full h-full object-cover" loading="lazy" />
@@ -288,7 +288,7 @@ export default function DemoSymptomsHub() {
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 sm:p-6 text-center mb-6">
             <h2 className="text-lg font-heading font-bold text-text-primary mb-2">Not Sure This Is Your Issue?</h2>
             <p className="text-sm text-text-secondary mb-4">Describe your exact symptoms to our AI. It'll identify possible causes, OBD codes, and repair costs in seconds.</p>
-            <Link href="/symptom-checker" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow transition-all font-heading shadow-sm shadow-primary/20">
+            <Link prefetch={false} href="/symptom-checker" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow transition-all font-heading shadow-sm shadow-primary/20">
               Diagnose Your Symptoms
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>

@@ -95,9 +95,9 @@ export default async function SeverityLevelsPage({
       <main className="flex-1 max-w-3xl mx-auto px-5 py-8 w-full">
         {/* Breadcrumb */}
         <nav className="mb-6 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
           <span className="mx-2">/</span>
-          <Link href="/obd" className="hover:text-primary transition-colors">OBD Codes</Link>
+          <Link prefetch={false} href="/obd" className="hover:text-primary transition-colors">OBD Codes</Link>
           <span className="mx-2">/</span>
           <span className="text-text-secondary">Severity Levels</span>
         </nav>
@@ -227,14 +227,14 @@ export default async function SeverityLevelsPage({
             Not sure what your code means? Look it up or let AI help.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link
+            <Link prefetch={false}
               href="/obd"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-0 border border-surface-border text-sm font-heading font-bold text-text-primary hover:border-primary/20 transition-colors"
             >
               Browse OBD Codes
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
-            <Link
+            <Link prefetch={false}
               href="/symptom-checker"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-heading font-bold hover:bg-primary-glow hover:-translate-y-px transition-all shadow-sm shadow-primary/20"
             >

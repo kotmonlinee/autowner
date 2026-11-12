@@ -263,13 +263,13 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
             {/* Breadcrumb */}
             <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-              <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+              <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
               <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
               {post.categories && (
                 <>
-                  <Link href={`/community?category=${post.categories.slug}`} className="hover:text-primary transition-colors">{post.categories.name}</Link>
+                  <Link prefetch={false} href={`/community?category=${post.categories.slug}`} className="hover:text-primary transition-colors">{post.categories.name}</Link>
                   <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -287,7 +287,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                   </svg>
                   <h1 className="text-xl font-bold text-text-secondary font-heading mb-2">This post has been deleted</h1>
                   <p className="text-text-muted text-sm">The author has removed this content.</p>
-                  <Link
+                  <Link prefetch={false}
                     href="/"
                     className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-surface-3 text-text-secondary text-sm font-bold rounded-lg hover:bg-surface-4 transition-colors font-heading"
                   >
@@ -302,7 +302,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 <>
                   <div className="flex items-center gap-2 mb-3">
                     {post.categories && (
-                      <Link href={`/community?category=${post.categories.slug}`} className="inline-flex items-center gap-1 px-2.5 py-2 bg-surface-3 text-text-secondary rounded-full text-xs font-bold uppercase tracking-wider hover:bg-surface-4 hover:text-primary transition-colors font-heading">
+                      <Link prefetch={false} href={`/community?category=${post.categories.slug}`} className="inline-flex items-center gap-1 px-2.5 py-2 bg-surface-3 text-text-secondary rounded-full text-xs font-bold uppercase tracking-wider hover:bg-surface-4 hover:text-primary transition-colors font-heading">
                         <span className="w-1 h-1 rounded-full bg-primary" />
                         {post.categories.name}
                       </Link>
@@ -335,7 +335,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                   {post.post_tags && post.post_tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-6 pt-4 border-t border-surface-border">
                       {post.post_tags.map(pt => (
-                        <Link key={pt.car_tags.slug} href={`/community?tag=${pt.car_tags.slug}`} className="px-2.5 py-2 bg-surface-3 text-text-muted rounded-lg text-xs font-medium hover:bg-surface-4 hover:text-text-secondary transition-colors">{pt.car_tags.name}</Link>
+                        <Link prefetch={false} key={pt.car_tags.slug} href={`/community?tag=${pt.car_tags.slug}`} className="px-2.5 py-2 bg-surface-3 text-text-muted rounded-lg text-xs font-medium hover:bg-surface-4 hover:text-text-secondary transition-colors">{pt.car_tags.name}</Link>
                       ))}
                     </div>
                   )}
@@ -354,7 +354,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                           const make = model?.vehicle_makes as Record<string, unknown> | null;
                           return (
                             <div key={pv.engine_id} className="flex items-center gap-1.5">
-                              <Link
+                              <Link prefetch={false}
                                 href={`/vehicle/${pv.engine_id}`}
                                 className="px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-medium hover:bg-primary/20 transition-colors"
                               >

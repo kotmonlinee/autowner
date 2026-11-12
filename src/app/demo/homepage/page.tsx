@@ -29,7 +29,7 @@ export default function DemoHomepage() {
             {/* Dual entry cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
               {/* Primary: AI Diagnosis */}
-              <Link href="/symptom-checker" className="group relative overflow-hidden rounded-2xl bg-primary p-6 sm:p-8 text-left hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-1 transition-all duration-300">
+              <Link prefetch={false} href="/symptom-checker" className="group relative overflow-hidden rounded-2xl bg-primary p-6 sm:p-8 text-left hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-1 transition-all duration-300">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
                 <Sparkles className="w-8 h-8 text-white mb-4 relative z-10" />
                 <h2 className="text-xl sm:text-2xl font-heading font-bold text-white mb-2 relative z-10">AI Symptom Checker</h2>
@@ -41,7 +41,7 @@ export default function DemoHomepage() {
               </Link>
 
               {/* Secondary: OBD Lookup */}
-              <Link href="/obd" className="group rounded-2xl bg-surface-1 border-2 border-surface-border hover:border-primary/20 p-6 sm:p-8 text-left hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+              <Link prefetch={false} href="/obd" className="group rounded-2xl bg-surface-1 border-2 border-surface-border hover:border-primary/20 p-6 sm:p-8 text-left hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                 <Search className="w-8 h-8 text-text-primary mb-4" />
                 <h2 className="text-xl sm:text-2xl font-heading font-bold text-text-primary mb-2">OBD Code Lookup</h2>
                 <p className="text-sm text-text-muted mb-4">Already have a code? Look up meanings, severity, and repair estimates for 12,000+ codes.</p>
@@ -60,7 +60,7 @@ export default function DemoHomepage() {
                 { label: "Browse by Vehicle", href: "/vehicles", icon: <Search className="w-4 h-4" /> },
                 { label: "All Tools", href: "#tools", icon: <ChevronRight className="w-4 h-4" /> },
               ].map((item) => (
-                <Link key={item.href} href={item.href} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/20 transition-colors font-heading font-medium">
+                <Link prefetch={false} key={item.href} href={item.href} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-surface-1 border border-surface-border text-sm text-text-secondary hover:text-primary hover:border-primary/20 transition-colors font-heading font-medium">
                   {item.icon}
                   {item.label}
                 </Link>
@@ -99,7 +99,7 @@ export default function DemoHomepage() {
               { title: "Recall Check", desc: "NHTSA safety recalls lookup", href: "/recall-check" },
               { title: "Community Guides", desc: "DIY articles & repair tutorials", href: "/community" },
             ].map((tool) => (
-              <Link key={tool.href} href={tool.href} className="group p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm transition-all">
+              <Link prefetch={false} key={tool.href} href={tool.href} className="group p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm transition-all">
                 <h3 className="text-sm font-heading font-bold text-text-primary group-hover:text-primary transition-colors mb-1">{tool.title}</h3>
                 <p className="text-xs text-text-muted">{tool.desc}</p>
               </Link>

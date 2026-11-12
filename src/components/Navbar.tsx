@@ -58,7 +58,7 @@ export default function Navbar() {
       <nav className="sticky top-0 z-50 bg-surface-0/80 backdrop-blur-xl" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-5 h-16 flex items-center gap-6 border-b border-surface-border">
           {/* Logo */}
-          <Link href="/" className="flex items-center shrink-0 group">
+          <Link prefetch={false} href="/" className="flex items-center shrink-0 group">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80" width="210" height="40" className="h-[44px] w-auto" aria-label="AutOwner">
               <defs>
                 <linearGradient id="nav-logo-grad" x1="0" y1="0" x2="1" y2="0">
@@ -83,43 +83,43 @@ export default function Navbar() {
 
           {/* Desktop nav links */}
           <div className="hidden lg:flex items-center gap-0.5 shrink-0">
-            <Link
+            <Link prefetch={false}
               href="/symptoms"
               className="px-2.5 py-2 text-sm font-medium text-text-primary hover:text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
               Symptoms
             </Link>
-            <Link
+            <Link prefetch={false}
               href="/symptom-checker"
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
               Symptom Checker
             </Link>
-            <Link
+            <Link prefetch={false}
               href="/repair-cost"
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
               Repair Costs
             </Link>
-            <Link
+            <Link prefetch={false}
               href="/quote-checker"
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
               Quote Checker
             </Link>
-            <Link
+            <Link prefetch={false}
               href="/obd"
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
               OBD Codes
             </Link>
-            <Link
+            <Link prefetch={false}
               href="/warning-lights"
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
               Warning Lights
             </Link>
-            <Link
+            <Link prefetch={false}
               href="/recall-check"
               className="px-2.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors font-heading"
             >
@@ -131,7 +131,7 @@ export default function Navbar() {
           <div className="hidden sm:flex items-center gap-3 shrink-0">
             {user ? (
               <>
-                <Link
+                <Link prefetch={false}
                   href="/submit"
                   className="px-4 py-2 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20"
                 >
@@ -139,7 +139,7 @@ export default function Navbar() {
                 </Link>
                 <div className="flex items-center gap-2 pl-3 border-l border-surface-border">
                   <NotificationBell userId={user.id} />
-                  <Link
+                  <Link prefetch={false}
                     href="/bookmarks"
                     className="p-1.5 rounded-lg text-text-muted hover:text-amber hover:bg-surface-2 transition-colors"
                     title="Bookmarks"
@@ -148,7 +148,7 @@ export default function Navbar() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                     </svg>
                   </Link>
-                  <Link
+                  <Link prefetch={false}
                     href="/drafts"
                     className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
                     title="Drafts"
@@ -157,7 +157,7 @@ export default function Navbar() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                   </Link>
-                  <Link
+                  <Link prefetch={false}
                     href="/settings"
                     className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
                     title="Settings"
@@ -231,7 +231,7 @@ export default function Navbar() {
 
             {/* Mobile nav links — same order as desktop */}
             <div className="pt-1 space-y-1">
-              <Link
+              <Link prefetch={false}
                 href="/symptoms"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-3 rounded-lg text-sm font-medium text-text-primary hover:bg-surface-2 transition-colors font-heading min-h-[44px]"
@@ -241,7 +241,7 @@ export default function Navbar() {
                 </svg>
                 Symptoms
               </Link>
-              <Link
+              <Link prefetch={false}
                 href="/symptom-checker"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-3 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors font-heading min-h-[44px]"
@@ -251,7 +251,7 @@ export default function Navbar() {
                 </svg>
                 Symptom Checker
               </Link>
-              <Link
+              <Link prefetch={false}
                 href="/repair-cost"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-3 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors font-heading min-h-[44px]"
@@ -261,7 +261,7 @@ export default function Navbar() {
                 </svg>
                 Repair Costs
               </Link>
-              <Link
+              <Link prefetch={false}
                 href="/quote-checker"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-3 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors font-heading min-h-[44px]"
@@ -271,7 +271,7 @@ export default function Navbar() {
                 </svg>
                 Quote Checker
               </Link>
-              <Link
+              <Link prefetch={false}
                 href="/obd"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-3 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors font-heading min-h-[44px]"
@@ -281,7 +281,7 @@ export default function Navbar() {
                 </svg>
                 OBD Codes
               </Link>
-              <Link
+              <Link prefetch={false}
                 href="/warning-lights"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-3 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors font-heading min-h-[44px]"
@@ -291,7 +291,7 @@ export default function Navbar() {
                 </svg>
                 Warning Lights
               </Link>
-              <Link
+              <Link prefetch={false}
                 href="/recall-check"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-3 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-colors font-heading min-h-[44px]"
@@ -307,7 +307,7 @@ export default function Navbar() {
             <div className="flex items-center justify-between pt-2 border-t border-surface-border">
               {user ? (
                 <>
-                  <Link
+                  <Link prefetch={false}
                     href="/submit"
                     onClick={() => setMenuOpen(false)}
                     className="px-4 py-2 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow transition-all duration-150 shadow-sm shadow-primary/20"
@@ -316,7 +316,7 @@ export default function Navbar() {
                   </Link>
                   <div className="flex items-center gap-3">
                     <NotificationBell userId={user.id} />
-                    <Link
+                    <Link prefetch={false}
                       href="/bookmarks"
                       onClick={() => setMenuOpen(false)}
                       className="p-1.5 rounded-lg text-text-muted hover:text-amber hover:bg-surface-2 transition-colors"
@@ -326,7 +326,7 @@ export default function Navbar() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                       </svg>
                     </Link>
-                    <Link
+                    <Link prefetch={false}
                       href="/drafts"
                       onClick={() => setMenuOpen(false)}
                       className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"
@@ -336,7 +336,7 @@ export default function Navbar() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </Link>
-                    <Link
+                    <Link prefetch={false}
                       href="/settings"
                       onClick={() => setMenuOpen(false)}
                       className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface-2 transition-colors"

@@ -122,7 +122,7 @@ export default function ObdCodeBrowser({ initialCodes, initialPrefix }: { initia
       ) : (
         <div className="space-y-2">
           {codes.map((c) => (
-            <Link key={c.code} href={`/obd/${c.code.toLowerCase()}`}
+            <Link prefetch={false} key={c.code} href={`/obd/${c.code.toLowerCase()}`}
               className="group flex items-center gap-3 px-4 py-3.5 min-h-[48px] bg-surface-1 rounded-xl border border-surface-border hover:border-primary/20 hover:shadow-sm transition-all overflow-hidden">
               <span className={`shrink-0 self-stretch rounded-full ${severityBar(c.severity)}`} />
               <span className="text-sm font-mono font-bold text-text-primary group-hover:text-primary transition-colors shrink-0 w-14 sm:w-16">{c.code}</span>

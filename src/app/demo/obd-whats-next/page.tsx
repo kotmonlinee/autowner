@@ -55,7 +55,7 @@ export default function DemoObdWhatsNext() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
             {/* Card 1: Confirm with AI */}
-            <Link href="/symptom-checker" className="group bg-surface-1 rounded-2xl border border-surface-border hover:border-primary/30 hover:shadow-md hover:-translate-y-1 transition-all p-5 flex flex-col">
+            <Link prefetch={false} href="/symptom-checker" className="group bg-surface-1 rounded-2xl border border-surface-border hover:border-primary/30 hover:shadow-md hover:-translate-y-1 transition-all p-5 flex flex-col">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
                 <Sparkles className="w-5 h-5 text-primary" />
               </div>
@@ -71,7 +71,7 @@ export default function DemoObdWhatsNext() {
             </Link>
 
             {/* Card 2: Repair Cost Detail */}
-            <Link href="/repair-cost/catalytic-converter" className="group bg-surface-1 rounded-2xl border border-surface-border hover:border-primary/30 hover:shadow-md hover:-translate-y-1 transition-all p-5 flex flex-col">
+            <Link prefetch={false} href="/repair-cost/catalytic-converter" className="group bg-surface-1 rounded-2xl border border-surface-border hover:border-primary/30 hover:shadow-md hover:-translate-y-1 transition-all p-5 flex flex-col">
               <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center mb-3">
                 <DollarSign className="w-5 h-5 text-blue-500" />
               </div>
@@ -94,7 +94,7 @@ export default function DemoObdWhatsNext() {
             </Link>
 
             {/* Card 3: Check Recalls */}
-            <Link href="/recall-check" className="group bg-surface-1 rounded-2xl border border-surface-border hover:border-primary/30 hover:shadow-md hover:-translate-y-1 transition-all p-5 flex flex-col">
+            <Link prefetch={false} href="/recall-check" className="group bg-surface-1 rounded-2xl border border-surface-border hover:border-primary/30 hover:shadow-md hover:-translate-y-1 transition-all p-5 flex flex-col">
               <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center mb-3">
                 <ShieldAlert className="w-5 h-5 text-amber-500" />
               </div>
@@ -116,13 +116,13 @@ export default function DemoObdWhatsNext() {
           {/* Quick links row */}
           <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-text-muted">
             <span>Or explore:</span>
-            <Link href="/symptom-checker" className="text-primary hover:text-primary-glow font-heading font-medium">AI Diagnosis</Link>
+            <Link prefetch={false} href="/symptom-checker" className="text-primary hover:text-primary-glow font-heading font-medium">AI Diagnosis</Link>
             <span>·</span>
-            <Link href="/repair-cost" className="text-primary hover:text-primary-glow font-heading font-medium">All Repair Costs</Link>
+            <Link prefetch={false} href="/repair-cost" className="text-primary hover:text-primary-glow font-heading font-medium">All Repair Costs</Link>
             <span>·</span>
-            <Link href="/obd" className="text-primary hover:text-primary-glow font-heading font-medium">Browse OBD Codes</Link>
+            <Link prefetch={false} href="/obd" className="text-primary hover:text-primary-glow font-heading font-medium">Browse OBD Codes</Link>
             <span>·</span>
-            <Link href="/vehicles" className="text-primary hover:text-primary-glow font-heading font-medium">Browse by Vehicle</Link>
+            <Link prefetch={false} href="/vehicles" className="text-primary hover:text-primary-glow font-heading font-medium">Browse by Vehicle</Link>
           </div>
         </div>
       </main>
