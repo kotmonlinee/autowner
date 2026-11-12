@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/constants";
 import { unstable_cache } from "next/cache";
 import { getObdCode, getRelatedObdCodes, getObdDiagnosticSteps, getVehicleRepairSlugs, getValidRepairSlugs } from "@/lib/data/server";
 import { getRelatedRepairs } from "@/lib/internal-linking";
@@ -155,7 +156,7 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
       url: `https://www.autowner.com/obd/${obd.code.toLowerCase()}`,
       images: [
         {
-          url: "https://www.autowner.com/og-default.jpg",
+          url: DEFAULT_OG_IMAGE,
           width: 1200,
           height: 630,
           alt: `OBD Code ${obd.code}`,
@@ -166,7 +167,7 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
       card: "summary_large_image",
       title,
       description,
-      images: ["https://www.autowner.com/og-default.jpg"],
+      images: [DEFAULT_OG_IMAGE],
     },
   };
 }

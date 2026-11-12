@@ -1,6 +1,9 @@
 /** Bump when replacing images in /public/warning-lights/ to bust CDN caches. */
 export const IMAGE_CACHE_VERSION = "2";
 
+/** Default Open Graph / Twitter card image (1200×630) served from /public. */
+export const DEFAULT_OG_IMAGE = "/og-default.jpg";
+
 // ── Vehicle Tier Mapping ─────────────────────────────────
 
 export const MAKE_TIER: Record<string, string> = {

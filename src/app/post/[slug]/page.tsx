@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/constants";
 import { getPostBySlug, getPostByIdAny, getCurrentUser, getPostVehicles } from "@/lib/data/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -129,7 +130,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: `https://www.autowner.com/post/${canonicalSlug}`,
       images: [
         {
-          url: "https://www.autowner.com/og-default.jpg",
+          url: DEFAULT_OG_IMAGE,
           width: 1200,
           height: 630,
           alt: post.title,

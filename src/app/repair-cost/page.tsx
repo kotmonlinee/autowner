@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/constants";
 import { getAllRepairSlugs, getRepairCategoryCounts, getPopularRepairCosts } from "@/lib/data/server";
 import { getRepairImageUrl } from "@/lib/repair-images";
 import Navbar from "@/components/Navbar";
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
     url: "https://www.autowner.com/repair-cost",
     images: [
       {
-        url: "https://www.autowner.com/og-default.jpg",
+        url: DEFAULT_OG_IMAGE,
         width: 1200,
         height: 630,
         alt: "Repair Cost Estimator",

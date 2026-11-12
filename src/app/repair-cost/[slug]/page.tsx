@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/constants";
 import { getRepairCosts, getVehicleRepairSlugs, getAllRepairSlugs } from "@/lib/data/server";
 import type { RepairCostFull, RepairCostTier } from "@/lib/types";
 import { getRepairImageUrl } from "@/lib/repair-images";
@@ -87,8 +88,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title, description,
     alternates: { canonical },
-    openGraph: { title, description, type: "article", url: canonical, images: [{ url: "https://www.autowner.com/og-default.jpg", width: 1200, height: 630, alt: repair.name }] },
-    twitter: { card: "summary_large_image", title, description, images: ["https://www.autowner.com/og-default.jpg"] },
+    openGraph: { title, description, type: "article", url: canonical, images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: repair.name }] },
+    twitter: { card: "summary_large_image", title, description, images: [DEFAULT_OG_IMAGE] },
   };
 }
 
