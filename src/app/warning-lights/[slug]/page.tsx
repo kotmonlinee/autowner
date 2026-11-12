@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import PageFeedback from "@/components/PageFeedback";
 
 export const revalidate = 7776000;
+export const dynamic = "force-static";
 import WarningLightIcon from "@/components/WarningLightIcon";
 import { getRelatedRepairs, TOP_REPAIRS } from "@/lib/internal-linking";
 import { getRepairImageUrl } from "@/lib/repair-images";

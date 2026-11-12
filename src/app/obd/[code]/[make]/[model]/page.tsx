@@ -11,6 +11,7 @@ import { createServiceSupabase } from "@/lib/supabase-server";
 import { MAKE_TIER, formatMoney } from "@/lib/constants";
 
 export const revalidate = 604800;
+export const dynamic = "force-static";
 
 async function getVehicleInfo(makeSlug: string, modelSlug: string) {
   const supabase = await createServiceSupabase();

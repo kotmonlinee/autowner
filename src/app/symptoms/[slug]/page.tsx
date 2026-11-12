@@ -8,6 +8,7 @@ import PageFeedback from "@/components/PageFeedback";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { formatMoney } from "@/lib/constants";
 export const revalidate = 2592000;
+export const dynamic = "force-static";
 
 export async function generateStaticParams() {
   const supabase = await createServiceSupabase();

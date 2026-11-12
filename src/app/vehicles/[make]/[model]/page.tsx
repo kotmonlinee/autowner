@@ -14,6 +14,7 @@ import { createServiceSupabase } from "@/lib/supabase-server";
 import { MAKE_TIER } from "@/lib/constants";
 
 export const revalidate = 6048000;
+export const dynamic = "force-static";
 
 export async function generateStaticParams() {
   const supabase = await createServiceSupabase();

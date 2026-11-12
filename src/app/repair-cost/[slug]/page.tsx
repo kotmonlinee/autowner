@@ -13,6 +13,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const revalidate = 5184000;
+export const dynamic = "force-static";
 
 export async function generateStaticParams() {
   const slugs = await getAllRepairSlugs();

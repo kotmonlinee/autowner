@@ -12,6 +12,7 @@ import { notFound } from "next/navigation";
 import { createServiceSupabase } from "@/lib/supabase-server";
 
 export const revalidate = 2592000;
+export const dynamic = "force-static";
 
 // ── Helpers ──────────────────────────────────────────────
 
