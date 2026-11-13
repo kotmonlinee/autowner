@@ -1674,26 +1674,29 @@ export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code
     return (exact as unknown as Pick<ObdCode, "code" | "title" | "severity">[]);
   }
 
-  // Prefix search
-  const { data: prefix } = await supabase
-    .from("obd_codes")
-    .select("code, title, severity")
-    .ilike("code", `${trimmed}%`)
-    .order("severity", { ascending: false })
-    .limit(15);
-
-  if (!prefix || prefix.length === 0) {
-    // Fallback: description search
-    const { data: desc } = await supabase
+  // Prefix search only makes sense for code-like input (P0420, P04, C12...).
+  // Running it for arbitrary text such as "SPARK PLUG REPLACEMENT" forced a
+  // full ILIKE scan over 12k codes and exceeded the anon statement timeout.
+  if (/^[PCBU][0-9A-F]{0,4}$/.test(trimmed)) {
+    const { data: prefix } = await supabase
       .from("obd_codes")
       .select("code, title, severity")
-      .ilike("title", `%${query}%`)
+      .ilike("code", `${trimmed}%`)
       .order("severity", { ascending: false })
       .limit(15);
-    return (desc as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [];
+    if (prefix && prefix.length > 0) {
+      return prefix as unknown as Pick<ObdCode, "code" | "title" | "severity">[];
+    }
   }
 
-  return (prefix as unknown as Pick<ObdCode, "code" | "title" | "severity">[]);
+  // Fallback: description search (served by the title trigram index).
+  const { data: desc } = await supabase
+    .from("obd_codes")
+    .select("code, title, severity")
+    .ilike("title", `%${query}%`)
+    .order("severity", { ascending: false })
+    .limit(15);
+  return (desc as unknown as Pick<ObdCode, "code" | "title" | "severity">[]) ?? [];
 }
 
 export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" | "title" | "severity" | "updated_at">[]> {
