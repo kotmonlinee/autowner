@@ -86,32 +86,51 @@ function generateNaturalIntro(obd: { code: string; title: string; symptoms: stri
  * Sort on the small columns only, pull titles from the lightweight
  * diagnosis_summaries view afterwards, and cache the result per code.
  */
+// Once we learn that migration 039 has not been applied, stop re-issuing the
+// column query (and logging 42703) for the lifetime of this instance.
+let possibleCodesReady: boolean | null = null;
+
 const fetchRelatedDiagnoses = unstable_cache(
   async (code: string): Promise<{ slug: string; title: string; severity: string }[]> => {
     try {
       const supabase = await createServiceSupabase();
       const normalized = code.toUpperCase();
 
+      let rows: { slug: string }[] = [];
+      let queryError: { message: string } | null = null;
+
       // Fast path: possible_codes is a generated column holding just the
       // possibleCodes array, with its own small GIN index (migration 039).
-      // Falls back to the full diagnosis_json containment query until that
-      // migration has been applied.
-      let { data, error } = await supabase.from("diagnoses")
-        .select("slug, view_count")
-        .contains("possible_codes", [normalized])
-        .order("view_count", { ascending: false })
-        .limit(5);
+      if (possibleCodesReady !== false) {
+        const fast = await supabase.from("diagnoses")
+          .select("slug, view_count")
+          .contains("possible_codes", [normalized])
+          .order("view_count", { ascending: false })
+          .limit(5);
 
-      if (error) {
-        ({ data, error } = await supabase.from("diagnoses")
+        if (fast.error && /does not exist/i.test(fast.error.message)) {
+          possibleCodesReady = false;
+        } else if (fast.error) {
+          queryError = fast.error;
+        } else {
+          possibleCodesReady = true;
+          rows = (fast.data ?? []) as { slug: string }[];
+        }
+      }
+
+      // Fallback until that migration is applied. No ORDER BY on purpose: the
+      // GIN scan can stop after five matches instead of sorting every match,
+      // which is what pushed this statement past statement_timeout.
+      if (!queryError && possibleCodesReady === false) {
+        const fallback = await supabase.from("diagnoses")
           .select("slug, view_count")
           .contains("diagnosis_json", { possibleCodes: [normalized] })
-          .order("view_count", { ascending: false })
-          .limit(5));
+          .limit(5);
+        if (fallback.error) queryError = fallback.error;
+        else rows = (fallback.data ?? []) as { slug: string }[];
       }
-      if (error) throw new Error(error.message);
 
-      const rows = (data ?? []) as { slug: string }[];
+      if (queryError) throw new Error(queryError.message);
       if (rows.length === 0) return [];
       const slugs = rows.map((row) => row.slug);
 
