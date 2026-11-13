@@ -1,4 +1,4 @@
-import { createServerSupabase } from "@/lib/supabase-server";
+import { createServiceSupabase } from "@/lib/supabase-server";
 import { NextResponse } from "next/server";
 
 export interface RateLimitResult {
@@ -23,7 +23,10 @@ export async function rateLimit(
   const windowStart = new Date(now - windowSeconds * 1000).toISOString();
 
   try {
-    const supabase = await createServerSupabase();
+    // The limiter runs for anonymous visitors too and has no user session, so
+    // RLS rejects its inserts when the anon client is used. The service role
+    // bypasses RLS; the table only holds opaque identifiers.
+    const supabase = await createServiceSupabase();
 
     // Delete entries outside the current window to keep the table lean.
     await supabase
