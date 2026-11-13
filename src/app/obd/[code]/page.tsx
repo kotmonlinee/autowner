@@ -104,14 +104,17 @@ const fetchRelatedDiagnoses = unstable_cache(
       if (possibleCodesReady !== false) {
         const fast = await supabase.from("diagnoses")
           .select("slug, view_count")
-          .contains("possible_codes", [normalized])
+          // Pass a JSON string: postgrest-js serialises JS arrays as PostgreSQL
+          // array literals (cs.{P0420}), which a jsonb column rejects with
+          // 22P02. A string is emitted verbatim, giving cs.["P0420"].
+          .contains("possible_codes", JSON.stringify([normalized]))
           .order("view_count", { ascending: false })
           .limit(5);
 
-        if (fast.error && /does not exist/i.test(fast.error.message)) {
+        if (fast.error) {
+          // Missing column (migration pending) or any other failure: fall back
+          // to the diagnosis_json filter instead of failing the page.
           possibleCodesReady = false;
-        } else if (fast.error) {
-          queryError = fast.error;
         } else {
           possibleCodesReady = true;
           rows = (fast.data ?? []) as { slug: string }[];
