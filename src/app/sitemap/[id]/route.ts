@@ -30,39 +30,64 @@ interface VehicleSymptomSitemapRow {
   created_at: string | null;
 }
 
+const BATCH = 1000;
+
 /**
- * Fetch a contiguous range of diagnosis rows in parallel batches.
- * Order is by created_at DESC; once any batch comes back short, higher
- * offsets are empty so we stop. Keeps serverless duration under budget.
+ * Fetch a contiguous range of diagnosis rows.
+ *
+ * The previous implementation treated a short page as "end of data" and broke
+ * out of the loop, which cached a sitemap shard containing only a fraction of
+ * its URLs (the OBD shard was once cached with 725 of 12k codes). Here the
+ * exact row count bounds the loop, a short page is simply accepted, and any
+ * query error aborts the request so a partial sitemap is never cached.
  */
-async function fetchDiagnosisBatches(
-  startOffset: number,
-  maxRows: number,
-  batchSize = 1000,
-  concurrency = 1,
-): Promise<DiagnosisSitemapRow[]> {
-  const offsets: number[] = [];
-  for (let offset = startOffset; offset < startOffset + maxRows; offset += batchSize) {
-    offsets.push(offset);
+async function fetchDiagnosisRange(startOffset: number, maxRows: number): Promise<DiagnosisSitemapRow[]> {
+  const supabase = await createServiceSupabase();
+  const { count, error: countError } = await supabase
+    .from("diagnoses")
+    .select("slug", { count: "exact", head: true });
+  if (countError) throw new Error(`diagnoses count: ${countError.message}`);
+
+  const end = Math.min(startOffset + maxRows, count ?? 0);
+  const rows: DiagnosisSitemapRow[] = [];
+
+  for (let offset = startOffset; offset < end; offset += BATCH) {
+    const { data, error } = await supabase
+      .from("diagnoses")
+      .select("slug, created_at, updated_at")
+      .order("created_at", { ascending: false })
+      .order("slug", { ascending: false })
+      .range(offset, offset + BATCH - 1);
+    if (error) throw new Error(`diagnoses offset ${offset}: ${error.message}`);
+    rows.push(...((data ?? []) as unknown as DiagnosisSitemapRow[]));
   }
 
-  const rows: DiagnosisSitemapRow[] = [];
-  for (let i = 0; i < offsets.length; i += concurrency) {
-    const batch = await Promise.all(
-      offsets.slice(i, i + concurrency).map(async (offset) => {
-        const supabase = await createServiceSupabase();
-        const { data } = await supabase
-          .from("diagnoses")
-          .select("slug, created_at, updated_at")
-          .order("created_at", { ascending: false })
-          .order("slug", { ascending: false })
-          .range(offset, offset + batchSize - 1);
-        return (data ?? []) as unknown as DiagnosisSitemapRow[];
-      }),
-    );
-    for (const page of batch) rows.push(...page);
-    if (batch.some((page) => page.length < batchSize)) break;
+  return rows;
+}
+
+async function fetchTableBySlug<T extends { slug: string }>(
+  table: "symptoms" | "vehicle_symptoms",
+  columns: string,
+): Promise<T[]> {
+  const supabase = await createServiceSupabase();
+  const { count, error: countError } = await supabase
+    .from(table)
+    .select("slug", { count: "exact", head: true });
+  if (countError) throw new Error(`${table} count: ${countError.message}`);
+
+  const total = count ?? 0;
+  const rows: T[] = [];
+
+  for (let offset = 0; offset < total; offset += BATCH) {
+    const { data, error } = await supabase
+      .from(table)
+      .select(columns)
+      .order("slug")
+      .range(offset, offset + BATCH - 1);
+    if (error) throw new Error(`${table} offset ${offset}: ${error.message}`);
+    rows.push(...((data ?? []) as unknown as T[]));
   }
+
   return rows;
 }
 
@@ -116,27 +141,21 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   // ── id=3: Symptoms + Vehicle symptoms ─────────────────────
   if (id === "3") {
-    const supabase = await createServiceSupabase();
-    const { data: symptoms } = await supabase.from("symptoms").select("slug, created_at, updated_at").order("slug");
-    for (const s of (symptoms ?? []) as unknown as SymptomSitemapRow[]) {
+    const [symptoms, vehicleSymptoms] = await Promise.all([
+      fetchTableBySlug<SymptomSitemapRow>("symptoms", "slug, created_at, updated_at"),
+      fetchTableBySlug<VehicleSymptomSitemapRow>("vehicle_symptoms", "slug, created_at"),
+    ]);
+    for (const s of symptoms) {
       urls.push(urlEntry(`${baseUrl}/symptoms/${s.slug}`, s.updated_at ?? s.created_at ?? null, "weekly", 0.75));
     }
-    let vsOffset = 0;
-    while (true) {
-      const { data: vsBatch } = await supabase.from("vehicle_symptoms")
-        .select("slug, created_at").order("slug").range(vsOffset, vsOffset + 999);
-      if (!vsBatch || vsBatch.length === 0) break;
-      for (const vs of vsBatch as unknown as VehicleSymptomSitemapRow[]) {
-        urls.push(urlEntry(`${baseUrl}/symptoms/${vs.slug}`, vs.created_at ?? null, "weekly", 0.7));
-      }
-      if (vsBatch.length < 1000) break;
-      vsOffset += 1000;
+    for (const vs of vehicleSymptoms) {
+      urls.push(urlEntry(`${baseUrl}/symptoms/${vs.slug}`, vs.created_at ?? null, "weekly", 0.7));
     }
   }
 
   // ── id=4: Diagnoses batch 1 (0–9999) ──────────────────────
   if (id === "4") {
-    const rows = await fetchDiagnosisBatches(0, 10000);
+    const rows = await fetchDiagnosisRange(0, 10000);
     for (const d of rows) {
       urls.push(urlEntry(`${baseUrl}/symptom-checker/${d.slug}`, d.updated_at ?? d.created_at ?? null, "weekly", 0.6));
     }
@@ -144,7 +163,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   // ── id=5: Diagnoses batch 2 (10000–19999) ──────────────────
   if (id === "5") {
-    const rows = await fetchDiagnosisBatches(10000, 10000);
+    const rows = await fetchDiagnosisRange(10000, 10000);
     for (const d of rows) {
       urls.push(urlEntry(`${baseUrl}/symptom-checker/${d.slug}`, d.updated_at ?? d.created_at ?? null, "weekly", 0.6));
     }
@@ -152,10 +171,16 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   // ── id=6: Diagnoses batch 3 (20000+) ──────────────────────
   if (id === "6") {
-    const rows = await fetchDiagnosisBatches(20000, 30000);
+    const rows = await fetchDiagnosisRange(20000, 30000);
     for (const d of rows) {
       urls.push(urlEntry(`${baseUrl}/symptom-checker/${d.slug}`, d.updated_at ?? d.created_at ?? null, "weekly", 0.6));
     }
+  }
+
+  // Never cache an empty content shard: an empty response would hide every URL
+  // in that shard from search engines until the cache expires.
+  if (["2", "3", "4", "5", "6"].includes(id) && urls.length === 0) {
+    throw new Error(`sitemap/${id} generated no URLs`);
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`;
