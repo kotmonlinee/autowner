@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "pipeline": "npx tsx scripts/content-pipeline.ts",
+    "indexnow": "node scripts/submit-indexnow.mjs",
     "test": "npx playwright test",
     "test:ui": "npx playwright test --ui",
     "test:report": "npx playwright show-report"
