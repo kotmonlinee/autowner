@@ -1702,22 +1702,28 @@ export async function searchObdCodes(query: string): Promise<Pick<ObdCode, "code
 export async function getTopObdCodes(limit = 20): Promise<Pick<ObdCode, "code" | "title" | "severity" | "updated_at">[]> {
   const supabase = await createServiceSupabase();
   const allCodes: Pick<ObdCode, "code" | "title" | "severity" | "updated_at">[] = [];
+  const BATCH = 1000;
+  let lastCode: string | null = null;
 
-  const offsets: number[] = [];
-  for (let offset = 0; offset < limit; offset += 1000) offsets.push(offset);
-
-  // Kept sequential on purpose: running several 1,000-row window queries at
-  // once is what pushed the database to 100% CPU when the sitemap was fetched.
-  for (const offset of offsets) {
-    const { data } = await supabase
+  // Keyset pagination by code (sequential on purpose). OFFSET paging silently
+  // truncated the sitemap to 725 rows: one short/partial page made the loop
+  // stop early and that truncated result was cached for a day. Keyset paging
+  // cannot skip rows and only an empty page ends the loop.
+  while (allCodes.length < limit) {
+    let query = supabase
       .from("obd_codes")
       .select("code, title, severity, updated_at")
       .order("code", { ascending: true })
-      .range(offset, offset + 999);
+      .limit(BATCH);
+    if (lastCode) query = query.gt("code", lastCode);
+
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+
     const page = (data ?? []) as unknown as Pick<ObdCode, "code" | "title" | "severity" | "updated_at">[];
+    if (page.length === 0) break;
     allCodes.push(...page);
-    // Once a page comes back short, higher offsets are empty — stop early.
-    if (page.length < 1000) break;
+    lastCode = page[page.length - 1].code;
   }
 
   return allCodes.slice(0, limit);
