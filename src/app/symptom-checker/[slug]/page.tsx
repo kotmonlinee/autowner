@@ -11,6 +11,7 @@ import ShareButtons from "@/components/ShareButtons";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import { getRepairImageUrl } from "@/lib/repair-images";
 import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
+import { absoluteSeoTitle, seoDescription, vehicleSubjectTitle } from "@/lib/seo";
 import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash, ListChecks } from "lucide-react";
 
 export const revalidate = 3888000;
@@ -56,12 +57,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const diagnosis = await getDiagnosisBySlug(slug);
   if (!diagnosis) return { title: "Diagnosis Not Found", robots: { index: false, follow: false } };
   const d = diagnosis.diagnosis_json;
+  const pageTitle = vehicleSubjectTitle(d.title, {
+    make: diagnosis.vehicle_make,
+    model: diagnosis.vehicle_model,
+    year: diagnosis.vehicle_year,
+  });
   return {
-    title: `${d.title} | AutOwner Symptom Checker`,
-    description: d.summary,
+    title: absoluteSeoTitle(pageTitle),
+    description: seoDescription(d.summary),
     alternates: { canonical: `https://www.autowner.com/symptom-checker/${slug}` },
-    openGraph: { title: d.title, description: d.summary, type: "article" },
-    twitter: { card: "summary_large_image", title: d.title, description: d.summary },
+    openGraph: { title: pageTitle, description: seoDescription(d.summary), type: "article" },
+    twitter: { card: "summary_large_image", title: pageTitle, description: seoDescription(d.summary) },
   };
 }
 
@@ -72,6 +78,11 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
 
   const d = diagnosis.diagnosis_json;
   const vehicle = diagnosis.vehicle_make ? `${diagnosis.vehicle_make} ${diagnosis.vehicle_model ?? ""} ${diagnosis.vehicle_year ?? ""}`.trim() : null;
+  const pageTitle = vehicleSubjectTitle(d.title, {
+    make: diagnosis.vehicle_make,
+    model: diagnosis.vehicle_model,
+    year: diagnosis.vehicle_year,
+  });
 
   // Parallel: OBD codes + repair resolution
   const supabase = await createServiceSupabase();
@@ -175,7 +186,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: d.title, description: d.summary, datePublished: diagnosis.created_at, dateModified: diagnosis.updated_at || diagnosis.created_at, publisher: { "@type": "Organization", name: "AutOwner" } }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: pageTitle, description: d.summary, datePublished: diagnosis.created_at, dateModified: diagnosis.updated_at || diagnosis.created_at, publisher: { "@type": "Organization", name: "AutOwner" } }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: "https://www.autowner.com/" }, { "@type": "ListItem", position: 2, name: "Symptom Checker", item: "https://www.autowner.com/symptom-checker" }, { "@type": "ListItem", position: 3, name: d.title }] }) }} />
       {d.faq && d.faq.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: d.faq.map((item: any) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })) }) }} />}
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
@@ -212,7 +223,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-2xl font-heading font-bold text-text-primary">{d.title}</h1>
+                <h1 className="text-2xl font-heading font-bold text-text-primary">{pageTitle}</h1>
                 <Sparkles className="w-5 h-5 text-primary shrink-0" />
               </div>
               <p className="text-sm text-text-secondary leading-relaxed">{d.summary}</p>

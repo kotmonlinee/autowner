@@ -21,6 +21,7 @@ export async function generateMetadata({
   return {
     title: "Search",
     description: "Search OBD codes, repairs, diagnoses, and warning lights.",
+    robots: { index: false, follow: true },
     alternates: { canonical: "https://www.autowner.com/search" },
   };
 }

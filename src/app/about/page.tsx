@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "About AutOwner",
+  title: { absolute: "About AutOwner" },
   description:
     "AutOwner helps car owners diagnose problems, estimate repair costs, and make informed decisions — powered by AI and real-world data.",
   alternates: { canonical: "https://www.autowner.com/about" },

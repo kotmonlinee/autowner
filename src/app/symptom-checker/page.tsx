@@ -39,15 +39,20 @@ export async function generateMetadata({
     return { ...base, robots: { index: false, follow: true } };
   }
 
-  // Paginated list pages have different content; give each its own canonical
-  // instead of collapsing thousands of them onto page 1.
+  // Pagination is a browsing aid. The diagnosis detail URLs are the search
+  // landing pages, so later pages must not add thousands of thin list URLs to
+  // the index.
   const page = Math.max(1, parseInt(sp.page || "1", 10) || 1);
   const canonical =
     page > 1
       ? `https://www.autowner.com/symptom-checker?page=${page}`
       : "https://www.autowner.com/symptom-checker";
 
-  return { ...base, alternates: { canonical } };
+  return {
+    ...base,
+    alternates: { canonical },
+    ...(page > 1 ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 const PAGE_SIZE = 6;

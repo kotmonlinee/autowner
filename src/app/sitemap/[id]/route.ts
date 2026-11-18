@@ -99,7 +99,6 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   // ── id=0: Static + Tools + Warning Lights ─────────────────
   if (id === "0") {
     urls.push(urlEntry(baseUrl, null, "hourly", 1.0));
-    urls.push(urlEntry(`${baseUrl}/search`, null, "weekly", 0.4));
     urls.push(urlEntry(`${baseUrl}/repair-cost`, null, "weekly", 0.9));
     urls.push(urlEntry(`${baseUrl}/obd`, null, "weekly", 0.8));
     urls.push(urlEntry(`${baseUrl}/quote-checker`, null, "weekly", 0.8));

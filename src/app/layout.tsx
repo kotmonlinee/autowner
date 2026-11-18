@@ -5,6 +5,7 @@ import { russoOne, outfit, manrope } from "@/lib/fonts";
 import "./globals.css";
 import CookieBanner from "@/components/CookieBanner";
 import BackToTop from "@/components/BackToTop";
+import { DEFAULT_OG_IMAGE } from "@/lib/constants";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.autowner.com"),
@@ -26,10 +27,10 @@ export const metadata: Metadata = {
       "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification. Know what's wrong and what it should cost.",
     images: [
       {
-        url: "/logo.svg",
-        width: 500,
-        height: 100,
-        alt: "AutOwner",
+        url: DEFAULT_OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: "AutOwner — What's Wrong with Your Car?",
       },
     ],
   },
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
     title: "AutOwner — What's Wrong with Your Car?",
     description:
       "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification.",
-    images: ["/logo.svg"],
+    images: [DEFAULT_OG_IMAGE],
   },
   verification: {
     google: "ksNIR6fOTCzLYST4OAU_3cdoTqnRtV6dyD3_xTpBt-k",

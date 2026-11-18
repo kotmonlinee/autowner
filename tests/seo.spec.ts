@@ -14,6 +14,28 @@ test.describe('SEO and Static Pages', () => {
     expect(response.headers()['content-type']).toContain('application/xml');
   });
 
+  test('search pages are not indexable or listed in sitemaps', async ({ request }) => {
+    const searchResponse = await request.get('/search');
+    expect(await searchResponse.text()).toContain('name="robots" content="noindex, follow"');
+
+    const sitemapResponse = await request.get('/sitemap/0');
+    expect(await sitemapResponse.text()).not.toContain('https://www.autowner.com/search</loc>');
+  });
+
+  test('symptom-checker pagination is not indexable', async ({ request }) => {
+    const response = await request.get('/symptom-checker?page=2');
+    expect(await response.text()).toContain('name="robots" content="noindex, follow"');
+  });
+
+  test('diagnosis titles use one brand suffix and include vehicle context', async ({ request }) => {
+    const response = await request.get('/symptom-checker/unusual-noise-or-sound-from-the-wheels-or-brakes-while-driving-ford-mustang-2020');
+    const html = await response.text();
+    const title = html.match(/<title>([^<]+)<\/title>/)?.[1] ?? '';
+    expect(title).toMatch(/Ford|vehicle/i);
+    expect(title.match(/AutOwner/g)?.length ?? 0).toBe(1);
+    expect(title.length).toBeLessThanOrEqual(60);
+  });
+
   test('/rss.xml returns 200 with XML content', async ({ request }) => {
     const response = await request.get('/rss.xml');
     expect(response.status()).toBe(200);
