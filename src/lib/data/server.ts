@@ -5,6 +5,7 @@ import { unstable_cache } from "next/cache";
 import { createServerSupabase, createServiceSupabase } from "@/lib/supabase-server";
 import type { PostWithRelations, Category, CommentWithAuthor, CommentWithPost, Notification, ObdCode, RepairCostRow, RepairCostTier, RepairCostFull, DiagnosticCause } from "@/lib/types";
 import { MAKE_TIER, TIER_LABELS } from "@/lib/constants";
+import { isUuid, isVehicleSlug } from "@/lib/data/vehicle-params";
 
 // ── Slug helpers ─────────────────────────────────────────
 
@@ -1208,13 +1209,16 @@ export async function getVehicleMakes() {
 }
 
 export async function getVehicleModels(makeSlug: string) {
+  if (!isVehicleSlug(makeSlug)) return [];
+
   const supabase = await createServerSupabase();
   const { data: make } = await supabase
     .from("vehicle_makes")
     .select("id")
     .eq("slug", makeSlug)
     .single();
-  if (!make) return [];
+  if (!make || !isUuid(make.id)) return [];
+
   const { data } = await supabase
     .from("vehicle_models")
     .select("*")
@@ -1224,20 +1228,24 @@ export async function getVehicleModels(makeSlug: string) {
 }
 
 export async function getVehicleGenerations(modelSlug: string, makeSlug: string) {
+  if (!isVehicleSlug(modelSlug) || !isVehicleSlug(makeSlug)) return [];
+
   const supabase = await createServerSupabase();
   const { data: make } = await supabase
     .from("vehicle_makes")
-    .select("id")
+    .select("id, name")
     .eq("slug", makeSlug)
     .single();
-  if (!make) return [];
+  if (!make || !isUuid(make.id)) return [];
+
   const { data: model } = await supabase
     .from("vehicle_models")
     .select("id, name")
     .eq("slug", modelSlug)
     .eq("make_id", make.id)
     .single();
-  if (!model) return [];
+  if (!model || !isUuid(model.id)) return [];
+
   const { data: generations } = await supabase
     .from("vehicle_generations")
     .select("*, vehicle_engines(*)")
@@ -1246,7 +1254,7 @@ export async function getVehicleGenerations(modelSlug: string, makeSlug: string)
   return (generations ?? []).map((gen: Record<string, unknown>) => ({
     ...gen,
     model_name: model.name,
-    make_name: (make as Record<string, unknown>).name,
+    make_name: make.name,
   }));
 }
 

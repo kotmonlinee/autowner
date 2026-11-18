@@ -3,6 +3,7 @@
 // only changes this file.
 import { createClient } from "@/lib/supabase";
 import type { Category, CommentWithAuthor, Notification } from "@/lib/types";
+import { isUuid, isVehicleSlug } from "@/lib/data/vehicle-params";
 
 // ── Auth ─────────────────────────────────────────────────
 
@@ -199,45 +200,50 @@ export async function fetchVehicleMakes() {
 }
 
 export async function fetchVehicleModels(makeSlug: string) {
+  if (!isVehicleSlug(makeSlug)) return [];
+
   const { data: make } = await createClient()
     .from("vehicle_makes")
     .select("id")
     .eq("slug", makeSlug)
     .single();
-  if (!make) return [];
+  if (!make || !isUuid(make.id)) return [];
+
   const { data } = await createClient()
     .from("vehicle_models")
     .select("*")
-    .eq("make_id", (make as { id: string }).id)
+    .eq("make_id", make.id)
     .order("name");
   return (data as unknown as { id: string; name: string; slug: string; make_id: string }[]) ?? [];
 }
 
 export async function fetchVehicleGenerations(modelSlug: string, makeSlug: string) {
+  if (!isVehicleSlug(modelSlug) || !isVehicleSlug(makeSlug)) return [];
+
   const { data: make } = await createClient()
     .from("vehicle_makes")
     .select("id, name")
     .eq("slug", makeSlug)
     .single();
-  if (!make) return [];
-  const makeRecord = make as { id: string; name: string };
+  if (!make || !isUuid(make.id)) return [];
+
   const { data: model } = await createClient()
     .from("vehicle_models")
     .select("id, name")
     .eq("slug", modelSlug)
-    .eq("make_id", makeRecord.id)
+    .eq("make_id", make.id)
     .single();
-  if (!model) return [];
-  const modelRecord = model as { id: string; name: string };
+  if (!model || !isUuid(model.id)) return [];
+
   const { data: generations } = await createClient()
     .from("vehicle_generations")
     .select("*, vehicle_engines(*)")
-    .eq("model_id", (model as { id: string }).id)
+    .eq("model_id", model.id)
     .order("year_start", { ascending: false });
   return ((generations as unknown as any[]) ?? []).map((gen) => ({
     ...gen,
-    model_name: modelRecord.name,
-    make_name: makeRecord.name,
+    model_name: model.name,
+    make_name: make.name,
   }));
 }
 
