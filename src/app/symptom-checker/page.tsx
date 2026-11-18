@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import DiagnosisWizard from "./DiagnosisWizard";
 import DiagnosisBrowser from "@/components/DiagnosisBrowser";
 import { createServiceSupabase } from "@/lib/supabase-server";
+import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -24,11 +25,12 @@ export async function generateMetadata({
   const base = {
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
-    openGraph: { title: PAGE_TITLE, description: OG_DESCRIPTION, type: "website" as const },
+    openGraph: { title: PAGE_TITLE, description: OG_DESCRIPTION, type: "website" as const, images: [DEFAULT_OG_IMAGE_META] },
     twitter: {
       card: "summary_large_image" as const,
       title: "Symptom Checker — Car Diagnostics | AutOwner",
       description: "Describe your car's symptoms and get possible causes and estimated repair costs.",
+      images: [DEFAULT_OG_IMAGE],
     },
   };
 

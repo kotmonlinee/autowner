@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META } from "@/lib/constants";
 
 export const revalidate = 86400;
 
@@ -15,7 +16,9 @@ export const metadata: Metadata = {
       "Check if your mechanic's quote is fair. Compare against real repair cost data.",
     type: "website",
     url: "https://www.autowner.com/quote-checker",
+    images: [DEFAULT_OG_IMAGE_META],
   },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE] },
 };
 
 export default function QuoteCheckerLayout({

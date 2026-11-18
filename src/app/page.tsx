@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import SmartSearchBar from "@/components/SmartSearchBar";
 import DiagnosisLink from "@/components/DiagnosisLink";
 import Link from "next/link";
+import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: { absolute: "AutOwner — What's Wrong with Your Car?" },
@@ -14,11 +15,13 @@ export const metadata: Metadata = {
     siteName: "AutOwner", type: "website",
     title: "AutOwner — What's Wrong with Your Car?",
     description: "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification.",
+    images: [DEFAULT_OG_IMAGE_META],
   },
   twitter: {
     card: "summary_large_image",
     title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
     description: "Check repair costs, verify mechanic quotes, decode warning lights and OBD codes.",
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 

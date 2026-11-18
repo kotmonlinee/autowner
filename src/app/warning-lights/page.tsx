@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import WarningLightsGrid from "@/components/WarningLightsGrid";
 import { warningLights } from "@/lib/warning-lights-data";
+import { DEFAULT_OG_IMAGE_META } from "@/lib/constants";
 
 export const revalidate = 86400;
 
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Dashboard Warning Lights Guide",
     description: "Identify and understand every dashboard warning light. Learn what each symbol means, how urgent it is, and what it might cost to fix.",
+    images: [DEFAULT_OG_IMAGE_META],
   },
 };
 

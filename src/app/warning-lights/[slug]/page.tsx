@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DEFAULT_OG_IMAGE } from "@/lib/constants";
+import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META } from "@/lib/constants";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: seoTitle, description: seoDescription,
     alternates: { canonical: `https://www.autowner.com/warning-lights/${light.slug}` },
-    openGraph: { title: seoTitle, description: seoDescription },
+    openGraph: { title: seoTitle, description: seoDescription, images: [DEFAULT_OG_IMAGE_META] },
     twitter: { card: "summary_large_image", title: seoTitle, description: seoDescription, images: [DEFAULT_OG_IMAGE] },
   };
 }

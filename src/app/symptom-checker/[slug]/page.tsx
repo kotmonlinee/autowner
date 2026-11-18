@@ -12,6 +12,7 @@ import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import { getRepairImageUrl } from "@/lib/repair-images";
 import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import { absoluteSeoTitle, seoDescription, vehicleSubjectTitle } from "@/lib/seo";
+import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META } from "@/lib/constants";
 import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash, ListChecks } from "lucide-react";
 
 export const revalidate = 3888000;
@@ -66,8 +67,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: absoluteSeoTitle(pageTitle),
     description: seoDescription(d.summary),
     alternates: { canonical: `https://www.autowner.com/symptom-checker/${slug}` },
-    openGraph: { title: pageTitle, description: seoDescription(d.summary), type: "article" },
-    twitter: { card: "summary_large_image", title: pageTitle, description: seoDescription(d.summary) },
+    openGraph: { title: pageTitle, description: seoDescription(d.summary), type: "article", images: [DEFAULT_OG_IMAGE_META] },
+    twitter: { card: "summary_large_image", title: pageTitle, description: seoDescription(d.summary), images: [DEFAULT_OG_IMAGE] },
   };
 }
 

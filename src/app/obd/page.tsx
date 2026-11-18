@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import ObdCodeBrowser from "@/components/ObdCodeBrowser";
+import { DEFAULT_OG_IMAGE_META } from "@/lib/constants";
 
 export const revalidate = 3600;
 
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
     description: "Decode diagnostic trouble codes (DTCs) from your vehicle's check engine light. Find symptoms, causes, and repair costs.",
     type: "website",
     url: "https://www.autowner.com/obd",
+    images: [DEFAULT_OG_IMAGE_META],
   },
 };
 

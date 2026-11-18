@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageFeedback from "@/components/PageFeedback";
 import { createServiceSupabase } from "@/lib/supabase-server";
-import { formatMoney } from "@/lib/constants";
+import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META, formatMoney } from "@/lib/constants";
 export const revalidate = 2592000;
 export const dynamic = "force-static";
 
@@ -44,8 +44,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: vs.title,
       description: vs.meta_description,
       alternates: { canonical: `https://www.autowner.com/symptoms/${slug}` },
-      openGraph: { title: vs.title, description: vs.meta_description, type: "article" },
-      twitter: { card: "summary_large_image", title: vs.title, description: vs.meta_description },
+      openGraph: { title: vs.title, description: vs.meta_description, type: "article", images: [DEFAULT_OG_IMAGE_META] },
+      twitter: { card: "summary_large_image", title: vs.title, description: vs.meta_description, images: [DEFAULT_OG_IMAGE] },
     };
   }
   const { data } = await supabase.from("symptoms").select("name").eq("slug", slug).maybeSingle();
@@ -55,8 +55,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: `${s.name}: Causes, Repair Cost & Is It Safe To Drive?`,
     description: `Learn the most common causes of ${s.name.toLowerCase()}, expected repair costs, diagnosis steps, and whether it is safe to continue driving.`,
     alternates: { canonical: `https://www.autowner.com/symptoms/${slug}` },
-    openGraph: { title: `${s.name}: Causes, Repair Cost & Is It Safe To Drive?`, description: `Learn what causes ${s.name.toLowerCase()}, how much repairs cost, and whether you can fix it yourself.`, type: "article" },
-    twitter: { card: "summary_large_image", title: `${s.name}: Causes, Repair Cost & DIY`, description: `Common causes, repair costs, and diagnosis steps for ${s.name.toLowerCase()}.` },
+    openGraph: { title: `${s.name}: Causes, Repair Cost & Is It Safe To Drive?`, description: `Learn what causes ${s.name.toLowerCase()}, how much repairs cost, and whether you can fix it yourself.`, type: "article", images: [DEFAULT_OG_IMAGE_META] },
+    twitter: { card: "summary_large_image", title: `${s.name}: Causes, Repair Cost & DIY`, description: `Common causes, repair costs, and diagnosis steps for ${s.name.toLowerCase()}.`, images: [DEFAULT_OG_IMAGE] },
   };
 }
 

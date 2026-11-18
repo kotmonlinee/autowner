@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageFeedback from "@/components/PageFeedback";
 import RecallForm from "./RecallForm";
+import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META } from "@/lib/constants";
 
 export const revalidate = 86400;
 
@@ -18,11 +19,13 @@ export const metadata: Metadata = {
     description: "Check if your vehicle has open safety recalls. Free, instant results.",
     type: "website",
     url: "https://www.autowner.com/recall-check",
+    images: [DEFAULT_OG_IMAGE_META],
   },
   twitter: {
     card: "summary_large_image",
     title: "Vehicle Safety Recall Check — Free NHTSA Lookup",
     description: "Check if your vehicle has open safety recalls.",
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 

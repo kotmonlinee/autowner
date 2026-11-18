@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { DEFAULT_OG_IMAGE_META } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: { absolute: "About AutOwner" },
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
       "AI-powered car diagnosis, repair cost estimates, and OBD code lookup. Helping car owners make informed decisions.",
     type: "website",
     url: "https://www.autowner.com/about",
+    images: [DEFAULT_OG_IMAGE_META],
   },
 };
 

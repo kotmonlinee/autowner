@@ -3,6 +3,12 @@ export const IMAGE_CACHE_VERSION = "2";
 
 /** Default Open Graph / Twitter card image (1200×630) served from /public. */
 export const DEFAULT_OG_IMAGE = "/og-default.jpg";
+export const DEFAULT_OG_IMAGE_META = {
+  url: DEFAULT_OG_IMAGE,
+  width: 1200,
+  height: 630,
+  alt: "AutOwner — What's Wrong with Your Car?",
+} as const;
 
 // ── Vehicle Tier Mapping ─────────────────────────────────
 
