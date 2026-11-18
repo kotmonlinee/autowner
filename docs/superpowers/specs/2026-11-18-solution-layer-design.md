@@ -26,6 +26,29 @@ The first release covers 20-30 high-value repair jobs. The architecture supports
 later expansion without duplicating content across OBD, symptom, diagnosis, and
 vehicle pages.
 
+### 1.1 Architecture at a glance
+
+```mermaid
+flowchart LR
+  A["Search traffic"] --> B["OBD, symptom, or AI diagnosis page"]
+  B --> C["Explain issue and current safety"]
+  C --> D["Confirm likely cause"]
+  D --> E["Shared solution decision"]
+
+  E --> F["DIY repair guide"]
+  E --> G["Repair cost comparison"]
+  E --> H["Shop preparation"]
+  E --> I["Stop driving / tow"]
+
+  F --> J["Tools and parts"]
+  H --> K["Quote checklist"]
+  G --> K
+
+  F --> L["Post-repair verification"]
+  K --> M["Repair completed or scheduled"]
+  I --> M
+```
+
 ## 2. Problem
 
 The current product has useful fragments:
@@ -115,13 +138,21 @@ or long-lived data caches, not per-request Supabase queries.
 
 The shared journey is:
 
-```text
-Problem discovered
-  -> safety and driving decision
-  -> confirm the likely cause
-  -> choose DIY or professional path
-  -> execute repair or prepare for a shop
-  -> verify the result
+```mermaid
+flowchart TD
+  A["Problem discovered"] --> B["Safety and driving decision"]
+  B --> C["Confirm likely cause"]
+  C --> D["Choose repair path"]
+
+  D -->|"Owner has tools and confidence"| E["DIY repair"]
+  D -->|"Needs general repair shop"| F["Professional repair"]
+  D -->|"System-specific work"| G["Dealer or specialist"]
+  D -->|"Cannot drive safely"| H["Stop and tow"]
+
+  E --> I["Repair and verify"]
+  F --> I
+  G --> I
+  H --> I
 ```
 
 ### 6.1 Entry points
@@ -218,6 +249,30 @@ The runtime applies rules in this order:
    restrictive note, upgrade the result to `professional`.
 
 No cost-saving calculation may override a safety rule.
+
+```mermaid
+flowchart TD
+  A["Issue and repair context"] --> B{"Immediate safety emergency?"}
+  B -->|"Yes"| C["stop_and_tow"]
+  B -->|"No"| D{"Cause confirmed?"}
+
+  D -->|"No"| E["diagnose_first"]
+  D -->|"Yes"| F{"Professional-only or specialist vehicle note?"}
+
+  F -->|"Yes"| G["professional or specialist"]
+  F -->|"No"| H{"Reviewed guide default"}
+
+  H -->|"Low risk and suitable"| I["diy"]
+  H -->|"Higher risk or tools"| J["diy_with_caution"]
+  H -->|"Not suitable"| G
+  H -->|"Monitor only"| K["observe"]
+
+  I --> L["Show guide and cost comparison"]
+  J --> L
+  G --> M["Show shop and quote preparation"]
+  E --> N["Show verification steps"]
+  C --> O["Show tow and safety warning"]
+```
 
 ### 7.3 Cost comparison
 
@@ -478,6 +533,83 @@ page context. It does not create indexable vehicle-specific URL variants.
 - Public page queries still filter on publication status in application code. RLS
   is a second boundary, not a replacement for explicit application checks.
 
+### 8.8 Data relationships
+
+```mermaid
+erDiagram
+  repair_catalog ||--o| repair_guides : "has guide"
+  repair_catalog ||--o{ repair_slug_aliases : "resolves aliases"
+  repair_catalog ||--o{ repair_guide_vehicle_notes : "has vehicle notes"
+  repair_catalog ||--o| diy_difficulty : "has difficulty summary"
+  repair_catalog ||--o{ repair_costs : "has cost estimates"
+  repair_catalog ||--o{ symptom_causes : "is referenced by"
+
+  repair_catalog {
+    text repair_slug PK
+    text public_slug UK
+    text repair_name
+    text system_category
+    text safety_category
+    boolean active
+  }
+
+  repair_guides {
+    uuid id PK
+    text repair_slug FK
+    text default_resolution
+    text safety_level
+    jsonb tools
+    jsonb parts
+    jsonb precheck_steps
+    jsonb repair_steps
+    jsonb stop_conditions
+    jsonb post_repair_checks
+    text content_status
+    text review_status
+  }
+
+  repair_slug_aliases {
+    text alias_slug PK
+    text repair_slug FK
+  }
+
+  repair_guide_vehicle_notes {
+    uuid id PK
+    text repair_slug FK
+    text make_slug
+    text model_slug
+    text note_type
+    boolean requires_specialist
+    text review_status
+  }
+
+  diy_difficulty {
+    uuid id PK
+    text repair_slug UK
+    integer difficulty_level
+    text risk_level
+    text tools
+    jsonb check_steps
+  }
+
+  repair_costs {
+    uuid id PK
+    text repair_slug
+    text tier
+    numeric min_cost
+    numeric max_cost
+    numeric labor_cost
+    numeric parts_cost
+  }
+
+  symptom_causes {
+    uuid id PK
+    text cause_name
+    text repair_slug
+    numeric probability
+  }
+```
+
 ## 9. Application Architecture
 
 ### 9.1 Server data layer
@@ -535,6 +667,55 @@ Create three focused components:
 eventually use `SolutionDecisionCard` rather than each implementing their own
 repair links.
 
+```mermaid
+flowchart TB
+  H1["H1: Repair job and vehicle scope"] --> DECISION["Solution decision card"]
+  DECISION --> SAFETY["Safety warning and stop conditions"]
+  SAFETY --> PRECHECK["Confirm the cause and repair need"]
+  PRECHECK --> PARTS["Tools and parts"]
+  PARTS --> STEPS["Reviewed repair steps"]
+  STEPS --> VERIFY["Post-repair verification"]
+  VERIFY --> COST["Cost comparison and quote checker"]
+  COST --> RELATED["Related guides and issue pages"]
+
+  DECISION -.->|"Professional path"| SHOP["Shop type and quote preparation"]
+  SHOP --> COST
+```
+
+```mermaid
+flowchart LR
+  subgraph EntryPages["Indexable entry pages"]
+    OBD["OBD page"]
+    SYM["Symptom page"]
+    DIAG["AI diagnosis page"]
+    VEH["Vehicle issue section"]
+  end
+
+  subgraph Shared["Shared solution layer"]
+    MAP["Issue-to-repair mapping"]
+    ENGINE["Decision rules"]
+    CARD["Server-rendered decision card"]
+  end
+
+  subgraph Guides["Canonical content"]
+    GUIDE["Repair guide"]
+    COST["Repair cost page"]
+    QUOTE["Quote checker"]
+  end
+
+  OBD --> MAP
+  SYM --> MAP
+  DIAG --> MAP
+  VEH --> MAP
+  MAP --> ENGINE
+  ENGINE --> CARD
+  CARD --> GUIDE
+  CARD --> COST
+  CARD --> QUOTE
+  GUIDE --> COST
+  GUIDE --> QUOTE
+```
+
 ## 10. URL and SEO Design
 
 ### 10.1 URL structure
@@ -562,6 +743,22 @@ Existing URLs remain in place:
 No separate vehicle-specific guide URL is published in the first release.
 Vehicle context in a query string uses the generic guide as canonical and is
 `noindex, follow`.
+
+```mermaid
+flowchart TD
+  ISSUE["OBD / symptom / diagnosis URL"] --> CARD["Next-step card"]
+  CARD --> GUIDE["/repair-guides/[public-slug]"]
+  GUIDE --> COST["/repair-cost/[slug]"]
+  GUIDE --> QUOTE["/quote-checker"]
+  GUIDE --> HUB["/repair-guides"]
+  COST --> GUIDE
+
+  VEHICLE["Vehicle query context"] -.->|"canonical to"| GUIDE
+  VEHICLE -.->|"noindex, follow"| GUIDE
+
+  PUBLISHED["published + approved"] --> SITEMAP["sitemap shard"]
+  DRAFT["draft + review"] -.->|"404, no sitemap"| HIDDEN["not publicly routable"]
+```
 
 ### 10.2 Internal linking
 
@@ -748,6 +945,19 @@ Before enabling the sitemap entry:
 7. Submit only after deployment is healthy.
 
 ## 15. Rollout
+
+```mermaid
+flowchart LR
+  P0["Phase 0<br/>Taxonomy and rules"] --> P1["Phase 1<br/>Data foundation"]
+  P1 --> P2["Phase 2<br/>Decision card"]
+  P2 --> P3["Phase 3<br/>20-30 public guides"]
+  P3 --> P4["Phase 4<br/>Vehicle notes"]
+  P4 --> P5["Phase 5<br/>Shop and commerce"]
+
+  P3 --> SEO["Sitemap and IndexNow"]
+  P3 --> METRICS["Indexing and behavior metrics"]
+  METRICS --> P4
+```
 
 ### Phase 0: Taxonomy and rule audit
 
