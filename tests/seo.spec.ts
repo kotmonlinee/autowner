@@ -12,6 +12,8 @@ test.describe('SEO and Static Pages', () => {
     const response = await request.get('/sitemap.xml');
     expect(response.status()).toBe(200);
     expect(response.headers()['content-type']).toContain('application/xml');
+    const xml = await response.text();
+    expect(xml.match(/<lastmod>/g)?.length).toBe(7);
   });
 
   test('search pages are not indexable or listed in sitemaps', async ({ request }) => {
