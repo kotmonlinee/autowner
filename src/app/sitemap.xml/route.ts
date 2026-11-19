@@ -52,14 +52,18 @@ const getSitemapLastmods = unstable_cache(async () => {
   const newest = (...values: Array<string | null>) =>
     values.filter((value): value is string => Boolean(value)).sort().at(-1) ?? null;
 
+  // URL generation changes are part of the sitemap's last-modified time even
+  // when the underlying content timestamps are older.
+  const truncationFix = "2026-11-17T11:34:52.000Z";
+
   return {
-    staticTools: lights,
+    staticTools: newest(lights, "2026-11-18T08:15:53.000Z"),
     repairsAndVehicles: repairs,
-    obd,
-    symptoms: newest(symptoms, vehicleSymptoms),
-    diagnoses,
+    obd: newest(obd, truncationFix),
+    symptoms: newest(symptoms, vehicleSymptoms, truncationFix),
+    diagnoses: newest(diagnoses, truncationFix),
   };
-}, ["sitemap-index-lastmod-v1"], { revalidate: 3600 });
+}, ["sitemap-index-lastmod-v2"], { revalidate: 3600 });
 
 export async function GET() {
   const baseUrl = "https://www.autowner.com";
