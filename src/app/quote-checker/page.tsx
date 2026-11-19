@@ -560,25 +560,7 @@ function QuoteCheckerContent() {
   const assessmentStyle = result ? ASSESSMENT_COLORS[result.assessment] : null;
 
   return (
-    <div className="min-h-screen bg-surface-0 flex flex-col">
-      <Navbar />
-
-      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary">Quote Checker</span>
-        </nav>
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary font-heading mb-3">
-            Quote Checker
-          </h1>
-          <p className="text-text-muted text-sm sm:text-base leading-relaxed">
-            Enter a mechanic&apos;s quote and compare it against typical repair costs
-            for your vehicle. No login required.
-          </p>
-        </div>
-
+    <>
         {/* How It Works */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
           {[
@@ -1203,9 +1185,7 @@ function QuoteCheckerContent() {
           </div>
         </section>
         <PageFeedback />
-      </main>
-      <Footer />
-    </div>
+    </>
   );
 }
 
@@ -1213,25 +1193,20 @@ function QuoteCheckerContent() {
 
 function QuoteCheckerFallback() {
   return (
-    <div className="min-h-screen bg-surface-0 flex flex-col">
-      <header className="h-14 border-b border-surface-border bg-surface-1/80 backdrop-blur-sm" />
-      <main className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
-        <div className="animate-pulse">
-          <div className="h-4 bg-surface-1 rounded w-32 mb-4" />
-          <div className="h-8 bg-surface-1 rounded w-48 mb-3" />
-          <div className="h-4 bg-surface-1 rounded w-96 mb-8" />
-          <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 sm:p-8 space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-12 bg-surface-0 rounded-xl" />
-              ))}
-            </div>
-            <div className="h-12 bg-surface-0 rounded-xl" />
-            <div className="h-12 bg-surface-0 rounded-xl" />
-            <div className="h-12 bg-primary/40 rounded-xl" />
-          </div>
+    <div className="animate-pulse">
+      <div className="h-4 bg-surface-1 rounded w-32 mb-4" />
+      <div className="h-8 bg-surface-1 rounded w-48 mb-3" />
+      <div className="h-4 bg-surface-1 rounded w-96 mb-8" />
+      <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 sm:p-8 space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-12 bg-surface-0 rounded-xl" />
+          ))}
         </div>
-      </main>
+        <div className="h-12 bg-surface-0 rounded-xl" />
+        <div className="h-12 bg-surface-0 rounded-xl" />
+        <div className="h-12 bg-primary/40 rounded-xl" />
+      </div>
     </div>
   );
 }
@@ -1240,8 +1215,28 @@ function QuoteCheckerFallback() {
 
 export default function QuoteCheckerPage() {
   return (
-    <Suspense fallback={<QuoteCheckerFallback />}>
-      <QuoteCheckerContent />
-    </Suspense>
+    <div className="min-h-screen bg-surface-0 flex flex-col">
+      <Navbar />
+      <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
+        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
+          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
+          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <span className="text-text-secondary">Quote Checker</span>
+        </nav>
+        <div className="mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary font-heading mb-3">
+            Check If a Mechanic&apos;s Repair Quote Is Fair
+          </h1>
+          <p className="text-text-muted text-sm sm:text-base leading-relaxed">
+            Enter a mechanic&apos;s quote and compare it against typical repair costs
+            for your vehicle. No login required.
+          </p>
+        </div>
+        <Suspense fallback={<QuoteCheckerFallback />}>
+          <QuoteCheckerContent />
+        </Suspense>
+      </main>
+      <Footer />
+    </div>
   );
 }

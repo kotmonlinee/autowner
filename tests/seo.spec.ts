@@ -29,6 +29,13 @@ test.describe('SEO and Static Pages', () => {
     expect(await response.text()).toContain('name="robots" content="noindex, follow"');
   });
 
+  test('quote checker renders its H1 in the initial HTML', async ({ request }) => {
+    const response = await request.get('/quote-checker');
+    const html = await response.text();
+    expect(html.match(/<h1\b/g)?.length).toBe(1);
+    expect(html).toContain("Check If a Mechanic&#x27;s Repair Quote Is Fair");
+  });
+
   test('diagnosis titles use one brand suffix and include vehicle context', async ({ request }) => {
     const response = await request.get('/symptom-checker/unusual-noise-or-sound-from-the-wheels-or-brakes-while-driving-ford-mustang-2020');
     const html = await response.text();
