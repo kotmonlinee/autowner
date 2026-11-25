@@ -143,7 +143,8 @@ export default function Navbar() {
             onClick={() => setMenuOpen((open) => !open)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
-            className="ml-auto flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-1.5 rounded-md text-text-primary transition-colors hover:bg-surface-2 lg:hidden"
+            aria-controls="mobile-navigation"
+            className="ml-auto flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-1.5 rounded-md text-text-primary transition-colors hover:bg-surface-2 lg:!hidden"
           >
             <span className={`h-0.5 w-5 bg-current transition-transform ${menuOpen ? "translate-y-2 rotate-45" : ""}`} />
             <span className={`h-0.5 w-5 bg-current transition-opacity ${menuOpen ? "opacity-0" : ""}`} />
@@ -151,7 +152,12 @@ export default function Navbar() {
           </button>
         </div>
 
-        <div className={`overflow-hidden border-t border-surface-border bg-surface-0 transition-[max-height,opacity] lg:hidden ${menuOpen ? "max-h-[calc(100vh-4rem)] opacity-100" : "max-h-0 border-t-0 opacity-0"}`}>
+        <div
+          id="mobile-navigation"
+          aria-hidden={!menuOpen}
+          inert={!menuOpen}
+          className={`overflow-hidden border-t border-surface-border bg-surface-0 transition-[max-height,opacity] lg:hidden ${menuOpen ? "max-h-[calc(100vh-4rem)] opacity-100" : "max-h-0 border-t-0 opacity-0"}`}
+        >
           <div className="mx-auto max-h-[calc(100vh-4rem)] max-w-[1180px] overflow-y-auto px-5 pb-6 pt-4">
             <SearchBar id="mobile-global-search" />
 
@@ -180,7 +186,7 @@ export default function Navbar() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
-                    className="flex min-h-10 items-center text-sm font-heading text-text-secondary"
+                    className="flex min-h-11 items-center text-sm font-heading text-text-secondary"
                   >
                     {link.label}
                   </Link>
@@ -203,7 +209,7 @@ export default function Navbar() {
                   </button>
                 </>
               ) : (
-                <Link prefetch={false} href="/auth/login" onClick={() => setMenuOpen(false)} className="text-sm font-heading font-semibold text-text-primary">
+                <Link prefetch={false} href="/auth/login" onClick={() => setMenuOpen(false)} className="flex min-h-11 items-center text-sm font-heading font-semibold text-text-primary">
                   Sign in
                 </Link>
               )}
