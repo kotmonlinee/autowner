@@ -16,6 +16,7 @@ test.describe('Homepage', () => {
     const navbar = page.locator('nav').first();
     await expect(navbar).toBeVisible();
     await expect(navbar).toContainText('AutOwner');
+    await expect(navbar).not.toContainText('Sign in');
   });
 
   test('primary diagnosis tools are visible', async ({ page }) => {
@@ -37,6 +38,7 @@ test.describe('Homepage', () => {
     expect(html.match(/<h1\b/g)?.length).toBe(1);
     expect(html).toContain('What&#x27;s wrong with your car?');
     expect(html).toContain('href="/symptoms/car-wont-start"');
+    expect(html).not.toContain('href="/auth/login"');
     expect(html).toContain('rel="canonical" href="https://www.autowner.com"');
   });
 

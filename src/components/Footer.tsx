@@ -23,7 +23,6 @@ const groups = [
     title: "More",
     links: [
       { label: "Vehicles", href: "/vehicles" },
-      { label: "Community", href: "/community" },
       { label: "About", href: "/about" },
       { label: "Contact", href: "/contact" },
     ],

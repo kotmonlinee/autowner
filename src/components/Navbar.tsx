@@ -1,11 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { fetchProfile, getSessionUser, onAuthChange, signOut } from "@/lib/data/browser";
-import Avatar from "./Avatar";
-import NotificationBell from "./NotificationBell";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import SearchBar from "./SearchBar";
 
 const primaryLinks = [
@@ -19,59 +16,14 @@ const primaryLinks = [
 const secondaryLinks = [
   { label: "Symptoms", href: "/symptoms" },
   { label: "Recall Check", href: "/recall-check" },
-  { label: "Community", href: "/community" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
 
-type SessionUser = NonNullable<Awaited<ReturnType<typeof getSessionUser>>>;
-
 export default function Navbar() {
-  const [user, setUser] = useState<SessionUser | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [profileUsername, setProfileUsername] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    getSessionUser().then((nextUser) => {
-      setUser(nextUser);
-      if (nextUser) {
-        fetchProfile(nextUser.id).then((profile) => {
-          if (profile) {
-            setAvatarUrl(profile.avatar_url ?? null);
-            setProfileUsername(profile.username);
-          }
-        });
-      }
-    });
-
-    const subscription = onAuthChange((nextUser) => {
-      setUser(nextUser);
-      if (nextUser) {
-        fetchProfile(nextUser.id).then((profile) => {
-          if (profile) {
-            setAvatarUrl(profile.avatar_url ?? null);
-            setProfileUsername(profile.username);
-          }
-        });
-      } else {
-        setAvatarUrl(null);
-        setProfileUsername("");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleLogout = async () => {
-    await signOut();
-    setMenuOpen(false);
-    router.refresh();
-  };
-
-  const displayName = profileUsername || user?.email;
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
@@ -117,25 +69,6 @@ export default function Navbar() {
             >
               Check a Quote
             </Link>
-            {user ? (
-              <div className="flex items-center gap-2 border-l border-surface-border pl-3">
-                <NotificationBell userId={user.id} />
-                <Link prefetch={false} href="/settings" aria-label="Account settings">
-                  <Avatar username={displayName} avatarUrl={avatarUrl} size="md" />
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="text-xs font-heading font-semibold text-text-muted transition-colors hover:text-text-primary"
-                >
-                  Log out
-                </button>
-              </div>
-            ) : (
-              <Link prefetch={false} href="/auth/login" className="text-xs font-heading font-semibold text-text-secondary hover:text-text-primary">
-                Sign in
-              </Link>
-            )}
           </div>
 
           <button
@@ -194,26 +127,6 @@ export default function Navbar() {
               </div>
             </div>
 
-            <div className="mt-5 flex items-center gap-3 border-t border-surface-border pt-4">
-              {user ? (
-                <>
-                  <Avatar username={displayName} avatarUrl={avatarUrl} size="md" />
-                  <Link prefetch={false} href="/settings" onClick={() => setMenuOpen(false)} className="text-sm font-heading font-semibold text-text-primary">
-                    Account
-                  </Link>
-                  <Link prefetch={false} href="/submit" onClick={() => setMenuOpen(false)} className="ml-auto text-sm font-heading font-semibold text-primary">
-                    New post
-                  </Link>
-                  <button type="button" onClick={handleLogout} className="text-sm font-heading text-text-muted">
-                    Log out
-                  </button>
-                </>
-              ) : (
-                <Link prefetch={false} href="/auth/login" onClick={() => setMenuOpen(false)} className="flex min-h-11 items-center text-sm font-heading font-semibold text-text-primary">
-                  Sign in
-                </Link>
-              )}
-            </div>
           </div>
         </div>
       </nav>
