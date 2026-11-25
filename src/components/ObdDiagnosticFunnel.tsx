@@ -145,7 +145,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
                   key={`cause-${i}-${cause.probability}`}
                   className={`border transition-all ${
                     fb === "confirmed"
-                      ? "border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-950/20"
+                      ? "border-emerald-300  bg-emerald-50/50 "
                       : fb === "ruled-out"
                       ? "border-surface-border bg-surface-0 opacity-60"
                       : "border-surface-border bg-surface-0 hover:border-primary/20"
@@ -183,7 +183,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
                       {fb && (
                         <span className={`inline-block mt-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${
                           fb === "confirmed"
-                            ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                            ? "bg-emerald-100  text-emerald-700 "
                             : "bg-surface-2 text-text-muted line-through"
                         }`}>
                           {fb === "confirmed" ? "✓ Confirmed" : "✗ Ruled out"}

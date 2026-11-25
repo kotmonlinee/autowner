@@ -22,7 +22,7 @@ export default function DemoObdWhatsNext() {
         <div className="bg-surface-1 rounded-xl border border-surface-border p-6 mb-8">
           <div className="flex items-center gap-3 mb-3">
             <h1 className="text-3xl font-heading font-bold text-text-primary tracking-wider">P0420</h1>
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold font-heading border bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold font-heading border bg-red-50  text-red-700  border-red-200 ">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
               Critical
             </span>
@@ -32,7 +32,7 @@ export default function DemoObdWhatsNext() {
         </div>
 
         {/* ── Can I Still Drive? ── */}
-        <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl border-2 border-red-200 dark:border-red-800 p-5 mb-4">
+        <div className="bg-red-50  rounded-2xl border-2 border-red-200  p-5 mb-4">
           <h2 className="text-base font-heading font-bold text-text-primary mb-2">Can you still drive with P0420?</h2>
           <p className="text-sm text-text-secondary mb-3">
             <span className="mr-1.5">⚠️</span>
@@ -72,8 +72,8 @@ export default function DemoObdWhatsNext() {
 
             {/* Card 2: Repair Cost Detail */}
             <Link prefetch={false} href="/repair-cost/catalytic-converter" className="group bg-surface-1 rounded-2xl border border-surface-border hover:border-primary/30 hover:shadow-md hover:-translate-y-1 transition-all p-5 flex flex-col">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center mb-3">
-                <DollarSign className="w-5 h-5 text-blue-500" />
+              <div className="mb-3 flex h-10 w-10 items-center justify-center border border-primary/20 bg-primary/5">
+                <DollarSign className="h-5 w-5 text-primary" />
               </div>
               <h3 className="text-sm font-heading font-bold text-text-primary mb-2 group-hover:text-primary transition-colors">Repair Cost Breakdown</h3>
               <p className="text-xs text-text-muted leading-relaxed mb-4 flex-1">See labor vs. parts costs, compare quotes, and find out what a fair price looks like.</p>
@@ -95,7 +95,7 @@ export default function DemoObdWhatsNext() {
 
             {/* Card 3: Check Recalls */}
             <Link prefetch={false} href="/recall-check" className="group bg-surface-1 rounded-2xl border border-surface-border hover:border-primary/30 hover:shadow-md hover:-translate-y-1 transition-all p-5 flex flex-col">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-50  flex items-center justify-center mb-3">
                 <ShieldAlert className="w-5 h-5 text-amber-500" />
               </div>
               <h3 className="text-sm font-heading font-bold text-text-primary mb-2 group-hover:text-primary transition-colors">Check for Recalls</h3>

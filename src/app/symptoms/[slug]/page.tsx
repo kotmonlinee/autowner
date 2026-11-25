@@ -24,10 +24,10 @@ export async function generateStaticParams() {
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
-  low: "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800",
-  medium: "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",
-  high: "bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800",
-  critical: "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
+  low: "bg-green-50  text-green-700  border-green-200 ",
+  medium: "bg-amber-50  text-amber-700  border-amber-200 ",
+  high: "bg-orange-50  text-orange-700  border-orange-200 ",
+  critical: "bg-red-50  text-red-700  border-red-200 ",
 };
 
 const DRIVING_LABELS: Record<string, string> = {
@@ -35,9 +35,9 @@ const DRIVING_LABELS: Record<string, string> = {
 };
 
 const DRIVING_COLORS: Record<string, string> = {
-  safe: "bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
-  limited: "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",
-  unsafe: "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
+  safe: "bg-emerald-50  text-emerald-700  border-emerald-200 ",
+  limited: "bg-amber-50  text-amber-700  border-amber-200 ",
+  unsafe: "bg-red-50  text-red-700  border-red-200 ",
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -426,7 +426,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
                       </div>
                     </td>
                     <td className="py-2.5 px-3 text-center">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-heading ${c.severity === "critical" ? "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400" : c.severity === "high" ? "bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-400" : "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400"}`}>{c.severity}</span>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-heading ${c.severity === "critical" ? "bg-red-50  text-red-700 " : c.severity === "high" ? "bg-orange-50  text-orange-700 " : "bg-amber-50  text-amber-700 "}`}>{c.severity}</span>
                     </td>
                     <td className="py-2.5 px-3 text-right text-sm font-heading">
                       {c.repair_cost_min != null ? <span className="font-bold text-text-primary">{formatMoney(c.repair_cost_min)} – {formatMoney(c.repair_cost_max)}</span> : <span className="text-text-muted text-xs">Varies by vehicle</span>}

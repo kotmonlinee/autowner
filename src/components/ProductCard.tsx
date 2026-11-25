@@ -18,12 +18,12 @@ function renderStars(rating: number) {
   return (
     <span className="inline-flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
       {Array.from({ length: full }).map((_, i) => (
-        <svg key={`f-${i}`} className="w-3.5 h-3.5 text-amber dark:text-amber-dark" viewBox="0 0 20 20" fill="currentColor" width={14} height={14}>
+        <svg key={`f-${i}`} className="w-3.5 h-3.5 text-amber " viewBox="0 0 20 20" fill="currentColor" width={14} height={14}>
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
       ))}
       {half && (
-        <svg className="w-3.5 h-3.5 text-amber dark:text-amber-dark" viewBox="0 0 20 20" fill="currentColor" width={14} height={14}>
+        <svg className="w-3.5 h-3.5 text-amber " viewBox="0 0 20 20" fill="currentColor" width={14} height={14}>
           <defs>
             <linearGradient id="half-star">
               <stop offset="50%" stopColor="currentColor" />
@@ -51,7 +51,7 @@ export default function ProductCard({
   imageUrl,
 }: ProductCardProps) {
   return (
-    <div className="my-4 bg-surface-2 rounded-xl border-l-4 border-amber dark:border-amber-dark border-t border-r border-b border-surface-border overflow-hidden">
+    <div className="my-4 bg-surface-2 rounded-xl border-l-4 border-amber  border-t border-r border-b border-surface-border overflow-hidden">
       <div className="flex items-start gap-4 p-4">
         {/* Product image placeholder or actual image */}
         <div className="w-16 h-16 shrink-0 rounded-lg bg-surface-3 border border-surface-border flex items-center justify-center overflow-hidden relative">
@@ -115,7 +115,7 @@ export default function ProductCard({
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="inline-flex items-center gap-1 text-xs font-bold text-amber dark:text-amber-dark hover:underline font-heading"
+                className="inline-flex items-center gap-1 text-xs font-bold text-amber  hover:underline font-heading"
               >
                 View on Amazon
                 <svg
@@ -137,7 +137,7 @@ export default function ProductCard({
                 href={`https://www.amazon.com/s?k=${encodeURIComponent(name)}`}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="inline-flex items-center gap-1 text-xs font-bold text-text-muted hover:text-amber dark:hover:text-amber-dark transition-colors font-heading"
+                className="inline-flex items-center gap-1 text-xs font-bold text-text-muted hover:text-amber  transition-colors font-heading"
               >
                 Check price
                 <svg

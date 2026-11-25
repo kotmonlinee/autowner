@@ -18,7 +18,7 @@ const LEVELS = [
     time: "< 30 minutes",
     risk: "Very low — almost impossible to cause damage.",
     examples: "Engine air filter, cabin air filter, battery, MAF sensor, ignition coil.",
-    color: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+    color: "bg-emerald-50  text-emerald-700  border-emerald-200 ",
     dot: "bg-emerald-500",
   },
   {
@@ -29,7 +29,7 @@ const LEVELS = [
     time: "30 minutes – 1.5 hours",
     risk: "Low — follow instructions and you'll be fine.",
     examples: "Oil change, spark plugs, oxygen sensor, coolant flush, serpentine belt, throttle body.",
-    color: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+    color: "bg-emerald-50  text-emerald-700  border-emerald-200 ",
     dot: "bg-emerald-500",
   },
   {
@@ -40,7 +40,7 @@ const LEVELS = [
     time: "1 – 5 hours",
     risk: "Medium — mistakes can cause damage or safety issues. Take your time.",
     examples: "Brake pads, alternator, starter, water pump, radiator, valve cover gasket, CV axle.",
-    color: "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+    color: "bg-amber-50  text-amber-700  border-amber-200 ",
     dot: "bg-amber-500",
   },
   {
@@ -51,7 +51,7 @@ const LEVELS = [
     time: "2 – 8 hours",
     risk: "High — improper work can lead to serious damage or injury.",
     examples: "Struts, ball joints, control arms, engine mounts, catalytic converter, fuel pump.",
-    color: "bg-orange-50 dark:bg-orange-950/20 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800",
+    color: "bg-orange-50  text-orange-700  border-orange-200 ",
     dot: "bg-orange-500",
   },
   {
@@ -62,7 +62,7 @@ const LEVELS = [
     time: "3 – 20+ hours (shop time)",
     risk: "Very High — one mistake can destroy your engine or create a safety hazard.",
     examples: "Timing belt, head gasket, AC compressor, clutch, evaporator core, windshield.",
-    color: "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
+    color: "bg-red-50  text-red-700  border-red-200 ",
     dot: "bg-red-500",
   },
 ];

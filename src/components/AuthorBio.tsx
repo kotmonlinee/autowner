@@ -35,7 +35,7 @@ export default function AuthorBio({
               </h4>
 
               {isExpert && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber/10 border border-amber/20 text-amber dark:text-amber-dark text-xs font-bold font-heading uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber/10 border border-amber/20 text-amber  text-xs font-bold font-heading uppercase tracking-wider">
                   <svg
                     className="w-3 h-3"
                     viewBox="0 0 24 24"

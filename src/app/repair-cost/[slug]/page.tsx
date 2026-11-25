@@ -410,7 +410,7 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
 
         {/* Safety Recalls (vehicle-specific only) */}
         {parsed && makeName && (
-          <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-2xl border border-severity-caution-border p-5 mb-4">
+          <div className="bg-amber-50/30  rounded-2xl border border-severity-caution-border p-5 mb-4">
             <div className="flex items-start gap-3">
               <div className="w-9 h-9 rounded-lg bg-severity-caution-bg flex items-center justify-center shrink-0">
                 <svg className="w-4 h-4 text-severity-caution" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}>
@@ -513,9 +513,9 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
             <div className="space-y-3">
               {(diyData as any).check_steps.map((step: any, i: number) => {
                 const stageColors: Record<string, string> = {
-                  early_warning: "border-l-amber-400 bg-amber-50/50 dark:bg-amber-950/10",
-                  moderate: "border-l-orange-400 bg-orange-50/50 dark:bg-orange-950/10",
-                  critical: "border-l-red-400 bg-red-50/50 dark:bg-red-950/10",
+                  early_warning: "border-l-amber-400 bg-amber-50/50 ",
+                  moderate: "border-l-orange-400 bg-orange-50/50 ",
+                  critical: "border-l-red-400 bg-red-50/50 ",
                 };
                 const stageLabels: Record<string, string> = {
                   early_warning: "Early Warning",
@@ -672,11 +672,11 @@ function DiySection({ diyData, tierCards }: { diyData: any; tierCards: any[] }) 
   if (!tierCard) return null;
 
   const levelLabels: Record<number, { icon: string; label: string; bg: string }> = {
-    1: { icon: "✅", label: "Beginner — Anyone can do this", bg: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" },
-    2: { icon: "✅", label: "Easy — Basic tools only", bg: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" },
-    3: { icon: "⚠️", label: "Intermediate — Some experience helps", bg: "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800" },
-    4: { icon: "🔶", label: "Advanced — Special tools needed", bg: "bg-orange-50 dark:bg-orange-950/20 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800" },
-    5: { icon: "🔴", label: "Professional only — Hire a mechanic", bg: "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800" },
+    1: { icon: "✅", label: "Beginner — Anyone can do this", bg: "bg-emerald-50  text-emerald-700  border-emerald-200 " },
+    2: { icon: "✅", label: "Easy — Basic tools only", bg: "bg-emerald-50  text-emerald-700  border-emerald-200 " },
+    3: { icon: "⚠️", label: "Intermediate — Some experience helps", bg: "bg-amber-50  text-amber-700  border-amber-200 " },
+    4: { icon: "🔶", label: "Advanced — Special tools needed", bg: "bg-orange-50  text-orange-700  border-orange-200 " },
+    5: { icon: "🔴", label: "Professional only — Hire a mechanic", bg: "bg-red-50  text-red-700  border-red-200 " },
   };
 
   const riskColors: Record<string, string> = {
@@ -684,9 +684,9 @@ function DiySection({ diyData, tierCards }: { diyData: any; tierCards: any[] }) 
   };
 
   const diyColors: Record<string, string> = {
-    "Yes": "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800",
-    "Maybe": "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800",
-    "No": "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800",
+    "Yes": "text-emerald-600  bg-emerald-50  border-emerald-200 ",
+    "Maybe": "text-amber-600  bg-amber-50  border-amber-200 ",
+    "No": "text-red-600  bg-red-50  border-red-200 ",
   };
 
   const levelInfo = levelLabels[config.difficulty_level] ?? levelLabels[3];
@@ -696,8 +696,8 @@ function DiySection({ diyData, tierCards }: { diyData: any; tierCards: any[] }) 
   return (
     <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-4">
       <div className="flex items-center gap-2 mb-4">
-        <span className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-          <svg className="w-4 h-4 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
+        <span className="w-8 h-8 rounded-lg bg-amber-100  flex items-center justify-center shrink-0">
+          <svg className="w-4 h-4 text-amber-600 " viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
         </span>
         <h2 className="text-lg font-heading font-bold text-text-primary">Can You DIY This?</h2>
       </div>
@@ -740,14 +740,14 @@ function DiySection({ diyData, tierCards }: { diyData: any; tierCards: any[] }) 
           <p className="text-[10px] sm:text-xs text-text-muted font-heading">Save on Parts</p>
           <p className="text-[10px] text-text-muted mt-0.5">buying parts yourself vs shop markup</p>
         </div>
-        <div className="bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800 p-3 sm:p-4 text-center">
-          <p className="text-xl sm:text-2xl font-heading font-bold text-emerald-600 dark:text-emerald-400 mb-1">{formatMoney(tierCard.labor)}</p>
+        <div className="bg-emerald-50  rounded-xl border border-emerald-200  p-3 sm:p-4 text-center">
+          <p className="text-xl sm:text-2xl font-heading font-bold text-emerald-600  mb-1">{formatMoney(tierCard.labor)}</p>
           <p className="text-[10px] sm:text-xs text-text-muted font-heading">Labor Savings</p>
-          <p className="text-[10px] text-emerald-600/70 dark:text-emerald-400/70 mt-0.5">shop charges you this</p>
+          <p className="text-[10px] text-emerald-600/70  mt-0.5">shop charges you this</p>
         </div>
       </div>
       {config.has_variability && (
-        <p className="text-[10px] text-amber-600 dark:text-amber-400 mb-4 -mt-2 text-center">Time and difficulty vary significantly by vehicle model</p>
+        <p className="text-[10px] text-amber-600  mb-4 -mt-2 text-center">Time and difficulty vary significantly by vehicle model</p>
       )}
 
       <div className="bg-surface-0 rounded-xl border border-surface-border p-4 mb-3">
@@ -759,7 +759,7 @@ function DiySection({ diyData, tierCards }: { diyData: any; tierCards: any[] }) 
         </div>
       </div>
 
-      <div className="flex items-start gap-2 bg-red-50/50 dark:bg-red-950/10 rounded-xl border border-red-200/50 dark:border-red-800/50 p-3">
+      <div className="flex items-start gap-2 bg-red-50/50  rounded-xl border border-red-200/50  p-3">
         <svg className="w-4 h-4 text-red-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={16} height={16}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
         <p className="text-xs text-text-secondary leading-relaxed"><strong className="text-text-primary">Safety:</strong> {config.safety}</p>
       </div>

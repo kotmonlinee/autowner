@@ -46,31 +46,31 @@ function getDrivingAdvice(severity: number): { emoji: string; text: string; bgCl
     return {
       emoji: "⚠️",
       text: "Stop driving — this code indicates a critical issue that could cause severe engine damage or safety risk. Tow to a shop immediately.",
-      bgClass: "bg-red-50 dark:bg-red-950",
-      borderClass: "border-red-200 dark:border-red-800",
+      bgClass: "bg-red-50 ",
+      borderClass: "border-red-200 ",
     };
   }
   if (severity === 4) {
     return {
       emoji: "⚠️",
       text: "Limited driving — get to a repair shop within 1–2 days. Avoid long trips and highway speeds.",
-      bgClass: "bg-orange-50 dark:bg-orange-950",
-      borderClass: "border-orange-300 dark:border-orange-800",
+      bgClass: "bg-orange-50 ",
+      borderClass: "border-orange-300 ",
     };
   }
   if (severity >= 2) {
     return {
       emoji: "⚠️",
       text: "Short-distance driving is usually OK, but have this diagnosed within a week to prevent further damage.",
-      bgClass: "bg-yellow-50 dark:bg-yellow-950",
-      borderClass: "border-yellow-300 dark:border-yellow-800",
+      bgClass: "bg-yellow-50 ",
+      borderClass: "border-yellow-300 ",
     };
   }
   return {
     emoji: "✅",
     text: "Safe to drive — this is an informational or minor issue. Schedule diagnosis at your convenience.",
-    bgClass: "bg-green-50 dark:bg-green-950",
-    borderClass: "border-green-300 dark:border-green-800",
+    bgClass: "bg-green-50 ",
+    borderClass: "border-green-300 ",
   };
 }
 

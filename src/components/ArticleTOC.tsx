@@ -54,7 +54,7 @@ export default function ArticleTOC({ body }: { body: string }) {
     }
 
     // Fallback: search by text content in the prose container
-    const proseContainer = document.querySelector(".prose-dark");
+    const proseContainer = document.querySelector(".prose-editorial");
     if (!proseContainer) return;
     const allHeadings = proseContainer.querySelectorAll("h2, h3");
     for (const h of allHeadings) {

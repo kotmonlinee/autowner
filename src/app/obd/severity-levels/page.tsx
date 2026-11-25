@@ -16,9 +16,6 @@ interface SeverityLevel {
   bg: string;
   text: string;
   border: string;
-  darkBg: string;
-  darkText: string;
-  darkBorder: string;
   description: string;
   driving: string;
   examples: string;
@@ -29,7 +26,6 @@ const LEVELS: SeverityLevel[] = [
     level: 5,
     label: "Critical",
     bg: "#fef2f2", text: "#dc2626", border: "#fecaca",
-    darkBg: "#450a0a", darkText: "#fca5a5", darkBorder: "#7f1d1d",
     description:
       "A severe fault that can cause immediate engine, transmission, or safety system damage. Continuing to drive is dangerous — both to you and your vehicle.",
     driving: "Stop driving immediately. Have the vehicle towed to a repair shop.",
@@ -39,7 +35,6 @@ const LEVELS: SeverityLevel[] = [
     level: 4,
     label: "Serious",
     bg: "#fff7ed", text: "#ea580c", border: "#fed7aa",
-    darkBg: "#431407", darkText: "#fdba74", darkBorder: "#7c2d12",
     description:
       "A significant fault affecting drivability, emissions, or fuel economy. The car may still run, but prolonged driving risks further damage and higher repair costs.",
     driving: "Drive gently to a repair shop as soon as possible. Avoid long trips and heavy loads.",
@@ -49,7 +44,6 @@ const LEVELS: SeverityLevel[] = [
     level: 3,
     label: "Moderate",
     bg: "#fefce8", text: "#ca8a04", border: "#fde68a",
-    darkBg: "#422006", darkText: "#fde047", darkBorder: "#713f12",
     description:
       "A noticeable issue to address soon. May affect emissions, fuel economy, or performance, but the vehicle is generally safe to drive in the short term.",
     driving: "Schedule a diagnosis within the next week. Normal daily driving is acceptable.",
@@ -59,7 +53,6 @@ const LEVELS: SeverityLevel[] = [
     level: 2,
     label: "Minor",
     bg: "#f0fdf4", text: "#16a34a", border: "#bbf7d0",
-    darkBg: "#052e16", darkText: "#86efac", darkBorder: "#14532d",
     description:
       "A manageable fault with limited impact on operation. The vehicle remains safe and functional, but the issue should be resolved to prevent escalation.",
     driving: "Safe to drive normally. Schedule a repair at your next convenience.",
@@ -69,7 +62,6 @@ const LEVELS: SeverityLevel[] = [
     level: 1,
     label: "Low",
     bg: "#f0fdf4", text: "#16a34a", border: "#bbf7d0",
-    darkBg: "#052e16", darkText: "#86efac", darkBorder: "#14532d",
     description:
       "The lowest-severity diagnostic code. Often informational or a very minor deviation. Typically no noticeable symptoms.",
     driving: "No driving restrictions. Address at your next scheduled maintenance.",
@@ -246,25 +238,6 @@ export default async function SeverityLevelsPage({
       </main>
 
       <Footer />
-
-      {/* Dark mode overrides */}
-      <style dangerouslySetInnerHTML={{ __html: LEVELS.map((l) => `
-        .dark .severity-card--l${l.level} {
-          background: ${l.darkBg} !important;
-          border-color: ${l.darkBorder} !important;
-        }
-        .dark .severity-card--l${l.level} .severity-card__heading,
-        .dark .severity-card--l${l.level} .severity-card__desc,
-        .dark .severity-card--l${l.level} .severity-card__examples {
-          color: ${l.darkText} !important;
-        }
-        .dark .severity-card--l${l.level} .severity-card__badge {
-          background: ${l.darkText} !important;
-        }
-        .dark .severity-card--l${l.level} .severity-card__drive {
-          background: ${l.level >= 4 ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.2)"} !important;
-        }
-      `).join("\n") }} />
     </div>
   );
 }

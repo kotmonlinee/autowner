@@ -65,7 +65,7 @@ export default function VoteButtons({
         </svg>
       </button>
       <span className={`text-xs font-bold my-0.5 font-heading tabular-nums ${
-        userVote === "up" ? "text-primary" : userVote === "down" ? "text-blue-400" : "text-text-muted"
+        userVote === "up" ? "text-primary" : userVote === "down" ? "text-text-secondary" : "text-text-muted"
       }`}>
         {score}
       </span>
@@ -73,8 +73,8 @@ export default function VoteButtons({
         onClick={() => handleVote("down")}
         className={`w-6 h-6 flex items-center justify-center rounded transition-all duration-150 ${
           userVote === "down"
-            ? "text-blue-400 bg-blue-400/10"
-            : "text-text-muted hover:text-blue-400 hover:bg-surface-3"
+            ? "text-text-secondary bg-surface-3"
+            : "text-text-muted hover:text-text-secondary hover:bg-surface-3"
         }`}
         aria-label="Downvote"
         aria-pressed={userVote === "down"}

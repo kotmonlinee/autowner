@@ -156,15 +156,15 @@ const ASSESSMENT_COLORS: Record<AssessmentResult["assessment"], { bg: string; te
     label: "Overpriced",
   },
   "Below Average": {
-    bg: "bg-blue-50 dark:bg-blue-950/20",
-    text: "text-blue-700 dark:text-blue-400",
-    border: "border-blue-200 dark:border-blue-800",
+    bg: "bg-severity-info-bg",
+    text: "text-severity-info",
+    border: "border-severity-info-border",
     label: "Below Average",
   },
   "Insufficient Data": {
-    bg: "bg-slate-50 dark:bg-slate-950/20",
-    text: "text-slate-700 dark:text-slate-400",
-    border: "border-slate-200 dark:border-slate-800",
+    bg: "bg-surface-1",
+    text: "text-text-secondary",
+    border: "border-surface-border",
     label: "Insufficient Data",
   },
 };
@@ -173,8 +173,8 @@ const ASSESSMENT_DOT: Record<AssessmentResult["assessment"], string> = {
   Fair: "bg-emerald-500",
   "Slightly High": "bg-amber-500",
   Overpriced: "bg-red-500",
-  "Below Average": "bg-blue-500",
-  "Insufficient Data": "bg-slate-400",
+  "Below Average": "bg-severity-info",
+  "Insufficient Data": "bg-text-muted",
 };
 
 function formatCurrency(value: number): string {
@@ -889,7 +889,7 @@ function QuoteCheckerContent() {
                 </div>
               </div>
             ) : result.assessment === "Insufficient Data" ? (
-              <div className="p-4 bg-slate-50 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800 rounded-xl mb-6">
+              <div className="p-4 bg-slate-50  border border-slate-200  rounded-xl mb-6">
                 <p className="text-sm text-text-secondary">
                   We don&apos;t have enough cost data for this specific repair and vehicle
                   combination yet. The assessment is based on general market analysis.

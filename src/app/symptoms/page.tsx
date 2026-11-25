@@ -35,10 +35,10 @@ const CATEGORIES: Record<string, { label: string; emoji: string }> = {
 };
 
 const SEV_COLORS: Record<string, string> = {
-  critical: "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400",
-  high: "bg-orange-50 dark:bg-orange-950/20 text-orange-700 dark:text-orange-400",
-  medium: "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400",
-  low: "bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400",
+  critical: "bg-red-50  text-red-700 ",
+  high: "bg-orange-50  text-orange-700 ",
+  medium: "bg-amber-50  text-amber-700 ",
+  low: "bg-green-50  text-green-700 ",
 };
 
 export default async function SymptomsPage() {

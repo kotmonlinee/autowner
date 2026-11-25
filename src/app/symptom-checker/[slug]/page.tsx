@@ -27,7 +27,7 @@ export const dynamic = "force-static";
 
 const SEVERITY_CONFIG: Record<string, { bg: string; text: string; border: string; label: string; icon: React.ReactNode }> = {
   critical: { bg: "bg-severity-critical-bg", text: "text-severity-critical", border: "border-severity-critical-border", label: "Critical — Stop Driving", icon: <AlertTriangle className="w-6 h-6" /> },
-  high: { bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-orange-700 dark:text-orange-400", border: "border-orange-200 dark:border-orange-800", label: "Serious — Inspect Soon", icon: <AlertTriangle className="w-6 h-6" /> },
+  high: { bg: "bg-orange-50 ", text: "text-orange-700 ", border: "border-orange-200 ", label: "Serious — Inspect Soon", icon: <AlertTriangle className="w-6 h-6" /> },
   medium: { bg: "bg-severity-caution-bg", text: "text-severity-caution", border: "border-severity-caution-border", label: "Moderate — Schedule Repair", icon: <AlertTriangle className="w-6 h-6" /> },
   low: { bg: "bg-severity-info-bg", text: "text-severity-info", border: "border-severity-info-border", label: "Low Concern", icon: <AlertTriangle className="w-6 h-6" /> },
 };
@@ -47,9 +47,9 @@ function parseCostRange(costStr: string): { min: number; max: number } | null {
 }
 
 const LIKELIHOOD_CONFIG: Record<string, { bg: string; text: string; border: string; bar: string; label: string }> = {
-  "most likely": { bg: "bg-red-50 dark:bg-red-950/20", text: "text-red-700 dark:text-red-400", border: "border-red-200 dark:border-red-800", bar: "border-l-red-500", label: "Most Likely" },
-  "possible": { bg: "bg-amber-50 dark:bg-amber-950/20", text: "text-amber-700 dark:text-amber-400", border: "border-amber-200 dark:border-amber-800", bar: "border-l-amber-400", label: "Possible" },
-  "less common": { bg: "bg-surface-0 dark:bg-surface-0", text: "text-text-muted", border: "border-surface-border", bar: "border-l-surface-border", label: "Less Common" },
+  "most likely": { bg: "bg-red-50 ", text: "text-red-700 ", border: "border-red-200 ", bar: "border-l-red-500", label: "Most Likely" },
+  "possible": { bg: "bg-amber-50 ", text: "text-amber-700 ", border: "border-amber-200 ", bar: "border-l-amber-400", label: "Possible" },
+  "less common": { bg: "bg-surface-0 ", text: "text-text-muted", border: "border-surface-border", bar: "border-l-surface-border", label: "Less Common" },
 };
 
 const getDiagnosisBySlug = unstable_cache(async (slug: string) => {
@@ -346,7 +346,7 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
                         <span className="text-sm font-medium text-text-primary font-heading truncate block group-hover:text-primary transition-colors">{r.name}</span>
                         <div className="flex items-center gap-2 mt-0.5">
                           {r.diyLabel && (
-                            <span className={`text-[10px] font-heading font-semibold px-1.5 py-0.5 rounded ${r.diyLevel && r.diyLevel <= 2 ? "bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400" : r.diyLevel === 3 ? "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" : "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400"}`}>{r.diyLabel}</span>
+                            <span className={`text-[10px] font-heading font-semibold px-1.5 py-0.5 rounded ${r.diyLevel && r.diyLevel <= 2 ? "bg-green-50 text-green-700  " : r.diyLevel === 3 ? "bg-amber-50 text-amber-700  " : "bg-red-50 text-red-700  "}`}>{r.diyLabel}</span>
                           )}
                           {r.estTime && <span className="text-[10px] text-text-muted font-heading">{r.estTime}</span>}
                           {r.avgCost && <span className="text-[10px] text-text-muted font-heading">~${Math.round(r.avgCost).toLocaleString()}</span>}

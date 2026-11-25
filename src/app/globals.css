@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @config "../../tailwind.config.ts";
-@variant dark (&:where(.dark, .dark *));
 
 @theme {
   --color-primary: var(--color-primary);
@@ -28,7 +27,7 @@
   --color-severity-info-border: var(--severity-info-border);
 }
 
-/* ── Light theme (default, no .dark class) ────────────────── */
+/* ── Light theme ─────────────────────────────────────────── */
 :root {
   color-scheme: light;
   --bg-primary: #f4f0e8;
@@ -55,34 +54,6 @@
   --severity-info: #247553;
   --severity-info-bg: #e6f0ea;
   --severity-info-border: #b9d8c7;
-}
-
-/* ── Dark theme (.dark class on <html>) ──────────────────── */
-.dark {
-  --bg-primary: #0a0b0f;
-  --bg-secondary: #111318;
-  --bg-elevated: #181b22;
-  --bg-tertiary: #1f2229;
-  --bg-border: #2a2d35;
-  --text-primary: #f0f1f3;
-  --text-secondary: #d1d5db;
-  --text-muted: #9ca3af;
-
-  --color-primary: #3b82f6;
-  --color-primary-dark: #2563eb;
-  --color-primary-glow: #60a5fa;
-  --color-amber: #fbbf24;
-  --color-amber-dark: #f59e0b;
-
-  --severity-critical: #f87171;
-  --severity-critical-bg: #450a0a;
-  --severity-critical-border: #991b1b;
-  --severity-caution: #fbbf24;
-  --severity-caution-bg: #451a03;
-  --severity-caution-border: #92400e;
-  --severity-info: #34d399;
-  --severity-info-bg: #022c22;
-  --severity-info-border: #065f46;
 }
 
 /* Base */
@@ -117,32 +88,16 @@ body::before {
   background-size: 48px 48px;
 }
 
-.dark body::before {
-  opacity: 0.03;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-}
-
 /* Scrollbar — light by default */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f4f0e8; }
 ::-webkit-scrollbar-thumb { background: #d8d0c2; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #bdb3a2; }
 
-.dark ::-webkit-scrollbar-track { background: var(--color-surface-1); }
-.dark ::-webkit-scrollbar-thumb { background: var(--color-surface-4); }
-.dark ::-webkit-scrollbar-thumb:hover { background: var(--color-surface-border); }
-
 /* Selection — light by default */
 ::selection {
   background: rgba(230, 83, 29, 0.22);
   color: #141617;
-}
-
-.dark ::selection {
-  background: rgba(59, 130, 246, 0.3);
-  color: var(--color-text-primary);
 }
 
 /* Typography utility classes */
@@ -194,24 +149,6 @@ body::before {
   opacity: 0;
 }
 
-/* Glow pulse for interactive elements */
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
-  50% { box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15); }
-}
-
-/* Subtle amber glow */
-@keyframes amberPulse {
-  0%, 100% { box-shadow: 0 0 8px 0 rgba(245, 158, 11, 0); }
-  50% { box-shadow: 0 0 8px 0 rgba(245, 158, 11, 0.15); }
-}
-
-/* Button hover lift */
-@keyframes btnLift {
-  from { transform: translateY(0); }
-  to { transform: translateY(-1px); }
-}
-
 /* Respect user motion preferences */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -223,51 +160,46 @@ body::before {
 }
 
 /* Prose overrides for post content */
-.prose-dark {
+.prose-editorial {
   color: var(--color-text-primary);
   line-height: 1.75;
 }
-.prose-dark h1, .prose-dark h2, .prose-dark h3, .prose-dark h4 {
+.prose-editorial h1, .prose-editorial h2, .prose-editorial h3, .prose-editorial h4 {
   color: var(--color-text-primary);
-  font-family: var(--font-heading);
+  font-family: var(--font-body);
   font-weight: 600;
   margin-top: 1.5em;
   margin-bottom: 0.5em;
 }
-.prose-dark strong { color: var(--color-text-primary); font-weight: 700; }
-.prose-dark a { color: var(--color-primary); text-decoration: underline; }
-.prose-dark img {
+.prose-editorial strong { color: var(--color-text-primary); font-weight: 700; }
+.prose-editorial a { color: var(--color-primary); text-decoration: underline; }
+.prose-editorial img {
   max-width: 100%;
   border-radius: 12px;
   margin: 1.5em 0;
   border: 1px solid var(--color-surface-border);
 }
-.prose-dark img:hover {
+.prose-editorial img:hover {
   border-color: var(--color-surface-4);
 }
-.prose-dark ul, .prose-dark ol { padding-left: 1.5em; }
-.prose-dark li { margin-bottom: 0.3em; }
-.prose-dark code {
+.prose-editorial ul, .prose-editorial ol { padding-left: 1.5em; }
+.prose-editorial li { margin-bottom: 0.3em; }
+.prose-editorial code {
   background: #ebe4d8;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.9em;
 }
-.prose-dark blockquote {
+.prose-editorial blockquote {
   border-left: 3px solid var(--color-primary);
   padding-left: 1em;
   color: var(--color-text-secondary);
   margin-left: 0;
 }
-.prose-dark hr {
+.prose-editorial hr {
   border: none;
   border-top: 1px solid var(--color-surface-border);
   margin: 1.5em 0;
-}
-
-/* Prose code background for dark mode */
-.dark .prose-dark code {
-  background: var(--color-surface-3);
 }
 
 /* ── Auto-linked OBD codes in post/comment content ─────────── */

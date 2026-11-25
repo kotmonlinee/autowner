@@ -147,10 +147,10 @@ export default function DemoSymptomsHub() {
               <div>
                 <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-2">Car Shaking When Accelerating</h1>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border bg-amber-50  text-amber-700  border-amber-200 ">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />Medium Severity
                   </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border bg-orange-50  text-orange-700  border-orange-200 ">
                     <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />Limited Driving
                   </span>
                 </div>
@@ -207,7 +207,7 @@ export default function DemoSymptomsHub() {
                       </td>
                       <td className="py-2.5 px-3 text-center">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold font-heading ${
-                          c.severity === "High" ? "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400" : "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400"
+                          c.severity === "High" ? "bg-red-50  text-red-700 " : "bg-amber-50  text-amber-700 "
                         }`}>{c.severity}</span>
                       </td>
                       <td className="py-2.5 px-3 text-right text-sm font-heading font-bold text-text-primary">{formatMoney(c.min)} – {formatMoney(c.max)}</td>
@@ -274,10 +274,10 @@ export default function DemoSymptomsHub() {
           </div>
 
           {/* SECTION 7: Can I Continue Driving */}
-          <div className="bg-orange-50/50 dark:bg-orange-950/10 rounded-2xl border border-orange-200 dark:border-orange-800 p-5 sm:p-6 mb-6">
+          <div className="bg-orange-50/50  rounded-2xl border border-orange-200  p-5 sm:p-6 mb-6">
             <h2 className="text-lg font-heading font-bold text-text-primary mb-3">Can I Continue Driving?</h2>
             <p className="text-sm text-text-secondary leading-relaxed mb-3">
-              <strong className="text-orange-700 dark:text-orange-400">Limited driving only.</strong> You can drive short distances to a repair shop, but avoid highway speeds and hard acceleration. The shaking may worsen over time as the underlying component continues to wear.
+              <strong className="text-orange-700 ">Limited driving only.</strong> You can drive short distances to a repair shop, but avoid highway speeds and hard acceleration. The shaking may worsen over time as the underlying component continues to wear.
             </p>
             <p className="text-sm text-text-secondary leading-relaxed">
               Continuing to drive with a severe misfire or failing CV axle can cause additional damage to the catalytic converter, transmission, or suspension components — significantly increasing repair costs.
