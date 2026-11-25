@@ -28,12 +28,12 @@ export const metadata: Metadata = {
 };
 
 const symptomLinks = [
-  { label: "Unusual noise", href: "/symptoms/car-shaking-at-idle", detail: "Knocking, grinding, humming" },
+  { label: "Unusual noise", href: "/symptoms/knocking-noise", detail: "Knocking, clicking, humming" },
   { label: "Warning light", href: "/symptoms/check-engine-light-on", detail: "Decode the dashboard" },
   { label: "Strange smell", href: "/symptoms/burning-smell", detail: "Fuel, oil, coolant, rubber" },
   { label: "Will not start", href: "/symptoms/car-wont-start", detail: "Battery, starter, fuel, ignition" },
   { label: "Braking issue", href: "/symptoms/brake-pedal-goes-to-floor", detail: "Pedal, noise, pulling" },
-  { label: "Fluid leak", href: "/symptoms/brake-fluid-leak", detail: "Identify the fluid first" },
+  { label: "Brake fluid leak", href: "/symptoms/brake-fluid-leak", detail: "Identify the fluid first" },
 ];
 
 const sectionLabel = "text-[11px] font-heading font-bold uppercase tracking-[0.14em] text-text-muted";
@@ -97,7 +97,7 @@ export default function HomePage() {
                   {[
                     ["Likely area", "Catalytic converter"],
                     ["Verify first", "Check for exhaust leaks"],
-                    ["Typical repair", "$400–$1,500"],
+                    ["Reported repair range", "$100–$2,200"],
                     ["Best next step", "Diagnose before replacing"],
                   ].map(([label, value]) => (
                     <div key={label} className="bg-text-primary p-4">
@@ -251,8 +251,8 @@ export default function HomePage() {
               <div className="mt-5 divide-y divide-surface-border border-y border-surface-border">
                 {[
                   ["Battery replacement", "$90–$450", "/repair-cost/battery"],
-                  ["Alternator replacement", "$400–$900", "/repair-cost/alternator"],
-                  ["Brake caliper replacement", "$300–$800", "/repair-cost/brake-caliper"],
+                  ["Alternator replacement", "$320–$1,200", "/repair-cost/alternator"],
+                  ["Brake caliper replacement", "$230–$880", "/repair-cost/brake-caliper"],
                 ].map(([name, cost, href]) => (
                   <Link prefetch={false} key={href} href={href} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 py-4 text-sm transition-colors hover:text-primary">
                     <span className="font-heading font-semibold text-text-primary">{name}</span>
