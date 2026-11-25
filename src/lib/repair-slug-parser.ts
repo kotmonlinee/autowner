@@ -9,14 +9,29 @@ let _knownMakesModels: { makeSlug: string; modelSlug: string }[] | null = null;
 async function getKnownMakesModels(): Promise<{ makeSlug: string; modelSlug: string }[]> {
   if (_knownMakesModels) return _knownMakesModels;
   const supabase = await createServiceSupabase();
-  const { data } = await supabase
-    .from("vehicle_models")
-    .select("slug, vehicle_makes!inner(slug)")
-    .limit(500);
-  if (!data) return [];
-  _knownMakesModels = (data as unknown as { slug: string; vehicle_makes: { slug: string } }[]).map(
-    (r) => ({ makeSlug: r.vehicle_makes.slug, modelSlug: r.slug })
-  );
+
+  // PostgREST caps a single response at 1,000 rows. The vehicle catalog is
+  // larger than that, so paging is required; a fixed 500-row limit silently
+  // made otherwise valid vehicle-specific repair URLs return 404.
+  const rows: { slug: string; vehicle_makes: { slug: string } }[] = [];
+  const pageSize = 1000;
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabase
+      .from("vehicle_models")
+      .select("slug, vehicle_makes!inner(slug)")
+      .order("slug")
+      .range(from, from + pageSize - 1);
+
+    if (error || !data) break;
+    rows.push(...(data as unknown as { slug: string; vehicle_makes: { slug: string } }[]));
+    if (data.length < pageSize) break;
+  }
+
+  if (rows.length === 0) return [];
+  _knownMakesModels = rows.map((row) => ({
+    makeSlug: row.vehicle_makes.slug,
+    modelSlug: row.slug,
+  }));
   return _knownMakesModels;
 }
 
