@@ -318,8 +318,10 @@ Desktop layout:
 Left column:
 
 - Eyebrow: `Vehicle symptoms / diagnostics`
-- H1: `Start with what your car is doing.`
-- Supporting copy: explain symptom, OBD, vehicle, and next-step coverage
+- H1: `What's wrong with your car?` to preserve the existing homepage query
+  target and brand phrase
+- Supporting copy: lead with the symptom, OBD code, vehicle, and next-step
+  coverage
 - Main search: accepts symptoms, OBD codes, repair names, and vehicles
 - Quick symptom chips: noise, warning light, no start, fluid leak, vibration
 
