@@ -3,6 +3,8 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
 
 export async function generateMetadata({
   searchParams,
@@ -51,9 +53,9 @@ const SEVERITY_LABELS: Record<number, string> = { 5: "Critical", 4: "Serious", 3
 
 function severityBadge(severity: number) {
   if (severity >= 5) return "bg-severity-critical-bg text-severity-critical border-severity-critical-border";
-  if (severity >= 4) return "bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800";
-  if (severity >= 3) return "bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800";
-  return "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800";
+  if (severity >= 4) return "bg-orange-50  text-orange-700  border-orange-200 ";
+  if (severity >= 3) return "bg-yellow-50  text-yellow-700  border-yellow-200 ";
+  return "bg-green-50  text-green-700  border-green-200 ";
 }
 
 function Arrow() {
@@ -76,16 +78,13 @@ export default async function SearchPage({
     return (
       <div className="min-h-screen bg-surface-0 flex flex-col">
         <Navbar />
-        <main className="max-w-3xl mx-auto px-5 py-8 flex-1 w-full">
-          <nav className="mb-6 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-            <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-            <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-            <span className="text-text-secondary">Search</span>
-          </nav>
+        <main id="main-content" className="max-w-3xl mx-auto px-5 py-8 flex-1 w-full">
+          <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Search" }]} />
+          <PageHeader eyebrow="Site search" title="Search AutOwner" description="Find diagnostic trouble codes, repair costs, vehicle symptoms, warning lights, and diagnostic reports." />
           <form action="/search" method="GET" className="mb-8">
             <div className="relative">
               <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={20} height={20}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-              <input name="q" type="search" placeholder="Search OBD codes, repairs, symptoms, warning lights..." className="w-full h-14 pl-12 pr-5 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" autoFocus />
+              <input name="q" type="search" placeholder="Search OBD codes, repairs, symptoms, warning lights..." className="h-14 w-full border border-surface-border bg-surface-1 pl-12 pr-5 text-base text-text-primary transition-colors placeholder:text-text-muted focus:border-primary focus:outline-none" autoFocus />
             </div>
           </form>
           <p className="text-text-muted text-sm text-center">Enter a keyword to search across OBD codes, repairs, diagnoses, and warning lights.</p>
@@ -123,22 +122,19 @@ export default async function SearchPage({
   return (
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
-      <main className="max-w-3xl mx-auto px-5 py-8 flex-1 w-full">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary">Search</span>
-        </nav>
+      <main id="main-content" className="max-w-3xl mx-auto px-5 py-8 flex-1 w-full">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Search" }]} />
+        <PageHeader eyebrow="Search results" title={`Results for “${query}”`} description={`${totalResults} matching result${totalResults === 1 ? "" : "s"} across diagnostic and repair content.`} />
 
         <form action="/search" method="GET" className="mb-6">
           <div className="relative">
             <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={20} height={20}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-            <input name="q" type="search" defaultValue={query} className="w-full h-12 sm:h-14 pl-12 pr-5 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" />
+            <input name="q" type="search" defaultValue={query} className="h-12 w-full border border-surface-border bg-surface-1 pl-12 pr-5 text-base text-text-primary transition-colors placeholder:text-text-muted focus:border-primary focus:outline-none sm:h-14" />
           </div>
         </form>
 
         {!hasResults ? (
-          <div className="text-center py-16 bg-surface-1 rounded-xl border border-surface-border">
+          <div className="border-y border-surface-border bg-surface-1 py-16 text-center">
             <p className="text-text-muted text-sm mb-1">No results found for &ldquo;{query}&rdquo;</p>
             <p className="text-text-muted text-xs">Try a different keyword or browse:</p>
             <div className="flex justify-center gap-3 mt-4">
@@ -237,7 +233,7 @@ export default async function SearchPage({
             {posts.length > 0 && (
               <section className="mb-8">
                 <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="h-2 w-2 rounded-full bg-primary" />
                   Articles
                   <span className="text-xs font-normal text-text-muted normal-case tracking-normal">({posts.length})</span>
                 </h2>

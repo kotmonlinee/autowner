@@ -17,6 +17,8 @@ import ArticleTOC from "@/components/ArticleTOC";
 import ProductCard from "@/components/ProductCard";
 import AuthorBio from "@/components/AuthorBio";
 import ReadingProgress from "@/components/ReadingProgress";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
 
 export const revalidate = 1209600;
 import { FollowVehicleButton } from "@/components/FollowVehicleButton";
@@ -262,31 +264,37 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               />
             )}
 
-            {/* Breadcrumb */}
-            <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-              <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-              {post.categories && (
-                <>
-                  <Link prefetch={false} href={`/community?category=${post.categories.slug}`} className="hover:text-primary transition-colors">{post.categories.name}</Link>
-                  <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </>
-              )}
-              <span className="text-text-secondary truncate">{post.title}</span>
-            </nav>
+            <Breadcrumbs
+              items={[
+                { label: "Home", href: "/" },
+                ...(post.categories
+                  ? [{ label: post.categories.name, href: `/community?category=${post.categories.slug}` }]
+                  : [{ label: "Community", href: "/community" }]),
+                { label: isDeleted ? "Deleted post" : post.title },
+              ]}
+            />
+            <PageHeader
+              eyebrow={isDeleted ? "Community archive" : post.content_type === "guide" ? "Owner repair guide" : "Owner discussion"}
+              title={isDeleted ? "This post has been deleted" : post.title}
+              description={isDeleted ? "The author has removed this content." : desc}
+              aside={
+                !isDeleted ? (
+                  <div className="border border-surface-border bg-surface-1 p-5">
+                    <p className="text-[10px] font-heading font-bold uppercase tracking-[0.14em] text-text-muted">Discussion record</p>
+                    <p className="mt-2 font-display text-2xl font-semibold text-text-primary">{post.profiles?.username ?? "AutOwner"}</p>
+                    <p className="mt-2 text-xs text-text-muted">{post.categories?.name ?? "Community"} · {post.comment_count ?? 0} comments</p>
+                  </div>
+                ) : undefined
+              }
+            />
 
-            <div className="bg-surface-1 rounded-xl border border-surface-border p-6">
+            <div className="border-y border-surface-border bg-surface-1 p-6">
               {isDeleted ? (
                 /* Deleted post state */
                 <div className="py-12 text-center">
                   <svg className="w-12 h-12 mx-auto mb-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={48} height={48}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
-                  <h1 className="text-xl font-bold text-text-secondary font-heading mb-2">This post has been deleted</h1>
                   <p className="text-text-muted text-sm">The author has removed this content.</p>
                   <Link prefetch={false}
                     href="/"
@@ -309,11 +317,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                       </Link>
                     )}
                     {post.source === "scraped" && (
-                      <span className="px-2 py-2 bg-amber-700/10 dark:bg-amber-400/10 text-severity-caution rounded text-xs font-bold font-heading tracking-wide border border-amber-700/20 dark:border-amber-400/20">AUTO</span>
+                      <span className="px-2 py-2 bg-amber-700/10  text-severity-caution rounded text-xs font-bold font-heading tracking-wide border border-amber-700/20 ">AUTO</span>
                     )}
                   </div>
-
-                  <h1 className="text-2xl font-bold text-text-primary mb-6 pb-4 border-b border-surface-border font-heading leading-tight">{post.title}</h1>
 
                   <div className="flex items-center gap-2 mb-6">
                     <div className="ml-auto flex items-center gap-1">
@@ -384,10 +390,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
             {/* Recommended Products */}
             {!isDeleted && post.products && post.products.length > 0 && (
-              <section className="mt-4 bg-surface-1 rounded-xl border border-surface-border p-5">
+            <section className="mt-6 border-y border-surface-border bg-surface-1 p-5">
                 <div className="flex items-center gap-2.5 mb-4">
                   <svg
-                    className="w-4 h-4 text-amber dark:text-amber-dark shrink-0"
+                    className="w-4 h-4 text-amber  shrink-0"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -427,7 +433,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 <ViewTracker postId={id} title={post.title} />
                 <ShareButtons title={post.title} url={articleUrl} />
 
-                <div className="bg-surface-1 rounded-xl border border-surface-border p-6 mt-4">
+                <div className="mt-6 border-y border-surface-border bg-surface-1 p-6">
                   <CommentSection postId={id} userId={user?.id} />
                 </div>
 

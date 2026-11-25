@@ -9,11 +9,17 @@ import PageFeedback from "@/components/PageFeedback";
 export const revalidate = 7776000;
 export const dynamic = "force-static";
 import WarningLightIcon from "@/components/WarningLightIcon";
-import { getRelatedRepairs, TOP_REPAIRS } from "@/lib/internal-linking";
-import { getRepairImageUrl } from "@/lib/repair-images";
+import { TOP_REPAIRS } from "@/lib/internal-linking";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { type WarningLightSeverity } from "@/lib/warning-lights-data";
 import { getWarningLightBySlug, getAllWarningLights, type WarningLightRow } from "@/lib/data/server";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
+import QuickVerdict from "@/components/content/QuickVerdict";
+import CostSummary from "@/components/content/CostSummary";
+import ContentSection from "@/components/content/ContentSection";
+import ContinueSolving from "@/components/content/ContinueSolving";
+import FaqList from "@/components/content/FaqList";
 
 export async function generateStaticParams() {
   const lights = await getAllWarningLights();
@@ -102,116 +108,80 @@ export default async function WarningLightDetailPage({ params }: { params: Promi
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
-        {/* Breadcrumb */}
-        <nav className="mb-6 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <span className="mx-2">/</span>
-          <Link prefetch={false} href="/warning-lights" className="hover:text-primary transition-colors">Warning Lights</Link>
-          <span className="mx-2">/</span>
-          <span className="text-text-secondary">{light.title}</span>
-        </nav>
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Warning Lights", href: "/warning-lights" }, { label: light.title }]} />
+        <PageHeader
+          eyebrow="Dashboard warning guide"
+          title={light.title}
+          description={light.meaning}
+          aside={
+            <div className={`border-2 ${sev.border} ${sev.bg} p-6 text-center`}>
+              <div className={`mx-auto flex h-24 w-24 items-center justify-center border ${sev.border} ${sev.iconBg}`}>
+                <WarningLightIcon slug={light.slug} size={56} severity={light.severity} />
+              </div>
+              <p className={`mt-4 text-xs font-heading font-bold uppercase tracking-[0.12em] ${sev.text}`}>{sev.label}</p>
+            </div>
+          }
+        />
 
-        {/* ── Hero ── */}
-        <div className={`${sev.bg} rounded-3xl border-2 ${sev.border} p-8 mb-8 text-center`}>
-          <div className={`inline-flex items-center justify-center w-24 h-24 rounded-3xl ${sev.iconBg} border-2 ${sev.border} mb-5`}>
-            <WarningLightIcon slug={light.slug} size={56} severity={light.severity} />
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-3">{light.title}</h1>
-          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border-2 ${sev.border} ${sev.text} font-heading`}>
-            <span className={`w-2.5 h-2.5 rounded-full ${sev.text} bg-current animate-pulse`} />
-            {sev.label}
-          </span>
-        </div>
+        <QuickVerdict
+          label="Driving guidance"
+          title={light.can_drive}
+          tone={light.severity === "critical" ? "critical" : light.severity === "caution" ? "caution" : "safe"}
+          facts={[
+            { label: "Urgency", value: sev.label.split(" — ")[0] },
+            { label: "Repair range", value: `${formatCurrency(light.min_cost)}–${formatCurrency(light.max_cost)}` },
+            { label: "Likely area", value: light.causes[0] ?? "Inspect the system" },
+            { label: "Next action", value: light.severity === "critical" ? "Stop and inspect" : "Verify the cause" },
+          ]}
+        >
+          Treat the light as evidence, not a diagnosis. Confirm the affected system and the exact fault before replacing parts.
+        </QuickVerdict>
 
-        {/* ── What It Means ── */}
-        <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-6 border-l-4" style={{ borderLeftColor: `var(--severity-${light.severity === 'informational' ? 'info' : light.severity})` }}>
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-3">What It Means</h2>
-          <p className="text-text-primary leading-relaxed text-sm">{light.meaning}</p>
-        </div>
-
-        {/* ── Can I Still Drive? ── */}
-        <div className={`${sev.bg} rounded-2xl border ${sev.border} p-5 mb-6`}>
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-3">Can I Still Drive?</h2>
-          <p className="text-sm text-text-secondary leading-relaxed">{light.can_drive}</p>
-        </div>
-
-        {/* ── Common Causes + Cost side by side ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
-            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Common Causes</h2>
-            <ul className="space-y-2">
+        <div className="mb-7 grid gap-5 md:grid-cols-[1.15fr_.85fr]">
+          <ContentSection eyebrow="Possible source" title="Common causes">
+            <ul className="divide-y divide-surface-border border-y border-surface-border">
               {light.causes.map((cause, i) => (
-                <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
-                  <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${sev.text} bg-current`} />
+                <li key={i} className="flex items-start gap-3 py-3 text-sm text-text-secondary">
+                  <span className={`mt-2 h-1.5 w-1.5 shrink-0 ${sev.text} bg-current`} />
                   <span>{cause}</span>
                 </li>
               ))}
             </ul>
-          </div>
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5">
-            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Estimated Repair Cost</h2>
-            <p className="text-2xl font-heading font-bold text-text-primary mb-3">
-              {formatCurrency(light.min_cost)} – {formatCurrency(light.max_cost)}
-            </p>
-            <p className="text-xs text-text-muted">Estimate varies by vehicle make, model, year, and shop labor rates. Always get multiple quotes.</p>
-            <Link prefetch={false} href="/repair-cost" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
-              See all repair cost estimates
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+          </ContentSection>
+          <CostSummary
+            label="Estimated repair cost"
+            range={`${formatCurrency(light.min_cost)} – ${formatCurrency(light.max_cost)}`}
+            confidence="Varies by vehicle, fault, location, and parts strategy"
+          >
+            <Link prefetch={false} href="/repair-cost" className="inline-flex items-center justify-between gap-5 text-xs font-heading font-bold text-primary">
+              Compare repair estimates <span aria-hidden="true">→</span>
             </Link>
-          </div>
+          </CostSummary>
         </div>
 
-        {/* ── Related OBD Codes ── */}
-        {obdDetails.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related OBD-II Codes</h2>
-            <div className="space-y-2">
-              {obdDetails.map((obd) => (
-                <Link prefetch={false} key={obd.code} href={`/obd/${obd.code.toLowerCase()}`} className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-surface-1 border border-surface-border border-l-4 border-l-primary/40 hover:border-primary/30 hover:border-l-primary hover:bg-primary/5 transition-all">
-                  <span className="text-sm font-mono font-bold text-primary shrink-0">{obd.code.toUpperCase()}</span>
-                  <span className="h-4 w-px bg-surface-border shrink-0" />
-                  <span className="text-xs text-text-secondary truncate flex-1 min-w-0">{obd.title}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Related Repairs ── */}
-        <div className="mb-6">
-          <h2 className="text-sm font-heading font-bold text-text-primary mb-3">Related Repairs</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {TOP_REPAIRS.slice(0, 6).map((repair) => {
-              const img = getRepairImageUrl(repair.slug);
-              return (
-                <Link prefetch={false} key={repair.slug} href={`/repair-cost/${repair.slug}`} className="group flex items-center gap-3 p-2 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all">
-                  <div className="w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                    {img && <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />}
-                  </div>
-                  <span className="text-sm font-medium text-text-primary font-heading truncate flex-1 min-w-0">{repair.name}</span>
-                  <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+        <ContinueSolving
+          title="Continue from the warning to the evidence"
+          intro="Use the scanner code or the most plausible repair to confirm the system before replacing parts."
+          links={[
+            ...obdDetails.slice(0, 3).map((obd) => ({
+              href: `/obd/${obd.code.toLowerCase()}`,
+              label: `${obd.code.toUpperCase()}: ${obd.title}`,
+              description: "Review the code meaning, driving risk, causes, and verification checks.",
+              meta: "related OBD code",
+            })),
+            ...TOP_REPAIRS.slice(0, 3).map((repair) => ({
+              href: `/repair-cost/${repair.slug}`,
+              label: repair.name,
+              description: "Compare typical parts, labor, and the repair decision.",
+              meta: "repair cost",
+            })),
+          ]}
+        />
 
         {/* ── FAQ ── */}
-        <section className="mb-6 pt-6 border-t border-surface-border" aria-labelledby="faq-heading">
-          <h2 id="faq-heading" className="text-lg font-heading font-bold text-text-primary mb-4">Frequently Asked Questions</h2>
-          <div className="space-y-2">
-            {faqItems.map((item, i) => (
-              <details key={i} className="group bg-surface-1 rounded-xl border border-surface-border">
-                <summary className="flex items-center justify-between px-5 py-3.5 cursor-pointer text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors">
-                  {item.question}
-                  <svg className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}><polyline points="6 9 12 15 18 9" /></svg>
-                </summary>
-                <p className="px-5 pb-4 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
-              </details>
-            ))}
-          </div>
-        </section>
+        <ContentSection eyebrow="Before you clear the warning" title="Warning-light questions">
+          <FaqList items={faqItems} />
+        </ContentSection>
 
         {/* ── Back ── */}
         <Link prefetch={false} href="/warning-lights" className="inline-flex items-center gap-1.5 text-sm font-heading font-semibold text-primary hover:text-primary-glow transition-colors">

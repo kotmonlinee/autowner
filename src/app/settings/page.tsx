@@ -324,7 +324,7 @@ export default function SettingsPage() {
         <main id="main-content" className="flex-1 max-w-2xl mx-auto px-5 py-10 w-full">
           <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Settings" }]} />
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-text-primary font-heading">
+            <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-text-primary">
               My Garage
             </h1>
             <p className="text-sm text-text-muted mt-1">
@@ -353,7 +353,7 @@ export default function SettingsPage() {
               <p className="text-sm font-semibold text-severity-caution font-heading mb-0.5">
                 Sign in to save your vehicles permanently
               </p>
-              <p className="text-xs text-amber-700/70 dark:text-amber-400/70 mb-3">
+              <p className="text-xs text-amber-700/70  mb-3">
                 Your vehicle is currently saved in this browser only. Sign in to
                 keep it across devices and unlock personalized features.
               </p>
@@ -366,7 +366,7 @@ export default function SettingsPage() {
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="px-4 py-2 text-xs font-semibold text-severity-caution border border-amber-700/20 dark:border-amber-400/20 rounded-lg hover:bg-amber-700/10 dark:hover:bg-amber-400/10 transition-colors font-heading"
+                  className="px-4 py-2 text-xs font-semibold text-severity-caution border border-amber-700/20  rounded-lg hover:bg-amber-700/10  transition-colors font-heading"
                 >
                   Create Account
                 </Link>
@@ -375,7 +375,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Anonymous garage: show stored vehicle or selector */}
-          <div className="bg-surface-1 border border-surface-border rounded-2xl p-6">
+          <div className="border-y border-surface-border bg-surface-1 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted font-heading">
                 Your Vehicle
@@ -503,7 +503,7 @@ export default function SettingsPage() {
       <main id="main-content" className="flex-1 max-w-2xl mx-auto px-5 py-10 w-full">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Settings" }]} />
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-text-primary font-heading">
+          <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-text-primary">
             Settings
           </h1>
           <p className="text-sm text-text-muted mt-1">
@@ -512,7 +512,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Avatar upload section */}
-        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-8">
+        <div className="border-y border-surface-border bg-surface-1 p-6 mb-8">
           <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted mb-4 font-heading">
             Avatar
           </h2>
@@ -525,7 +525,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Profile card */}
-        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-8">
+        <div className="border-y border-surface-border bg-surface-1 p-6 mb-8">
           <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted mb-4 font-heading">
             Profile
           </h2>
@@ -562,7 +562,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Update username form */}
-        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 mb-8">
+        <div className="border-y border-surface-border bg-surface-1 p-6 mb-8">
           <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted mb-4 font-heading">
             Update Display Name
           </h2>
@@ -571,7 +571,7 @@ export default function SettingsPage() {
             <div
               className={`mb-4 p-3 rounded-xl text-sm font-medium ${
                 message.type === "success"
-                  ? "bg-emerald-600/10 dark:bg-emerald-500/10 border border-emerald-600/20 dark:border-emerald-500/20 text-severity-info"
+                  ? "bg-emerald-600/10  border border-emerald-600/20  text-severity-info"
                   : "bg-red-500/10 border border-red-500/20 text-severity-critical"
               }`}
             >
@@ -618,7 +618,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Bio form */}
-        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6">
+        <div className="border-y border-surface-border bg-surface-1 p-6">
           <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted mb-4 font-heading">
             Bio
           </h2>
@@ -627,7 +627,7 @@ export default function SettingsPage() {
             <div
               className={`mb-4 p-3 rounded-xl text-sm font-medium ${
                 bioMessage.type === "success"
-                  ? "bg-emerald-600/10 dark:bg-emerald-500/10 border border-emerald-600/20 dark:border-emerald-500/20 text-severity-info"
+                  ? "bg-emerald-600/10  border border-emerald-600/20  text-severity-info"
                   : "bg-red-500/10 border border-red-500/20 text-severity-critical"
               }`}
             >
@@ -671,7 +671,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Change Password */}
-        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 mt-8">
+        <div className="border-y border-surface-border bg-surface-1 p-6 mt-8">
           <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted mb-4 font-heading">
             Change Password
           </h2>
@@ -680,7 +680,7 @@ export default function SettingsPage() {
             <div
               className={`mb-4 p-3 rounded-xl text-sm font-medium ${
                 passwordMessage.type === "success"
-                  ? "bg-emerald-600/10 dark:bg-emerald-500/10 border border-emerald-600/20 dark:border-emerald-500/20 text-severity-info"
+                  ? "bg-emerald-600/10  border border-emerald-600/20  text-severity-info"
                   : "bg-red-500/10 border border-red-500/20 text-severity-critical"
               }`}
             >
@@ -765,7 +765,7 @@ export default function SettingsPage() {
         </div>
 
         {/* My Garage */}
-        <div className="bg-surface-1 border border-surface-border rounded-2xl p-6 mt-8">
+        <div className="border-y border-surface-border bg-surface-1 p-6 mt-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-bold uppercase tracking-wider text-text-muted font-heading">
               My Garage
@@ -808,7 +808,7 @@ export default function SettingsPage() {
                     <button
                       type="button"
                       onClick={() => router.push("/?my_vehicle=1")}
-                      className="px-4 py-2 bg-emerald-600/15 dark:bg-emerald-500/15 text-severity-info text-xs font-bold rounded-lg hover:bg-emerald-600/25 dark:hover:bg-emerald-500/25 transition-colors font-heading border border-emerald-600/20 dark:border-emerald-400/20"
+                      className="px-4 py-2 bg-emerald-600/15  text-severity-info text-xs font-bold rounded-lg hover:bg-emerald-600/25  transition-colors font-heading border border-emerald-600/20 "
                     >
                       See related content
                     </button>

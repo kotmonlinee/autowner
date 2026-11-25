@@ -1,6 +1,33 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('SEO and Static Pages', () => {
+  const phaseThreeIndexablePages = [
+    '/vehicles/mitsubishi/outlander',
+    '/warning-lights/battery-charging',
+    '/recall-check',
+    '/symptom-checker',
+    '/about',
+    '/contact',
+  ];
+
+  for (const path of phaseThreeIndexablePages) {
+    test(`${path} has one server-rendered H1 and a canonical`, async ({ request }) => {
+      const response = await request.get(path);
+      expect(response.status()).toBe(200);
+      const html = await response.text();
+      expect(html.match(/<h1\b/g)?.length).toBe(1);
+      expect(html).toMatch(/<link rel="canonical" href="https:\/\/www\.autowner\.com/);
+    });
+  }
+
+  for (const path of ['/search', '/community', '/privacy', '/terms', '/auth/login']) {
+    test(`${path} remains non-indexable`, async ({ request }) => {
+      const response = await request.get(path);
+      expect(response.status()).toBe(200);
+      expect(await response.text()).toContain('name="robots" content="noindex');
+    });
+  }
+
   test('/robots.txt returns 200 with Allow text', async ({ request }) => {
     const response = await request.get('/robots.txt');
     expect(response.status()).toBe(200);
@@ -33,7 +60,7 @@ test.describe('SEO and Static Pages', () => {
     const response = await request.get('/quote-checker');
     const html = await response.text();
     expect(html.match(/<h1\b/g)?.length).toBe(1);
-    expect(html).toContain("Check If a Mechanic&#x27;s Repair Quote Is Fair");
+    expect(html).toContain("Check if a mechanic&#x27;s repair quote is fair");
   });
 
   test('diagnosis titles use one brand suffix and include vehicle context', async ({ request }) => {

@@ -7,6 +7,8 @@ import DiagnosisWizard from "./DiagnosisWizard";
 import DiagnosisBrowser from "@/components/DiagnosisBrowser";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META } from "@/lib/constants";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -115,27 +117,37 @@ export default async function DiagnosisPage({
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary">Symptom Checker</span>
-        </nav>
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-3">Symptom Checker</h1>
-          <p className="text-text-muted text-sm sm:text-base leading-relaxed max-w-2xl">Tell us your symptoms. We'll find the cause. Get possible OBD codes, repair suggestions, and cost estimates.</p>
-        </div>
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Symptom Checker" }]} />
+        <PageHeader
+          eyebrow="Guided diagnosis"
+          title="Symptom checker"
+          description="Describe what the vehicle is doing, when it happens, and any conditions you have noticed. The guided path narrows likely causes and verification steps."
+          aside={
+            <div className="grid grid-cols-2 border border-surface-border bg-surface-1">
+              <div className="border-b border-r border-surface-border p-4">
+                <p className="font-display text-3xl font-semibold text-text-primary">{totalCount.toLocaleString()}</p>
+                <p className="mt-1 text-[9px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">saved diagnoses</p>
+              </div>
+              <div className="border-b border-surface-border p-4">
+                <p className="font-display text-3xl font-semibold text-text-primary">1</p>
+                <p className="mt-1 text-[9px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">guided path</p>
+              </div>
+              <div className="col-span-2 p-4 text-xs leading-5 text-text-secondary">Start with the observation. Scanner codes can be added when available.</div>
+            </div>
+          }
+        />
         <DiagnosisWizard prefilledSymptom={prefilledSymptom} />
 
         {/* Diagnoses by Vehicle */}
-        <section className="mt-8 mb-10 bg-surface-1 rounded-2xl border border-surface-border p-5">
+        <section className="mb-10 mt-8 border-y border-surface-border bg-surface-1 px-5 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="flex-1">
               <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Diagnoses by Vehicle</h2>
               <p className="text-xs text-text-muted">Browse problem diagnoses for your specific make and model.</p>
             </div>
-            <Link prefetch={false} href="/vehicles" className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
+            <Link prefetch={false} href="/vehicles" className="flex shrink-0 items-center justify-between gap-4 bg-primary px-5 py-2.5 text-sm font-semibold font-heading text-white transition-colors hover:bg-primary-dark sm:inline-flex">
               Browse All Vehicles
-              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <span aria-hidden="true">→</span>
             </Link>
           </div>
         </section>

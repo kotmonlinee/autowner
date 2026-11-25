@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
+import TrustDisclosure from "@/components/content/TrustDisclosure";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -21,20 +24,24 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <Navbar />
       <main id="main-content" className="flex-1">
-        <div className="max-w-4xl mx-auto px-5 py-16 sm:py-24">
-          <div className="mb-12">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary font-heading mb-3">
-              Legal
-            </p>
-            <h1 className="text-4xl sm:text-5xl font-bold text-text-primary font-heading tracking-tight">
-              Privacy Policy
-            </h1>
-            <p className="text-sm text-text-muted mt-3">
-              Last updated: November 24, 2026
-            </p>
-          </div>
+        <div className="mx-auto max-w-4xl px-5 py-10 sm:py-16">
+          <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Privacy Policy" }]} />
+          <PageHeader
+            eyebrow="Legal / updated November 24, 2026"
+            title="Privacy policy"
+            description="What AutOwner collects, how diagnostic details and usage data are handled, which providers are involved, and the controls available to you."
+            aside={
+              <div className="border border-surface-border bg-surface-1 p-5">
+                <p className="text-[10px] font-heading font-bold uppercase tracking-[0.14em] text-primary">Privacy contact</p>
+                <a href="mailto:privacy@autowner.com" className="mt-3 block font-display text-2xl font-semibold text-text-primary hover:text-primary">privacy@autowner.com</a>
+              </div>
+            }
+          />
+          <TrustDisclosure title="Do not submit sensitive vehicle data">
+            Avoid entering names, contact details, license plate numbers, VINs, or other personal information in symptom descriptions.
+          </TrustDisclosure>
 
-          <div className="prose-dark space-y-6 text-text-secondary leading-relaxed">
+          <div className="prose-editorial space-y-6 text-text-secondary leading-relaxed">
             <p className="text-lg text-text-primary font-medium">
               Your privacy matters. This policy explains what information
               AutOwner collects, how we use it, how cookies and advertising may

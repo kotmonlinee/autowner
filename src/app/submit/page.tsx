@@ -241,7 +241,7 @@ function SubmitForm() {
 
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-8 w-full">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-text-primary font-heading">
+          <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-text-primary">
             {draftId ? "Edit Draft" : "Create a Post"}
           </h1>
           <p className="text-sm text-text-muted mt-1">Share your knowledge with the community</p>
@@ -252,7 +252,7 @@ function SubmitForm() {
         )}
 
         {draftSaved && (
-          <div className="mb-6 p-4 bg-emerald-600/10 dark:bg-emerald-500/10 border border-emerald-600/20 dark:border-emerald-500/20 rounded-xl text-severity-info text-sm font-medium flex items-center gap-2">
+          <div className="mb-6 p-4 bg-emerald-600/10  border border-emerald-600/20  rounded-xl text-severity-info text-sm font-medium flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>

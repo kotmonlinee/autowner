@@ -12,6 +12,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { MAKE_TIER } from "@/lib/constants";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
+import ContentSection from "@/components/content/ContentSection";
+import ContinueSolving from "@/components/content/ContinueSolving";
+import QuoteCta from "@/components/content/QuoteCta";
 
 export const revalidate = 6048000;
 export const dynamic = "force-static";
@@ -214,6 +219,19 @@ export default async function VehicleHubPage({
 
   const imageUrl = getVehicleImageUrl(makeSlug, modelSlug);
   const vehicleDescription = generateVehicleDescription(makeName, modelName, stats);
+  const relatedWarningLights = (() => {
+    const seen = new Set<string>();
+    const lights: { slug: string; title: string }[] = [];
+    for (const repair of repairCosts) {
+      for (const light of getRelatedWarningLights(repair.slug)) {
+        if (!seen.has(light.slug)) {
+          seen.add(light.slug);
+          lights.push(light);
+        }
+      }
+    }
+    return lights;
+  })();
 
   // Group repairs by category
   const categories: Record<string, typeof repairCosts> = {
@@ -243,52 +261,37 @@ export default async function VehicleHubPage({
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <Link prefetch={false} href="/vehicles" className="hover:text-primary transition-colors">Vehicles</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary">{makeName} {modelName}</span>
-        </nav>
-
-        <div className="flex flex-col md:flex-row gap-6 mb-8">
-          <div className="flex-1">
-            <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-3">
-              {makeName} {modelName}
-            </h1>
-            <p className="text-text-muted text-sm sm:text-base leading-relaxed max-w-2xl">
-              {vehicleDescription}
-            </p>
-          </div>
-          {imageUrl && <VehicleImage src={imageUrl} alt={`${makeName} ${modelName}`} />}
-        </div>
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Vehicles", href: "/vehicles" }, { label: `${makeName} ${modelName}` }]} />
+        <PageHeader
+          eyebrow="Vehicle diagnostic record"
+          title={`${makeName} ${modelName}`}
+          description={vehicleDescription}
+          aside={imageUrl ? <VehicleImage src={imageUrl} alt={`${makeName} ${modelName}`} /> : undefined}
+        />
 
         {/* Safety Recalls — check first before looking at costs */}
-        <div className="bg-amber-50/30 dark:bg-amber-950/10 rounded-2xl border border-amber-200 dark:border-amber-800 p-5 mb-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-              <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-            </div>
-            <div className="flex-1">
-              <h2 className="text-sm font-heading font-bold text-text-primary mb-1">Check for Safety Recalls First</h2>
-              <p className="text-xs text-text-secondary mb-3">Your {makeName} {modelName} may have open recalls — repairs covered by a recall are <strong>free</strong> at dealerships.</p>
-              <Link prefetch={false} href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors font-heading">
-                Check Recalls Now →
-              </Link>
-            </div>
-          </div>
+        <div className="mb-7 border-l-4 border-severity-caution bg-severity-caution-bg p-5">
+          <p className="text-[10px] font-heading font-bold uppercase tracking-[0.15em] text-severity-caution">Check this before paying for a repair</p>
+          <h2 className="mt-1.5 font-display text-2xl font-semibold text-text-primary">Open safety recalls are repaired free</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-text-secondary">Your {makeName} {modelName} may have an open recall. A recall repair is completed by an authorized dealer at no cost to the owner.</p>
+          <Link prefetch={false} href={`/recall-check?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}&year=2020`} className="mt-4 inline-flex items-center justify-between gap-6 bg-text-primary px-4 py-2.5 text-xs font-heading font-bold text-white transition-colors hover:bg-primary">
+            Check recalls for this vehicle <span aria-hidden="true">→</span>
+          </Link>
         </div>
 
         {/* Repair Costs by Category */}
         {Object.entries(categories).filter(([, repairs]) => repairs.length > 0).map(([cat, repairs]) => (
-          <div key={cat} className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-4">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">{cat}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div key={cat} className="mb-7 border-t border-surface-border pt-6">
+            <div className="mb-4 flex items-end justify-between gap-4">
+              <h2 className="font-display text-3xl font-semibold tracking-[-0.025em] text-text-primary">{cat}</h2>
+              <span className="text-[10px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">{repairs.length} repairs</span>
+            </div>
+            <div className="grid min-w-0 grid-cols-1 border-l border-t border-surface-border sm:grid-cols-2">
               {repairs.map((r) => (
                 <Link prefetch={false}
                   key={r.slug}
                   href={`/repair-cost/${r.slug}-${makeSlug}-${modelSlug}`}
-                  className="flex items-center justify-between p-3 min-h-[44px] bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group"
+                  className="group flex min-h-12 min-w-0 items-center justify-between overflow-hidden border-b border-r border-surface-border bg-surface-1 p-3 transition-colors hover:bg-primary/5"
                 >
                   <span className="text-sm font-medium text-text-primary font-heading group-hover:text-primary transition-colors truncate flex-1 min-w-0">{r.name}</span>
                   <span className="text-sm font-bold text-primary font-heading shrink-0 mx-2">{formatMoney(r.min)}–{formatMoney(r.max)}</span>
@@ -299,32 +302,22 @@ export default async function VehicleHubPage({
           </div>
         ))}
 
-        {/* Quote Checker */}
-        <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1">
-              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Got a Quote from Your Mechanic?</h2>
-              <p className="text-xs text-text-secondary">Verify if the quoted price for your {makeName} {modelName} repair is fair.</p>
-            </div>
-            <Link prefetch={false} href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
-              Verify Quote
-              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-            </Link>
-          </div>
-        </div>
+        <QuoteCta
+          href={`/quote-checker?make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}`}
+          title={`Check a ${makeName} ${modelName} repair quote`}
+          description="Compare the proposed total and itemized parts-and-labor costs with the expected range before authorizing work."
+          action="Verify the quote"
+        />
 
         {/* Common OBD Codes */}
         {obdCodes.length > 0 && (
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-4">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
-              Common OBD-II Codes for {makeName}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <ContentSection eyebrow="Scanner evidence" title={`Common OBD-II codes for ${makeName}`}>
+            <div className="grid min-w-0 grid-cols-1 border-l border-t border-surface-border sm:grid-cols-2">
               {obdCodes.slice(0, 8).map((c: any) => (
                 <Link prefetch={false}
                   key={c.code}
                   href={`/obd/${c.code.toLowerCase()}`}
-                  className="group flex items-center gap-3 p-3 min-h-[44px] bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors"
+                  className="group flex min-h-12 min-w-0 items-center gap-3 overflow-hidden border-b border-r border-surface-border bg-surface-1 p-3 transition-colors hover:bg-primary/5"
                 >
                   <span className="text-sm font-mono font-bold text-primary shrink-0">{c.code}</span>
                   <span className="text-xs text-text-secondary line-clamp-1 flex-1 min-w-0">{c.title}</span>
@@ -332,58 +325,50 @@ export default async function VehicleHubPage({
                 </Link>
               ))}
             </div>
-            <Link prefetch={false} href="/obd" className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-primary hover:text-primary-glow transition-colors font-heading">
+            <Link prefetch={false} href="/obd" className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary transition-colors hover:text-primary-dark font-heading">
               Browse all 12,000+ codes →
             </Link>
-          </div>
+          </ContentSection>
         )}
-
-        {/* Related Warning Lights */}
-        {(() => {
-          const seen = new Set<string>();
-          const warningLights: { slug: string; title: string }[] = [];
-          for (const r of repairCosts) {
-            const lights = getRelatedWarningLights(r.slug);
-            for (const l of lights) {
-              if (!seen.has(l.slug)) { seen.add(l.slug); warningLights.push(l); }
-            }
-          }
-          if (warningLights.length === 0) return null;
-          return (
-            <div className="bg-surface-1 rounded-2xl border border-surface-border p-6 mb-4">
-              <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
-                Common Warning Lights for {makeName} {modelName}
-              </h2>
-              <p className="text-xs text-text-muted mb-3">Dashboard warning lights that may appear with {makeName} {modelName} repairs:</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {warningLights.slice(0, 8).map((light) => (
-                  <Link prefetch={false} key={light.slug} href={`/warning-lights/${light.slug}`}
-                    className="group flex items-center gap-3 p-3 min-h-[44px] bg-surface-0 rounded-xl border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                      <img src={`/warning-lights/${light.slug}.jpg`} alt={light.title} className="w-full h-full object-cover" loading="lazy" />
-                    </div>
-                    <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1 min-w-0">{light.title}</span>
-                    <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
 
         {/* Diagnoses — loaded async to avoid blocking page render */}
         <VehicleDiagnosisListAsync makeName={makeName} modelName={modelName} />
 
+        <ContinueSolving
+          title={`Continue diagnosing the ${makeName} ${modelName}`}
+          intro="Move from the repair list to the dashboard warning, scanner code, or symptom that matches what you are seeing."
+          links={[
+            ...relatedWarningLights.slice(0, 3).map((light) => ({
+              href: `/warning-lights/${light.slug}`,
+              label: light.title,
+              description: "Understand the warning's urgency and the systems to inspect.",
+              meta: "dashboard warning",
+            })),
+            {
+              href: "/symptom-checker",
+              label: "Describe the symptom",
+              description: "Use the guided diagnosis when you have behavior but no confirmed code or failed part.",
+              meta: "symptom wizard",
+            },
+            {
+              href: "/repair-cost",
+              label: "Compare another repair",
+              description: "Review the complete repair cost index before authorizing work.",
+              meta: "repair index",
+            },
+          ]}
+        />
+
         {/* AI Diagnosis CTA */}
-        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5">
+        <div className="border-l-4 border-primary bg-primary/5 p-5">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="flex-1">
               <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Having a Problem with Your {makeName} {modelName}?</h2>
               <p className="text-xs text-text-secondary">Not sure what repair you need? Describe your symptoms and our AI will diagnose the issue.</p>
             </div>
-            <Link prefetch={false} href={`/symptom-checker`} className="flex items-center justify-between sm:inline-flex sm:gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0">
+            <Link prefetch={false} href={`/symptom-checker`} className="flex shrink-0 items-center justify-between gap-5 bg-primary px-5 py-2.5 text-sm font-semibold font-heading text-white transition-colors hover:bg-primary-dark sm:inline-flex">
               Diagnose Your {makeName}
-              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              <span aria-hidden="true">→</span>
             </Link>
           </div>
         </div>

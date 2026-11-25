@@ -23,7 +23,7 @@ export default async function BookmarksPage() {
         <main id="main-content" className="max-w-5xl mx-auto px-5 py-6 flex-1 w-full">
           <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Bookmarks" }]} />
           <div className="mb-6 pb-4 border-b border-surface-border">
-            <h1 className="text-2xl font-bold text-text-primary font-heading">
+            <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-text-primary">
               My Bookmarks
             </h1>
             <p className="text-sm text-text-muted mt-1">
@@ -45,7 +45,7 @@ export default async function BookmarksPage() {
       <main id="main-content" className="max-w-5xl mx-auto px-5 py-6 flex-1 w-full">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Bookmarks" }]} />
         <div className="mb-6 pb-4 border-b border-surface-border">
-          <h1 className="text-2xl font-bold text-text-primary font-heading">
+          <h1 className="font-display text-3xl font-semibold tracking-[-0.03em] text-text-primary">
             My Bookmarks
           </h1>
           <p className="text-sm text-text-muted mt-1">

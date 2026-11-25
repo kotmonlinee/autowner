@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -21,20 +23,21 @@ export default function TermsPage() {
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <Navbar />
       <main id="main-content" className="flex-1">
-        <div className="max-w-4xl mx-auto px-5 py-16 sm:py-24">
-          <div className="mb-12">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary font-heading mb-3">
-              Legal
-            </p>
-            <h1 className="text-4xl sm:text-5xl font-bold text-text-primary font-heading tracking-tight">
-              Terms of Service
-            </h1>
-            <p className="text-sm text-text-muted mt-3">
-              Last updated: June 8, 2026
-            </p>
-          </div>
+        <div className="mx-auto max-w-4xl px-5 py-10 sm:py-16">
+          <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Terms of Service" }]} />
+          <PageHeader
+            eyebrow="Legal / updated June 8, 2026"
+            title="Terms of service"
+            description="The rules that apply when using AutOwner, including the limits of diagnostic information, repair estimates, and AI-assisted guidance."
+            aside={
+              <div className="border-l-4 border-severity-caution bg-severity-caution-bg p-5">
+                <p className="text-[10px] font-heading font-bold uppercase tracking-[0.14em] text-severity-caution">Safety notice</p>
+                <p className="mt-2 text-xs leading-5 text-text-secondary">Automotive information is not a substitute for an in-person inspection by a qualified mechanic.</p>
+              </div>
+            }
+          />
 
-          <div className="prose-dark space-y-6 text-text-secondary leading-relaxed">
+          <div className="prose-editorial space-y-6 text-text-secondary leading-relaxed">
             <p className="text-lg text-text-primary font-medium">
               By using AutOwner, you agree to these terms. Please read them carefully.
             </p>

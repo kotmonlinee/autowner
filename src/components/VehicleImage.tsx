@@ -11,7 +11,7 @@ export default function VehicleImage({ src, alt }: { src: string; alt: string })
     <img
       src={src}
       alt={alt}
-      className="w-full md:w-72 h-48 object-cover rounded-2xl border border-surface-border bg-surface-1 shrink-0"
+      className="aspect-[4/3] h-full w-full border border-surface-border bg-surface-1 object-cover"
       loading="lazy"
       onError={() => setFailed(true)}
      width={288} height={192} />

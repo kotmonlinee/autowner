@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { DEFAULT_OG_IMAGE_META } from "@/lib/constants";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
 
 export const metadata: Metadata = {
   title: { absolute: "About AutOwner" },
@@ -23,17 +25,21 @@ export default function AboutPage() {
     <div className="min-h-screen bg-surface-0 relative flex flex-col">
       <Navbar />
       <main id="main-content" className="flex-1">
-        <div className="max-w-4xl mx-auto px-5 py-16 sm:py-24">
-          <div className="mb-12">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary font-heading mb-3">
-              Our Mission
-            </p>
-            <h1 className="text-4xl sm:text-5xl font-bold text-text-primary font-heading tracking-tight">
-              About AutOwner
-            </h1>
-          </div>
+        <div className="mx-auto max-w-4xl px-5 py-10 sm:py-16">
+          <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "About" }]} />
+          <PageHeader
+            eyebrow="Our mission"
+            title="About AutOwner"
+            description="A practical automotive field guide for understanding the fault, the likely repair, the expected cost, and the safest next step."
+            aside={
+              <div className="border-l-4 border-primary bg-primary/5 p-5">
+                <p className="font-display text-3xl font-semibold text-text-primary">Clear answers first.</p>
+                <p className="mt-2 text-xs leading-5 text-text-secondary">Structured diagnostic and cost data, with AI-assisted explanations and safety limits stated plainly.</p>
+              </div>
+            }
+          />
 
-          <div className="prose-dark space-y-6 text-text-secondary leading-relaxed">
+          <div className="prose-editorial space-y-6 text-text-secondary leading-relaxed">
             <p className="text-lg text-text-primary font-medium">
               Every car owner has been there: a warning light comes on, the
               mechanic hands you a quote you don&apos;t understand, and you&apos;re
@@ -41,8 +47,8 @@ export default function AboutPage() {
               safe to keep driving. AutOwner exists to answer those questions.
             </p>
 
-            <h2 className="text-2xl font-bold text-text-primary font-heading mt-10 mb-4">
-              What We Do
+            <h2 className="mt-10 mb-4 font-display text-3xl font-semibold tracking-[-0.025em] text-text-primary">
+              What we do
             </h2>
 
             <p>
@@ -82,7 +88,7 @@ export default function AboutPage() {
               ].map((tool) => (
                 <div
                   key={tool.title}
-                  className="bg-surface-1 border border-surface-border rounded-xl p-5"
+                  className="border border-surface-border bg-surface-1 p-5"
                 >
                   <h3 className="text-base font-bold text-text-primary font-heading mb-1.5">
                     {tool.title}
@@ -94,8 +100,8 @@ export default function AboutPage() {
               ))}
             </div>
 
-            <h2 className="text-2xl font-bold text-text-primary font-heading mt-10 mb-4">
-              Why We Built This
+            <h2 className="mt-10 mb-4 font-display text-3xl font-semibold tracking-[-0.025em] text-text-primary">
+              Why we built this
             </h2>
 
             <p>
@@ -115,8 +121,8 @@ export default function AboutPage() {
               informed — not guessing.
             </p>
 
-            <h2 className="text-2xl font-bold text-text-primary font-heading mt-10 mb-4">
-              Free, Always
+            <h2 className="mt-10 mb-4 font-display text-3xl font-semibold tracking-[-0.025em] text-text-primary">
+              Free, always
             </h2>
 
             <p>

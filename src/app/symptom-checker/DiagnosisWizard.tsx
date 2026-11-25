@@ -118,10 +118,9 @@ export default function DiagnosisWizard({ prefilledSymptom }: { prefilledSymptom
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
             {STEP1.map((o, i) => {
               const emojis = ["🔊","👃","💨","📳","🔑","🐌","💡","🌡️","💧","🛞","🔋","❄️","⚙️"];
-              const accents = ["border-l-blue-500","border-l-purple-500","border-l-gray-500","border-l-orange-500","border-l-emerald-500","border-l-amber-500","border-l-red-500","border-l-rose-500","border-l-cyan-500","border-l-pink-500","border-l-yellow-500","border-l-teal-500","border-l-indigo-500"];
               return (
                 <button key={o.key} onClick={() => { setS1(o); setStep(1); }}
-                  className={`flex items-center gap-4 p-5 bg-surface-1 rounded-xl border border-l-4 border-surface-border hover:shadow-md hover:-translate-y-0.5 transition-all text-left group ${accents[i] ?? "border-l-primary"} hover:bg-surface-2/50`}>
+                  className="group flex items-center gap-4 border border-l-4 border-surface-border border-l-primary bg-surface-1 p-5 text-left transition-colors hover:bg-surface-2">
                   <span className="text-3xl shrink-0">{emojis[i]}</span>
                   <div className="flex-1 min-w-0">
                     <div className="text-base font-heading font-bold text-text-primary group-hover:text-primary transition-colors">{o.label}</div>

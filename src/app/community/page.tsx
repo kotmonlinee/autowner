@@ -4,6 +4,8 @@ import { createServiceSupabase } from "@/lib/supabase-server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
 
 export async function generateMetadata({
   searchParams,
@@ -68,20 +70,18 @@ export default async function CommunityPage({
       <Navbar />
 
       <main id="main-content" className="flex-1 max-w-3xl mx-auto px-5 py-6 w-full">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary">Community</span>
-        </nav>
-
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary font-heading mb-3">
-            AutOwner Community
-          </h1>
-          <p className="text-text-muted text-sm sm:text-base max-w-2xl leading-relaxed">
-            Where car enthusiasts connect, share knowledge, and build their garage.
-          </p>
-        </div>
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Community" }]} />
+        <PageHeader
+          eyebrow="Owner discussions"
+          title="AutOwner community"
+          description="Read active repair discussions and owner experiences. Public community pages are excluded from search indexing while the guest-only launch is in progress."
+          aside={
+            <div className="border border-surface-border bg-surface-1 p-5">
+              <p className="font-display text-4xl font-semibold text-text-primary">{totalCount}</p>
+              <p className="mt-1 text-[10px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">approved discussions</p>
+            </div>
+          }
+        />
 
         {/* Search */}
         <form action="/community" method="GET" className="mb-6">
@@ -94,7 +94,7 @@ export default async function CommunityPage({
               type="search"
               defaultValue={query}
               placeholder="Search discussions..."
-              className="w-full h-11 pl-11 pr-4 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              className="h-11 w-full border border-surface-border bg-surface-1 pl-11 pr-4 text-sm text-text-primary transition-colors placeholder:text-text-muted focus:border-primary focus:outline-none"
             />
           </div>
         </form>
@@ -109,7 +109,7 @@ export default async function CommunityPage({
           </div>
 
           {postsResult.posts.length === 0 ? (
-            <div className="bg-surface-1 rounded-xl border border-surface-border p-8 text-center">
+            <div className="border-y border-surface-border bg-surface-1 p-8 text-center">
               <p className="text-text-muted text-sm">
                 {query ? "No discussions match your search." : "No discussions yet. Be the first to start one!"}
               </p>
@@ -131,7 +131,7 @@ export default async function CommunityPage({
                   <Link prefetch={false}
                     key={post.id}
                     href={`/post/${post.slug || post.id}`}
-                    className="block bg-surface-1 rounded-xl border border-surface-border p-5 hover:border-primary/20 hover:bg-surface-2 transition-all duration-150 group"
+                    className="block border-b border-surface-border bg-surface-1 p-5 transition-colors hover:bg-surface-2 group"
                   >
                     <div className="flex items-start justify-between gap-4 mb-2">
                       <div className="flex-1 min-w-0">
@@ -161,7 +161,7 @@ export default async function CommunityPage({
                   {page > 1 && (
                     <Link prefetch={false}
                       href={`/community?${query ? `q=${encodeURIComponent(query)}&` : ""}page=${page - 1}`}
-                      className="px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors"
+                      className="border border-surface-border bg-surface-1 px-3 py-2 text-sm font-heading font-medium text-text-secondary transition-colors hover:bg-surface-2 hover:text-text-primary"
                     >
                       Previous
                     </Link>
@@ -170,7 +170,7 @@ export default async function CommunityPage({
                     <Link prefetch={false}
                       key={p}
                       href={`/community?${query ? `q=${encodeURIComponent(query)}&` : ""}page=${p}`}
-                      className={`px-3 py-2 text-sm font-heading font-medium rounded-lg transition-colors ${
+                      className={`px-3 py-2 text-sm font-heading font-medium transition-colors ${
                         p === page
                           ? "bg-primary text-white"
                           : "text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border hover:bg-surface-2"
@@ -182,7 +182,7 @@ export default async function CommunityPage({
                   {page < totalPages && (
                     <Link prefetch={false}
                       href={`/community?${query ? `q=${encodeURIComponent(query)}&` : ""}page=${page + 1}`}
-                      className="px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors"
+                      className="border border-surface-border bg-surface-1 px-3 py-2 text-sm font-heading font-medium text-text-secondary transition-colors hover:bg-surface-2 hover:text-text-primary"
                     >
                       Next
                     </Link>
@@ -210,12 +210,14 @@ export default async function CommunityPage({
                 const make = model?.vehicle_makes as Record<string, unknown> | null;
                 const makeName = String(make?.name ?? "");
                 const modelName = String(model?.name ?? "");
+                const makeSlug = String(make?.slug ?? "");
+                const modelSlug = String(model?.slug ?? "");
                 const genName = String(gen?.name ?? "");
                 const engineCode = String(eng.code ?? "");
                 const followerCount = (eng.follower_count as number) ?? 0;
 
                 return (
-                  <Link prefetch={false} key={eng.id as string} href={`/vehicle/${eng.id}`} className="bg-surface-1 rounded-xl border border-surface-border p-4 hover:border-primary/20 hover:bg-surface-2 transition-all duration-150 group">
+                  <Link prefetch={false} key={eng.id as string} href={makeSlug && modelSlug ? `/vehicles/${makeSlug}/${modelSlug}` : "/vehicles"} className="group border border-surface-border bg-surface-1 p-4 transition-colors hover:bg-surface-2">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-lg bg-amber/10 flex items-center justify-center shrink-0">
                         <svg className="w-5 h-5 text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
