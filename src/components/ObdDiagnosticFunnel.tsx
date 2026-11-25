@@ -65,10 +65,10 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
   const ruledOut = rankedCauses.filter((c, i) => feedback[i] === "ruled-out");
 
   return (
-    <div className="bg-surface-1 rounded-xl border-2 border-primary/15 p-5 mb-4">
+    <div className="my-7 border-y border-surface-border bg-surface-1 px-5 py-6 sm:px-7">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <span className="w-10 h-10 border border-primary/20 bg-primary/10 flex items-center justify-center shrink-0">
           <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
             <circle cx="11" cy="11" r="8" />
             <path d="M21 21l-4.35-4.35" />
@@ -76,7 +76,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
           </svg>
         </span>
         <div>
-          <h2 className="text-base font-heading font-bold text-text-primary">
+          <h2 className="font-display text-3xl font-semibold tracking-[-0.025em] text-text-primary">
             Pinpoint the Cause
           </h2>
           <p className="text-xs text-text-muted">
@@ -105,7 +105,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
                 key={s}
                 type="button"
                 onClick={() => toggleSymptom(s)}
-                className={`px-3.5 py-2.5 rounded-lg text-xs font-heading font-semibold border transition-all cursor-pointer min-h-[44px] ${
+                className={`px-3.5 py-2.5 text-xs font-heading font-semibold border transition-all cursor-pointer min-h-[44px] ${
                   isSelected
                     ? "bg-primary text-white border-primary shadow-sm shadow-primary/20"
                     : "bg-surface-0 border-surface-border text-text-secondary hover:border-primary/50 hover:bg-primary/5 active:scale-95"
@@ -143,7 +143,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
               return (
                 <div
                   key={`cause-${i}-${cause.probability}`}
-                  className={`rounded-lg border transition-all ${
+                  className={`border transition-all ${
                     fb === "confirmed"
                       ? "border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-950/20"
                       : fb === "ruled-out"
@@ -155,7 +155,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
                   <button
                     type="button"
                     onClick={() => setExpandedCause(isExpanded ? null : i)}
-                    className="w-full text-left p-4 flex items-start gap-3"
+                    className="w-full text-left p-4 flex items-start gap-3 cursor-pointer"
                   >
                     {/* Probability bar */}
                     <div className="shrink-0 w-10 text-center">
@@ -227,7 +227,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
                           <button
                             type="button"
                             onClick={() => setFeedback((prev) => ({ ...prev, [i]: "confirmed" }))}
-                            className="px-3 py-1.5 rounded-lg text-[11px] font-heading font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+                            className="px-3 py-1.5 text-[11px] font-heading font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
                           >
                             ✓ This is my problem
                           </button>
@@ -236,14 +236,14 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
                           <button
                             type="button"
                             onClick={() => setFeedback((prev) => ({ ...prev, [i]: "ruled-out" }))}
-                            className="px-3 py-1.5 rounded-lg text-[11px] font-heading font-semibold border border-surface-border text-text-muted hover:text-text-secondary hover:border-text-muted transition-colors"
+                            className="px-3 py-1.5 text-[11px] font-heading font-semibold border border-surface-border text-text-muted hover:text-text-secondary hover:border-text-muted transition-colors"
                           >
                             ✗ Not this one
                           </button>
                         )}
                         <Link prefetch={false}
                           href={cause.repairSlug ? `/repair-cost/${cause.repairSlug}` : "/repair-cost"}
-                          className="ml-auto px-3 py-1.5 rounded-lg text-[11px] font-heading font-bold bg-primary text-white hover:bg-primary-glow transition-colors flex items-center gap-1"
+                          className="ml-auto px-3 py-1.5 text-[11px] font-heading font-bold bg-primary text-white hover:bg-primary-dark transition-colors flex items-center gap-1"
                         >
                           {cause.repairSlug ? "View Repair" : "Browse Repairs"}
                           <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
@@ -260,7 +260,7 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
 
       {/* Step 3: Confirmed diagnosis */}
       {confirmedCause && (
-        <div className="mt-4 p-4 bg-emerald-50 dark:bg-emerald-950/20 border-2 border-emerald-300 dark:border-emerald-700 rounded-xl">
+        <div className="mt-4 border-l-4 border-emerald-500 bg-severity-info-bg p-4">
           <p className="text-sm font-heading font-bold text-text-primary mb-2">
             Diagnosis confirmed
           </p>
@@ -270,14 +270,14 @@ export default function ObdDiagnosticFunnel({ code, symptoms, diagnosticCauses }
           <div className="flex flex-wrap items-center gap-3">
             <Link prefetch={false}
               href={confirmedCause.repairSlug ? `/repair-cost/${confirmedCause.repairSlug}` : "/repair-cost"}
-              className="px-5 py-2.5 bg-emerald-600 text-white text-sm font-heading font-bold rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2"
+              className="px-5 py-2.5 bg-emerald-700 text-white text-sm font-heading font-bold hover:bg-emerald-800 transition-colors flex items-center gap-2"
             >
               {confirmedCause.repairSlug ? "See Repair Options" : "Browse All Repairs"}
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </Link>
             <Link prefetch={false}
               href={`/quote-checker`}
-              className="px-4 py-2 text-sm font-heading font-semibold text-primary border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors"
+              className="px-4 py-2 text-sm font-heading font-semibold text-primary border border-primary/30 hover:bg-primary/5 transition-colors"
             >
               Check Repair Quote
             </Link>

@@ -3,6 +3,8 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
 
 export const revalidate = 86400;
 
@@ -174,19 +176,29 @@ export default function VehiclesPage() {
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
       <main id="main-content" className="max-w-6xl mx-auto px-5 py-6 flex-1 w-full">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary">Vehicles</span>
-        </nav>
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-3">Browse Vehicles</h1>
-          <p className="text-text-muted text-sm sm:text-base max-w-xl">Find repair costs, OBD codes, and diagnostics for your specific make and model.</p>
-        </div>
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Vehicles" }]} />
+        <PageHeader
+          eyebrow="Vehicle research index"
+          title="Browse vehicles by make and model"
+          description="Open a vehicle record to connect symptoms, trouble codes, repair costs, and model-specific diagnostic paths."
+          aside={
+            <div className="grid grid-cols-2 border border-surface-border bg-surface-1">
+              <div className="border-b border-r border-surface-border p-4">
+                <p className="font-display text-3xl font-semibold text-text-primary">{vehicles.length}</p>
+                <p className="mt-1 text-[9px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">vehicle models</p>
+              </div>
+              <div className="border-b border-surface-border p-4">
+                <p className="font-display text-3xl font-semibold text-text-primary">{grouped.size}</p>
+                <p className="mt-1 text-[9px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">manufacturers</p>
+              </div>
+              <div className="col-span-2 p-4 text-xs leading-5 text-text-secondary">Choose the exact model before comparing a repair estimate or interpreting a vehicle-specific issue.</div>
+            </div>
+          }
+        />
 
         {Array.from(grouped.entries()).map(([make, models]) => (
           <section key={make} className="mb-8">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
+            <h2 className="mb-3 flex items-center gap-2 font-display text-2xl font-semibold tracking-[-0.025em] text-text-primary">
               {make}
               <span className="text-xs font-normal text-text-muted">({models.length})</span>
             </h2>
@@ -197,7 +209,7 @@ export default function VehiclesPage() {
                   <Link prefetch={false}
                     key={`${v.makeSlug}/${v.modelSlug}`}
                     href={`/vehicles/${v.makeSlug}/${v.modelSlug}`}
-                    className="group bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm hover:-translate-y-0.5 transition-all overflow-hidden"
+                    className="group overflow-hidden border border-surface-border bg-surface-1 transition-colors hover:border-primary/50"
                   >
                     <div className="aspect-[4/3] bg-surface-2 overflow-hidden">
                       {img && <img src={img} alt={`${v.make} ${v.model}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />}

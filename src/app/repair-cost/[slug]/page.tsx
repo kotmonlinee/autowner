@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGE } from "@/lib/constants";
 import { getRepairCosts, getVehicleRepairSlugs, getAllRepairSlugs } from "@/lib/data/server";
-import type { RepairCostFull, RepairCostTier } from "@/lib/types";
+import type { RepairCostTier } from "@/lib/types";
 import { getRepairImageUrl } from "@/lib/repair-images";
 import { getVehicleImageUrl } from "@/lib/vehicle-images";
 import { createServiceSupabase } from "@/lib/supabase-server";
@@ -12,6 +12,16 @@ import Footer from "@/components/Footer";
 import PageFeedback from "@/components/PageFeedback";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
+import CostSummary from "@/components/content/CostSummary";
+import DecisionPath from "@/components/content/DecisionPath";
+import ContentSection from "@/components/content/ContentSection";
+import ContinueSolving from "@/components/content/ContinueSolving";
+import QuoteCta from "@/components/content/QuoteCta";
+import TrustDisclosure from "@/components/content/TrustDisclosure";
+import FaqList from "@/components/content/FaqList";
+import AdSlot from "@/components/content/AdSlot";
 
 export const revalidate = 5184000;
 export const dynamic = "force-static";
@@ -205,6 +215,13 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
   // Fetch DIY difficulty data from knowledge graph
   const diySupabase = await createServiceSupabase();
   const { data: diyData } = await diySupabase.from("diy_difficulty").select("*").eq("repair_slug", dbSlug).maybeSingle();
+  const diy = diyData as unknown as {
+    check_steps?: { action: string }[];
+    diy_friendly?: string;
+    difficulty_label?: string;
+    est_time?: string;
+    risk_level?: string;
+  } | null;
 
   // FAQ
   const faqItems: { question: string; answer: string }[] = [];
@@ -283,115 +300,113 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
-        {/* Breadcrumb */}
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <Link prefetch={false} href="/repair-cost" className="hover:text-primary transition-colors">Repair Costs</Link>
-          {parsed && (
-            <>
-              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              <Link prefetch={false} href={`/repair-cost/${repairSlug}`} className="hover:text-primary transition-colors">{repair.name}</Link>
-              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              <Link prefetch={false} href={`/vehicles/${parsed.makeSlug}/${parsed.modelSlug}`} className="hover:text-primary transition-colors">{makeName} {modelName}</Link>
-            </>
-          )}
-          {!parsed && (
-            <>
-              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              <span className="text-text-secondary truncate">{repair.name}</span>
-            </>
-          )}
-        </nav>
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Repair Costs", href: "/repair-cost" },
+            ...(parsed
+              ? [
+                  { label: repair.name, href: `/repair-cost/${repairSlug}` },
+                  { label: `${makeName} ${modelName}` },
+                ]
+              : [{ label: repair.name }]),
+          ]}
+        />
 
-        {/* Title + Image */}
-        <div className="flex items-start gap-4 sm:gap-5 mb-6">
-          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-            {parsed && vehicleImageUrl && (
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-surface-2 border border-surface-border">
-                <img src={vehicleImageUrl} alt={`${makeName} ${modelName}`} className="w-full h-full object-cover" loading="lazy" />
-              </div>
-            )}
-            {(() => {
-              const img = getRepairImageUrl(repair.slug.replace(/_/g, "-"));
-              if (!img) return null;
-              return (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-surface-2 border border-surface-border">
-                  <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />
+        <PageHeader
+          eyebrow={parsed ? "Vehicle repair estimate" : "Repair cost guide"}
+          title={parsed ? `${makeName} ${modelName} ${repair.name} Cost` : `${repair.name} Cost`}
+          description={
+            parsed
+              ? `What a ${repair.name.toLowerCase()} should cost for a ${makeName} ${modelName}, what the estimate includes, and how to decide between diagnosis, DIY, and a repair shop.`
+              : `A practical price range for ${repair.name.toLowerCase()}, with labor and parts estimates across five vehicle classes and a clear next step before authorizing the repair.`
+          }
+          aside={
+            <div className="grid grid-cols-2 gap-px border border-surface-border bg-surface-border">
+              {parsed && vehicleImageUrl && (
+                <div className="aspect-[4/3] overflow-hidden bg-surface-2">
+                  <img src={vehicleImageUrl} alt={`${makeName} ${modelName}`} className="h-full w-full object-cover" loading="lazy" />
                 </div>
-              );
-            })()}
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-2">
-              {parsed ? `${makeName} ${modelName} ${repair.name} Cost` : repair.name}
-            </h1>
-            <p className="text-text-muted text-sm leading-relaxed">
-              {parsed
-                ? `What does a ${repair.name.toLowerCase()} cost for a ${makeName} ${modelName}? Get the estimated price range, labor vs. parts breakdown, and related recalls.`
-                : `Compare repair cost estimates across 5 vehicle tiers, including labor and parts breakdown. All prices are estimates based on ${confidenceLabel(repair.confidence).toLowerCase()}.`}
-            </p>
-          </div>
-        </div>
-
-        {/* Price Summary Card */}
-        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 mb-4">
-          <div className="text-center">
-            <p className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-2">
-              {parsed && vehicleTierCard ? `Estimated Cost for ${makeName} ${modelName}` : "Estimated Cost Range"}
-            </p>
-            <p className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-1">
-              {parsed && vehicleTierCard
-                ? formatRange(vehicleTierCard.min, vehicleTierCard.max)
-                : formatRange(repair.overallMin, repair.overallMax)}
-            </p>
-            <p className="text-sm text-text-muted">
-              Average: <strong className="text-text-secondary">{formatMoney(parsed && vehicleTierCard ? vehicleTierCard.avg : repair.overallAvg)}</strong>
-              {parsed && vehicleTierCard && (
-                <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-heading font-bold">
-                  {vehicleTierCard.tierLabel}
-                </span>
               )}
-              {" · "}
-              <span className="inline-flex items-center gap-1">
-                <span className={`w-1.5 h-1.5 rounded-full ${repair.confidence === "high" ? "bg-green-500" : repair.confidence === "medium" ? "bg-yellow-500" : "bg-red-500"}`} />
-                {confidenceLabel(repair.confidence)}
-              </span>
-            </p>
-          </div>
-          {/* Tier price labels — compact one-row preview */}
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-4">
+              {(() => {
+                const img = getRepairImageUrl(repair.slug.replace(/_/g, "-"));
+                if (!img) return null;
+                return (
+                  <div className={`aspect-[4/3] overflow-hidden bg-surface-2 ${parsed && vehicleImageUrl ? "" : "col-span-2"}`}>
+                    <img src={img} alt={repair.name} className="h-full w-full object-cover" loading="lazy" />
+                  </div>
+                );
+              })()}
+            </div>
+          }
+        />
+
+        <CostSummary
+          label={parsed && vehicleTierCard ? `Estimated cost for ${makeName} ${modelName}` : "Estimated repair range"}
+          range={parsed && vehicleTierCard ? formatRange(vehicleTierCard.min, vehicleTierCard.max) : formatRange(repair.overallMin, repair.overallMax)}
+          average={formatMoney(parsed && vehicleTierCard ? vehicleTierCard.avg : repair.overallAvg)}
+          confidence={confidenceLabel(repair.confidence)}
+        >
+          <div className="grid grid-cols-2 gap-px bg-primary/20 sm:grid-cols-5">
             {tierCards.map((tier) => {
               const isActive = vehicleTier === tier.tier;
               return (
-              <div key={tier.tier} className={`text-center p-2 rounded-lg border transition-all ${
-                isActive ? "bg-primary/10 border-primary shadow-sm shadow-primary/10" : "bg-surface-0 border-surface-border"
-              }`}>
-                <p className={`text-[10px] font-heading uppercase tracking-wider ${isActive ? "text-primary font-bold" : "text-text-muted"}`}>{tier.tierLabel}</p>
-                <p className={`text-sm font-heading font-bold ${isActive ? "text-primary" : "text-text-primary"}`}>{formatRange(tier.min, tier.max)}</p>
-                {isActive && <p className="text-[9px] text-primary/70 font-heading mt-0.5">Your vehicle</p>}
-              </div>
+                <div key={tier.tier} className={`px-2.5 py-2 ${isActive ? "bg-text-primary text-white" : "bg-surface-1"}`}>
+                  <p className={`text-[8px] font-heading font-bold uppercase leading-3 tracking-[0.1em] ${isActive ? "text-primary" : "text-text-muted"}`}>{tier.tierLabel}</p>
+                  <p className={`mt-1 font-mono text-xs font-bold ${isActive ? "text-white" : "text-text-primary"}`}>{formatRange(tier.min, tier.max)}</p>
+                  {isActive && <p className="mt-0.5 text-[8px] text-white/50">your vehicle class</p>}
+                </div>
               );
             })}
           </div>
-        </div>
+          <p className="mt-3 text-[10px] leading-4 text-text-muted">
+            Planning range only. Confirm the exact engine, trim, region, and parts strategy before authorizing work.
+          </p>
+        </CostSummary>
 
-        {/* CTA: Quote Checker — right below price */}
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex-1">
-              <h3 className="text-sm font-heading font-bold text-text-primary mb-0.5">Got a mechanic&apos;s quote? Check if it&apos;s fair</h3>
-              <p className="text-text-muted text-xs">Enter your quote amount and we&apos;ll tell you if you&apos;re being overcharged.</p>
-            </div>
-            <Link prefetch={false}
-              href={`/quote-checker?repair=${encodeURIComponent(repair.name)}${parsed ? `&make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}` : ""}`}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold font-heading rounded-lg hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/20 shrink-0"
-            >
-              Check your quote
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-            </Link>
-          </div>
-        </div>
+        <AdSlot placement="repair-cost-after-summary" />
+
+        <section id="repair-decision" className="my-8">
+          <p className="text-[10px] font-heading font-bold uppercase tracking-[0.15em] text-primary">Repair decision</p>
+          <h2 className="mt-1.5 font-display text-3xl font-semibold tracking-[-0.03em] text-text-primary">
+            Confirm the problem before choosing the repair path.
+          </h2>
+          <p className="mb-5 mt-2 max-w-3xl text-sm leading-6 text-text-secondary">
+            A price range is useful only after the fault has been verified. Choose the path that matches your evidence, tools, and comfort level.
+          </p>
+          <DecisionPath
+            options={[
+              {
+                label: "Verify",
+                title: "Confirm that this repair is needed",
+                description: diy?.check_steps?.length
+                  ? `Check the symptoms and failure stages below before replacing parts. Start with: ${diy.check_steps[0].action}`
+                  : "Use the symptom and OBD evidence on the page to rule out a false diagnosis before replacing parts.",
+              },
+              {
+                label: "DIY",
+                title: diy?.diy_friendly === "No" ? "Plan for a professional" : "Decide whether this is a DIY job",
+                description: diy
+                  ? `${diy.difficulty_label}, ${diy.est_time}, ${diy.risk_level?.toLowerCase()} risk. ${diy.diy_friendly === "Yes" ? "Basic tools may be enough." : diy.diy_friendly === "Maybe" ? "Some experience and the listed tools are required." : "The procedure is best handled by a qualified mechanic."}`
+                  : "Review the parts, tools, access, and safety requirements for this job before deciding to do it yourself.",
+                href: "/repair-cost/diy-levels",
+                action: "Understand DIY levels",
+              },
+              {
+                label: "Shop",
+                title: "Benchmark the quote, not just the total",
+                description: `Ask for parts and labor separately, then compare the itemized quote with the ${formatRange(repair.overallMin, repair.overallMax)} planning range.`,
+                href: `/quote-checker?repair=${encodeURIComponent(repair.name)}${parsed ? `&make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}` : ""}`,
+                action: "Check a mechanic's quote",
+              },
+            ]}
+          />
+        </section>
+
+        <QuoteCta
+          href={`/quote-checker?repair=${encodeURIComponent(repair.name)}${parsed ? `&make=${encodeURIComponent(makeName)}&model=${encodeURIComponent(modelName)}` : ""}`}
+          description={`Benchmark the mechanic's proposed parts-and-labor total against this ${formatRange(repair.overallMin, repair.overallMax)} planning range.`}
+        />
 
         {/* Safety Recalls (vehicle-specific only) */}
         {parsed && makeName && (
@@ -524,9 +539,12 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
         )}
 
         {/* Factors Affecting Price */}
-        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-6">
-          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Factors Affecting Price</h2>
-          <ul className="space-y-2">
+        <ContentSection
+          eyebrow="Estimate inputs"
+          title="What moves the price"
+          intro="Use these variables to normalize competing quotes. A lower total can still be worse value when parts quality or included work differs."
+        >
+          <ul className="grid border-l border-t border-surface-border sm:grid-cols-2">
             {[
               ["Vehicle make and model", "luxury and European vehicles typically cost more due to specialized parts and higher labor rates."],
               ["Labor rates", "vary by region, from $80/hour in rural areas to $200+/hour at dealerships in major cities."],
@@ -534,13 +552,13 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
               ["Shop type", "dealerships charge the most, independent shops less, and chain shops fall in between."],
               ["Additional repairs", "sometimes related components need replacement, increasing total cost."],
             ].map(([label, desc]) => (
-              <li key={label} className="flex items-start gap-2.5 text-sm text-text-secondary">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                <span><strong>{label}</strong> &mdash; {desc}</span>
+              <li key={label} className="border-b border-r border-surface-border p-4 text-sm text-text-secondary">
+                <strong className="block font-heading text-xs font-bold uppercase tracking-[0.08em] text-text-primary">{label}</strong>
+                <span className="mt-2 block text-xs leading-5">{desc}</span>
               </li>
             ))}
           </ul>
-        </div>
+        </ContentSection>
 
         {/* DIY Assessment */}
         <DiySection diyData={diyData} tierCards={tierCards} />
@@ -592,52 +610,49 @@ export default async function RepairCostPage({ params }: { params: Promise<{ slu
           );
         })()}
 
-        {/* Related Repairs */}
-        {relatedRepairsRaw.length > 0 && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h2>
-            <p className="text-xs text-text-muted mb-3">People looking at {repair.name.toLowerCase()} also check these repairs:</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {relatedRepairsRaw.map((r) => (
-                <Link prefetch={false} key={r.slug} href={parsed ? `/repair-cost/${r.slug}-${parsed.makeSlug}-${parsed.modelSlug}` : `/repair-cost/${r.slug}`}
-                  className="flex items-center gap-2.5 p-3 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-colors group">
-                  <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-surface-2">
-                    {(() => { const img = getRepairImageUrl(r.slug); return img ? <img src={img} alt={r.name} className="w-full h-full object-cover" loading="lazy" /> : <svg className="w-4 h-4 text-text-muted m-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width={16} height={16}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>; })()}
-                  </div>
-                  <span className="text-xs font-heading font-medium text-text-secondary group-hover:text-primary transition-colors truncate">{r.name}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+        <ContinueSolving
+          title={`Keep investigating ${repair.name.toLowerCase()}`}
+          intro="Move from price to diagnosis, related faults, or your full vehicle record."
+          links={[
+            ...relatedRepairsRaw.slice(0, 2).map((related) => ({
+              href: parsed ? `/repair-cost/${related.slug}-${parsed.makeSlug}-${parsed.modelSlug}` : `/repair-cost/${related.slug}`,
+              label: related.name,
+              description: "Compare the same repair across the relevant vehicle class.",
+              meta: "related repair cost",
+            })),
+            ...obdCodes.slice(0, 1).map((obd) => ({
+              href: `/obd/${obd.code.toLowerCase()}`,
+              label: `${obd.code}: ${obd.title}`,
+              description: "Check the fault meaning, likely causes, and verification steps.",
+              meta: "related trouble code",
+            })),
+            parsed
+              ? {
+                  href: `/vehicles/${parsed.makeSlug}/${parsed.modelSlug}`,
+                  label: `${makeName} ${modelName} issues`,
+                  description: "Review symptoms, codes, and repair estimates for this vehicle.",
+                  meta: "vehicle hub",
+                }
+              : {
+                  href: "/vehicles",
+                  label: "Browse by vehicle",
+                  description: "Find cost estimates and common issues for a specific make and model.",
+                  meta: "vehicle index",
+                },
+          ]}
+        />
 
         {/* FAQ */}
-        <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-          <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">Frequently Asked Questions</h2>
-          <div className="space-y-2">
-            {faqItems.map((item, i) => (
-              <details key={i} className="group">
-                <summary className="flex items-center justify-between px-4 py-3 min-h-[44px] cursor-pointer text-sm font-heading font-semibold text-text-primary hover:text-primary transition-colors bg-surface-0 rounded-lg border border-surface-border">
-                  {item.question}
-                  <svg className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform shrink-0 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}><polyline points="6 9 12 15 18 9" /></svg>
-                </summary>
-                <p className="px-4 pb-4 pt-2 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
-              </details>
-            ))}
-          </div>
-        </div>
+        <ContentSection eyebrow="Questions before you authorize work" title="Repair cost FAQ">
+          <FaqList items={faqItems} />
+        </ContentSection>
 
         {/* Disclaimer */}
-        <div className="bg-amber/5 dark:bg-yellow-950/20 border border-amber/20 dark:border-yellow-800/20 rounded-xl p-4">
-          <div className="flex items-start gap-2.5">
-            <svg className="w-5 h-5 text-amber dark:text-amber-dark mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-            <p className="text-xs text-text-muted leading-relaxed">
-              <strong className="text-text-secondary">Disclaimer:</strong> Prices are estimates only and may vary by location, vehicle condition, shop rates, and parts availability. Always get multiple quotes before authorizing repairs. Use our{" "}
-              <Link prefetch={false} href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`} className="text-primary hover:text-primary-glow underline">Quote Checker</Link>{" "}
-              to verify your mechanic&apos;s estimate.
-            </p>
-          </div>
-        </div>
+        <TrustDisclosure title="Estimate limits">
+          Prices are planning estimates, not a diagnosis or a firm shop quote. Location, vehicle condition, engine and trim, shop rates, and parts availability can move the total. Get an itemized estimate and at least one comparison quote for major work. Use the{" "}
+          <Link prefetch={false} href={`/quote-checker?repair=${encodeURIComponent(repair.name)}`} className="font-bold text-primary underline">quote checker</Link>{" "}
+          to compare the proposed amount with the expected range.
+        </TrustDisclosure>
         <PageFeedback />
 
       </main>

@@ -6,6 +6,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RepairSearchFilter from "@/components/RepairSearchFilter";
 import Link from "next/link";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
 
 export const revalidate = 3600;
 
@@ -178,51 +180,34 @@ export default async function RepairCostLandingPage() {
       />
 
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
-        {/* Breadcrumb */}
-        <nav
-          className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading"
-          aria-label="Breadcrumb"
-        >
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">
-            Home
-          </Link>
-          <svg
-            className="w-3 h-3 text-surface-border"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-           width={12} height={12}>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-          <span className="text-text-secondary">Repair Costs</span>
-        </nav>
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Repair Costs" }]} />
 
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-3">
-            Repair Cost Estimator
-          </h1>
-          <p className="text-text-muted text-sm sm:text-base max-w-2xl">
-            Compare repair costs across 5 vehicle tiers. See what other car owners
-            pay for common repairs, with labor and parts breakdowns.
-          </p>
-          {totalRepairs > 0 && (
-            <p className="text-xs text-text-muted mt-2">
-              {totalRepairs} repair types available across {CATEGORIES.length} categories
-            </p>
-          )}
-        </div>
+        <PageHeader
+          eyebrow="Repair cost index"
+          title="Repair cost estimator"
+          description="Compare typical parts and labor ranges across five vehicle classes, then move from the price to the repair decision."
+          aside={
+            <div className="grid grid-cols-2 border border-surface-border bg-surface-1">
+              <div className="border-b border-r border-surface-border p-4">
+                <p className="font-display text-3xl font-semibold text-text-primary">{totalRepairs}</p>
+                <p className="mt-1 text-[9px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">repair types</p>
+              </div>
+              <div className="border-b border-surface-border p-4">
+                <p className="font-display text-3xl font-semibold text-text-primary">{CATEGORIES.length}</p>
+                <p className="mt-1 text-[9px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">categories</p>
+              </div>
+              <div className="col-span-2 p-4">
+                <p className="text-xs leading-5 text-text-secondary">Each estimate is split into economy, mid-range, luxury, truck/SUV, and European vehicle classes.</p>
+              </div>
+            </div>
+          }
+        />
 
         {/* Popular Repair Costs */}
         {popularRepairs.length > 0 && (
           <section className="mb-10">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
-              Popular Repair Costs
+            <h2 className="mb-4 font-display text-3xl font-semibold tracking-[-0.025em] text-text-primary">
+              Popular repair costs
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {popularRepairs.slice(0, 9).map((repair) => {
@@ -231,7 +216,7 @@ export default async function RepairCostLandingPage() {
                 <Link prefetch={false}
                   key={repair.slug}
                   href={`/repair-cost/${repair.slug}`}
-                  className="group bg-surface-1 border border-surface-border rounded-xl p-4 hover:border-primary/20 hover:shadow-sm transition-all duration-150 max-w-full overflow-hidden"
+                  className="group max-w-full overflow-hidden border border-surface-border bg-surface-1 p-4 transition-colors hover:border-primary/50"
                 >
                   {img && (
                     <div className="w-full h-24 sm:h-32 rounded-lg overflow-hidden mb-3 bg-surface-2">
@@ -275,7 +260,7 @@ export default async function RepairCostLandingPage() {
         )}
 
         {/* Browse by Vehicle */}
-        <section className="mb-10 bg-surface-1 rounded-2xl border border-surface-border p-5">
+        <section className="mb-10 border-y border-surface-border bg-surface-1 px-5 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="flex-1">
               <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Repair Costs by Vehicle</h2>
@@ -290,8 +275,8 @@ export default async function RepairCostLandingPage() {
 
         {/* Browse by Category */}
         <section className="mb-10">
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-4">
-            Browse by Category
+          <h2 className="mb-4 font-display text-3xl font-semibold tracking-[-0.025em] text-text-primary">
+            Browse by category
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {CATEGORIES.map((cat) => {
@@ -299,7 +284,7 @@ export default async function RepairCostLandingPage() {
               return (
                 <div
                   key={cat.slug}
-                  className="bg-surface-1 rounded-xl border border-surface-border p-5 hover:border-primary/20 hover:shadow-sm transition-all duration-150 max-w-full overflow-hidden"
+                  className="max-w-full overflow-hidden border border-surface-border bg-surface-1 p-5 transition-colors hover:border-primary/50"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">

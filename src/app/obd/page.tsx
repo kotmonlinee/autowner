@@ -5,6 +5,8 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import ObdCodeBrowser from "@/components/ObdCodeBrowser";
 import { DEFAULT_OG_IMAGE_META } from "@/lib/constants";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
 
 export const revalidate = 3600;
 
@@ -49,29 +51,23 @@ export default async function ObdLandingPage() {
       })}} />
 
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary">OBD Codes</span>
-        </nav>
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "OBD Codes" }]} />
 
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary mb-3">OBD-II Code Decoder</h1>
-          <p className="text-text-muted text-sm sm:text-base max-w-2xl mb-4">
-            Look up any diagnostic trouble code (DTC) to understand what your check engine light means. Find symptoms, causes, and repair estimates.
-          </p>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-text-muted font-heading">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-primary" />
-              12,000+ OBD-II codes
-            </span>
-            <span className="text-surface-border">|</span>
-            <Link prefetch={false} href="/obd/severity-levels" className="inline-flex items-center gap-1.5 text-primary hover:text-primary-glow transition-colors font-medium">
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={14} height={14}><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" /></svg>
-              Severity levels explained
-            </Link>
-          </div>
-        </div>
+        <PageHeader
+          eyebrow="Diagnostic trouble code index"
+          title="OBD-II code decoder"
+          description="Start with the code from the scanner. Understand what it means, how urgently to act, what to verify, and what the repair may cost."
+          aside={
+            <div className="border border-surface-border bg-text-primary p-5 text-surface-1 shadow-[8px_8px_0_0_#d8d0c2]">
+              <p className="text-[10px] font-heading font-bold uppercase tracking-[0.15em] text-primary">Coverage</p>
+              <p className="mt-3 font-display text-5xl font-semibold tracking-[-0.04em] text-white">12,100<span className="text-primary">+</span></p>
+              <p className="mt-1 text-xs text-white/55">engine, body, chassis, and network codes</p>
+              <Link prefetch={false} href="/obd/severity-levels" className="mt-5 flex items-center justify-between border-t border-white/10 pt-3 text-xs font-heading font-bold text-white hover:text-primary">
+                Understand severity levels <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          }
+        />
 
         <ObdCodeBrowser initialCodes={initialCodes} initialPrefix="" />
       </main>

@@ -3,7 +3,6 @@ import { DEFAULT_OG_IMAGE } from "@/lib/constants";
 import { unstable_cache } from "next/cache";
 import { getObdCode, getRelatedObdCodes, getObdDiagnosticSteps, getVehicleRepairSlugs, getValidRepairSlugs } from "@/lib/data/server";
 import { getRelatedRepairs } from "@/lib/internal-linking";
-import { getRepairImageUrl } from "@/lib/repair-images";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageFeedback from "@/components/PageFeedback";
@@ -11,6 +10,14 @@ import ObdDiagnosticFunnel from "@/components/ObdDiagnosticFunnel";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServiceSupabase } from "@/lib/supabase-server";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
+import QuickVerdict from "@/components/content/QuickVerdict";
+import ContentSection from "@/components/content/ContentSection";
+import CostSummary from "@/components/content/CostSummary";
+import ContinueSolving from "@/components/content/ContinueSolving";
+import FaqList from "@/components/content/FaqList";
+import AdSlot from "@/components/content/AdSlot";
 
 export const revalidate = 2592000;
 export const dynamic = "force-static";
@@ -385,119 +392,75 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
           />
         )}
 
-        {/* Breadcrumb */}
-        <nav
-          className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading"
-          aria-label="Breadcrumb"
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "OBD Codes", href: "/obd" }, { label: obd.code }]} />
+
+        <PageHeader
+          eyebrow={`OBD-II diagnostic code${obd.severity >= 4 ? " / urgent" : ""}`}
+          title={`${obd.code}: ${obd.title}`}
+          description={naturalIntro}
+          aside={
+            <div className="border border-surface-border bg-text-primary p-5 text-surface-1 shadow-[8px_8px_0_0_#d8d0c2]">
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-3">
+                <span className="text-[10px] font-heading font-bold uppercase tracking-[0.15em] text-white/45">Fault code</span>
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: sev.text }} />
+              </div>
+              <p className="mt-5 font-mono text-5xl font-bold tracking-[-0.05em] text-primary">{obd.code}</p>
+              <div className="mt-5 grid grid-cols-2 gap-px bg-white/10">
+                <Link href={`/obd/severity-levels?level=${obd.severity}`} prefetch={false} className="bg-text-primary p-3 transition-colors hover:bg-white/5">
+                  <span className="block text-[9px] font-heading font-bold uppercase tracking-[0.12em] text-white/45">Severity</span>
+                  <span className="mt-1 block text-sm font-heading font-bold text-white">{sev.label} / L{obd.severity}</span>
+                </Link>
+                <div className="bg-text-primary p-3">
+                  <span className="block text-[9px] font-heading font-bold uppercase tracking-[0.12em] text-white/45">System</span>
+                  <span className="mt-1 block text-sm font-heading font-bold text-white">{obd.code.charAt(0) === "P" ? "Powertrain" : obd.code.charAt(0) === "B" ? "Body" : obd.code.charAt(0) === "C" ? "Chassis" : "Network"}</span>
+                </div>
+              </div>
+            </div>
+          }
+        />
+
+        <QuickVerdict
+          label="Driving guidance"
+          title={`Can you still drive with ${obd.code}?`}
+          tone={obd.severity >= 5 ? "critical" : obd.severity >= 3 ? "caution" : "safe"}
+          facts={[
+            { label: "Likely cause", value: obd.causes[0] ?? "Needs diagnosis" },
+            { label: "Repair range", value: obd.min_cost != null && obd.max_cost != null ? `$${obd.min_cost}–$${obd.max_cost}` : "Varies" },
+            { label: "First action", value: obd.severity >= 5 ? "Stop and tow" : obd.severity >= 3 ? "Inspect promptly" : "Verify the code" },
+            { label: "Evidence", value: "Scanner + symptoms" },
+          ]}
         >
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">
-            Home
-          </Link>
-          <svg
-            className="w-3 h-3 text-surface-border"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-           width={12} height={12}>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-          <Link prefetch={false} href="/obd" className="hover:text-primary transition-colors">
-            OBD Codes
-          </Link>
-          <svg
-            className="w-3 h-3 text-surface-border"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-           width={12} height={12}>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-          <span className="text-text-secondary truncate">{obd.code}</span>
-        </nav>
+          <p>{driving.text}</p>
+        </QuickVerdict>
 
-
-        {/* Code Header Card */}
-        <div className="bg-surface-1 rounded-xl border border-surface-border p-6 mb-4 border-l-4" style={{ borderLeftColor: sev.text }}>
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <h1 className="text-3xl sm:text-4xl font-mono font-bold text-text-primary tracking-wider">
-              {obd.code}
-            </h1>
-            <Link prefetch={false}
-              href={`/obd/severity-levels?level=${obd.severity}`}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-bold font-heading border hover:ring-2 hover:ring-offset-1 hover:ring-offset-surface-0 transition-all"
-              style={{
-                background: sev.bg,
-                color: sev.text,
-                borderColor: sev.border,
-              }}
-            >
-              <span
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: sev.text }}
-              />
-              {sev.label} Severity (Level {obd.severity})
-            </Link>
-          </div>
-
-          <div className="border-t border-surface-border pt-3">
-            <p className="text-xl sm:text-2xl font-heading font-bold text-text-primary mb-3">
-              {obd.title}
-            </p>
-            <p className="text-text-secondary text-sm leading-relaxed">
-              {naturalIntro}
-            </p>
-          </div>
-        </div>
-
-        {/* NEW: Above-the-Fold "Can you still drive?" Answer Block */}
-        <div className={`${driving.bgClass} rounded-xl border-2 ${driving.borderClass} p-5 mb-4`}>
-          <h2 className="text-base font-heading font-bold text-text-primary mb-2">
-            Can you still drive with {obd.code}?
-          </h2>
-          <p className="text-sm leading-relaxed text-text-secondary mb-3">
-            <span className="mr-1.5">{driving.emoji}</span>
-            {driving.text}
-          </p>
-        </div>
+        <AdSlot placement="obd-after-verdict" />
 
         {/* Common Symptoms */}
         {obd.symptoms.length > 0 && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Common Symptoms</h2>
-            <ul className="space-y-1.5">
+          <ContentSection eyebrow="What the driver notices" title="Common symptoms">
+            <ul className="grid border-l border-t border-surface-border sm:grid-cols-2">
               {obd.symptoms.map((s, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
-                  <span className="text-amber dark:text-amber-dark mt-0.5 shrink-0">⚠</span>
+                <li key={i} className="flex items-start gap-3 border-b border-r border-surface-border p-4 text-sm text-text-secondary">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-amber" />
                   {s}
                 </li>
               ))}
             </ul>
-          </div>
+          </ContentSection>
         )}
 
         {/* Most Likely Causes */}
         {obd.causes.length > 0 && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Most Likely Causes</h2>
-            <ul className="space-y-1.5">
+          <ContentSection eyebrow="Start with evidence" title="Most likely causes">
+            <ul className="divide-y divide-surface-border border-y border-surface-border">
               {obd.causes.map((c, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
-                  <span className="text-text-muted mt-0.5 shrink-0">•</span>
+                <li key={i} className="flex items-start gap-4 py-3 text-sm text-text-secondary">
+                  <span className="font-mono text-xs font-bold text-primary">0{i + 1}</span>
                   {c}
                 </li>
               ))}
             </ul>
-          </div>
+          </ContentSection>
         )}
 
         {/* Diagnostic Funnel — narrow down the exact cause */}
@@ -520,29 +483,16 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
         {/* Common Fixes */}
         {obd.fixes.length > 0 && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
-              Common Fixes
-            </h2>
-            <ul className="space-y-2">
+          <ContentSection eyebrow="Repair options" title="Common fixes">
+            <ul className="space-y-0 divide-y divide-surface-border border-y border-surface-border">
               {obd.fixes.map((f, i) => {
                 const slug = fixRepairSlugs[i];
                 const repair = slug ? { slug: slug.replace(/_/g, "-"), name: "" } : null;
                 return (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-text-secondary">
-                    <svg
-                      className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                     width={16} height={16}>
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
+                  <li key={i} className="flex items-start gap-3 py-3 text-sm text-text-secondary">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-severity-info" />
                     {repair ? (
-                      <Link prefetch={false} href={`/repair-cost/${repair.slug}`} className="text-primary hover:underline">
+                      <Link prefetch={false} href={`/repair-cost/${repair.slug}`} className="font-heading font-semibold text-primary hover:underline">
                         {f}
                       </Link>
                     ) : (
@@ -552,74 +502,49 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
                 );
               })}
             </ul>
-          </div>
+          </ContentSection>
         )}
 
         {/* Estimated Repair Cost */}
         {obd.min_cost != null && obd.max_cost != null && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">
-              Estimated Repair Cost
-            </h2>
-            <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-3">
-              <span className="text-2xl font-bold text-text-primary font-heading">
-                ${obd.min_cost} &ndash; ${obd.max_cost}
-              </span>
-              <span className="text-xs text-text-muted">
-                Typical range; varies by vehicle make, model, and local labor rates.
-              </span>
-            </div>
-            <Link prefetch={false} href="/repair-cost" className="inline-flex items-center gap-1 mt-3 text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors">
-              See all repair cost estimates
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-            </Link>
-            <div className="mt-4 pt-4 border-t border-surface-border">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <div className="flex-1">
-                  <p className="text-sm font-heading font-semibold text-text-primary">Worried about repair costs?</p>
-                  <p className="text-xs text-text-muted">Get transparent estimates and verify your mechanic&apos;s quote before authorizing repairs.</p>
-                </div>
-                <Link prefetch={false} href="/quote-checker" className="flex items-center justify-between sm:inline-flex gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold font-heading rounded-lg hover:bg-primary-glow transition-all sm:shrink-0">
-                  Check your quote
-                  <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+          <div className="my-7">
+            <CostSummary
+              label={`Typical ${obd.code} repair range`}
+              range={`$${obd.min_cost} – $${obd.max_cost}`}
+              confidence="Varies by vehicle, root cause, region, and parts strategy"
+            >
+              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <p className="max-w-xl text-xs leading-5 text-text-secondary">
+                  Treat this as a planning range until the failed component is verified. The final repair depends on which listed cause is responsible.
+                </p>
+                <Link prefetch={false} href="/quote-checker" className="inline-flex shrink-0 items-center justify-between gap-4 bg-primary px-4 py-2.5 text-xs font-heading font-bold text-white transition-colors hover:bg-primary-dark">
+                  Check a quote <span aria-hidden="true">→</span>
                 </Link>
               </div>
-            </div>
+            </CostSummary>
           </div>
         )}
 
         {/* Related Repairs */}
         {relatedRepairs.length > 0 && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Related Repairs</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {relatedRepairs.map((repair) => {
-                const img = getRepairImageUrl(repair.slug);
-                return (
-                  <Link prefetch={false} key={repair.slug} href={`/repair-cost/${repair.slug}`}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-surface-0 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2 flex items-center justify-center">
-                      {img ? (
-                        <img src={img} alt={repair.name} className="w-full h-full object-cover" loading="lazy" />
-                      ) : (
-                        <svg className="w-5 h-5 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
-                          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                        </svg>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium text-text-primary font-heading truncate block group-hover:text-primary transition-colors">{repair.name}</span>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        {repair.diyLabel && <span className="text-[10px] font-heading font-semibold text-text-muted">{repair.diyLabel}</span>}
-                        {repair.estTime && <span className="text-[10px] text-text-muted font-heading">{repair.estTime}</span>}
-                      </div>
-                    </div>
-                    <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
+          <ContinueSolving
+            title={`Turn ${obd.code} into a repair decision`}
+            intro="Check the likely repair cost, compare the code with other faults, or start again from the symptom."
+            links={[
+              ...relatedRepairs.slice(0, 3).map((repair) => ({
+                href: `/repair-cost/${repair.slug}`,
+                label: repair.name,
+                description: repair.estTime ? `Typical DIY time: ${repair.estTime}. Compare parts, labor, and the shop option.` : "Compare typical parts, labor, and the decision to repair or delegate.",
+                meta: repair.diyLabel ?? "repair cost",
+              })),
+              {
+                href: "/symptom-checker",
+                label: "Describe the symptom instead",
+                description: "Use the guided diagnosis when the code does not explain the behavior you are noticing.",
+                meta: "diagnostic wizard",
+              },
+            ]}
+          />
         )}
 
         {/* Related OBD-II Codes */}
@@ -670,22 +595,9 @@ export default async function ObdCodePage({ params }: { params: Promise<{ code: 
 
         {/* FAQ */}
         {faqItems.length > 0 && (
-          <div className="bg-surface-1 rounded-xl border border-surface-border p-5 mb-4">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-4">
-              Frequently Asked Questions
-            </h2>
-            <div className="space-y-4">
-              {faqItems.map((item, i) => (
-                <details key={i} className="group" open={i === 0}>
-                  <summary className="flex items-center gap-2 cursor-pointer list-none font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors select-none py-2.5 min-h-[44px]">
-                    <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}><polyline points="9 18 15 12 9 6" /></svg>
-                    {item.question}
-                  </summary>
-                  <p className="mt-2 ml-6 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
-                </details>
-              ))}
-            </div>
-          </div>
+          <ContentSection eyebrow="Before you clear the code" title={`${obd.code} questions`}>
+            <FaqList items={faqItems} openFirst />
+          </ContentSection>
         )}
 
         {popularVehicles.length > 0 && (

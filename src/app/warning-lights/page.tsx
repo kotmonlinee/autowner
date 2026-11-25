@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Link from "next/link";
 import WarningLightsGrid from "@/components/WarningLightsGrid";
 import { warningLights } from "@/lib/warning-lights-data";
 import { DEFAULT_OG_IMAGE_META } from "@/lib/constants";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
 
 export const revalidate = 86400;
 
@@ -40,21 +41,18 @@ export default function WarningLightsPage() {
       />
 
       <main id="main-content" className="max-w-5xl mx-auto px-5 py-6 w-full flex-1">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary">Warning Lights</span>
-        </nav>
-
-        {/* Page header */}
-        <div className="mb-6">
-          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary font-heading mb-3">
-            Dashboard Warning Lights
-          </h1>
-          <p className="text-text-muted text-sm sm:text-base leading-relaxed max-w-2xl">
-            Don&apos;t ignore that light on your dashboard. Browse {warningLights.length} common warning lights, learn what they mean, and find out how urgent the issue is and what repairs might cost.
-          </p>
-        </div>
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Warning Lights" }]} />
+        <PageHeader
+          eyebrow="Dashboard symbol guide"
+          title="Dashboard warning lights"
+          description={`Identify ${warningLights.length} common dashboard symbols, understand their urgency, and see what a repair may involve before you continue driving.`}
+          aside={
+            <div className="border-l-4 border-severity-critical bg-severity-critical-bg p-5">
+              <p className="text-[10px] font-heading font-bold uppercase tracking-[0.14em] text-severity-critical">Red means stop</p>
+              <p className="mt-2 text-sm leading-6 text-text-secondary">Oil pressure, brake-system, coolant-temperature, and charging warnings can indicate damage or safety risk. Pull over safely and inspect before continuing.</p>
+            </div>
+          }
+        />
 
         <WarningLightsGrid />
       </main>

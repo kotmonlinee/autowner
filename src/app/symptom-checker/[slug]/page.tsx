@@ -13,7 +13,14 @@ import { getRepairImageUrl } from "@/lib/repair-images";
 import { getRelatedWarningLights } from "@/lib/repair-warning-lights";
 import { absoluteSeoTitle, seoDescription, vehicleSubjectTitle } from "@/lib/seo";
 import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META } from "@/lib/constants";
-import { TriangleAlert, Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash, ListChecks } from "lucide-react";
+import { Sparkles, ChevronRight, AlertTriangle, Wrench, DollarSign, ArrowRight, Hash, ListChecks } from "lucide-react";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
+import QuickVerdict from "@/components/content/QuickVerdict";
+import ContentSection from "@/components/content/ContentSection";
+import ContinueSolving from "@/components/content/ContinueSolving";
+import FaqList from "@/components/content/FaqList";
+import TrustDisclosure from "@/components/content/TrustDisclosure";
 
 export const revalidate = 3888000;
 export const dynamic = "force-static";
@@ -191,50 +198,51 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: "https://www.autowner.com/" }, { "@type": "ListItem", position: 2, name: "Symptom Checker", item: "https://www.autowner.com/symptom-checker" }, { "@type": "ListItem", position: 3, name: d.title }] }) }} />
       {d.faq && d.faq.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: d.faq.map((item: any) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })) }) }} />}
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 flex-1 w-full">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading whitespace-nowrap overflow-x-auto" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors shrink-0">Home</Link>
-          <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <Link prefetch={false} href="/symptom-checker" className="hover:text-primary transition-colors shrink-0">Symptom Checker</Link>
-          <svg className="w-3 h-3 text-surface-border shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary truncate">{d.title}</span>
-        </nav>
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Symptom Checker", href: "/symptom-checker" },
+            { label: d.title },
+          ]}
+        />
 
-        {vehicle && (
-          <div className="flex items-center gap-3 mb-4">
-            {vehicleImage && (
-              <div className="w-14 h-10 rounded-lg overflow-hidden shrink-0 bg-surface-2 border border-surface-border">
-                <img src={vehicleImage} alt={vehicle} className="w-full h-full object-cover" loading="lazy" />
+        <PageHeader
+          eyebrow={vehicle ? "Vehicle-specific AI-assisted diagnosis" : "AI-assisted symptom diagnosis"}
+          title={pageTitle}
+          description={d.summary}
+          aside={
+            <div className="border border-surface-border bg-surface-1">
+              {vehicle && vehicleImage && (
+                <div className="aspect-[16/7] overflow-hidden bg-surface-2">
+                  <img src={vehicleImage} alt={vehicle} className="h-full w-full object-cover" loading="lazy" />
+                </div>
+              )}
+              <div className="p-4">
+                <p className="text-[10px] font-heading font-bold uppercase tracking-[0.14em] text-text-muted">Reported vehicle</p>
+                <p className="mt-1 font-display text-2xl font-semibold text-text-primary">{vehicle ?? "Vehicle not specified"}</p>
+                {vehicle && (
+                  <Link prefetch={false} href={browseRepairUrl} className="mt-4 flex items-center justify-between border-t border-surface-border pt-3 text-xs font-heading font-bold text-primary">
+                    Open the complete vehicle record <span aria-hidden="true">→</span>
+                  </Link>
+                )}
               </div>
-            )}
-            <span className="text-xs text-text-muted font-heading">{vehicle}</span>
-            <Link prefetch={false}
-              href={`/vehicles/${(diagnosis.vehicle_make ?? "").toLowerCase().replace(/\s+/g, "-")}/${(diagnosis.vehicle_model ?? "").toLowerCase().replace(/\s+/g, "-")}`}
-              className="text-xs font-heading font-semibold text-primary hover:text-primary-glow transition-colors ml-auto shrink-0"
-            >
-              All {diagnosis.vehicle_make} {diagnosis.vehicle_model} issues →
-            </Link>
-          </div>
-        )}
+            </div>
+          }
+        />
 
-        {/* ── Hero: Severity-first header ── */}
-        <div className={`${sev.bg} rounded-2xl border-2 ${sev.border} p-6 mb-6`}>
-          <div className="flex items-center gap-3 mb-4">
-            <div className={`w-14 h-14 rounded-2xl ${sev.bg} border-2 ${sev.border} flex items-center justify-center shrink-0 ${sev.text}`}>
-              {sev.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-2xl font-heading font-bold text-text-primary">{pageTitle}</h1>
-                <Sparkles className="w-5 h-5 text-primary shrink-0" />
-              </div>
-              <p className="text-sm text-text-secondary leading-relaxed">{d.summary}</p>
-            </div>
-          </div>
-          <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border-2 ${sev.border} ${sev.text} font-heading`}>
-            <span className={`w-2 h-2 rounded-full ${sev.text} bg-current`} />
-            {sev.label}
-          </span>
-        </div>
+        <QuickVerdict
+          label="Assessment"
+          title={sev.label}
+          tone={d.severity === "critical" ? "critical" : d.severity === "high" || d.severity === "medium" ? "caution" : "safe"}
+          facts={[
+            { label: "Most likely", value: d.causes?.[0]?.description?.split(".")[0] ?? "Needs inspection" },
+            { label: "Repair range", value: cost ? `$${cost.min.toLocaleString()}–$${cost.max.toLocaleString()}` : "Estimate only" },
+            { label: "Best next step", value: d.causes?.[0]?.verification_steps?.[0] ?? d.whatToDo?.split(".")[0] ?? "Verify the cause" },
+            { label: "Confirmed repairs", value: `${resolvedRepairs.length} matched` },
+          ]}
+        >
+          <p>{d.whatToDo?.split(". ")[0] || "Use the cause-by-cause verification steps before authorizing any replacement."}</p>
+        </QuickVerdict>
 
         {/* ── Possible Causes (with verification steps) ── */}
         {d.causes?.length > 0 && (
@@ -393,6 +401,33 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         )}
 
         {/* ── Related OBD Codes ── */}
+        {(obdCodeDetails.length > 0 || relatedWarningLights.length > 0 || relatedSymptoms.length > 0) && (
+          <ContinueSolving
+            title="Investigate another angle"
+            intro="A scanner code, dashboard warning, or related symptom can confirm or challenge this diagnosis."
+            links={[
+              ...obdCodeDetails.slice(0, 1).map((obd) => ({
+                href: `/obd/${obd.code.toLowerCase()}`,
+                label: `${obd.code}: ${obd.title}`,
+                description: "Check the scanner code's driving risk, causes, and repair range.",
+                meta: "related OBD code",
+              })),
+              ...relatedWarningLights.slice(0, 1).map((light) => ({
+                href: `/warning-lights/${light.slug}`,
+                label: light.title,
+                description: "Understand what the dashboard warning means and how urgently to act.",
+                meta: "dashboard warning",
+              })),
+              ...relatedSymptoms.slice(0, 2).map((symptom) => ({
+                href: `/symptoms/${symptom.slug}`,
+                label: symptom.name,
+                description: "Compare the broader symptom, likely causes, and repair costs.",
+                meta: "related symptom",
+              })),
+            ]}
+          />
+        )}
+
         {d.possibleCodes && d.possibleCodes.length > 0 && (
           <div className="mb-6">
             <h2 className="text-lg font-heading font-bold text-text-primary mb-3 flex items-center gap-2">
@@ -460,20 +495,9 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
 
         {/* ── FAQ ── */}
         {d.faq && d.faq.length > 0 && (
-          <div className="mb-6 bg-surface-1 rounded-2xl border border-surface-border p-5">
-            <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Frequently Asked Questions</h2>
-            <div className="space-y-2">
-              {d.faq.map((item: any, i: number) => (
-                <details key={i} className="group bg-surface-0 rounded-xl border border-surface-border">
-                  <summary className="flex items-center gap-2 cursor-pointer list-none px-4 py-3 min-h-[44px] font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
-                    <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}><polyline points="9 18 15 12 9 6" /></svg>
-                    {item.question}
-                  </summary>
-                  <p className="px-4 pb-4 ml-6 text-sm text-text-secondary leading-relaxed">{item.answer}</p>
-                </details>
-              ))}
-            </div>
-          </div>
+          <ContentSection eyebrow="Before you act on the diagnosis" title="Diagnosis questions">
+            <FaqList items={d.faq.map((item: any) => ({ question: item.question, answer: item.answer }))} />
+          </ContentSection>
         )}
 
         {/* ── Share ── */}
@@ -495,12 +519,9 @@ export default async function DiagnosisResultPage({ params }: { params: Promise<
         </div>
 
         {/* ── Disclaimer ── */}
-        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
-          <TriangleAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-            <span className="font-semibold">Disclaimer:</span> This AI-generated diagnosis is for informational reference only. Always consult a qualified mechanic for an in-person inspection. AutOwner is not responsible for decisions made based on this information.
-          </p>
-        </div>
+        <TrustDisclosure title="AI-assisted, not confirmed">
+          This diagnosis is a structured starting point, not a substitute for an in-person inspection. Verify the cause using the listed checks and consult a qualified mechanic when the symptom is safety-critical, intermittent, or difficult to reproduce.
+        </TrustDisclosure>
         <PageFeedback />
       </main>
       <Footer />

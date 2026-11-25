@@ -7,6 +7,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageFeedback from "@/components/PageFeedback";
 import { fetchVehicleMakes, fetchVehicleModels, fetchVehicleGenerations } from "@/lib/data/browser";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
 
 interface AssessmentResult {
   assessment: "Fair" | "Slightly High" | "Overpriced" | "Below Average" | "Insufficient Data";
@@ -562,7 +564,7 @@ function QuoteCheckerContent() {
   return (
     <>
         {/* How It Works */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+        <div className="mb-8 grid border-l border-t border-surface-border sm:grid-cols-3">
           {[
             { step: "1", title: "Enter vehicle", desc: "Select your make, model, and year.", target: "field-make" },
             { step: "2", title: "Add repair & price", desc: "Choose the repair type and the quote amount.", target: "field-repair" },
@@ -574,8 +576,8 @@ function QuoteCheckerContent() {
                 el?.scrollIntoView({ behavior: "smooth", block: "center" });
                 el?.focus();
               }}
-              className="flex gap-3 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer text-left w-full">
-              <span className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-bold font-heading shrink-0">{s.step}</span>
+              className="flex gap-3 border-b border-r border-surface-border bg-surface-1 p-4 text-left transition-colors hover:bg-surface-2 cursor-pointer w-full">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-primary/20 bg-primary/10 font-mono text-sm font-bold text-primary">{s.step}</span>
               <div>
                 <h3 className="text-sm font-heading font-semibold text-text-primary">{s.title}</h3>
                 <p className="text-xs text-text-muted mt-0.5">{s.desc}</p>
@@ -588,7 +590,7 @@ function QuoteCheckerContent() {
         <form
           id="quote-form"
           onSubmit={handleSubmit}
-          className={`bg-surface-1 border rounded-2xl p-6 sm:p-8 space-y-5 transition-shadow duration-700 ${formHighlight ? "border-primary shadow-lg shadow-primary/20" : "border-surface-border"}`}
+          className={`space-y-5 border border-l-4 bg-surface-1 p-6 transition-shadow duration-700 sm:p-8 ${formHighlight ? "border-primary shadow-lg shadow-primary/20" : "border-surface-border border-l-primary"}`}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Make — dropdown from vehicle database */}
@@ -800,7 +802,7 @@ function QuoteCheckerContent() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-12 bg-primary text-white font-semibold font-heading rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/25 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            className="h-12 w-full bg-primary font-heading font-semibold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -834,7 +836,7 @@ function QuoteCheckerContent() {
         {/* Results */}
         {result && (
           <section
-            className="mt-8 bg-surface-1 border border-surface-border rounded-2xl p-6 sm:p-8"
+            className="mt-8 border border-surface-border border-l-4 border-l-primary bg-surface-1 p-6 sm:p-8"
             aria-label="Quote assessment result"
           >
             {/* Top: badge + quote */}
@@ -1088,7 +1090,7 @@ function QuoteCheckerContent() {
         )}
 
         {/* Most Checked Repairs */}
-        <div className="mt-8 p-5 sm:p-6 bg-surface-1 rounded-2xl border border-surface-border">
+        <div className="mt-8 border-y border-surface-border bg-surface-1 px-5 py-6 sm:px-7">
           <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Most Checked Repairs</h2>
           <p className="text-xs text-text-muted mb-4">Click to pre-fill the form with vehicle + repair. Just enter your quoted price.</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -1164,9 +1166,10 @@ function QuoteCheckerContent() {
         )}
 
         {/* FAQ */}
-        <section className="mt-12 pt-10 border-t border-surface-border" aria-labelledby="faq-heading">
-          <h2 id="faq-heading" className="text-xl font-heading font-bold text-text-primary mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-3">
+        <section className="mt-12 border-t border-surface-border pt-8" aria-labelledby="faq-heading">
+          <p className="text-[10px] font-heading font-bold uppercase tracking-[0.15em] text-text-muted">Before you authorize work</p>
+          <h2 id="faq-heading" className="mb-6 mt-1.5 font-display text-3xl font-semibold tracking-[-0.025em] text-text-primary">Quote checker questions</h2>
+          <div className="divide-y divide-surface-border border-y border-surface-border">
             {[
               { q: "How accurate is the repair cost data?", a: "Our repair cost data is sourced from a combination of NHTSA vehicle data, industry labor rate guides, and aggregated repair shop pricing. Estimates are broken down by vehicle tier (Economy, Mid-Range, Luxury, Truck/SUV, European) to reflect different labor and parts costs." },
               { q: "What's considered a fair mechanic quote?", a: "A fair quote falls within the typical cost range for your vehicle type and includes reasonable labor rates. If your quote is within 10-15% of our estimated range, it's generally fair. Quotes 20%+ above our estimates may be overpriced." },
@@ -1174,12 +1177,12 @@ function QuoteCheckerContent() {
               { q: "Should I get multiple quotes?", a: "Yes. We recommend getting at least 2-3 quotes for any repair over $500. Different shops have different labor rates and may use different quality parts. Use our tool to benchmark each quote." },
               { q: "Can I use this for insurance estimates?", a: "Yes, our repair cost data can help you validate insurance repair estimates. However, insurance adjusters use their own labor rate guides and may include additional factors like rental car coverage and diminished value." },
             ].map((faq, i) => (
-              <details key={i} className="group bg-surface-1 rounded-xl border border-surface-border">
-                <summary className="flex items-center gap-2 cursor-pointer list-none px-4 py-3 min-h-[44px] font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
-                  <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+              <details key={i} className="group">
+                <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-3 font-heading text-sm font-bold text-text-primary transition-colors hover:text-primary">
                   {faq.q}
+                  <span aria-hidden="true" className="font-mono text-xl font-normal text-primary transition-transform group-open:rotate-45">+</span>
                 </summary>
-                <p className="px-4 pb-4 ml-6 text-sm text-text-secondary leading-relaxed">{faq.a}</p>
+                <p className="max-w-3xl pb-5 pr-8 text-sm leading-6 text-text-secondary">{faq.a}</p>
               </details>
             ))}
           </div>
@@ -1218,20 +1221,22 @@ export default function QuoteCheckerPage() {
     <div className="min-h-screen bg-surface-0 flex flex-col">
       <Navbar />
       <main id="main-content" className="max-w-4xl mx-auto px-5 py-6 w-full flex-1">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary">Quote Checker</span>
-        </nav>
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary font-heading mb-3">
-            Check If a Mechanic&apos;s Repair Quote Is Fair
-          </h1>
-          <p className="text-text-muted text-sm sm:text-base leading-relaxed">
-            Enter a mechanic&apos;s quote and compare it against typical repair costs
-            for your vehicle. No login required.
-          </p>
-        </div>
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Quote Checker" }]} />
+        <PageHeader
+          eyebrow="Mechanic quote second opinion"
+          title="Check if a mechanic's repair quote is fair"
+          description="Compare the proposed amount with typical parts-and-labor costs for the same repair and vehicle class. No login required."
+          aside={
+            <div className="border-l-4 border-primary bg-primary/5 p-5">
+              <p className="text-[10px] font-heading font-bold uppercase tracking-[0.14em] text-text-muted">What you need</p>
+              <ul className="mt-3 space-y-2 text-xs leading-5 text-text-secondary">
+                <li className="flex gap-2"><span className="text-primary">01</span> Vehicle make, model, and year</li>
+                <li className="flex gap-2"><span className="text-primary">02</span> The repair named on the quote</li>
+                <li className="flex gap-2"><span className="text-primary">03</span> The proposed total</li>
+              </ul>
+            </div>
+          }
+        />
         <Suspense fallback={<QuoteCheckerFallback />}>
           <QuoteCheckerContent />
         </Suspense>

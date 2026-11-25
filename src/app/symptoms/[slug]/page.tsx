@@ -7,6 +7,13 @@ import Footer from "@/components/Footer";
 import PageFeedback from "@/components/PageFeedback";
 import { createServiceSupabase } from "@/lib/supabase-server";
 import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META, formatMoney } from "@/lib/constants";
+import Breadcrumbs from "@/components/content/Breadcrumbs";
+import PageHeader from "@/components/content/PageHeader";
+import QuickVerdict from "@/components/content/QuickVerdict";
+import ContentSection from "@/components/content/ContentSection";
+import ContinueSolving from "@/components/content/ContinueSolving";
+import FaqList from "@/components/content/FaqList";
+import TrustDisclosure from "@/components/content/TrustDisclosure";
 export const revalidate = 2592000;
 export const dynamic = "force-static";
 
@@ -240,56 +247,64 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
-      <main className="flex-1 max-w-3xl mx-auto px-5 py-8 w-full">
-        <nav className="mb-4 flex items-center gap-2 text-sm text-text-muted font-heading" aria-label="Breadcrumb">
-          <Link prefetch={false} href="/" className="hover:text-primary transition-colors">Home</Link>
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <Link prefetch={false} href="/symptoms" className="hover:text-primary transition-colors">Symptoms</Link>
-          {vs && (
-            <>
-              <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              <span className="text-text-secondary">{vs.vehicle_make} {vs.vehicle_model}</span>
-            </>
-          )}
-          <svg className="w-3 h-3 text-surface-border" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={12} height={12}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-text-secondary truncate">{vs ? vs.symptom_name : s.name}</span>
-        </nav>
+      <main id="main-content" className="flex-1 max-w-4xl mx-auto px-5 py-8 w-full">
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Symptoms", href: "/symptoms" },
+            ...(vs
+              ? [
+                  { label: `${vs.vehicle_make} ${vs.vehicle_model}` },
+                  { label: vs.symptom_name },
+                ]
+              : [{ label: s.name }]),
+          ]}
+        />
 
-        {/* Hero */}
-        <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-8 mb-6">
-          <div className="mb-5">
-            {vs && (
-              <p className="text-xs text-text-muted font-heading mb-2">{vs.vehicle_make} {vs.vehicle_model}</p>
-            )}
-            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary mb-3">{vs ? vs.h1 : s.name}</h1>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border ${SEVERITY_COLORS[s.severity]}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${s.severity === "critical" ? "bg-red-500" : s.severity === "high" ? "bg-orange-500" : s.severity === "medium" ? "bg-amber-500" : "bg-emerald-500"}`} />
-                {s.severity === "critical" ? "Critical" : s.severity === "high" ? "Serious" : s.severity === "medium" ? "Moderate" : "Low"}
-              </span>
-              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold font-heading border ${DRIVING_COLORS[s.driving_risk]}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${s.driving_risk === "unsafe" ? "bg-red-500" : s.driving_risk === "limited" ? "bg-amber-500" : "bg-emerald-500"}`} />
-                {DRIVING_LABELS[s.driving_risk]}
-              </span>
+        <PageHeader
+          eyebrow={vs ? "Vehicle-specific symptom" : "Common car symptom"}
+          title={vs ? vs.h1 : s.name}
+          description={`What ${vs ? `${vs.vehicle_make} ${vs.vehicle_model} ` : ""}${String(vs ? vs.symptom_name : s.name).toLowerCase()} can mean, what to check first, what the repair may cost, and whether it is safe to drive.`}
+          aside={
+            <div className="border border-surface-border bg-surface-1 p-5">
+              <div className="flex flex-wrap gap-2">
+                <span className={`inline-flex border px-2.5 py-1 text-[10px] font-heading font-bold uppercase tracking-[0.1em] ${SEVERITY_COLORS[s.severity]}`}>
+                  {s.severity === "critical" ? "Critical" : s.severity === "high" ? "Serious" : s.severity === "medium" ? "Moderate" : "Low"}
+                </span>
+                <span className={`inline-flex border px-2.5 py-1 text-[10px] font-heading font-bold uppercase tracking-[0.1em] ${DRIVING_COLORS[s.driving_risk]}`}>
+                  {DRIVING_LABELS[s.driving_risk]}
+                </span>
+              </div>
+              <Link prefetch={false} href={`/symptom-checker?symptom=${encodeURIComponent(vs ? vs.symptom_name : s.name)}`} className="mt-5 flex items-center justify-between gap-4 bg-primary px-4 py-3 text-xs font-heading font-bold text-white transition-colors hover:bg-primary-dark">
+                Narrow it down with the symptom wizard <span aria-hidden="true">→</span>
+              </Link>
+              <p className="mt-3 text-[10px] leading-4 text-text-muted">Use this if the symptom is intermittent, you cannot identify the system, or several listed causes sound plausible.</p>
             </div>
-          </div>
-          <Link prefetch={false} href={`/symptom-checker?symptom=${encodeURIComponent(vs ? vs.symptom_name : s.name)}`} className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl hover:bg-primary/10 hover:border-primary/40 transition-all group">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-              <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
-                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-              </svg>
-            </div>
-            <div className="flex-1 min-w-0">
-              <span className="text-sm font-heading font-bold text-primary block group-hover:text-primary-glow transition-colors">Not Sure Which Cause Applies?</span>
-              <span className="text-xs text-text-muted">Describe your exact symptoms and vehicle — our AI narrows down the possibilities and gives you a specific diagnosis with repair costs.</span>
-            </div>
-            <svg className="w-5 h-5 text-primary shrink-0 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={20} height={20}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-          </Link>
-        </div>
+          }
+        />
+
+        <QuickVerdict
+          label="Safety and urgency"
+          title={s.driving_risk === "unsafe" ? "Do not drive until the fault is inspected." : s.driving_risk === "limited" ? "Drive only a short distance to a repair shop." : "You can probably drive, but diagnose before it worsens."}
+          tone={s.driving_risk === "unsafe" ? "critical" : s.driving_risk === "limited" ? "caution" : "safe"}
+          facts={[
+            { label: "Observed risk", value: DRIVING_LABELS[s.driving_risk] ?? "Assess" },
+            { label: "Likely cause", value: causesWithPrices[0]?.cause_name ?? "Needs inspection" },
+            { label: "Typical repair", value: costMin != null && costMax != null ? `${formatMoney(costMin)}–${formatMoney(costMax)}` : "Cause dependent" },
+            { label: "Check first", value: s.diagnosis_steps ? "Guided steps below" : "Visual inspection" },
+          ]}
+        >
+          {s.driving_advice
+            ? String(s.driving_advice).split(/\n\n|\n/).filter(Boolean)[0]
+            : s.driving_risk === "unsafe"
+              ? "A driving-related symptom or catastrophic failure risk may be present. Have the vehicle towed to a qualified shop."
+              : s.driving_risk === "limited"
+                ? "Avoid highway driving, heavy loads, and hard acceleration. Schedule diagnosis within the next few days."
+                : "Continue normal driving with caution and schedule diagnosis at your earliest convenience."}
+        </QuickVerdict>
 
         {/* What This Means */}
-        <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6 border-l-4 border-l-primary/40">
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-3">What This Means</h2>
+        <ContentSection eyebrow="Plain-language explanation" title="What this symptom means" tone="notice">
           {vs?.overview ? (
             <p className="text-sm text-text-secondary leading-relaxed">{vs.overview}</p>
           ) : s.overview ? (
@@ -316,46 +331,10 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
               </>);
             })()
           )}
-        </div>
-
-        {/* Can I Continue Driving */}
-        <div className={`rounded-2xl border-2 p-5 sm:p-6 mb-6 border-l-[6px] ${s.driving_risk === "unsafe" ? "bg-red-50/40 dark:bg-red-950/15 border-red-400 dark:border-red-600" : s.driving_risk === "limited" ? "bg-orange-50/40 dark:bg-orange-950/15 border-orange-400 dark:border-orange-600" : "bg-emerald-50/40 dark:bg-emerald-950/15 border-emerald-400 dark:border-emerald-600"}`}>
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-3xl">{s.driving_risk === "unsafe" ? "🚨" : s.driving_risk === "limited" ? "⚠️" : "✅"}</span>
-            <div>
-              <h2 className="text-lg font-heading font-bold text-text-primary">Can I Continue Driving?</h2>
-              <span className={`text-sm font-heading font-bold ${s.driving_risk === "unsafe" ? "text-red-700 dark:text-red-400" : s.driving_risk === "limited" ? "text-orange-700 dark:text-orange-400" : "text-emerald-700 dark:text-emerald-400"}`}>
-                {s.driving_risk === "unsafe" ? "Do Not Drive — Tow Required" : s.driving_risk === "limited" ? "Limited Driving Only" : "Safe to Drive"}
-              </span>
-            </div>
-          </div>
-          {s.driving_advice ? (
-            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
-              {s.driving_advice.split(/\n\n|\n/).filter(Boolean).map((para: string, i: number) => (
-                <p key={i}>{para.trim()}</p>
-              ))}
-            </div>
-          ) : s.driving_risk === "unsafe" ? (
-            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
-              <p>This symptom indicates a serious safety risk or the potential for catastrophic engine or drivetrain damage. Continuing to operate the vehicle could cause further damage to critical components and create a dangerous situation for you and other drivers.</p>
-              <p>Have the vehicle towed to a qualified repair shop immediately. The cost of a tow is far less than the cost of an engine rebuild or transmission replacement. If you must move the vehicle a short distance, do so only at very low speed and for emergency purposes only.</p>
-            </div>
-          ) : s.driving_risk === "limited" ? (
-            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
-              <p>You can drive short distances to a repair shop at low speeds, but avoid highway driving, hard acceleration, and heavy loads. Schedule a diagnosis as soon as possible — ideally within the next few days.</p>
-              <p>Continuing to drive with this symptom may worsen the underlying condition. What starts as an affordable fix can escalate into a significantly more expensive repair if components fail completely while driving. Monitor for any change in severity and stop driving immediately if the symptom worsens.</p>
-            </div>
-          ) : (
-            <div className="text-sm text-text-secondary leading-relaxed space-y-2">
-              <p>You can continue normal driving, but the symptom should be diagnosed at your earliest convenience. Use the causes table above to understand what might be happening and schedule a professional inspection if needed.</p>
-              <p>Even minor symptoms can indicate developing problems. What starts as a subtle vibration or intermittent noise can progress to component failure if left unaddressed for weeks or months. Early diagnosis typically costs far less than emergency repairs.</p>
-            </div>
-          )}
-        </div>
+        </ContentSection>
 
         {/* How To Diagnose */}
-        <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-6">
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-4">How To Diagnose</h2>
+        <ContentSection eyebrow="Evidence before parts" title="How to diagnose">
           {s.diagnosis_steps ? (
             <div className="text-sm text-text-secondary leading-relaxed [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-3 [&_li]:mb-2 [&_strong]:text-text-primary" dangerouslySetInnerHTML={{ __html: s.diagnosis_steps }} />
           ) : (
@@ -377,24 +356,30 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
             {s.category === "transmission" && <li><strong className="text-text-primary">Check fluid level and condition.</strong> With engine warm and running, check transmission fluid on the dipstick. Dark/burnt-smelling fluid indicates internal wear. Low fluid may cause slipping or harsh shifting.</li>}
             <li><strong className="text-text-primary">Check the most likely causes first.</strong> Based on the probability table above, start with the highest-probability cause and work downward.</li>
             <li><strong className="text-text-primary">Consult a professional if unsure.</strong> If the diagnosis is inconclusive or requires specialized equipment, have a certified mechanic perform a professional diagnosis.</li>
-          </ol>
+            </ol>
           )}
-        </div>
+        </ContentSection>
 
         {/* Related Diagnoses */}
         {relatedDiagnoses.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-xs font-heading font-bold text-text-muted uppercase tracking-wider mb-3">Related AI Diagnoses</h2>
-            <div className="space-y-2">
-              {relatedDiagnoses.map((d) => (
-                <Link prefetch={false} key={d.slug} href={`/symptom-checker/${d.slug}`} className="flex items-center gap-3 p-3 rounded-xl bg-surface-1 border border-surface-border hover:border-primary/30 hover:bg-primary/5 transition-all group">
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${d.severity === "critical" ? "bg-red-500" : d.severity === "high" ? "bg-orange-500" : d.severity === "medium" ? "bg-amber-500" : "bg-emerald-500"}`} />
-                  <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors truncate flex-1">{d.title}</span>
-                  <svg className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                </Link>
-              ))}
-            </div>
-          </div>
+          <ContinueSolving
+            title="Continue with a more specific diagnosis"
+            intro="Move from the general symptom to a vehicle-specific diagnosis or a related fault code."
+            links={[
+              ...relatedDiagnoses.slice(0, 3).map((diagnosis) => ({
+                href: `/symptom-checker/${diagnosis.slug}`,
+                label: diagnosis.title,
+                description: "Review the matched causes, verification steps, and repair options.",
+                meta: `${diagnosis.severity} diagnosis`,
+              })),
+              ...obdCodes.slice(0, 1).map((obd) => ({
+                href: `/obd/${obd.code.toLowerCase()}`,
+                label: `${obd.code}: ${obd.title}`,
+                description: "Understand the scanner code, driving risk, and likely repair path.",
+                meta: "related OBD code",
+              })),
+            ]}
+          />
         )}
 
         {/* Most Common Causes */}
@@ -523,20 +508,12 @@ export default async function SymptomPage({ params }: { params: Promise<{ slug: 
         )}
 
         {/* FAQ */}
-        <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 sm:p-6 mb-4">
-          <h2 className="text-lg font-heading font-bold text-text-primary mb-4">Frequently Asked Questions</h2>
-          <div className="space-y-2">
-            {faqItems.map((faq, i) => (
-              <details key={i} className="group bg-surface-0 rounded-xl border border-surface-border">
-                <summary className="flex items-center gap-2 cursor-pointer list-none px-4 py-3 min-h-[44px] font-heading font-semibold text-sm text-text-primary hover:text-primary transition-colors">
-                  <svg className="w-4 h-4 shrink-0 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" width={16} height={16}><polyline points="9 18 15 12 9 6" /></svg>
-                  {faq.q}
-                </summary>
-                <p className="px-4 pb-4 ml-6 text-sm text-text-secondary leading-relaxed">{faq.a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
+        <ContentSection eyebrow="Before replacing parts" title="Symptom questions">
+          <FaqList items={faqItems.map((faq) => ({ question: faq.q, answer: faq.a }))} />
+        </ContentSection>
+        <TrustDisclosure title="Diagnostic limits">
+          A symptom can have several causes, and the same cause can produce different symptoms on different vehicles. Use the inspection and scanner evidence to confirm the fault. Safety-critical symptoms require an in-person inspection before continued driving.
+        </TrustDisclosure>
         <PageFeedback />
       </main>
       <Footer />
