@@ -90,6 +90,18 @@ must not hide or defer indexable content only for visual convenience.
 The design system and homepage ship first. High-value tool/content templates ship
 second. Long-tail and account/community pages ship third.
 
+### 4.7 Preserve the AdSense review environment
+
+The production site is currently under AdSense review. A large visual change can
+make the reviewer-facing site move while the review is in progress.
+
+- Development may proceed on a non-production branch or preview.
+- Phase 1 is not promoted to the production domain while AdSense review remains
+  pending unless the user explicitly accepts the review risk.
+- Preview deployments must keep production's robots and indexing behavior unless
+  the preview is protected from crawlers.
+- No AdSense code is added as part of the redesign.
+
 ## 5. Visual Direction
 
 ### 5.1 Brand concept
@@ -199,11 +211,31 @@ mechanism.
 - Respect `prefers-reduced-motion`.
 - Initial page content must render without motion-dependent visibility.
 
+### 5.8 Token compatibility
+
+The existing codebase has hundreds of references to the current surface, primary,
+amber, severity, and `dark:` utilities. Rewriting every route at once would create
+an uncontrolled regression risk.
+
+Phase 1 keeps the existing semantic aliases while replacing their values:
+
+- `surface-0`, `surface-1`, and `surface-2` map to the new paper/surface system.
+- `primary` maps to `signal` so existing actions immediately adopt the new brand.
+- `amber`, severity, and text tokens map to the new accessible light values.
+- Legacy utility names remain temporarily even when their visual meaning changes.
+- New components use the new semantic names directly where practical.
+- A final cleanup removes obsolete aliases only after all three phases are live.
+
+This compatibility layer allows a safe first release without editing every route
+at the same time.
+
 ## 6. Light-Only Theme
 
 - The site no longer follows the operating-system color scheme for a dark theme.
 - Remove the theme initialization script.
 - Remove the theme toggle from navigation.
+- Remove `ThemeToggle` from every mobile and desktop navigation branch.
+- A stale `theme=dark` localStorage value must not affect rendering.
 - Set the document color scheme to light.
 - Existing `dark:` utility classes may remain temporarily during rollout but no
   runtime path may apply the `.dark` class.
@@ -612,6 +644,9 @@ The redesign must satisfy all of the following:
 - Implement design system primitives.
 - Rebuild the homepage in Diagnosis Command Center form.
 - Add visual regression and SEO tests.
+- Keep compatibility aliases used by untouched pages.
+- Do not promote the branch to production while AdSense review is pending unless
+  explicitly approved.
 
 Exit criteria:
 
@@ -619,6 +654,8 @@ Exit criteria:
 - H1 and primary search are present in raw HTML.
 - Header/footer work on mobile.
 - No canonical, robots, or metadata changes.
+- Untouched routes remain visually coherent through the compatibility tokens.
+- Production indexing behavior is unchanged in any preview exposed to crawlers.
 
 ### Phase 2: Core templates
 
