@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { resolveSearchRoute } from "@/lib/search-routing";
 
-export default function SearchBar() {
+export default function SearchBar({ id = "global-search-input" }: { id?: string }) {
   const [query, setQuery] = useState("");
   const router = useRouter();
 
@@ -19,12 +19,12 @@ export default function SearchBar() {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        document.getElementById("global-search-input")?.focus();
+        document.getElementById(id)?.focus();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, []);
+  }, [id]);
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-md" role="search">
@@ -33,15 +33,15 @@ export default function SearchBar() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input
-          id="global-search-input"
+          id={id}
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search symptoms, repairs, codes..."
-          aria-label="Search symptoms, repairs, or OBD codes"
-          className="w-full pl-10 pr-16 py-2 bg-surface-2 text-text-primary text-sm rounded-lg border border-surface-border focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all placeholder:text-text-muted"
+          placeholder="Search code, symptom, repair..."
+          aria-label="Search codes, symptoms, repairs, or vehicles"
+          className="h-10 w-full rounded-md border border-surface-border bg-surface-1 pl-9 pr-16 text-sm text-text-primary transition-colors placeholder:text-text-muted focus:border-primary focus:outline-none"
         />
-        <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-surface-3 border border-surface-border text-[10px] font-mono text-text-muted">
+        <kbd className="absolute right-2.5 top-1/2 hidden -translate-y-1/2 items-center rounded border border-surface-border bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] text-text-muted xl:inline-flex">
           {typeof navigator !== "undefined" && navigator.platform?.includes("Mac") ? "⌘" : "Ctrl"}K
         </kbd>
       </div>

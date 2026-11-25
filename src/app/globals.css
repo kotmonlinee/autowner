@@ -30,30 +30,31 @@
 
 /* ── Light theme (default, no .dark class) ────────────────── */
 :root {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --bg-elevated: #f3f4f6;
-  --bg-tertiary: #f1f3f5;
-  --bg-border: #e5e7eb;
-  --text-primary: #111318;
-  --text-secondary: #374151;
-  --text-muted: #4b5563;
+  color-scheme: light;
+  --bg-primary: #f4f0e8;
+  --bg-secondary: #fffdf8;
+  --bg-elevated: #ebe4d8;
+  --bg-tertiary: #e3dbce;
+  --bg-border: #d8d0c2;
+  --text-primary: #141617;
+  --text-secondary: #5f5b54;
+  --text-muted: #777168;
 
-  --color-primary: #2563eb;
-  --color-primary-dark: #1d4ed8;
-  --color-primary-glow: #3b82f6;
-  --color-amber: #d97706;
-  --color-amber-dark: #b45309;
+  --color-primary: #e6531d;
+  --color-primary-dark: #c94513;
+  --color-primary-glow: #c94513;
+  --color-amber: #c8871d;
+  --color-amber-dark: #9d6816;
 
-  --severity-critical: #dc2626;
-  --severity-critical-bg: #fef2f2;
-  --severity-critical-border: #fecaca;
-  --severity-caution: #b45309;
-  --severity-caution-bg: #fefce8;
-  --severity-caution-border: #fde68a;
-  --severity-info: #059669;
-  --severity-info-bg: #ecfdf5;
-  --severity-info-border: #a7f3d0;
+  --severity-critical: #c43d32;
+  --severity-critical-bg: #f8e7e4;
+  --severity-critical-border: #e5b5ae;
+  --severity-caution: #a66d12;
+  --severity-caution-bg: #f8eed8;
+  --severity-caution-border: #e6cf9d;
+  --severity-info: #247553;
+  --severity-info-bg: #e6f0ea;
+  --severity-info-border: #b9d8c7;
 }
 
 /* ── Dark theme (.dark class on <html>) ──────────────────── */
@@ -109,11 +110,11 @@ body::before {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.04;
+  opacity: 0.03;
   background-image:
-    linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px);
-  background-size: 60px 60px;
+    linear-gradient(rgba(20,22,23,0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20,22,23,0.12) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 .dark body::before {
@@ -125,9 +126,9 @@ body::before {
 
 /* Scrollbar — light by default */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #f3f4f6; }
-::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+::-webkit-scrollbar-track { background: #f4f0e8; }
+::-webkit-scrollbar-thumb { background: #d8d0c2; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #bdb3a2; }
 
 .dark ::-webkit-scrollbar-track { background: var(--color-surface-1); }
 .dark ::-webkit-scrollbar-thumb { background: var(--color-surface-4); }
@@ -135,8 +136,8 @@ body::before {
 
 /* Selection — light by default */
 ::selection {
-  background: rgba(37, 99, 235, 0.15);
-  color: #111318;
+  background: rgba(230, 83, 29, 0.22);
+  color: #141617;
 }
 
 .dark ::selection {
@@ -147,7 +148,7 @@ body::before {
 /* Typography utility classes */
 .text-display {
   font-family: var(--font-display);
-  letter-spacing: 0.02em;
+  letter-spacing: -0.025em;
 }
 
 /* Focus ring */
@@ -247,7 +248,7 @@ body::before {
 .prose-dark ul, .prose-dark ol { padding-left: 1.5em; }
 .prose-dark li { margin-bottom: 0.3em; }
 .prose-dark code {
-  background: #e5e7eb;
+  background: #ebe4d8;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.9em;

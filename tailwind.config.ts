@@ -22,9 +22,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["Russo One", "sans-serif"],
-        heading: ["Outfit", "sans-serif"],
-        body: ["Manrope", "sans-serif"],
+        display: ["var(--font-display)", "Georgia", "serif"],
+        heading: ["var(--font-body)", "sans-serif"],
+        body: ["var(--font-body)", "sans-serif"],
       },
     },
   },

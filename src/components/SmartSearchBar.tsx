@@ -12,11 +12,11 @@ interface Suggestion {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  "OBD Code": "bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",
-  "Repair Cost": "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800",
-  "Warning Light": "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
-  "Diagnosis": "bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-800",
-  "Symptom": "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+  "OBD Code": "bg-severity-caution-bg text-severity-caution border-severity-caution-border",
+  "Repair Cost": "bg-primary/10 text-primary border-primary/20",
+  "Warning Light": "bg-severity-critical-bg text-severity-critical border-severity-critical-border",
+  "Diagnosis": "bg-surface-2 text-text-primary border-surface-border",
+  "Symptom": "bg-severity-info-bg text-severity-info border-severity-info-border",
 };
 
 export default function SmartSearchBar() {
@@ -83,7 +83,7 @@ export default function SmartSearchBar() {
   };
 
   return (
-    <div ref={containerRef} className="relative mt-6 sm:mt-10 max-w-2xl mx-auto">
+    <div ref={containerRef} className="relative mt-7 w-full max-w-2xl">
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3" role="search">
         <div className="relative flex-1">
           <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" width={20} height={20}>
@@ -97,18 +97,18 @@ export default function SmartSearchBar() {
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => { if (suggestions.length > 0) setOpen(true); }}
             onKeyDown={handleKeyDown}
-            placeholder="Search symptoms, repairs, codes..."
-            aria-label="Search symptoms, repairs, or OBD codes"
-            className="w-full h-14 pl-12 pr-5 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+            placeholder="Search a symptom, OBD code, repair, or vehicle..."
+            aria-label="Search symptoms, repairs, codes, or vehicles"
+            className="h-14 w-full rounded-md border border-surface-border bg-surface-1 pl-12 pr-5 text-base text-text-primary transition-colors placeholder:text-text-muted focus:border-primary focus:outline-none"
           />
         </div>
-        <button type="submit" className="h-14 px-8 bg-primary text-white font-semibold font-heading rounded-xl hover:bg-primary-glow hover:-translate-y-px transition-all duration-150 shadow-sm shadow-primary/25 text-base sm:shrink-0">
-          Check Now
+        <button type="submit" className="h-14 rounded-md bg-primary px-8 text-sm font-heading font-bold uppercase tracking-[0.08em] text-white transition-colors hover:bg-primary-dark sm:shrink-0">
+          Diagnose
         </button>
       </form>
 
       {open && suggestions.length > 0 && (
-        <div className="absolute z-50 top-full mt-2 w-full bg-surface-1 border border-surface-border rounded-xl shadow-lg overflow-hidden">
+        <div className="absolute top-full z-50 mt-2 w-full overflow-hidden rounded-md border border-surface-border bg-surface-1 shadow-xl">
           {suggestions.map((s, i) => (
             <button
               key={`${s.type}-${s.label}`}

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SmartSearchBar from "@/components/SmartSearchBar";
-import DiagnosisLink from "@/components/DiagnosisLink";
-import Link from "next/link";
 import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -12,139 +11,292 @@ export const metadata: Metadata = {
     "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification.",
   alternates: { canonical: "https://www.autowner.com" },
   openGraph: {
-    siteName: "AutOwner", type: "website",
+    siteName: "AutOwner",
+    type: "website",
     title: "AutOwner — What's Wrong with Your Car?",
-    description: "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification.",
+    description:
+      "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification.",
     images: [DEFAULT_OG_IMAGE_META],
   },
   twitter: {
     card: "summary_large_image",
     title: "Repair Cost Checker & OBD Code Lookup | AutOwner",
-    description: "Check repair costs, verify mechanic quotes, decode warning lights and OBD codes.",
+    description:
+      "Check repair costs, verify mechanic quotes, decode warning lights and OBD codes.",
     images: [DEFAULT_OG_IMAGE],
   },
 };
 
-const tools = [
-  {
-    title: "Symptom Checker",
-    desc: "Tell us your symptoms. We'll find the cause. Get possible OBD codes and repair estimates.",
-    href: "/symptom-checker",
-    accent: "bg-primary",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8" width={32} height={32}>
-        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Repair Costs",
-    desc: "Instant cost estimates for 55+ repairs across 5 vehicle tiers. See labor vs. parts breakdown.",
-    href: "/repair-cost",
-    accent: "bg-blue-500",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8" width={32} height={32}>
-        <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-      </svg>
-    ),
-  },
-  {
-    title: "Quote Checker",
-    desc: "Got a mechanic's quote? Enter it here and compare against real repair cost data.",
-    href: "/quote-checker",
-    accent: "bg-purple-500",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8" width={32} height={32}>
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
-      </svg>
-    ),
-  },
-  {
-    title: "OBD-II Code Decoder",
-    desc: "12,000+ diagnostic trouble codes with symptoms, causes, fixes, and estimated repair costs.",
-    href: "/obd",
-    accent: "bg-amber-500",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8" width={32} height={32}>
-        <rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01" />
-      </svg>
-    ),
-  },
-  {
-    title: "Warning Lights Guide",
-    desc: "Identify 50 dashboard warning symbols. Learn what they mean, how urgent they are, and what to do.",
-    href: "/warning-lights",
-    accent: "bg-red-500",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8" width={32} height={32}>
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
-      </svg>
-    ),
-  },
-  {
-    title: "Recall Check",
-    desc: "Search NHTSA safety recalls by make, model, and year. Find out if your vehicle has open recalls.",
-    href: "/recall-check",
-    accent: "bg-emerald-500",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8" width={32} height={32}>
-        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-      </svg>
-    ),
-  },
+const symptomLinks = [
+  { label: "Unusual noise", href: "/symptoms/car-shaking-at-idle", detail: "Knocking, grinding, humming" },
+  { label: "Warning light", href: "/symptoms/check-engine-light-on", detail: "Decode the dashboard" },
+  { label: "Strange smell", href: "/symptoms/burning-smell", detail: "Fuel, oil, coolant, rubber" },
+  { label: "Will not start", href: "/symptoms/car-wont-start", detail: "Battery, starter, fuel, ignition" },
+  { label: "Braking issue", href: "/symptoms/brake-pedal-goes-to-floor", detail: "Pedal, noise, pulling" },
+  { label: "Fluid leak", href: "/symptoms/brake-fluid-leak", detail: "Identify the fluid first" },
 ];
 
-export default async function HomePage() {
+const sectionLabel = "text-[11px] font-heading font-bold uppercase tracking-[0.14em] text-text-muted";
+
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-surface-0 flex flex-col">
+    <div className="flex min-h-screen flex-col bg-surface-0">
       <Navbar />
 
-      {/* Hero */}
-      <section className="relative w-full bg-surface-0 pt-12 sm:pt-24 pb-10 sm:pb-16">
-        <div className="max-w-4xl mx-auto px-5 text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display text-text-primary tracking-wide leading-tight">
-            What's wrong with{" "}
-            <span className="text-primary">your car</span>
-            <span className="text-text-muted">?</span>
-          </h1>
-          <SmartSearchBar />
-          <DiagnosisLink />
-        </div>
-      </section>
+      <main className="flex-1">
+        <section className="border-b border-surface-border">
+          <div className="mx-auto grid max-w-[1180px] gap-12 px-5 pb-16 pt-14 sm:pt-20 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:pb-20">
+            <div>
+              <p className={sectionLabel}>Vehicle symptoms / diagnostics</p>
+              <h1 className="mt-4 max-w-[680px] font-display text-5xl font-semibold leading-[0.98] tracking-[-0.045em] text-text-primary sm:text-6xl lg:text-[72px]">
+                What&apos;s wrong with your car?
+              </h1>
+              <p className="mt-6 max-w-xl text-base leading-7 text-text-secondary sm:text-lg">
+                Start with the symptom, warning light, or trouble code. AutOwner
+                helps you understand the likely cause, what it should cost, and
+                what to do next.
+              </p>
+              <SmartSearchBar />
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-heading font-semibold">
+                <Link prefetch={false} href="/symptom-checker" className="text-primary hover:underline">
+                  Use the symptom wizard
+                </Link>
+                <Link prefetch={false} href="/obd" className="text-text-secondary hover:text-text-primary hover:underline">
+                  Look up an OBD code
+                </Link>
+                <Link prefetch={false} href="/quote-checker" className="text-text-secondary hover:text-text-primary hover:underline">
+                  Check a mechanic&apos;s quote
+                </Link>
+              </div>
+            </div>
 
-      {/* Tool Cards */}
-      <section className="w-full bg-surface-0">
-        <div className="max-w-5xl mx-auto px-5 pb-16">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {tools.map((tool, i) => {
-              const isPrimary = i === 0;
-              return (
-              <Link
-                key={tool.href}
-                href={tool.href}
-                className={`group flex flex-col p-4 sm:p-6 bg-surface-1 rounded-2xl border transition-all duration-200 ${
-                  isPrimary
-                    ? "border-primary/20 hover:border-primary/40 hover:shadow-lg hover:-translate-y-1"
-                    : "border-surface-border hover:border-primary/20 hover:shadow-md hover:-translate-y-0.5"
-                }`}
-              >
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${tool.accent} text-white flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-200 [&_svg]:w-5 [&_svg]:h-5 sm:[&_svg]:w-6 sm:[&_svg]:h-6`}>
-                  {tool.icon}
+            <div className="overflow-hidden rounded-lg border border-text-secondary/20 bg-text-primary text-surface-1 shadow-[12px_12px_0_0_#d8d0c2]">
+              <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
+                <span className="text-[10px] font-heading font-bold uppercase tracking-[0.15em] text-white/55">
+                  Diagnostic preview
+                </span>
+                <span className="rounded-sm bg-primary px-2 py-1 text-[10px] font-heading font-bold uppercase tracking-wider text-white">
+                  Service soon
+                </span>
+              </div>
+              <div className="p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-6">
+                  <div>
+                    <p className="font-mono text-4xl font-bold tracking-tight text-primary">P0420</p>
+                    <p className="mt-2 max-w-sm text-sm leading-6 text-white/75">
+                      Catalyst system efficiency below threshold
+                    </p>
+                  </div>
+                  <svg viewBox="0 0 48 48" className="h-12 w-12 shrink-0 text-primary" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                    <circle cx="24" cy="24" r="18" />
+                    <path d="M15 27h5l3-9 4 15 3-6h3" />
+                  </svg>
                 </div>
-                <h2 className={`text-sm sm:text-base font-heading font-bold text-text-primary mb-1 sm:mb-2 group-hover:text-primary transition-colors ${isPrimary ? "text-primary" : ""}`}>
-                  {tool.title}
+
+                <div className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-white/10 bg-white/10">
+                  {[
+                    ["Likely area", "Catalytic converter"],
+                    ["Verify first", "Check for exhaust leaks"],
+                    ["Typical repair", "$400–$1,500"],
+                    ["Best next step", "Diagnose before replacing"],
+                  ].map(([label, value]) => (
+                    <div key={label} className="bg-text-primary p-4">
+                      <p className="text-[10px] font-heading font-bold uppercase tracking-[0.12em] text-white/45">{label}</p>
+                      <p className="mt-1.5 text-sm font-heading font-semibold text-white/90">{value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <Link
+                  prefetch={false}
+                  href="/obd/p0420"
+                  className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-sm font-heading font-semibold text-white transition-colors hover:text-primary"
+                >
+                  See the complete diagnostic path
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-surface-border bg-surface-1">
+          <div className="mx-auto max-w-[1180px] px-5 py-14 sm:py-16">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+              <div>
+                <p className={sectionLabel}>Choose your starting point</p>
+                <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.03em] text-text-primary sm:text-4xl">
+                  The shortest route to a useful answer.
                 </h2>
-                <p className="text-xs sm:text-sm text-text-muted leading-relaxed flex-1 line-clamp-2 sm:line-clamp-none">{tool.desc}</p>
-                <span className="inline-flex items-center gap-1.5 mt-3 sm:mt-4 text-xs sm:text-sm font-medium text-primary font-heading group-hover:gap-2 transition-all duration-200">
-                  {isPrimary ? "Check Symptoms" : "Get started"}
-                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+              </div>
+              <p className="max-w-md text-sm leading-6 text-text-secondary">
+                Start with the symptom when you do not know the cause. Start with a
+                code when the scanner already found one.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-3 lg:grid-cols-12">
+              <Link
+                prefetch={false}
+                href="/symptom-checker"
+                className="group flex min-h-64 flex-col justify-between rounded-lg bg-text-primary p-6 text-surface-1 lg:col-span-5"
+              >
+                <div>
+                  <span className="text-[10px] font-heading font-bold uppercase tracking-[0.15em] text-primary">Primary diagnostic tool</span>
+                  <h3 className="mt-5 font-display text-3xl font-semibold tracking-[-0.03em]">Tell us what the car is doing.</h3>
+                  <p className="mt-3 max-w-md text-sm leading-6 text-white/65">
+                    Select the symptoms, location, and driving conditions. We will show likely causes and steps to verify them.
+                  </p>
+                </div>
+                <span className="mt-8 inline-flex items-center gap-2 text-sm font-heading font-bold text-white group-hover:text-primary">
+                  Start a diagnosis <span aria-hidden="true">→</span>
                 </span>
               </Link>
-              );
-            })}
+
+              <Link
+                prefetch={false}
+                href="/obd"
+                className="group rounded-lg border border-surface-border bg-surface-0 p-6 transition-colors hover:border-primary/50 lg:col-span-4"
+              >
+                <p className={sectionLabel}>12,100+ trouble codes</p>
+                <h3 className="mt-4 font-display text-3xl font-semibold tracking-[-0.03em] text-text-primary">Decode a fault code.</h3>
+                <p className="mt-3 text-sm leading-6 text-text-secondary">
+                  Meaning, likely causes, verification steps, repair ranges, and whether the vehicle is safe to drive.
+                </p>
+                <span className="mt-8 inline-flex items-center gap-2 text-sm font-heading font-bold text-primary">
+                  Search OBD codes <span aria-hidden="true">→</span>
+                </span>
+              </Link>
+
+              <Link
+                prefetch={false}
+                href="/repair-cost"
+                className="group rounded-lg border border-surface-border bg-surface-0 p-6 transition-colors hover:border-primary/50 lg:col-span-3"
+              >
+                <p className={sectionLabel}>Repair estimates</p>
+                <h3 className="mt-4 font-display text-3xl font-semibold tracking-[-0.03em] text-text-primary">Know the real range.</h3>
+                <p className="mt-3 text-sm leading-6 text-text-secondary">
+                  Compare parts, labor, and typical prices across vehicle classes.
+                </p>
+                <span className="mt-8 inline-flex items-center gap-2 text-sm font-heading font-bold text-primary">
+                  Browse repairs <span aria-hidden="true">→</span>
+                </span>
+              </Link>
+            </div>
+
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              {[
+                ["Check a quote", "/quote-checker", "See whether a mechanic's estimate is fair."],
+                ["Warning lights", "/warning-lights", "Understand urgency before you drive."],
+                ["Recall lookup", "/recall-check", "Search open safety recalls by vehicle."],
+              ].map(([title, href, description]) => (
+                <Link
+                  prefetch={false}
+                  key={href}
+                  href={href}
+                  className="group flex items-start justify-between gap-5 rounded-md border border-surface-border px-4 py-4 transition-colors hover:bg-surface-2"
+                >
+                  <div>
+                    <h3 className="text-sm font-heading font-bold text-text-primary">{title}</h3>
+                    <p className="mt-1 text-xs leading-5 text-text-muted">{description}</p>
+                  </div>
+                  <span className="text-primary transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section>
+          <div className="mx-auto max-w-[1180px] px-5 py-14 sm:py-16">
+            <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr]">
+              <div>
+                <p className={sectionLabel}>Start with what you notice</p>
+                <h2 className="mt-2 max-w-sm font-display text-4xl font-semibold leading-tight tracking-[-0.035em] text-text-primary">
+                  You do not need to know the part before you start.
+                </h2>
+                <p className="mt-4 max-w-sm text-sm leading-6 text-text-secondary">
+                  Begin with the observation. The diagnostic path will narrow the
+                  system, likely cause, and safest next step.
+                </p>
+                <Link prefetch={false} href="/symptoms" className="mt-6 inline-flex text-sm font-heading font-bold text-primary hover:underline">
+                  Browse all symptoms →
+                </Link>
+              </div>
+              <div className="grid border-l border-t border-surface-border sm:grid-cols-2">
+                {symptomLinks.map((item) => (
+                  <Link
+                    prefetch={false}
+                    key={item.href}
+                    href={item.href}
+                    className="group min-h-32 border-b border-r border-surface-border p-5 transition-colors hover:bg-surface-1"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <h3 className="font-heading text-base font-bold text-text-primary group-hover:text-primary">{item.label}</h3>
+                      <span className="text-text-muted transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+                    </div>
+                    <p className="mt-3 text-xs leading-5 text-text-muted">{item.detail}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-surface-border bg-surface-1">
+          <div className="mx-auto grid max-w-[1180px] gap-8 px-5 py-14 lg:grid-cols-2">
+            <div>
+              <p className={sectionLabel}>Repair cost watch</p>
+              <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.03em] text-text-primary">What common repairs typically cost.</h2>
+              <div className="mt-5 divide-y divide-surface-border border-y border-surface-border">
+                {[
+                  ["Battery replacement", "$90–$450", "/repair-cost/battery"],
+                  ["Alternator replacement", "$400–$900", "/repair-cost/alternator"],
+                  ["Brake caliper replacement", "$300–$800", "/repair-cost/brake-caliper"],
+                ].map(([name, cost, href]) => (
+                  <Link prefetch={false} key={href} href={href} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 py-4 text-sm transition-colors hover:text-primary">
+                    <span className="font-heading font-semibold text-text-primary">{name}</span>
+                    <span className="font-mono text-xs text-text-secondary">{cost}</span>
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className={sectionLabel}>Vehicle research</p>
+              <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.03em] text-text-primary">Start with the car you own.</h2>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                {[
+                  ["Ford F-150", "/vehicles/ford/f-150"],
+                  ["Honda Civic", "/vehicles/honda/civic"],
+                  ["Toyota Camry", "/vehicles/toyota/camry"],
+                ].map(([name, href]) => (
+                  <Link prefetch={false} key={href} href={href} className="flex min-h-28 flex-col justify-between rounded-md border border-surface-border bg-surface-0 p-4 transition-colors hover:border-primary/50">
+                    <span className="font-display text-xl font-semibold text-text-primary">{name}</span>
+                    <span className="text-xs font-heading font-bold text-primary">Costs, codes &amp; issues →</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div className="mx-auto max-w-[1180px] px-5 py-12">
+            <div className="grid gap-6 rounded-lg border border-surface-border bg-surface-1 p-6 sm:grid-cols-[1fr_auto] sm:items-center sm:p-8">
+              <div>
+                <p className={sectionLabel}>How the information is built</p>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-text-secondary">
+                  AutOwner combines structured trouble-code and repair data with AI-assisted explanations. Cost ranges are estimates, and safety-critical problems require an in-person inspection.
+                </p>
+              </div>
+              <Link prefetch={false} href="/about" className="text-sm font-heading font-bold text-primary hover:underline">
+                About our method →
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
 
       <Footer />
     </div>

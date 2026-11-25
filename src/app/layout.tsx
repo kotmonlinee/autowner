@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/react";
-import { russoOne, outfit, manrope } from "@/lib/fonts";
+import { newsreader, manrope } from "@/lib/fonts";
 import "./globals.css";
 import CookieBanner from "@/components/CookieBanner";
 import BackToTop from "@/components/BackToTop";
@@ -46,8 +46,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0b0f" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f0e8" },
   ],
 };
 
@@ -61,26 +60,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"WebSite","url":"https://www.autowner.com","potentialAction":{"@type":"SearchAction","target":"https://www.autowner.com/search?q={search_term_string}","query-input":"required name=search_term_string"}}) }} />
         {/* Critical inline styles — prevent FOUC when CSS chunk is delayed */}
         <style dangerouslySetInnerHTML={{ __html: `
-          html,body{margin:0;padding:0;background:#f8f9fa;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+          html,body{margin:0;padding:0;background:#f4f0e8;color:#141617;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
           .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
           .min-h-screen{min-height:100vh}
           .flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-center{justify-content:center}
           @keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}
         `}} />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('theme');
-                  if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.add('dark');
-                  }
-                } catch(e) {}
-              })();
-            `,
-          }}
-        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -100,7 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className={`${russoOne.variable} ${outfit.variable} ${manrope.variable} bg-surface-0 text-text-primary min-h-screen font-body antialiased relative`}>
+      <body className={`${newsreader.variable} ${manrope.variable} bg-surface-0 text-text-primary min-h-screen font-body antialiased relative`}>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-lg focus:text-sm focus:font-semibold focus:shadow-lg"
