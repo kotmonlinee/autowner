@@ -16,9 +16,16 @@ export const metadata: Metadata = {
   description:
     "AI-powered car diagnosis, OBD-II code lookup, repair cost estimates, and mechanic quote verification. Know what's wrong with your car and what it should cost to fix.",
   icons: {
-    icon: "/favicon.ico",
-    apple: "/favicon.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon.ico",
   },
+  manifest: "/manifest.webmanifest",
   openGraph: {
     siteName: "AutOwner",
     type: "website",
@@ -56,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.clarity.ms" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"Organization","name":"AutOwner","url":"https://www.autowner.com","logo":"https://www.autowner.com/icon-512.svg"}) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"Organization","name":"AutOwner","url":"https://www.autowner.com","logo":"https://www.autowner.com/icon-512.png"}) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"WebSite","url":"https://www.autowner.com","potentialAction":{"@type":"SearchAction","target":"https://www.autowner.com/search?q={search_term_string}","query-input":"required name=search_term_string"}}) }} />
         {/* Critical inline styles — prevent FOUC when CSS chunk is delayed */}
         <style dangerouslySetInnerHTML={{ __html: `

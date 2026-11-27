@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BrandMark from "./BrandMark";
 
 const groups = [
   {
@@ -43,13 +44,7 @@ export default function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(4,1fr)]">
           <div className="max-w-sm">
             <Link prefetch={false} href="/" className="inline-flex items-center gap-2.5" aria-label="AutOwner home">
-              <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-text-primary text-surface-1">
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M5 17h14M6.5 10.5 9 7l3 2.4 3-2.4 2.5 3.5v5h-11v-5Z" />
-                  <circle cx="9" cy="16" r="1" />
-                  <circle cx="15" cy="16" r="1" />
-                </svg>
-              </span>
+              <BrandMark className="h-8 w-8 shrink-0" />
               <span className="font-display text-2xl font-semibold text-text-primary">AutOwner</span>
             </Link>
             <p className="mt-4 text-sm leading-6 text-text-secondary">

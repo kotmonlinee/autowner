@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import SearchBar from "./SearchBar";
+import BrandMark from "./BrandMark";
 
 const primaryLinks = [
   { label: "Diagnose", href: "/symptom-checker" },
@@ -31,13 +32,7 @@ export default function Navbar() {
       <nav className="sticky top-0 z-50 border-b border-surface-border bg-surface-0/95 backdrop-blur-xl" aria-label="Main navigation">
         <div className="mx-auto flex h-16 max-w-[1180px] items-center gap-5 px-5">
           <Link prefetch={false} href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="AutOwner home">
-            <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-text-primary text-surface-1">
-              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M5 17h14M6.5 10.5 9 7l3 2.4 3-2.4 2.5 3.5v5h-11v-5Z" />
-                <circle cx="9" cy="16" r="1" />
-                <circle cx="15" cy="16" r="1" />
-              </svg>
-            </span>
+            <BrandMark className="h-8 w-8 shrink-0" />
             <span className="font-display text-[25px] font-semibold tracking-[-0.035em] text-text-primary">AutOwner</span>
           </Link>
 

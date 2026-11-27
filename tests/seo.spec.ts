@@ -1,6 +1,25 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('SEO and Static Pages', () => {
+  test('brand icons and manifest are available', async ({ request }) => {
+    for (const path of [
+      '/favicon.ico',
+      '/favicon.svg',
+      '/icon-192.png',
+      '/icon-512.png',
+      '/apple-touch-icon.png',
+      '/manifest.webmanifest',
+    ]) {
+      const response = await request.get(path);
+      expect(response.status(), path).toBe(200);
+    }
+
+    const svg = await (await request.get('/favicon.svg')).text();
+    expect(svg).toContain('#e6531d');
+    expect(svg).toContain('#141617');
+    expect(svg).not.toContain('#2563eb');
+  });
+
   const phaseThreeIndexablePages = [
     '/vehicles/mitsubishi/outlander',
     '/warning-lights/battery-charging',
