@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Sparkles, ChevronRight } from "lucide-react";
 import { fetchVehicleMakes, fetchVehicleModels } from "@/lib/data/browser";
 import { STEP1, STEP2, type Step2Option, type Option } from "@/lib/diagnosis-tree";
@@ -35,15 +34,19 @@ export default function DiagnosisWizard({ prefilledSymptom }: { prefilledSymptom
 
   useEffect(() => { fetchVehicleMakes().then(setMakes); }, []);
   useEffect(() => {
-    if (!makeSlug) { setModels([]); return; }
-    setModelsLoading(true);
-    fetchVehicleModels(makeSlug).then(d => {
-      setModels(d.map((m: any) => ({ name: m.name, slug: m.slug })));
-      setModelsLoading(false);
-    });
+    if (!makeSlug) return;
+    let cancelled = false;
+    fetchVehicleModels(makeSlug)
+      .then(data => {
+        if (cancelled) return;
+        setModels(data.map((model: { name: string; slug: string }) => ({ name: model.name, slug: model.slug })));
+        setModelsLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) setModelsLoading(false);
+      });
+    return () => { cancelled = true; };
   }, [makeSlug]);
-
-  const reset = () => { setStep(0); setS1(null); setS2(null); setS3(null); setError(""); setCelStatus(""); setDuration(""); setMileage(""); setRecentWork(""); setExtraNotes(""); };
 
   const handleDiagnose = async () => {
     if (!s1 || !s2 || !s3) return;
@@ -67,231 +70,357 @@ export default function DiagnosisWizard({ prefilledSymptom }: { prefilledSymptom
     finally { setLoading(false); }
   };
 
-  const selectedPath = [s1, s2, s3].filter(Boolean);
-  const StepIndicator = () => (
-    <div className="flex items-center gap-2 mb-6 text-xs font-heading text-text-muted">
-      <span className="text-primary font-bold">Step {step + 1}/4</span>
-      <span className="text-text-muted">·</span>
-      <span>{step === 0 ? "What" : step === 1 ? "Where" : step === 2 ? "When" : "Vehicle & Diagnosis"}</span>
-    </div>
-  );
+  const stepLabels = [
+    s1?.label ?? "What you notice",
+    s2?.label ?? "Where it happens",
+    s3?.label ?? "When it happens",
+    makeName || "Vehicle & context",
+  ];
 
   return (
-    <div className="relative">
-      {/* Loading overlay — masks the entire wizard while AI is working */}
+    <section className="relative overflow-hidden border-y border-surface-border bg-surface-1" aria-label="Guided symptom diagnosis">
       {loading && (
-        <div className="absolute inset-0 z-50 flex items-start justify-center pt-20">
-          <div className="absolute inset-0 bg-surface-0/80 backdrop-blur-sm rounded-2xl" />
-          <div className="relative bg-surface-1 border border-surface-border rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center animate-in fade-in zoom-in duration-300">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <svg className="w-8 h-8 text-primary animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width={32} height={32}>
-                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
+        <div className="absolute inset-0 z-50 flex min-h-[430px] items-start justify-center bg-surface-0/85 p-5 backdrop-blur-sm">
+          <div className="mt-20 w-full max-w-md border border-surface-border border-l-4 border-l-primary bg-text-primary p-7 text-center text-surface-1">
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center border border-primary/40 bg-primary/10">
+              <Sparkles className="h-7 w-7 animate-pulse text-primary" />
             </div>
-            <h3 className="text-lg font-heading font-bold text-text-primary mb-2">Analyzing your symptoms...</h3>
-            <p className="text-sm text-text-muted mb-4">Our AI is reviewing your symptoms{makeName ? ` and ${makeName} ${modelName} repair data` : ""} to find the most likely cause. This usually takes 5–10 seconds.</p>
-            <div className="flex gap-1.5 justify-center">
+            <h3 className="font-display text-3xl font-semibold tracking-[-0.025em] text-white">Building the diagnostic path</h3>
+            <p className="mt-3 text-sm leading-6 text-white/65">
+              Reviewing your symptom path{makeName ? ` against ${makeName} ${modelName} data` : ""} for likely causes, checks, and repair ranges.
+            </p>
+            <div className="mt-5 flex justify-center gap-1.5" aria-hidden="true">
               {[0, 1, 2].map(i => (
-                <div key={i} className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                <span key={i} className="h-2 w-2 animate-bounce bg-primary" style={{ animationDelay: `${i * 0.15}s` }} />
               ))}
             </div>
           </div>
         </div>
       )}
 
-      {/* Prefilled symptom banner */}
-      {prefilledSymptom && (
-        <div className="mb-5 flex items-center gap-2 px-4 py-2.5 bg-primary/5 border border-primary/20 rounded-xl text-sm">
-          <svg className="w-4 h-4 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
-            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-          <span className="text-text-secondary">Diagnosing: <strong className="text-text-primary">{prefilledSymptom}</strong></span>
+      <div className="border-b border-white/10 bg-text-primary text-surface-1">
+        <div className="flex items-end justify-between gap-5 border-b border-white/10 px-5 py-4 sm:px-7">
+          <div>
+            <p className="text-[9px] font-heading font-bold uppercase tracking-[0.16em] text-primary">Guided diagnosis</p>
+            <p className="mt-1 font-display text-2xl font-semibold tracking-[-0.025em] text-white">
+              {step === 3 ? "Add context, then run the diagnosis" : "Narrow the problem one answer at a time"}
+            </p>
+          </div>
+          <p className="shrink-0 font-mono text-xs text-white/55" aria-live="polite">
+            {String(step + 1).padStart(2, "0")} / 04
+          </p>
         </div>
-      )}
 
-      {/* Step 1: Symptom type */}
-      {step === 0 && (
-        <div>
-          <StepIndicator />
-          <h2 className="text-xl font-heading font-bold text-text-primary mb-1">What do you notice?</h2>
-          <p className="text-sm text-text-muted mb-5">Pick the symptom that best describes what's happening</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-            {STEP1.map((o, i) => {
-              const emojis = ["🔊","👃","💨","📳","🔑","🐌","💡","🌡️","💧","🛞","🔋","❄️","⚙️"];
-              return (
-                <button key={o.key} onClick={() => { setS1(o); setStep(1); }}
-                  className="group flex items-center gap-4 border border-l-4 border-surface-border border-l-primary bg-surface-1 p-5 text-left transition-colors hover:bg-surface-2">
-                  <span className="text-3xl shrink-0">{emojis[i]}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-base font-heading font-bold text-text-primary group-hover:text-primary transition-colors">{o.label}</div>
-                    <div className="text-xs text-text-muted mt-1">
-                      {["Clicking, squealing, grinding, or rattling","Sweet, burning, fuel, or musty smells","White, blue, or black smoke from exhaust","Shaking steering wheel, body, or seats","Hard to start, won't crank, clicks","Stalling, rough idle, or power loss","Check engine, ABS, battery, or oil light","Overheating, gauge high, or heater cold","Oil, coolant, or water under the car","Brakes feel soft, steering is heavy","Battery dead, dim lights, flickering","AC blows warm, weak airflow, smells","Slipping, jerky shifts, or delayed engagement"][i]}
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+        <ol className="grid grid-cols-4" aria-label="Diagnosis progress">
+          {WIZARD_STEPS.map((wizardStep, index) => {
+            const isCurrent = step === index;
+            const isComplete = step > index;
+            return (
+              <li
+                key={wizardStep.label}
+                aria-current={isCurrent ? "step" : undefined}
+                className={`min-w-0 border-r border-white/10 px-2.5 py-3 last:border-r-0 sm:px-4 ${
+                  isCurrent ? "bg-primary text-white" : isComplete ? "bg-white/5" : ""
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1">
+                  <span className={`font-mono text-[10px] font-bold ${isCurrent ? "text-white" : "text-primary"}`}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className={`text-[9px] font-heading font-bold uppercase tracking-[0.08em] ${
+                    isCurrent ? "text-white/70" : isComplete ? "text-primary" : "text-white/35"
+                  }`}>
+                    {isComplete ? "Set" : isCurrent ? "Now" : "Next"}
+                  </span>
+                </div>
+                <p className={`mt-2 text-[10px] font-heading font-bold uppercase tracking-[0.08em] sm:text-[11px] ${
+                  isCurrent ? "text-white" : isComplete ? "text-white/85" : "text-white/45"
+                }`}>
+                  {wizardStep.label}
+                </p>
+                <p className={`mt-1 truncate text-[9px] sm:text-[10px] ${isCurrent ? "text-white/75" : "text-white/40"}`}>
+                  {stepLabels[index]}
+                </p>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+
+      <div className="p-5 sm:p-7">
+        {prefilledSymptom && step === 0 && (
+          <div className="mb-6 flex items-start gap-3 border-l-4 border-primary bg-primary/5 p-4">
+            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <p className="text-sm leading-6 text-text-secondary">
+              <span className="font-heading font-bold text-text-primary">Starting from your lookup:</span>{" "}
+              {prefilledSymptom}
+            </p>
+          </div>
+        )}
+
+        {step === 0 && (
+          <div>
+            <QuestionHeading
+              step={1}
+              title="What do you notice?"
+              intro="Choose the closest observation. The next screen will narrow where it happens and when it occurs."
+            />
+            <div className="grid border-l border-t border-surface-border sm:grid-cols-2">
+              {STEP1.map((o, i) => (
+                <button
+                  key={o.key}
+                  type="button"
+                  onClick={() => { setS1(o); setStep(1); }}
+                  className="group flex min-h-28 items-start gap-4 border-b border-r border-surface-border bg-surface-0 p-4 text-left transition-colors hover:bg-primary/5 sm:p-5"
+                >
+                  <span className="font-mono text-xs font-bold text-primary">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-heading text-base font-bold text-text-primary transition-colors group-hover:text-primary">{o.label}</span>
+                    <span className="mt-1.5 block text-xs leading-5 text-text-muted">{STEP1_DESCRIPTIONS[i]}</span>
+                  </span>
+                  <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
                 </button>
-              );
-            })}
+              ))}
+            </div>
+            <p className="mt-4 text-xs leading-5 text-text-muted">Not sure which one fits? Choose the closest match. Vehicle details can be added before the final diagnosis.</p>
           </div>
-          <SelectedPath items={selectedPath} />
-        </div>
-      )}
+        )}
 
-      {/* Step 2: Location/Specific */}
-      {step === 1 && s1 && (
-        <div>
-          <StepIndicator />
-          <button onClick={() => { setStep(0); setS2(null); }} className="text-xs text-text-muted hover:text-primary transition-colors font-heading mb-3 inline-flex items-center gap-1">← Back</button>
-          <h2 className="text-xl font-heading font-bold text-text-primary mb-1">Where is it coming from?</h2>
-          <p className="text-sm text-text-muted mb-5">You selected: <strong className="text-text-primary">{s1.label}</strong></p>
-          <div className="grid grid-cols-1 gap-2 mb-6">
-            {(STEP2[s1.key] ?? []).map(o => (
-              <button key={o.key} onClick={() => { setS2(o); setStep(2); }}
-                className="flex items-center justify-between gap-3 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all text-left group">
-                <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">{o.label}</span>
-                <ChevronRight className="w-4 h-4 text-text-muted shrink-0" />
-              </button>
-            ))}
-          </div>
-          <SelectedPath items={selectedPath} />
-        </div>
-      )}
-
-      {/* Step 3: When */}
-      {step === 2 && s1 && s2 && (
-        <div>
-          <StepIndicator />
-          <button onClick={() => { setStep(1); setS3(null); }} className="text-xs text-text-muted hover:text-primary transition-colors font-heading mb-3 inline-flex items-center gap-1">← Back</button>
-          <h2 className="text-xl font-heading font-bold text-text-primary mb-1">When does it happen?</h2>
-          <p className="text-sm text-text-muted mb-5">{s1.label} · {s2.label}</p>
-          <div className="grid grid-cols-1 gap-2 mb-6">
-            {s2.step3s.map(o => (
-              <button key={o.key} onClick={() => { setS3(o); setStep(3); }}
-                className="flex items-center justify-between gap-3 p-4 bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all text-left group">
-                <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors">{o.label}</span>
-                <ChevronRight className="w-4 h-4 text-text-muted shrink-0" />
-              </button>
-            ))}
-          </div>
-          <SelectedPath items={selectedPath} />
-        </div>
-      )}
-
-      {/* Step 4: Vehicle + Diagnose */}
-      {step === 3 && s1 && s2 && s3 && (
-        <div>
-          <StepIndicator />
-          <button onClick={() => { setStep(2); }} className="text-xs text-text-muted hover:text-primary transition-colors font-heading mb-4 inline-flex items-center gap-1">← Back</button>
-
-          <div className="bg-surface-1 rounded-2xl border border-surface-border p-5 mb-6">
-            <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-3">Your Symptoms</h2>
-            <div className="flex flex-wrap items-center gap-1.5">
-              {[s1, s2, s3].map((item, i) => (
-                <span key={i} className="flex items-center gap-1">
-                  {i > 0 && <ChevronRight className="w-3 h-3 text-text-muted" />}
-                  <span className={`px-3 py-2 rounded-lg text-sm font-heading font-semibold ${i === 0 ? "bg-primary/10 text-primary" : i === 1 ? "bg-primary/5 text-primary" : "bg-surface-0 border border-surface-border text-text-primary"}`}>{item!.label}</span>
-                </span>
+        {step === 1 && s1 && (
+          <div className="mx-auto max-w-2xl">
+            <BackButton label="Change symptom" onClick={() => { setStep(0); setS2(null); }} />
+            <QuestionHeading
+              step={2}
+              title="Where is it coming from?"
+              intro="Choose the area that best matches what you see, hear, smell, or feel."
+              context={`Symptom: ${s1.label}`}
+            />
+            <div className="divide-y divide-surface-border border-y border-surface-border">
+              {(STEP2[s1.key] ?? []).map((o, i) => (
+                <ChoiceRow
+                  key={o.key}
+                  index={i}
+                  label={o.label}
+                  onClick={() => { setS2(o); setStep(2); }}
+                />
               ))}
             </div>
           </div>
+        )}
 
-          <div className="bg-primary/5 border-2 border-primary/20 rounded-2xl p-5 mb-6">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <Sparkles className="w-5 h-5 text-primary" />
+        {step === 2 && s1 && s2 && (
+          <div className="mx-auto max-w-2xl">
+            <BackButton label="Change location" onClick={() => { setStep(1); setS3(null); }} />
+            <QuestionHeading
+              step={3}
+              title="When does it happen?"
+              intro="The conditions help distinguish mechanical, electrical, temperature, and driving-related causes."
+              context={`${s1.label} / ${s2.label}`}
+            />
+            <div className="divide-y divide-surface-border border-y border-surface-border">
+              {s2.step3s.map((o, i) => (
+                <ChoiceRow
+                  key={o.key}
+                  index={i}
+                  label={o.label}
+                  onClick={() => { setS3(o); setStep(3); }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === 3 && s1 && s2 && s3 && (
+          <div>
+            <BackButton label="Change conditions" onClick={() => setStep(2)} />
+            <QuestionHeading
+              step={4}
+              title="Add vehicle and context"
+              intro="These details are optional, but they let the diagnosis account for model-specific failures and conditions."
+            />
+
+            <div className="grid gap-6 lg:grid-cols-[0.78fr_1.22fr]">
+              <div className="space-y-6">
+                <div className="bg-text-primary p-5 text-surface-1">
+                  <p className="text-[9px] font-heading font-bold uppercase tracking-[0.14em] text-primary">Your diagnostic path</p>
+                  <ol className="mt-4 divide-y divide-white/10 border-y border-white/10">
+                    {[s1, s2, s3].map((item, i) => (
+                      <li key={i} className="grid grid-cols-[22px_1fr] gap-3 py-3">
+                        <span className="font-mono text-[10px] font-bold text-primary">{String(i + 1).padStart(2, "0")}</span>
+                        <span className="text-xs leading-5 text-white/85">{item.label}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <p className="mt-4 text-[10px] leading-4 text-white/45">Vehicle details below are not required to run the diagnosis.</p>
+                </div>
+
+                <div className="border-l-4 border-primary bg-primary/5 p-5">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <h3 className="font-heading text-sm font-bold text-text-primary">Vehicle details</h3>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-text-secondary">Adding the exact make, model, and year improves model-specific guidance.</p>
+                  <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                    <select value={makeName} onChange={e => {
+                      const m = makes.find(x => x.name === e.target.value);
+                      setMakeName(e.target.value);
+                      setMakeSlug(m?.slug ?? "");
+                      setModelName("");
+                      setModels([]);
+                      setModelsLoading(Boolean(m?.slug));
+                    }} aria-label="Vehicle make" className="h-11 w-full appearance-none border border-surface-border bg-surface-0 px-3 font-heading text-sm text-text-primary focus:border-primary focus:outline-none">
+                      <option value="">Select make</option>
+                      {makes.map(m => <option key={m.slug} value={m.name}>{m.name}</option>)}
+                    </select>
+                    <select value={modelName} onChange={e => setModelName(e.target.value)} disabled={!models.length || modelsLoading} aria-label="Vehicle model" className="h-11 w-full appearance-none border border-surface-border bg-surface-0 px-3 font-heading text-sm text-text-primary focus:border-primary focus:outline-none disabled:opacity-50">
+                      <option value="">{modelsLoading ? "Loading models..." : makeName ? "Select model" : "Select make first"}</option>
+                      {models.map(m => <option key={m.slug} value={m.name}>{m.name}</option>)}
+                    </select>
+                    <select value={year} onChange={e => setYear(e.target.value)} aria-label="Vehicle year" className="h-11 w-full appearance-none border border-surface-border bg-surface-0 px-3 font-heading text-sm text-text-primary focus:border-primary focus:outline-none">
+                      <option value="">Select year</option>
+                      {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                  </div>
+                </div>
               </div>
+
               <div>
-                <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider">Add Your Vehicle for Better Results</h2>
-                <p className="text-xs text-text-secondary mt-1">Telling us what you drive makes the diagnosis <strong className="text-primary">significantly more accurate</strong> — the AI can factor in model-specific issues, recall history, and real repair costs for your exact car.</p>
+                <ContextGroup
+                  label="Check engine light"
+                  options={[{ v: "off", l: "Off" }, { v: "on", l: "On" }, { v: "flashing", l: "Flashing" }]}
+                  value={celStatus}
+                  onChange={(value) => setCelStatus(celStatus === value ? "" : value)}
+                />
+                <ContextGroup
+                  label="How long has this been happening?"
+                  options={[{ v: "just_started", l: "Just started" }, { v: "days", l: "Days" }, { v: "weeks", l: "Weeks+" }]}
+                  value={duration}
+                  onChange={(value) => setDuration(duration === value ? "" : value)}
+                />
+                <ContextGroup
+                  label="Recent repair work?"
+                  options={[{ v: "none", l: "None" }, { v: "yes", l: "Yes" }]}
+                  value={recentWork}
+                  onChange={(value) => setRecentWork(recentWork === value ? "" : value)}
+                />
+
+                <div className="border-b border-surface-border py-4">
+                  <label htmlFor="diagnosis-mileage" className="mb-2 block text-[10px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">Odometer reading</label>
+                  <input id="diagnosis-mileage" type="number" value={mileage} onChange={e => setMileage(e.target.value)}
+                    className="h-11 w-full border border-surface-border bg-surface-0 px-3 font-heading text-sm text-text-primary transition-colors placeholder:text-text-muted focus:border-primary focus:outline-none"
+                    placeholder="e.g., 85000" inputMode="numeric" />
+                </div>
+
+                <div className="border-b border-surface-border py-4">
+                  <label htmlFor="diagnosis-notes" className="mb-2 block text-[10px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">Anything else? Optional</label>
+                  <textarea id="diagnosis-notes" value={extraNotes} onChange={e => setExtraNotes(e.target.value)}
+                    className="w-full resize-none border border-surface-border bg-surface-0 px-3 py-3 font-heading text-sm leading-6 text-text-primary transition-colors placeholder:text-text-muted focus:border-primary focus:outline-none"
+                    rows={3}
+                    placeholder={recentWork === "yes" ? "Describe what was done recently, or add any other notes..." : "e.g., The noise started after the brakes were replaced, or only happens when the engine is warm."}/>
+                </div>
+
+                <div className="mt-5 flex flex-col gap-4 border-l-4 border-primary bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="font-heading text-sm font-bold text-text-primary">Ready to run the diagnosis</p>
+                    <p className="mt-1 text-xs leading-5 text-text-muted">AI will return likely causes, checks, and repair guidance.</p>
+                  </div>
+                  <button type="button" onClick={handleDiagnose} disabled={loading}
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 bg-primary px-6 py-3 font-heading text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50">
+                    <Sparkles className="h-4 w-4" />
+                    {loading ? "Building diagnosis..." : "Run diagnosis"}
+                  </button>
+                </div>
+                {error && <p role="alert" className="mt-3 border-l-4 border-severity-critical bg-severity-critical-bg p-3 text-sm text-severity-critical">{error}</p>}
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <select value={makeName} onChange={e => {
-                const m = makes.find(x => x.name === e.target.value);
-                setMakeName(e.target.value); setMakeSlug(m?.slug ?? ""); setModelName("");
-              }} className="w-full px-4 py-2.5 bg-surface-0 border border-surface-border rounded-xl text-sm text-text-primary focus:border-primary/50 transition-all appearance-none font-heading">
-                <option value="">Select make</option>
-                {makes.map(m => <option key={m.slug} value={m.name}>{m.name}</option>)}
-              </select>
-              <select value={modelName} onChange={e => setModelName(e.target.value)} disabled={!models.length || modelsLoading}
-                className="w-full px-4 py-2.5 bg-surface-0 border border-surface-border rounded-xl text-sm text-text-primary focus:border-primary/50 transition-all appearance-none font-heading disabled:opacity-50">
-                <option value="">{modelsLoading ? "Loading models..." : makeName ? "Select model" : "Select make first"}</option>
-                {models.map(m => <option key={m.slug} value={m.name}>{m.name}</option>)}
-              </select>
-              <select value={year} onChange={e => setYear(e.target.value)}
-                className="w-full px-4 py-2.5 bg-surface-0 border border-surface-border rounded-xl text-sm text-text-primary focus:border-primary/50 transition-all appearance-none font-heading">
-                <option value="">Select year</option>
-                {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-              </select>
-            </div>
           </div>
-
-          <div className="mb-4">
-            <label className="block text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-1.5">Check Engine Light</label>
-            <div className="flex gap-1.5">
-              {[{ v: "off", l: "Off" }, { v: "on", l: "On" }, { v: "flashing", l: "Flashing" }].map(o => (
-                <button key={o.v} type="button" onClick={() => setCelStatus(celStatus === o.v ? "" : o.v)}
-                  className={`flex-1 px-3 py-2.5 rounded-xl text-xs font-heading font-semibold border transition-all ${celStatus === o.v ? "bg-primary text-white border-primary" : "bg-surface-0 border-surface-border text-text-muted hover:border-primary/30"}`}>{o.l}</button>
-              ))}
-            </div>
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-1.5">How long has this been happening?</label>
-            <div className="flex gap-1.5">
-              {[{ v: "just_started", l: "Just started" }, { v: "days", l: "Days" }, { v: "weeks", l: "Weeks+" }].map(o => (
-                <button key={o.v} type="button" onClick={() => setDuration(duration === o.v ? "" : o.v)}
-                  className={`flex-1 px-3 py-2.5 rounded-xl text-xs font-heading font-semibold border transition-all ${duration === o.v ? "bg-primary text-white border-primary" : "bg-surface-0 border-surface-border text-text-muted hover:border-primary/30"}`}>{o.l}</button>
-              ))}
-            </div>
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-1.5">Odometer reading</label>
-            <input type="number" value={mileage} onChange={e => setMileage(e.target.value)}
-              className="w-full px-4 py-2.5 bg-surface-0 border border-surface-border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all font-heading"
-              placeholder="e.g., 85,000 miles" inputMode="numeric" />
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-1.5">Recent repair work?</label>
-            <div className="flex gap-1.5">
-              {[{ v: "none", l: "None" }, { v: "yes", l: "Yes" }].map(o => (
-                <button key={o.v} type="button" onClick={() => setRecentWork(recentWork === o.v ? "" : o.v)}
-                  className={`flex-1 px-3 py-2.5 rounded-xl text-xs font-heading font-semibold border transition-all ${recentWork === o.v ? "bg-primary text-white border-primary" : "bg-surface-0 border-surface-border text-text-muted hover:border-primary/30"}`}>{o.l}</button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-xs font-heading font-bold text-text-primary uppercase tracking-wider mb-1.5">Anything else? (Optional)</label>
-            <textarea value={extraNotes} onChange={e => setExtraNotes(e.target.value)}
-              className="w-full px-4 py-3 bg-surface-0 border border-surface-border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all resize-none"
-              rows={2}
-              placeholder={recentWork === "yes" ? "Describe what was done recently, or add any other notes..." : "e.g., The noise started after I had my brakes replaced last month, or It only happens when the engine is warm..."}/>
-          </div>
-
-          <button onClick={handleDiagnose} disabled={loading}
-            className="w-full sm:w-auto px-8 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-glow transition-all duration-150 disabled:opacity-50 font-heading shadow-sm shadow-primary/20 flex items-center gap-2 justify-center">
-            {loading ? <><span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"/>Checking...</> : <><Sparkles className="w-4 h-4"/>Check Symptoms</>}
-          </button>
-          {error && <p className="text-xs text-red-400 mt-3">{error}</p>}
-        </div>
-      )}
-
-    </div>
+        )}
+      </div>
+    </section>
   );
 }
 
-function SelectedPath({ items }: { items: (Option | null)[] }) {
-  const filtered = items.filter(Boolean) as Option[];
-  if (filtered.length === 0) return null;
+const WIZARD_STEPS = [
+  { label: "Symptom" },
+  { label: "Location" },
+  { label: "Conditions" },
+  { label: "Vehicle" },
+];
+
+const STEP1_DESCRIPTIONS = [
+  "Clicking, squealing, grinding, or rattling",
+  "Sweet, burning, fuel, or musty smells",
+  "White, blue, or black smoke from the exhaust",
+  "Shaking steering wheel, body, or seats",
+  "Hard to start, no crank, or repeated clicking",
+  "Stalling, rough idle, or loss of power",
+  "Check engine, ABS, battery, or oil light",
+  "Overheating, high gauge, or no heater",
+  "Oil, coolant, or water under the car",
+  "Soft brakes, pulling, or heavy steering",
+  "Battery dead, dim lights, or flickering",
+  "Weak airflow, warm AC, or HVAC smell",
+  "Slipping, jerky shifts, or delayed engagement",
+];
+
+function QuestionHeading({ step, title, intro, context }: { step: number; title: string; intro: string; context?: string }) {
   return (
-    <div className="flex items-center gap-2 text-xs text-text-muted font-heading">
-      <span>Selected:</span>
-      {filtered.map((item, i) => (
-        <span key={i} className="flex items-center gap-1">
-          {i > 0 && <span className="text-text-muted">→</span>}
-          <span className="text-text-secondary">{item.label}</span>
+    <header className="mb-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="border border-primary/30 bg-primary/10 px-2.5 py-1 font-mono text-[10px] font-bold text-primary">
+          Question {step} / 4
         </span>
-      ))}
+        {context && <span className="text-[10px] font-heading font-bold uppercase tracking-[0.08em] text-text-muted">{context}</span>}
+      </div>
+      <h2 className="mt-4 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-text-primary sm:text-5xl">{title}</h2>
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-text-secondary">{intro}</p>
+    </header>
+  );
+}
+
+function BackButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="mb-5 inline-flex min-h-11 items-center gap-2 border-b border-surface-border text-xs font-heading font-bold text-text-muted transition-colors hover:border-primary hover:text-primary">
+      <span aria-hidden="true">←</span>
+      {label}
+    </button>
+  );
+}
+
+function ChoiceRow({ index, label, onClick }: { index: number; label: string; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="group flex min-h-14 w-full items-center gap-4 bg-surface-1 py-3 text-left transition-colors hover:bg-primary/5">
+      <span className="font-mono text-[10px] font-bold text-primary">{String(index + 1).padStart(2, "0")}</span>
+      <span className="min-w-0 flex-1 font-heading text-sm font-bold text-text-primary transition-colors group-hover:text-primary">{label}</span>
+      <ChevronRight className="h-4 w-4 shrink-0 text-text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+    </button>
+  );
+}
+
+function ContextGroup({ label, options, value, onChange }: {
+  label: string;
+  options: { v: string; l: string }[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="border-b border-surface-border py-4">
+      <p className="mb-2 text-[10px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">{label}</p>
+      <div className="grid grid-flow-col auto-cols-fr gap-px bg-surface-border">
+        {options.map((option) => (
+          <button
+            key={option.v}
+            type="button"
+            onClick={() => onChange(option.v)}
+            aria-pressed={value === option.v}
+            className={`min-h-10 px-2 text-xs font-heading font-bold transition-colors ${
+              value === option.v ? "bg-primary text-white" : "bg-surface-0 text-text-secondary hover:bg-primary/5 hover:text-primary"
+            }`}
+          >
+            {option.l}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

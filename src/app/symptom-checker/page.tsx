@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DiagnosisWizard from "./DiagnosisWizard";
@@ -9,6 +8,7 @@ import { createServiceSupabase } from "@/lib/supabase-server";
 import { DEFAULT_OG_IMAGE, DEFAULT_OG_IMAGE_META } from "@/lib/constants";
 import Breadcrumbs from "@/components/content/Breadcrumbs";
 import PageHeader from "@/components/content/PageHeader";
+import type { Diagnosis } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -67,7 +67,7 @@ const PAGE_SIZE = 6;
  * so each request no longer costs two database queries.
  */
 const getPopularDiagnoses = unstable_cache(
-  async (page: number): Promise<{ popular: any[]; totalCount: number }> => {
+  async (page: number): Promise<{ popular: Diagnosis[]; totalCount: number }> => {
     const supabase = await createServiceSupabase();
     const [listResult, countResult] = await Promise.all([
       supabase.from("diagnoses")
@@ -88,7 +88,7 @@ const getPopularDiagnoses = unstable_cache(
     }
 
     return {
-      popular: (listResult.data ?? []) as unknown as any[],
+      popular: (listResult.data ?? []) as unknown as Diagnosis[],
       totalCount: countResult.count ?? 0,
     };
   },
@@ -105,7 +105,7 @@ export default async function DiagnosisPage({
   const page = Math.max(1, parseInt(sp.page || "1", 10) || 1);
   const prefilledSymptom = sp.symptom || null;
 
-  let popular: any[] = [];
+  let popular: Diagnosis[] = [];
   let totalCount = 0;
   try {
     const cached = await getPopularDiagnoses(page);
@@ -123,34 +123,24 @@ export default async function DiagnosisPage({
           title="Symptom checker"
           description="Describe what the vehicle is doing, when it happens, and any conditions you have noticed. The guided path narrows likely causes and verification steps."
           aside={
-            <div className="grid grid-cols-2 border border-surface-border bg-surface-1">
-              <div className="border-b border-r border-surface-border p-4">
-                <p className="font-display text-3xl font-semibold text-text-primary">{totalCount.toLocaleString()}</p>
-                <p className="mt-1 text-[9px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">saved diagnoses</p>
+            <div className="border border-surface-border bg-surface-1">
+              <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">
+                <p className="text-[9px] font-heading font-bold uppercase tracking-[0.14em] text-primary">Diagnosis path</p>
+                <span className="font-mono text-[10px] text-text-muted">4 decisions</span>
               </div>
-              <div className="border-b border-surface-border p-4">
-                <p className="font-display text-3xl font-semibold text-text-primary">1</p>
-                <p className="mt-1 text-[9px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">guided path</p>
-              </div>
-              <div className="col-span-2 p-4 text-xs leading-5 text-text-secondary">Start with the observation. Scanner codes can be added when available.</div>
+              <ol className="grid grid-cols-4">
+                {["Symptom", "Location", "Conditions", "Vehicle"].map((label, index) => (
+                  <li key={label} className="border-r border-surface-border px-2 py-3 text-center last:border-r-0">
+                    <span className="block font-mono text-[10px] font-bold text-primary">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="mt-1 block truncate text-[8px] font-heading font-bold uppercase tracking-[0.06em] text-text-muted">{label}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className="border-t border-surface-border p-3 text-[10px] leading-4 text-text-muted">One answer per screen. Vehicle details are optional.</p>
             </div>
           }
         />
         <DiagnosisWizard prefilledSymptom={prefilledSymptom} />
-
-        {/* Diagnoses by Vehicle */}
-        <section className="mb-10 mt-8 border-y border-surface-border bg-surface-1 px-5 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1">
-              <h2 className="text-sm font-heading font-bold text-text-primary uppercase tracking-wider mb-1">Diagnoses by Vehicle</h2>
-              <p className="text-xs text-text-muted">Browse problem diagnoses for your specific make and model.</p>
-            </div>
-            <Link prefetch={false} href="/vehicles" className="flex shrink-0 items-center justify-between gap-4 bg-primary px-5 py-2.5 text-sm font-semibold font-heading text-white transition-colors hover:bg-primary-dark sm:inline-flex">
-              Browse All Vehicles
-              <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-        </section>
 
         <DiagnosisBrowser
           initialDiagnoses={popular}

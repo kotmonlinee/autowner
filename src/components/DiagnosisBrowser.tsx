@@ -2,44 +2,29 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { getVehicleImageUrl } from "@/lib/vehicle-images";
-import { getRepairImageUrl } from "@/lib/repair-images";
-import { resolveRepairSlug } from "@/lib/internal-linking";
+import { ChevronRight } from "lucide-react";
+import type { Diagnosis } from "@/lib/types";
 
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: "bg-red-50 text-red-700 border-red-200",
-  high: "bg-orange-50 text-orange-700 border-orange-200",
-  medium: "bg-amber-50 text-amber-700 border-amber-200",
-  low: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  critical: "bg-severity-critical-bg text-severity-critical border-severity-critical-border",
+  high: "bg-severity-caution-bg text-severity-caution border-severity-caution-border",
+  medium: "bg-surface-2 text-text-secondary border-surface-border",
+  low: "bg-severity-info-bg text-severity-info border-severity-info-border",
 };
 
-function getDiagnosisImage(diag: any, d: any): string | null {
-  if (diag.vehicle_make && diag.vehicle_model) {
-    const vImg = getVehicleImageUrl(
-      (diag.vehicle_make as string).toLowerCase().replace(/\s+/g, "-"),
-      (diag.vehicle_model as string).toLowerCase().replace(/\s+/g, "-")
-    );
-    if (vImg) return vImg;
-  }
-  if (d.repairKeywords?.length) {
-    for (const kw of d.repairKeywords) {
-      const slug = resolveRepairSlug(kw);
-      if (slug) {
-        const rImg = getRepairImageUrl(slug);
-        if (rImg) return rImg;
-      }
-    }
-  }
-  return null;
+function getStartingCost(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const match = value.match(/\$+\s*([\d,]+)/);
+  return match ? `$${match[1]}` : null;
 }
 
 export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, initialPage }: {
-  initialDiagnoses: any[];
+  initialDiagnoses: Diagnosis[];
   initialTotalCount: number;
   initialPage: number;
 }) {
   const [query, setQuery] = useState("");
-  const [diagnoses, setDiagnoses] = useState<any[]>(initialDiagnoses);
+  const [diagnoses, setDiagnoses] = useState<Diagnosis[]>(initialDiagnoses);
   const [page, setPage] = useState(initialPage);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
   const [searching, setSearching] = useState(false);
@@ -57,7 +42,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
         try {
           const res = await fetch(`/api/diagnosis-search?q=${encodeURIComponent(query.trim())}&limit=48`);
           if (res.ok) {
-            const data = await res.json();
+            const data = await res.json() as { diagnoses?: Diagnosis[]; total?: number };
             setDiagnoses(data.diagnoses ?? []);
             setTotalCount(data.total ?? 0);
             setPage(1);
@@ -78,7 +63,7 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
     const q = query.trim().length >= 2 ? `&q=${encodeURIComponent(query.trim())}` : "";
     const res = await fetch(`/api/diagnosis-search?limit=${LIMIT}&page=${p}${q}`);
     if (res.ok) {
-      const data = await res.json();
+      const data = await res.json() as { diagnoses?: Diagnosis[]; total?: number };
       setDiagnoses(data.diagnoses ?? []);
       setTotalCount(data.total ?? 0);
       setPage(p);
@@ -87,102 +72,129 @@ export default function DiagnosisBrowser({ initialDiagnoses, initialTotalCount, 
   };
 
   return (
-    <section id="diagnosis-results" className="mt-16 pt-12 border-t border-surface-border">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-2 shrink-0">
-          <h2 className="text-lg font-heading font-bold text-text-primary">Popular Diagnoses</h2>
-          <span className="text-xs text-text-muted">
-            {searching ? "Searching..." : isSearching ? `${totalCount} results` : `${totalCount} diagnoses`}
-          </span>
+    <section id="diagnosis-results" className="mt-16 border-t border-surface-border pt-10">
+      <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+        <div>
+          <p className="text-[10px] font-heading font-bold uppercase tracking-[0.15em] text-primary">Diagnosis library</p>
+          <h2 className="mt-2 font-display text-4xl font-semibold tracking-[-0.035em] text-text-primary sm:text-5xl">
+            Browse previous diagnoses
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-text-secondary">
+            Start with frequently viewed reports or search by symptom, vehicle, or trouble code.
+          </p>
         </div>
-        <div className="relative w-full sm:flex-1 sm:max-w-md">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
+        <div className="relative w-full lg:max-w-md">
+          <svg className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Filter diagnoses..."
-            className="w-full h-10 pl-9 pr-4 bg-surface-1 border border-surface-border rounded-xl text-text-primary placeholder:text-text-muted text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+            placeholder="Search diagnoses"
+            aria-label="Search diagnoses"
+            className="h-12 w-full border border-surface-border bg-surface-1 pl-11 pr-11 font-heading text-sm text-text-primary transition-colors placeholder:text-text-muted focus:border-primary focus:outline-none"
           />
           {query && (
-            <button type="button" onClick={() => setQuery("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-surface-3 text-text-muted flex items-center justify-center hover:text-text-primary transition-colors">
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            <button type="button" onClick={() => setQuery("")} aria-label="Clear diagnosis search"
+              className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border border-surface-border bg-surface-0 text-text-muted transition-colors hover:border-primary hover:text-primary">
+              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={12} height={12}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
             </button>
           )}
         </div>
       </div>
 
+      <div className="mt-7 flex items-center justify-between border-y border-surface-border bg-surface-1 px-4 py-3">
+        <p className="text-[10px] font-heading font-bold uppercase tracking-[0.12em] text-text-muted">
+          {isSearching ? "Search results" : "Most viewed"}
+        </p>
+        <p className="font-mono text-[10px] text-text-muted">
+          {searching ? "Searching..." : `${totalCount.toLocaleString()} ${isSearching ? "results" : "reports"}`}
+        </p>
+      </div>
+
       {diagnoses.length === 0 && !searching ? (
-        <div className="text-center py-12 bg-surface-1 rounded-xl border border-surface-border">
-          <p className="text-text-muted text-sm">
-            {isSearching ? `No diagnoses found for "${query}". Try different keywords.` : "No diagnoses available yet."}
+        <div className="border-b border-surface-border bg-surface-1 py-14 text-center">
+          <p className="font-display text-2xl font-semibold text-text-primary">
+            {isSearching ? "No matching diagnoses" : "No diagnoses available yet"}
+          </p>
+          <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-text-muted">
+            {isSearching ? `No saved reports matched “${query}”. Try a vehicle model, symptom, or trouble code.` : "Start the guided diagnosis above to create the first result."}
           </p>
           {isSearching && (
-            <Link prefetch={false} href="/symptom-checker" className="inline-flex items-center gap-1.5 mt-3 text-sm font-heading font-semibold text-primary hover:underline">
-              Try a new diagnosis →
+            <Link prefetch={false} href="/symptom-checker" className="mt-5 inline-flex border-b border-primary pb-0.5 text-sm font-heading font-bold text-primary">
+              Start a new diagnosis →
             </Link>
           )}
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {diagnoses.map((d: any) => {
+          <ol className="divide-y divide-surface-border border-b border-surface-border">
+            {diagnoses.map((d, index) => {
               const diag = d.diagnosis_json;
               const sev = SEVERITY_COLORS[diag.severity] ?? SEVERITY_COLORS.medium;
-              const vehicle = d.vehicle_make ? `${d.vehicle_make} ${d.vehicle_model ?? ""}` : null;
-              const img = getDiagnosisImage(d, diag);
+              const vehicle = d.vehicle_make ? `${d.vehicle_make} ${d.vehicle_model ?? ""}`.trim() : null;
+              const startingCost = getStartingCost(diag.costEstimate);
+              const displayNumber = String((page - 1) * LIMIT + index + 1).padStart(2, "0");
               return (
-                <Link prefetch={false} key={d.slug} href={`/symptom-checker/${d.slug}`}
-                  className="flex flex-col bg-surface-1 rounded-xl border border-surface-border hover:border-primary/30 hover:shadow-sm transition-all group overflow-hidden">
-                  {img && (
-                    <div className="w-full h-36 bg-surface-2 overflow-hidden">
-                      <img src={img} alt={diag.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                <li key={d.slug}>
+                  <Link prefetch={false} href={`/symptom-checker/${d.slug}`}
+                    className="group grid min-w-0 grid-cols-[32px_minmax(0,1fr)_18px] items-start gap-3 bg-surface-0 px-3 py-5 transition-colors hover:bg-surface-1 sm:grid-cols-[44px_minmax(0,1fr)_18px] sm:gap-4 sm:px-4">
+                    <span className="pt-1 font-mono text-[10px] font-bold text-primary">{displayNumber}</span>
+                    <div className="min-w-0">
+                      <h3 className="font-display text-xl font-semibold leading-tight tracking-[-0.025em] text-text-primary transition-colors group-hover:text-primary sm:text-2xl">
+                        {diag.title}
+                      </h3>
+                      <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 text-[11px]">
+                        {vehicle && (
+                          <span className="font-heading font-bold uppercase tracking-[0.08em] text-text-secondary">{vehicle}</span>
+                        )}
+                        <span className={`inline-flex border px-2 py-0.5 font-heading font-bold uppercase tracking-[0.08em] ${sev}`}>
+                          {diag.severity ?? "medium"}
+                        </span>
+                        {startingCost && (
+                          <span className="text-text-muted">Est. from {startingCost}</span>
+                        )}
+                        <span className="text-text-muted">
+                          {Number(d.view_count ?? 0).toLocaleString()} views
+                        </span>
+                      </div>
                     </div>
-                  )}
-                  <div className="flex flex-col gap-2 p-4 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-sm font-heading font-semibold text-text-primary group-hover:text-primary transition-colors line-clamp-2">{diag.title}</span>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${sev} font-heading`}>{diag.severity}</span>
-                    </div>
-                    {vehicle && <span className="text-xs text-text-muted font-heading">{vehicle}</span>}
-                    {diag.costEstimate && <span className="text-xs text-text-muted font-heading">Est. {diag.costEstimate}</span>}
-                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-surface-border">
-                      <span className="text-xs text-text-muted">{d.view_count} view{d.view_count !== 1 ? "s" : ""}</span>
-                      <svg className="w-3.5 h-3.5 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={14} height={14}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                    </div>
-                  </div>
-                </Link>
+                    <ChevronRight className="mt-1.5 h-4 w-4 shrink-0 text-text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                  </Link>
+                </li>
               );
             })}
-          </div>
+          </ol>
 
-          {/* Pagination */}
           {!isSearching && computedPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-8">
-              {page > 1 && (
-                <button onClick={() => loadPage(page - 1)} className="flex items-center gap-1 px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={16} height={16}><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>Previous
-                </button>
-              )}
-              {Array.from({ length: Math.min(computedPages, 7) }, (_, i) => {
-                const p = page <= 4 ? i + 1 : i + page - 3;
-                if (p > computedPages) return null;
-                return (
-                  <button key={p} onClick={() => loadPage(p)}
-                    className={`px-3 py-2 text-sm font-heading font-medium rounded-lg transition-colors ${p === page ? "bg-primary text-white" : "text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border hover:bg-surface-2"}`}>
-                    {p}
+            <nav className="mt-7 flex flex-wrap items-center justify-between gap-3" aria-label="Diagnosis pages">
+              <p className="text-[10px] font-heading font-bold uppercase tracking-[0.1em] text-text-muted">
+                Page {page} of {computedPages}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                {page > 1 && (
+                  <button onClick={() => loadPage(page - 1)} className="inline-flex min-h-10 items-center gap-2 border border-surface-border bg-surface-1 px-3 text-xs font-heading font-bold text-text-secondary transition-colors hover:border-primary hover:text-primary">
+                    <span aria-hidden="true">←</span> Previous
                   </button>
-                );
-              })}
-              {page < computedPages && (
-                <button onClick={() => loadPage(page + 1)} className="flex items-center gap-1 px-3 py-2 text-sm font-heading font-medium text-text-secondary hover:text-text-primary bg-surface-1 border border-surface-border rounded-lg hover:bg-surface-2 transition-colors">
-                  Next<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={16} height={16}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                </button>
-              )}
-            </div>
+                )}
+                {Array.from({ length: Math.min(computedPages, 7) }, (_, i) => {
+                  const p = page <= 4 ? i + 1 : i + page - 3;
+                  if (p > computedPages) return null;
+                  return (
+                    <button key={p} onClick={() => loadPage(p)} aria-label={`Go to page ${p}`} aria-current={p === page ? "page" : undefined}
+                      className={`flex h-10 w-10 items-center justify-center border text-xs font-heading font-bold transition-colors ${p === page ? "border-primary bg-primary text-white" : "border-surface-border bg-surface-1 text-text-secondary hover:border-primary hover:text-primary"}`}>
+                      {p}
+                    </button>
+                  );
+                })}
+                {page < computedPages && (
+                  <button onClick={() => loadPage(page + 1)} className="inline-flex min-h-10 items-center gap-2 border border-surface-border bg-surface-1 px-3 text-xs font-heading font-bold text-text-secondary transition-colors hover:border-primary hover:text-primary">
+                    Next <span aria-hidden="true">→</span>
+                  </button>
+                )}
+              </div>
+            </nav>
           )}
         </>
       )}
